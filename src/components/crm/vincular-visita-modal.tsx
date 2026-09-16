@@ -4,9 +4,7 @@ import { useState, useEffect } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { Loader2, Link as LinkIcon, Plus } from "lucide-react"
 import { toast } from "sonner"
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { QuickCreateCliente } from "./quick-create-cliente"
 import { QuickCreatePessoa } from "./quick-create-pessoa"
 
@@ -34,7 +32,11 @@ export default function VincularVisitaModal({ visitaId, open, onClose, onLinked 
     }
   }, [open])
 
-  const { data: lista, isLoading: loadingList, isError } = useQuery<any[]>({
+  const {
+    data: lista,
+    isLoading: loadingList,
+    isError,
+  } = useQuery<any[]>({
     queryKey: ["vincular-lista", tipo],
     queryFn: async () => {
       const url = tipo === "CLIENTE" ? "/api/clientes" : "/api/crm/pessoas"
@@ -97,19 +99,24 @@ export default function VincularVisitaModal({ visitaId, open, onClose, onLinked 
   async function handleClienteCreated(id: number, nome: string) {
     await linkVisita(
       { clienteId: id, empresaId: null, nomeAvulso: null },
-      `Cliente "${nome}" criado e vinculado à visita!`,
+      `Cliente "${nome}" criado e vinculado à visita!`
     )
   }
 
   async function handlePessoaCreated(id: number, razaoSocial: string) {
     await linkVisita(
       { empresaId: id, clienteId: null, nomeAvulso: null },
-      `Pessoa "${razaoSocial}" criada e vinculada à visita!`,
+      `Pessoa "${razaoSocial}" criada e vinculada à visita!`
     )
   }
 
   return (
-    <Dialog open={open} onOpenChange={v => { if (!v) onClose() }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        if (!v) onClose()
+      }}
+    >
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
@@ -126,7 +133,9 @@ export default function VincularVisitaModal({ visitaId, open, onClose, onLinked 
               className="flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-emerald-400 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 transition-all"
             >
               <span className="text-sm font-semibold text-emerald-600">Cliente</span>
-              <span className="text-xs text-slate-500 text-center">Vincular a um cliente existente</span>
+              <span className="text-xs text-slate-500 text-center">
+                Vincular a um cliente existente
+              </span>
             </button>
             <button
               type="button"
@@ -134,7 +143,9 @@ export default function VincularVisitaModal({ visitaId, open, onClose, onLinked 
               className="flex-1 flex flex-col items-center gap-2 p-4 rounded-xl border-2 border-slate-200 dark:border-slate-700 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-all"
             >
               <span className="text-sm font-semibold text-blue-600">Pessoa</span>
-              <span className="text-xs text-slate-500 text-center">Vincular a uma pessoa (negócio)</span>
+              <span className="text-xs text-slate-500 text-center">
+                Vincular a uma pessoa (negócio)
+              </span>
             </button>
           </div>
         ) : (
@@ -145,7 +156,10 @@ export default function VincularVisitaModal({ visitaId, open, onClose, onLinked 
               </span>
               <button
                 type="button"
-                onClick={() => { setTipo(""); setSelectedId("") }}
+                onClick={() => {
+                  setTipo("")
+                  setSelectedId("")
+                }}
                 className="text-xs text-slate-500 hover:underline"
               >
                 Trocar
@@ -159,13 +173,13 @@ export default function VincularVisitaModal({ visitaId, open, onClose, onLinked 
             ) : (
               <select
                 value={selectedId}
-                onChange={e => setSelectedId(e.target.value)}
+                onChange={(e) => setSelectedId(e.target.value)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Selecione...</option>
                 {(tipo === "CLIENTE" ? clientes : empresas).map((item: any) => (
                   <option key={item.id} value={String(item.id)}>
-                    {tipo === "CLIENTE" ? item.nome : (item.razaoSocial || item.nomeFantasia)}
+                    {tipo === "CLIENTE" ? item.nome : item.razaoSocial || item.nomeFantasia}
                   </option>
                 ))}
               </select>

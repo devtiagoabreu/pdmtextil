@@ -46,7 +46,9 @@ function setup(open = true) {
     return { status: 404, json: { error: `Rota não mockada: ${method} ${url}` } }
   })
   vi.stubGlobal("fetch", fetchMock.fn)
-  renderPage(<VisitLocationModal visitaId={8} empresaNome="Tecelagem Alpha" open={open} onClose={onClose} />)
+  renderPage(
+    <VisitLocationModal visitaId={8} empresaNome="Tecelagem Alpha" open={open} onClose={onClose} />
+  )
   return { onClose, fetchMock }
 }
 
@@ -75,7 +77,9 @@ describe("VisitLocationModal", () => {
     fireEvent.click(screen.getAllByRole("button", { name: "Excluir localização" })[0])
 
     await waitFor(() => {
-      expect(findCall(fetchMock.calls, "/api/crm/visitas/8/localizacoes?localizacaoId=1", "DELETE")).toBeTruthy()
+      expect(
+        findCall(fetchMock.calls, "/api/crm/visitas/8/localizacoes?localizacaoId=1", "DELETE")
+      ).toBeTruthy()
     })
   })
 

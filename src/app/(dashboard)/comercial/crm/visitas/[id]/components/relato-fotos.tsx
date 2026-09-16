@@ -19,16 +19,25 @@ interface RelatoFotosProps {
   onFotosChange: (fotos: VisitaFoto[]) => void
 }
 
-export function RelatoFotos({ editing, visita, form, setField, fotos, onFotosChange }: RelatoFotosProps) {
+export function RelatoFotos({
+  editing,
+  visita,
+  form,
+  setField,
+  fotos,
+  onFotosChange,
+}: RelatoFotosProps) {
   if (editing) {
     return (
       <>
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">Relato / Ata</h2>
-          <RelatoTemplateSelector onSelect={html => setField("relato", html)} />
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">
+            Relato / Ata
+          </h2>
+          <RelatoTemplateSelector onSelect={(html) => setField("relato", html)} />
           <RichTextEditor
             value={form.relato || ""}
-            onChange={v => setField("relato", v)}
+            onChange={(v) => setField("relato", v)}
             placeholder="Descreva o relato da visita..."
             minHeight="250px"
           />
@@ -46,14 +55,21 @@ export function RelatoFotos({ editing, visita, form, setField, fotos, onFotosCha
     <>
       {visita.relato && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">Relato / Ata</h2>
-          <div className="text-sm text-slate-700 dark:text-slate-300 prose prose-sm max-w-none" dangerouslySetInnerHTML={{ __html: sanitizeHtml(visita.relato) }} />
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">
+            Relato / Ata
+          </h2>
+          <div
+            className="text-sm text-slate-700 dark:text-slate-300 prose prose-sm max-w-none"
+            dangerouslySetInnerHTML={{ __html: sanitizeHtml(visita.relato) }}
+          />
         </div>
       )}
 
       {fotosList.length > 0 && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">{FOTOS_LABEL}</h2>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">
+            {FOTOS_LABEL}
+          </h2>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
             {fotosList.map((foto, i) => (
               <a
@@ -77,14 +93,18 @@ export function RelatoFotos({ editing, visita, form, setField, fotos, onFotosCha
                       const parent = img.parentElement
                       if (parent && !parent.querySelector(".foto-fallback")) {
                         const span = document.createElement("span")
-                        span.className = "foto-fallback absolute inset-0 flex items-center justify-center text-xs text-slate-400 px-2 text-center"
+                        span.className =
+                          "foto-fallback absolute inset-0 flex items-center justify-center text-xs text-slate-400 px-2 text-center"
                         span.textContent = foto.descricao || "Abrir anexo"
                         parent.appendChild(span)
                       }
                     }}
                   />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 group-active:bg-black/40 transition-colors flex items-center justify-center">
-                    <ExternalLink size={16} className="text-white opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity" />
+                    <ExternalLink
+                      size={16}
+                      className="text-white opacity-0 group-hover:opacity-100 group-active:opacity-100 transition-opacity"
+                    />
                   </div>
                 </div>
                 {foto.descricao ? (

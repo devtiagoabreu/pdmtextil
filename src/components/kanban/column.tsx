@@ -29,9 +29,7 @@ export function DroppableColumn({ id, children, rotulo, cor, count }: DroppableC
           {count}
         </span>
       </div>
-      <div className="flex-1 min-h-0 p-2 space-y-2 overflow-y-auto">
-        {children}
-      </div>
+      <div className="flex-1 min-h-0 p-2 space-y-2 overflow-y-auto">{children}</div>
     </div>
   )
 }

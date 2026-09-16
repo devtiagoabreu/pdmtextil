@@ -6,7 +6,23 @@ import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { User, LogOut, Settings, Key, Loader2, Eye, EyeOff, Shuffle, Menu, ExternalLink, Mail, Send, Trash2, XCircle, CheckCircle2 } from "lucide-react"
+import {
+  User,
+  LogOut,
+  Settings,
+  Key,
+  Loader2,
+  Eye,
+  EyeOff,
+  Shuffle,
+  Menu,
+  ExternalLink,
+  Mail,
+  Send,
+  Trash2,
+  XCircle,
+  CheckCircle2,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -26,7 +42,10 @@ function gerarSenha(): string {
   for (let i = 0; i < 8; i++) {
     senha += tudo[Math.floor(Math.random() * tudo.length)]
   }
-  return senha.split("").sort(() => Math.random() - 0.5).join("")
+  return senha
+    .split("")
+    .sort(() => Math.random() - 0.5)
+    .join("")
 }
 
 export default function PerfilPage() {
@@ -56,8 +75,8 @@ export default function PerfilPage() {
 
   useEffect(() => {
     fetch("/api/user/email-config")
-      .then(res => res.json())
-      .then(data => {
+      .then((res) => res.json())
+      .then((data) => {
         const cfg = data?.config
         if (cfg) {
           setEmailConfig(cfg)
@@ -100,7 +119,12 @@ export default function PerfilPage() {
       })
       const data = await res.json()
       if (!res.ok) throw new Error(data.error || "Erro ao salvar")
-      setEmailConfig({ email: emailInput, ativo, limiteDiario: limite, hasPassword: emailConfig ? emailConfig.hasPassword : true })
+      setEmailConfig({
+        email: emailInput,
+        ativo,
+        limiteDiario: limite,
+        hasPassword: emailConfig ? emailConfig.hasPassword : true,
+      })
       setSenhaApp("")
       toast.success("Configuração de email salva!")
     } catch (err: any) {
@@ -205,7 +229,9 @@ export default function PerfilPage() {
   return (
     <div className="max-w-2xl mx-auto py-8 space-y-6">
       <div className="mb-4">
-        <h1 className="text-3xl font-bold tracking-tight">Meu Perfil{info && <InfoButton content={info} />}</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Meu Perfil{info && <InfoButton content={info} />}
+        </h1>
         <p className="text-muted-foreground mt-2">Gerencie suas informações pessoais.</p>
       </div>
 
@@ -236,11 +262,7 @@ export default function PerfilPage() {
               <Settings className="w-4 h-4 mr-2" />
               Configurações
             </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => signOut({ callbackUrl: "/login" })}
-            >
+            <Button variant="outline" size="sm" onClick={() => signOut({ callbackUrl: "/login" })}>
               <LogOut className="w-4 h-4 mr-2" />
               Sair
             </Button>
@@ -284,7 +306,7 @@ export default function PerfilPage() {
                 <Input
                   type={mostrarSenha ? "text" : "password"}
                   value={senha}
-                  onChange={e => setSenha(e.target.value)}
+                  onChange={(e) => setSenha(e.target.value)}
                   placeholder="Mínimo 6 caracteres"
                   minLength={6}
                 />
@@ -303,7 +325,7 @@ export default function PerfilPage() {
               <Input
                 type={mostrarSenha ? "text" : "password"}
                 value={confirmar}
-                onChange={e => setConfirmar(e.target.value)}
+                onChange={(e) => setConfirmar(e.target.value)}
                 placeholder="Digite a senha novamente"
                 minLength={6}
               />
@@ -339,11 +361,17 @@ export default function PerfilPage() {
             <>
               <div className="flex items-center gap-2">
                 {emailConfig?.ativo === false ? (
-                  <span className="inline-flex items-center gap-1 text-xs text-slate-400"><XCircle size={14} /> Inativo</span>
+                  <span className="inline-flex items-center gap-1 text-xs text-slate-400">
+                    <XCircle size={14} /> Inativo
+                  </span>
                 ) : emailConfig ? (
-                  <span className="inline-flex items-center gap-1 text-xs text-green-600"><CheckCircle2 size={14} /> Ativo</span>
+                  <span className="inline-flex items-center gap-1 text-xs text-green-600">
+                    <CheckCircle2 size={14} /> Ativo
+                  </span>
                 ) : (
-                  <span className="inline-flex items-center gap-1 text-xs text-slate-400">Não configurado</span>
+                  <span className="inline-flex items-center gap-1 text-xs text-slate-400">
+                    Não configurado
+                  </span>
                 )}
               </div>
 
@@ -351,7 +379,7 @@ export default function PerfilPage() {
                 <label className="text-sm font-medium">Email de envio *</label>
                 <Input
                   value={emailInput}
-                  onChange={e => setEmailInput(e.target.value)}
+                  onChange={(e) => setEmailInput(e.target.value)}
                   placeholder="seuemail@gmail.com"
                 />
               </div>
@@ -363,12 +391,13 @@ export default function PerfilPage() {
                 <Input
                   type="password"
                   value={senhaApp}
-                  onChange={e => setSenhaApp(e.target.value)}
+                  onChange={(e) => setSenhaApp(e.target.value)}
                   placeholder="Senha de app do Gmail"
                 />
                 <p className="text-xs text-muted-foreground">
-                  Para Gmail, use uma senha de app criada em Conta Google &gt; Segurança &gt; Senhas de app.
-                  Usada como remetente padrão do email em massa (opção <strong>&quot;Meu e-mail de envio em massa&quot;</strong>).
+                  Para Gmail, use uma senha de app criada em Conta Google &gt; Segurança &gt; Senhas
+                  de app. Usada como remetente padrão do email em massa (opção{" "}
+                  <strong>&quot;Meu e-mail de envio em massa&quot;</strong>).
                 </p>
               </div>
 
@@ -380,14 +409,24 @@ export default function PerfilPage() {
                   max={50000}
                   step={100}
                   value={limiteDiario}
-                  onChange={e => setLimiteDiario(e.target.value)}
+                  onChange={(e) => setLimiteDiario(e.target.value)}
                 />
-                <p className="text-xs text-muted-foreground">Máximo de emails enviados por este remetente a cada 24 horas.</p>
+                <p className="text-xs text-muted-foreground">
+                  Máximo de emails enviados por este remetente a cada 24 horas.
+                </p>
               </div>
 
               <div className="flex items-center gap-2">
-                <input type="checkbox" id="emailAtivo" checked={ativo} onChange={e => setAtivo(e.target.checked)} className="w-4 h-4" />
-                <label htmlFor="emailAtivo" className="text-sm">Configuração ativa</label>
+                <input
+                  type="checkbox"
+                  id="emailAtivo"
+                  checked={ativo}
+                  onChange={(e) => setAtivo(e.target.checked)}
+                  className="w-4 h-4"
+                />
+                <label htmlFor="emailAtivo" className="text-sm">
+                  Configuração ativa
+                </label>
               </div>
 
               <div className="flex flex-wrap gap-2">
@@ -395,13 +434,31 @@ export default function PerfilPage() {
                   {emailSaving && <Loader2 size={16} className="animate-spin" />}
                   Salvar
                 </Button>
-                <Button onClick={handleTestarEmail} disabled={emailTesting || !emailConfig && !senhaApp} variant="outline" className="gap-2">
-                  {emailTesting ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                <Button
+                  onClick={handleTestarEmail}
+                  disabled={emailTesting || (!emailConfig && !senhaApp)}
+                  variant="outline"
+                  className="gap-2"
+                >
+                  {emailTesting ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <Send size={16} />
+                  )}
                   Testar conexão
                 </Button>
                 {emailConfig && (
-                  <Button onClick={handleRemoverEmail} disabled={emailDeleting} variant="outline" className="gap-2 text-red-600">
-                    {emailDeleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                  <Button
+                    onClick={handleRemoverEmail}
+                    disabled={emailDeleting}
+                    variant="outline"
+                    className="gap-2 text-red-600"
+                  >
+                    {emailDeleting ? (
+                      <Loader2 size={16} className="animate-spin" />
+                    ) : (
+                      <Trash2 size={16} />
+                    )}
                     Remover
                   </Button>
                 )}

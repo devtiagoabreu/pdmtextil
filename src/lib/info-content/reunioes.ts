@@ -54,10 +54,16 @@ export const reunioesContent: Record<string, InfoContent> = {
     fields: [
       { name: "Nome", desc: "Nome do projeto (obrigatório e único)" },
       { name: "Descrição", desc: "Objetivo ou contexto do projeto (opcional)" },
-      { name: "Data de início / fim", desc: "Período planejado ou executado do projeto (opcional)" },
+      {
+        name: "Data de início / fim",
+        desc: "Período planejado ou executado do projeto (opcional)",
+      },
       { name: "Status", desc: "Em andamento, Encerrado ou Planejado" },
       { name: "Cor", desc: "Cor de identificação do projeto no formato #RRGGBB (opcional)" },
-      { name: "Ativo", desc: "Se desmarcado, o projeto segue no histórico mas deixa de aparecer como padrão" },
+      {
+        name: "Ativo",
+        desc: "Se desmarcado, o projeto segue no histórico mas deixa de aparecer como padrão",
+      },
     ],
     examples: [
       {

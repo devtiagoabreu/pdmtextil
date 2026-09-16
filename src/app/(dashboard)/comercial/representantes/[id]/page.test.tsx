@@ -29,7 +29,12 @@ describe("EditarRepresentantePage", () => {
     const fetchMock = createFetchMock(({ method, url }) => {
       if (method === "GET" && url === "/api/representantes/5") return { json: dados }
       if (method === "GET" && url === "/api/usuarios/ativos?role=COMERCIAL,ADMIN,SUDO") {
-        return { json: [{ id: 2, name: "Ana Vendas" }, { id: 1, name: "Tiago" }] }
+        return {
+          json: [
+            { id: 2, name: "Ana Vendas" },
+            { id: 1, name: "Tiago" },
+          ],
+        }
       }
       if (method === "PUT" && url === "/api/representantes/5") return { json: dados }
       return { status: 404, json: { error: "Rota não mockada" } }
@@ -54,7 +59,9 @@ describe("EditarRepresentantePage", () => {
       expect(call!.body.gerenteId).toBe(2)
       expect(call!.body.clientesIds).toEqual([9])
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Representante atualizado com sucesso!"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Representante atualizado com sucesso!")
+    )
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/representantes")
   })
 
@@ -64,7 +71,9 @@ describe("EditarRepresentantePage", () => {
 
     renderPage(<EditarRepresentantePage params={Promise.resolve({ id: "5" })} />)
 
-    await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Representante não encontrado"))
+    await waitFor(() =>
+      expect(toastMock.error).toHaveBeenCalledWith("Representante não encontrado")
+    )
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/representantes")
   })
 })

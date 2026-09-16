@@ -78,7 +78,12 @@ export default function BotConfigAdminPage() {
   const [verificando, setVerificando] = useState(false)
   const [statusManual, setStatusManual] = useState<StatusManual | null>(null)
 
-  const { data, isLoading: loading, isError, refetch } = useQuery<BotConfig>({
+  const {
+    data,
+    isLoading: loading,
+    isError,
+    refetch,
+  } = useQuery<BotConfig>({
     queryKey: ["admin-bot-config"],
     queryFn: async () => {
       const res = await fetch("/api/admin/bot-config")
@@ -95,28 +100,33 @@ export default function BotConfigAdminPage() {
     if (isError) toast.error("Erro ao carregar configuração do bot")
   }, [isError])
 
-  const ativos = config.usuarios.filter(u => u.ativo)
-  const inativos = config.usuarios.filter(u => !u.ativo)
+  const ativos = config.usuarios.filter((u) => u.ativo)
+  const inativos = config.usuarios.filter((u) => !u.ativo)
   const monitor = config.monitoramento ?? MONITOR_DEFAULT
-  const ultimoStatus = statusManual?.verificado ? (statusManual.online ? "ok" : "falha") : monitor.ultimoStatus
+  const ultimoStatus = statusManual?.verificado
+    ? statusManual.online
+      ? "ok"
+      : "falha"
+    : monitor.ultimoStatus
   const ultimoDetalhe = statusManual?.verificado ? statusManual.detalhe : monitor.ultimoErro
   const ultimoCheck = statusManual?.verificado ? "agora" : monitor.ultimoCheck
 
   function toggle(tipo: "pj" | "pf", id: number) {
-    setConfig(prev => {
+    setConfig((prev) => {
       const lista = prev[tipo]
-      const mudou = lista.includes(id)
-        ? lista.filter(x => x !== id)
-        : [...lista, id]
+      const mudou = lista.includes(id) ? lista.filter((x) => x !== id) : [...lista, id]
       return { ...prev, [tipo]: mudou }
     })
     setDirty(true)
   }
 
   function toggleMonitor(campo: "ativo" | "emailAlerta" | "notificacaoPdm") {
-    setConfig(prev => ({
+    setConfig((prev) => ({
       ...prev,
-      monitoramento: { ...(prev.monitoramento ?? MONITOR_DEFAULT), [campo]: !(prev.monitoramento ?? MONITOR_DEFAULT)[campo] },
+      monitoramento: {
+        ...(prev.monitoramento ?? MONITOR_DEFAULT),
+        [campo]: !(prev.monitoramento ?? MONITOR_DEFAULT)[campo],
+      },
     }))
     setDirty(true)
   }
@@ -186,7 +196,15 @@ export default function BotConfigAdminPage() {
     )
   }
 
-  function Card({ tipo, titulo, descricao }: { tipo: "pj" | "pf"; titulo: string; descricao: string }) {
+  function Card({
+    tipo,
+    titulo,
+    descricao,
+  }: {
+    tipo: "pj" | "pf"
+    titulo: string
+    descricao: string
+  }) {
     const selecionados = config[tipo]
     return (
       <section className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
@@ -201,7 +219,7 @@ export default function BotConfigAdminPage() {
         </header>
 
         <div className="divide-y divide-slate-100 dark:divide-slate-800">
-          {ativos.map(usuario => {
+          {ativos.map((usuario) => {
             const marcado = selecionados.includes(usuario.id)
             return (
               <label
@@ -215,11 +233,16 @@ export default function BotConfigAdminPage() {
                   className="h-4 w-4 accent-blue-600"
                 />
                 <div className="flex-1 min-w-0">
-                  <p className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">{usuario.name}</p>
+                  <p className="text-sm font-medium text-slate-800 dark:text-slate-200 truncate">
+                    {usuario.name}
+                  </p>
                   <p className="text-xs text-slate-500 truncate">{usuario.email}</p>
                 </div>
                 {usuario.celWhatsapp ? (
-                  <span className="text-xs text-slate-500 shrink-0" title="Possui número de WhatsApp cadastrado">
+                  <span
+                    className="text-xs text-slate-500 shrink-0"
+                    title="Possui número de WhatsApp cadastrado"
+                  >
                     WhatsApp ✓
                   </span>
                 ) : (
@@ -233,7 +256,8 @@ export default function BotConfigAdminPage() {
         {inativos.length > 0 && (
           <footer className="border-t border-slate-100 dark:border-slate-800 px-5 py-3">
             <p className="text-xs text-slate-400">
-              {inativos.length} usuário{inativos.length === 1 ? "" : "s"} inativo{inativos.length === 1 ? "" : "s"} oculto{inativos.length === 1 ? "" : "s"}
+              {inativos.length} usuário{inativos.length === 1 ? "" : "s"} inativo
+              {inativos.length === 1 ? "" : "s"} oculto{inativos.length === 1 ? "" : "s"}
             </p>
           </footer>
         )}
@@ -244,7 +268,10 @@ export default function BotConfigAdminPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link href="/admin/configuracoes" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link
+          href="/admin/configuracoes"
+          className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={20} />
         </Link>
         <div>
@@ -255,7 +282,8 @@ export default function BotConfigAdminPage() {
             </h1>
           </div>
           <p className="text-sm text-slate-500 mt-1">
-            Quem recebe o contato quando o bot identifica uma nova pessoa física ou jurídica, e monitoramento do bot
+            Quem recebe o contato quando o bot identifica uma nova pessoa física ou jurídica, e
+            monitoramento do bot
           </p>
         </div>
       </div>
@@ -278,7 +306,9 @@ export default function BotConfigAdminPage() {
           <div className="flex items-center gap-3">
             <Activity className="text-emerald-600" size={22} />
             <div>
-              <h2 className="text-base font-semibold text-slate-800 dark:text-slate-200">Monitoramento do Bot</h2>
+              <h2 className="text-base font-semibold text-slate-800 dark:text-slate-200">
+                Monitoramento do Bot
+              </h2>
               <p className="text-xs text-slate-500 mt-0.5">
                 Verifica diariamente se a instância da Evolution API está online
               </p>
@@ -293,7 +323,11 @@ export default function BotConfigAdminPage() {
                   : "text-slate-600 dark:text-slate-300 bg-slate-100 dark:bg-slate-800"
             }`}
           >
-            {ultimoStatus === "ok" ? "Online" : ultimoStatus === "falha" ? "Fora do ar" : "Sem verificação ainda"}
+            {ultimoStatus === "ok"
+              ? "Online"
+              : ultimoStatus === "falha"
+                ? "Fora do ar"
+                : "Sem verificação ainda"}
           </span>
         </header>
 
@@ -302,13 +336,18 @@ export default function BotConfigAdminPage() {
             <div className="text-sm">
               <span className="text-slate-500">Última verificação: </span>
               <span className="font-medium text-slate-800 dark:text-slate-200">
-                {ultimoCheck ? (ultimoCheck === "agora" ? "agora" : new Date(ultimoCheck).toLocaleString("pt-BR")) : "nunca"}
+                {ultimoCheck
+                  ? ultimoCheck === "agora"
+                    ? "agora"
+                    : new Date(ultimoCheck).toLocaleString("pt-BR")
+                  : "nunca"}
               </span>
             </div>
             <div className="text-sm">
               <span className="text-slate-500">Status da instância: </span>
               <span className="font-medium text-slate-800 dark:text-slate-200">
-                {statusManual?.instanciaStatus || (ultimoStatus === "ok" ? "open" : ultimoDetalhe ?? "—")}
+                {statusManual?.instanciaStatus ||
+                  (ultimoStatus === "ok" ? "open" : (ultimoDetalhe ?? "—"))}
               </span>
             </div>
             <button
@@ -316,7 +355,11 @@ export default function BotConfigAdminPage() {
               disabled={verificando}
               className="flex items-center gap-2 px-4 py-2 border border-slate-300 dark:border-slate-700 text-sm text-slate-700 dark:text-slate-200 rounded-lg hover:bg-slate-50 dark:hover:bg-slate-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
             >
-              {verificando ? <Loader2 className="animate-spin" size={15} /> : <RefreshCw size={15} />}
+              {verificando ? (
+                <Loader2 className="animate-spin" size={15} />
+              ) : (
+                <RefreshCw size={15} />
+              )}
               {verificando ? "Verificando..." : "Verificar agora"}
             </button>
           </div>
@@ -333,11 +376,27 @@ export default function BotConfigAdminPage() {
           <p className="text-sm font-medium text-slate-700 dark:text-slate-200">Alertas</p>
           {(
             [
-              { campo: "ativo", label: "Monitoramento ativo (verificação diária no cron)", desc: "Se desativado, o cron informa que o monitoramento está desligado e não executa a verificação." },
-              { campo: "emailAlerta", label: "Enviar alerta por email para os administradores", desc: "Email com a situação detalhada da instância quando o bot fica fora do ar." },
-              { campo: "notificacaoPdm", label: "Criar notificação no PDM", desc: "Notificação interna no sino do sistema para ADMIN/SUDO com os detalhes da queda." },
-            ] as { campo: "ativo" | "emailAlerta" | "notificacaoPdm"; label: string; desc: string }[]
-          ).map(item => (
+              {
+                campo: "ativo",
+                label: "Monitoramento ativo (verificação diária no cron)",
+                desc: "Se desativado, o cron informa que o monitoramento está desligado e não executa a verificação.",
+              },
+              {
+                campo: "emailAlerta",
+                label: "Enviar alerta por email para os administradores",
+                desc: "Email com a situação detalhada da instância quando o bot fica fora do ar.",
+              },
+              {
+                campo: "notificacaoPdm",
+                label: "Criar notificação no PDM",
+                desc: "Notificação interna no sino do sistema para ADMIN/SUDO com os detalhes da queda.",
+              },
+            ] as {
+              campo: "ativo" | "emailAlerta" | "notificacaoPdm"
+              label: string
+              desc: string
+            }[]
+          ).map((item) => (
             <label key={item.campo} className="flex items-start gap-3 cursor-pointer">
               <input
                 type="checkbox"
@@ -354,14 +413,17 @@ export default function BotConfigAdminPage() {
         </div>
 
         <div className="px-5 py-4">
-          <p className="text-sm font-medium text-slate-700 dark:text-slate-200 mb-3">Últimos eventos do bot</p>
+          <p className="text-sm font-medium text-slate-700 dark:text-slate-200 mb-3">
+            Últimos eventos do bot
+          </p>
           {config.logs.length === 0 ? (
             <p className="text-xs text-slate-400">
-              Nenhum evento registrado ainda. O log é alimentado pelo monitoramento, fila de processamento e fluxo do bot.
+              Nenhum evento registrado ainda. O log é alimentado pelo monitoramento, fila de
+              processamento e fluxo do bot.
             </p>
           ) : (
             <ul className="space-y-2 max-h-72 overflow-y-auto pr-1">
-              {config.logs.map(log => (
+              {config.logs.map((log) => (
                 <li
                   key={log.id}
                   className="flex items-start gap-3 text-sm border border-slate-100 dark:border-slate-800 rounded-lg px-3 py-2"
@@ -378,9 +440,13 @@ export default function BotConfigAdminPage() {
                     {log.tipo}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="text-xs text-slate-600 dark:text-slate-300 truncate">{log.erro ?? log.detalhe?.detalhe ?? log.tipo}</p>
+                    <p className="text-xs text-slate-600 dark:text-slate-300 truncate">
+                      {log.erro ?? log.detalhe?.detalhe ?? log.tipo}
+                    </p>
                     {log.detalhe?.instanciaStatus && (
-                      <p className="text-[11px] text-slate-400">Instância: {log.detalhe.instanciaStatus}</p>
+                      <p className="text-[11px] text-slate-400">
+                        Instância: {log.detalhe.instanciaStatus}
+                      </p>
                     )}
                   </div>
                   <span className="text-[11px] text-slate-400 shrink-0">

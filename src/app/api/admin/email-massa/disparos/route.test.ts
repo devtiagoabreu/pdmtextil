@@ -53,7 +53,7 @@ describe("GET /api/admin/email-massa/disparos", () => {
     mockSelectSequence(
       [disparo],
       [{ disparoId: 2, pendentes: 10, enviados: 380, falhas: 2, lidos: 150 }],
-      [{ disparoId: 2, cliques: 42 }],
+      [{ disparoId: 2, cliques: 42 }]
     )
 
     const res = await GET()

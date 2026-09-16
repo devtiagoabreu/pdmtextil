@@ -76,7 +76,13 @@ export function ListaTexto({
         </div>
       )}
 
-      <Button type="button" variant="outline" size="sm" className="gap-1" onClick={() => onChange([...itens, ""])}>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="gap-1"
+        onClick={() => onChange([...itens, ""])}
+      >
         <Plus size={14} />
         {rotuloAdicionar}
       </Button>

@@ -26,7 +26,11 @@ export default function RomaneiosPage() {
   const [gerandoPdf, setGerandoPdf] = useState(false)
   const [orientacaoPdf, setOrientacaoPdf] = useState<OrientacaoPdf>("portrait")
 
-  const { data: integracoesData, isLoading: loadingInt, isError: integracoesError } = useQuery<Integracao[]>({
+  const {
+    data: integracoesData,
+    isLoading: loadingInt,
+    isError: integracoesError,
+  } = useQuery<Integracao[]>({
     queryKey: ["integracao-listar", "romaneios"],
     queryFn: async () => {
       const res = await fetch("/api/integracao/listar?tela=romaneios")
@@ -51,9 +55,7 @@ export default function RomaneiosPage() {
     if (!searchTerm) return itens
     const termo = searchTerm.toLowerCase()
     return itens.filter(
-      (item) =>
-        String(item.pedido).includes(termo) ||
-        String(item.romaneio).includes(termo),
+      (item) => String(item.pedido).includes(termo) || String(item.romaneio).includes(termo)
     )
   }, [itens, searchTerm])
 
@@ -82,38 +84,41 @@ export default function RomaneiosPage() {
     return Array.from(map.values()).sort((a: any, b: any) => b.romaneio - a.romaneio)
   }, [itensFiltrados])
 
-  const buscar = useCallback(async (search?: string) => {
-    if (!selectedId) return
-    setLoadingData(true)
-    setItens([])
-    setExpandedRomaneio(null)
-    setSelectedRomaneios(new Set())
-    try {
-      const params = new URLSearchParams()
-      if (search) params.set("search", search)
-      const qs = params.toString()
-      const res = await fetch(`/api/integracao/${selectedId}/executar${qs ? `?${qs}` : ""}`)
-      const data = await res.json()
-      if (!data.success) {
-        toast.error(`API retornou erro: ${data.status}`)
-        return
+  const buscar = useCallback(
+    async (search?: string) => {
+      if (!selectedId) return
+      setLoadingData(true)
+      setItens([])
+      setExpandedRomaneio(null)
+      setSelectedRomaneios(new Set())
+      try {
+        const params = new URLSearchParams()
+        if (search) params.set("search", search)
+        const qs = params.toString()
+        const res = await fetch(`/api/integracao/${selectedId}/executar${qs ? `?${qs}` : ""}`)
+        const data = await res.json()
+        if (!data.success) {
+          toast.error(`API retornou erro: ${data.status}`)
+          return
+        }
+        const body = data.responseBody
+        const rawItems = body?.items || (Array.isArray(body) ? body : body?.data || [])
+        if (!Array.isArray(rawItems) || rawItems.length === 0) {
+          toast.error("Nenhum romaneio encontrado")
+          return
+        }
+        setItens(rawItems as Rolo[])
+        const romaneios = [...new Set(rawItems.map((r: Rolo) => r.romaneio))]
+        if (romaneios.length > 0) setExpandedRomaneio(romaneios[0])
+        toast.success(`${rawItems.length} rolo(s) de ${romaneios.length} romaneio(s) carregado(s)`)
+      } catch {
+        toast.error("Erro ao buscar dados")
+      } finally {
+        setLoadingData(false)
       }
-      const body = data.responseBody
-      const rawItems = body?.items || (Array.isArray(body) ? body : body?.data || [])
-      if (!Array.isArray(rawItems) || rawItems.length === 0) {
-        toast.error("Nenhum romaneio encontrado")
-        return
-      }
-      setItens(rawItems as Rolo[])
-      const romaneios = [...new Set(rawItems.map((r: Rolo) => r.romaneio))]
-      if (romaneios.length > 0) setExpandedRomaneio(romaneios[0])
-      toast.success(`${rawItems.length} rolo(s) de ${romaneios.length} romaneio(s) carregado(s)`)
-    } catch {
-      toast.error("Erro ao buscar dados")
-    } finally {
-      setLoadingData(false)
-    }
-  }, [selectedId])
+    },
+    [selectedId]
+  )
 
   function handleSearch() {
     const termo = searchInput.trim()
@@ -175,7 +180,9 @@ export default function RomaneiosPage() {
       await gerarPdfRomaneioConsolidado(grupos, nums, orientacaoPdf)
       toast.success(`PDF consolidado com ${nums.length} romaneio(s) gerado!`)
     } catch (err) {
-      toast.error("Erro ao gerar PDF consolidado: " + (err instanceof Error ? err.message : "desconhecido"))
+      toast.error(
+        "Erro ao gerar PDF consolidado: " + (err instanceof Error ? err.message : "desconhecido")
+      )
     } finally {
       setGerandoPdf(false)
     }
@@ -218,7 +225,8 @@ export default function RomaneiosPage() {
             Nenhuma integração configurada para romaneios
           </p>
           <p className="text-xs text-slate-400 mt-1">
-            Cadastre uma integração em Configurações &gt; Integrações com a tela &quot;romaneios&quot;
+            Cadastre uma integração em Configurações &gt; Integrações com a tela
+            &quot;romaneios&quot;
           </p>
         </div>
       ) : (
@@ -256,7 +264,8 @@ export default function RomaneiosPage() {
             <div className="space-y-3">
               {searchTerm && (
                 <p className="text-xs text-slate-500">
-                  Filtrando por &quot;{searchTerm}&quot; — {itensFiltrados.length} de {itens.length} rolo(s)
+                  Filtrando por &quot;{searchTerm}&quot; — {itensFiltrados.length} de {itens.length}{" "}
+                  rolo(s)
                 </p>
               )}
               <div className="space-y-6">
@@ -270,7 +279,7 @@ export default function RomaneiosPage() {
                     onToggle={() => toggleRomaneio(grupo.romaneio)}
                     onToggleExpand={() =>
                       setExpandedRomaneio(
-                        expandedRomaneio === grupo.romaneio ? null : grupo.romaneio,
+                        expandedRomaneio === grupo.romaneio ? null : grupo.romaneio
                       )
                     }
                     onGerarPdf={() => gerarPdf(grupo.romaneio)}

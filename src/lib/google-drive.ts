@@ -26,7 +26,8 @@ export async function listFiles(accessToken: string, folderId: string) {
   const drive = getDriveClient(accessToken)
   const res = await drive.files.list({
     q: `'${folderId}' in parents and trashed=false`,
-    fields: "files(id, name, mimeType, size, webViewLink, webContentLink, createdTime, modifiedTime, iconLink, thumbnailLink)",
+    fields:
+      "files(id, name, mimeType, size, webViewLink, webContentLink, createdTime, modifiedTime, iconLink, thumbnailLink)",
     orderBy: "name_natural",
     pageSize: 200,
   })
@@ -73,7 +74,8 @@ export async function getFileInfo(accessToken: string, fileId: string) {
   const drive = getDriveClient(accessToken)
   const res = await drive.files.get({
     fileId,
-    fields: "id, name, mimeType, size, webViewLink, webContentLink, iconLink, thumbnailLink, createdTime, modifiedTime",
+    fields:
+      "id, name, mimeType, size, webViewLink, webContentLink, iconLink, thumbnailLink, createdTime, modifiedTime",
   })
 
   return res.data

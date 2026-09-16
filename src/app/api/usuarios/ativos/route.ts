@@ -16,9 +16,10 @@ export async function GET(req: NextRequest) {
       .map((r) => r.trim())
       .filter(Boolean)
 
-    const condicoes = roles.length > 0
-      ? and(eq(usuarios.ativo, true), inArray(usuarios.role, roles))
-      : eq(usuarios.ativo, true)
+    const condicoes =
+      roles.length > 0
+        ? and(eq(usuarios.ativo, true), inArray(usuarios.role, roles))
+        : eq(usuarios.ativo, true)
 
     const lista = await db
       .select({ id: usuarios.id, name: usuarios.name, role: usuarios.role })

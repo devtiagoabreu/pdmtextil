@@ -80,7 +80,9 @@ export function todasTelas(): SearchItem[] {
     if (!porHref.has(href)) porHref.set(href, item)
   }
 
-  const resultados: SearchItem[] = [...searchRegistry].filter((item) => ehHrefRotinaValida(item.href))
+  const resultados: SearchItem[] = [...searchRegistry].filter((item) =>
+    ehHrefRotinaValida(item.href)
+  )
   const diretorio = path.join(process.cwd(), "src", "app")
   if (fs.existsSync(diretorio)) {
     for (const arquivo of caminhar(diretorio)) {

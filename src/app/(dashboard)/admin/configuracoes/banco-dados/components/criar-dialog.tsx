@@ -3,7 +3,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import type { BancoDados } from "./types"
 
@@ -16,9 +21,21 @@ interface CriarDialogProps {
   onClose: () => void
 }
 
-export function CriarDialog({ modal, dbNome, setDbNome, loading, onConfirm, onClose }: CriarDialogProps) {
+export function CriarDialog({
+  modal,
+  dbNome,
+  setDbNome,
+  loading,
+  onConfirm,
+  onClose,
+}: CriarDialogProps) {
   return (
-    <Dialog open={!!modal} onOpenChange={(v: boolean) => { if (!v) onClose() }}>
+    <Dialog
+      open={!!modal}
+      onOpenChange={(v: boolean) => {
+        if (!v) onClose()
+      }}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Criar Banco de Dados</DialogTitle>
@@ -28,10 +45,16 @@ export function CriarDialog({ modal, dbNome, setDbNome, loading, onConfirm, onCl
         </DialogHeader>
         <div className="space-y-2">
           <Label>Nome do banco</Label>
-          <Input value={dbNome} onChange={e => setDbNome(e.target.value)} placeholder="Ex: novo_banco" />
+          <Input
+            value={dbNome}
+            onChange={(e) => setDbNome(e.target.value)}
+            placeholder="Ex: novo_banco"
+          />
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
+          <Button variant="outline" onClick={onClose}>
+            Cancelar
+          </Button>
           <Button onClick={onConfirm} disabled={loading || !dbNome} className="gap-2">
             {loading && <Loader2 size={16} className="animate-spin" />}
             Criar

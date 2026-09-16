@@ -33,7 +33,9 @@ export function FloatableKanban({ tipo, children }: { tipo: string; children: Re
       <div className="flex flex-col items-center justify-center py-20 text-slate-500">
         <Maximize2 size={48} className="mx-auto text-slate-300 mb-3" />
         <p className="text-lg font-medium">Kanban aberto em janela separada</p>
-        <p className="text-sm text-slate-400 mb-4">Você pode arrastá-lo para outra tela ou monitor</p>
+        <p className="text-sm text-slate-400 mb-4">
+          Você pode arrastá-lo para outra tela ou monitor
+        </p>
         <button
           onClick={handleReattach}
           className="inline-flex items-center gap-1.5 text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"

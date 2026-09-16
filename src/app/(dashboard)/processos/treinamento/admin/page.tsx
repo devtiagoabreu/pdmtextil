@@ -5,8 +5,15 @@ import { usePathname, useRouter } from "next/navigation"
 import { useState } from "react"
 import Link from "next/link"
 import {
-  BookOpen, Plus, FileText, Pencil, Trash2, Loader2,
-  ArrowLeft, Settings, Edit3,
+  BookOpen,
+  Plus,
+  FileText,
+  Pencil,
+  Trash2,
+  Loader2,
+  ArrowLeft,
+  Settings,
+  Edit3,
 } from "lucide-react"
 import { toast } from "sonner"
 import { InfoButton } from "@/components/ui/info-button"
@@ -43,9 +50,19 @@ export default function AdminTreinamentoPage() {
   const queryClient = useQueryClient()
   const [deletingId, setDeletingId] = useState<number | null>(null)
   const [showNovoModulo, setShowNovoModulo] = useState(false)
-  const [novoModulo, setNovoModulo] = useState({ titulo: "", descricao: "", icone: "GraduationCap", cor: "#0ea5e9" })
+  const [novoModulo, setNovoModulo] = useState({
+    titulo: "",
+    descricao: "",
+    icone: "GraduationCap",
+    cor: "#0ea5e9",
+  })
   const [editandoModuloId, setEditandoModuloId] = useState<number | null>(null)
-  const [editandoModulo, setEditandoModulo] = useState({ titulo: "", descricao: "", icone: "GraduationCap", cor: "#0ea5e9" })
+  const [editandoModulo, setEditandoModulo] = useState({
+    titulo: "",
+    descricao: "",
+    icone: "GraduationCap",
+    cor: "#0ea5e9",
+  })
 
   const { data: modulos, isLoading } = useQuery<ModuloComLicoes[]>({
     queryKey: ["proc-treinamento"],
@@ -62,7 +79,8 @@ export default function AdminTreinamentoPage() {
   })
 
   const deleteModulo = useMutation({
-    mutationFn: (id: number) => fetch(`/api/processos/treinamento/modulos/${id}`, { method: "DELETE" }),
+    mutationFn: (id: number) =>
+      fetch(`/api/processos/treinamento/modulos/${id}`, { method: "DELETE" }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["proc-treinamento"] })
       toast.success("Módulo removido")
@@ -232,7 +250,10 @@ export default function AdminTreinamentoPage() {
           </div>
           <div className="flex gap-2">
             <button
-              onClick={() => editandoModuloId !== null && atualizarModulo.mutate({ id: editandoModuloId, data: editandoModulo })}
+              onClick={() =>
+                editandoModuloId !== null &&
+                atualizarModulo.mutate({ id: editandoModuloId, data: editandoModulo })
+              }
               disabled={!editandoModulo.titulo || atualizarModulo.isPending}
               className="px-3 py-1.5 bg-sky-600 text-white text-sm rounded-lg hover:bg-sky-700 disabled:opacity-50 transition-colors"
             >
@@ -255,7 +276,10 @@ export default function AdminTreinamentoPage() {
       ) : (
         <div className="space-y-6">
           {modulos?.map((modulo) => (
-            <div key={modulo.id} className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden">
+            <div
+              key={modulo.id}
+              className="border border-slate-200 dark:border-slate-700 rounded-xl overflow-hidden"
+            >
               <div className="flex items-center gap-3 p-4 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                 <div
                   className="w-8 h-8 rounded-lg flex items-center justify-center text-white shrink-0"
@@ -298,31 +322,41 @@ export default function AdminTreinamentoPage() {
                 <p className="p-4 text-sm text-slate-400 text-center">Nenhuma lição neste módulo</p>
               ) : (
                 <div className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {modulo.licoes.filter((l) => l.ativo).map((licao) => (
-                    <div key={licao.id} className="flex items-center gap-3 px-4 py-2.5 group">
-                      <FileText size={15} className="text-slate-400 shrink-0" />
-                      <span className="text-sm text-slate-700 dark:text-slate-300 flex-1">{licao.titulo}</span>
-                      {licao.pathnameRelacionado && (
-                        <span className="text-[10px] text-slate-400 hidden sm:inline">{licao.pathnameRelacionado}</span>
-                      )}
-                      <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <Link
-                          href={`/processos/treinamento/admin/${licao.id}`}
-                          className="p-1.5 text-slate-400 hover:text-sky-600 rounded-lg transition-colors"
-                          title="Editar"
-                        >
-                          <Edit3 size={14} />
-                        </Link>
-                        <button
-                          onClick={() => handleDeleteLicao(licao.id, licao.titulo)}
-                          className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg transition-colors"
-                          title="Remover"
-                        >
-                          {deletingId === licao.id ? <Loader2 size={14} className="animate-spin" /> : <Trash2 size={14} />}
-                        </button>
+                  {modulo.licoes
+                    .filter((l) => l.ativo)
+                    .map((licao) => (
+                      <div key={licao.id} className="flex items-center gap-3 px-4 py-2.5 group">
+                        <FileText size={15} className="text-slate-400 shrink-0" />
+                        <span className="text-sm text-slate-700 dark:text-slate-300 flex-1">
+                          {licao.titulo}
+                        </span>
+                        {licao.pathnameRelacionado && (
+                          <span className="text-[10px] text-slate-400 hidden sm:inline">
+                            {licao.pathnameRelacionado}
+                          </span>
+                        )}
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <Link
+                            href={`/processos/treinamento/admin/${licao.id}`}
+                            className="p-1.5 text-slate-400 hover:text-sky-600 rounded-lg transition-colors"
+                            title="Editar"
+                          >
+                            <Edit3 size={14} />
+                          </Link>
+                          <button
+                            onClick={() => handleDeleteLicao(licao.id, licao.titulo)}
+                            className="p-1.5 text-slate-400 hover:text-red-600 rounded-lg transition-colors"
+                            title="Remover"
+                          >
+                            {deletingId === licao.id ? (
+                              <Loader2 size={14} className="animate-spin" />
+                            ) : (
+                              <Trash2 size={14} />
+                            )}
+                          </button>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               )}
             </div>

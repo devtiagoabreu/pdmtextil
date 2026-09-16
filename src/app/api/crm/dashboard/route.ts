@@ -36,65 +36,256 @@ export async function GET() {
 
     const getCount = (rows: { total: number }[]) => Number(rows[0]?.total ?? 0)
 
-    const [leadsTotal, leadsMes, empresasTotal, oportunidadesTotal, oportunidadesByStatus, oportunidadesMes, oportunidadesFechadoGanho] = await Promise.all([
-      safeQuery(() => db.select({ total: count() }).from(crmLeads).then((r: any) => r), []),
-      safeQuery(() => db.select({ total: count() }).from(crmLeads).where(gte(crmLeads.createdAt, new Date(inicioMes))).then((r: any) => r), []),
-      safeQuery(() => db.select({ total: count() }).from(crmPessoas).then((r: any) => r), []),
-      safeQuery(() => db.select({ total: count() }).from(crmOportunidades).then((r: any) => r), []),
-      safeQuery(() => db.select({ status: crmOportunidades.status, total: count() }).from(crmOportunidades).groupBy(crmOportunidades.status).then((r: any) => r), []),
-      safeQuery(() => db.select({ total: count() }).from(crmOportunidades).where(gte(crmOportunidades.createdAt, new Date(inicioMes))).then((r: any) => r), []),
-      safeQuery(() => db.select({ total: count() }).from(crmOportunidades).where(eq(crmOportunidades.status, "FECHADO_GANHO")).then((r: any) => r), []),
+    const [
+      leadsTotal,
+      leadsMes,
+      empresasTotal,
+      oportunidadesTotal,
+      oportunidadesByStatus,
+      oportunidadesMes,
+      oportunidadesFechadoGanho,
+    ] = await Promise.all([
+      safeQuery(
+        () =>
+          db
+            .select({ total: count() })
+            .from(crmLeads)
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({ total: count() })
+            .from(crmLeads)
+            .where(gte(crmLeads.createdAt, new Date(inicioMes)))
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({ total: count() })
+            .from(crmPessoas)
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({ total: count() })
+            .from(crmOportunidades)
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({ status: crmOportunidades.status, total: count() })
+            .from(crmOportunidades)
+            .groupBy(crmOportunidades.status)
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({ total: count() })
+            .from(crmOportunidades)
+            .where(gte(crmOportunidades.createdAt, new Date(inicioMes)))
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({ total: count() })
+            .from(crmOportunidades)
+            .where(eq(crmOportunidades.status, "FECHADO_GANHO"))
+            .then((r: any) => r),
+        []
+      ),
     ])
 
-    const [propostasTotal, propostasByStatus, visitasTotal, visitasHoje, tarefasPendentes, tarefasVencendo] = await Promise.all([
-      safeQuery(() => db.select({ total: count() }).from(crmPropostas).then((r: any) => r), []),
-      safeQuery(() => db.select({ status: crmPropostas.status, total: count() }).from(crmPropostas).groupBy(crmPropostas.status).then((r: any) => r), []),
-      safeQuery(() => db.select({ total: count() }).from(crmVisitas).then((r: any) => r), []),
-      safeQuery(() => db.select({ total: count() }).from(crmVisitas).where(eq(crmVisitas.dataVisita, hoje)).then((r: any) => r), []),
-      safeQuery(() => db.select({ total: count() }).from(crmTarefas).where(eq(crmTarefas.status, "PENDENTE")).then((r: any) => r), []),
-      safeQuery(() => db.select({ total: count() }).from(crmTarefas).where(and(eq(crmTarefas.status, "PENDENTE"), lte(crmTarefas.dataPrevista, hoje))).then((r: any) => r), []),
+    const [
+      propostasTotal,
+      propostasByStatus,
+      visitasTotal,
+      visitasHoje,
+      tarefasPendentes,
+      tarefasVencendo,
+    ] = await Promise.all([
+      safeQuery(
+        () =>
+          db
+            .select({ total: count() })
+            .from(crmPropostas)
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({ status: crmPropostas.status, total: count() })
+            .from(crmPropostas)
+            .groupBy(crmPropostas.status)
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({ total: count() })
+            .from(crmVisitas)
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({ total: count() })
+            .from(crmVisitas)
+            .where(eq(crmVisitas.dataVisita, hoje))
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({ total: count() })
+            .from(crmTarefas)
+            .where(eq(crmTarefas.status, "PENDENTE"))
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({ total: count() })
+            .from(crmTarefas)
+            .where(and(eq(crmTarefas.status, "PENDENTE"), lte(crmTarefas.dataPrevista, hoje)))
+            .then((r: any) => r),
+        []
+      ),
     ])
 
     const [topEmpresasRaw, forecastRaw, recentesRaw, previsaoVendasRaw] = await Promise.all([
-      safeQuery(() => db.select({
-        empresaId: crmOportunidades.empresaId,
-        empresaNome: crmPessoas.razaoSocial,
-        totalValor: sql<string>`SUM(COALESCE(${crmOportunidades.valorEstimado}, 0)::numeric)`,
-      }).from(crmOportunidades)
-        .leftJoin(crmPessoas, eq(crmOportunidades.empresaId, crmPessoas.id))
-        .where(sql`${crmOportunidades.status} NOT IN ('FECHADO_PERDIDO', 'FECHADO_GANHO')`)
-        .groupBy(crmOportunidades.empresaId, crmPessoas.razaoSocial)
-        .orderBy(desc(sql`SUM(COALESCE(${crmOportunidades.valorEstimado}, 0)::numeric)`))
-        .limit(5).then((r: any) => r), []),
-      safeQuery(() => db.select({ total: sql<string>`COALESCE(SUM(${crmOportunidades.valorEstimado}), 0)` })
-        .from(crmOportunidades)
-        .where(sql`${crmOportunidades.status} NOT IN ('FECHADO_PERDIDO', 'FECHADO_GANHO')`)
-        .then((r: any) => r), []),
-      safeQuery(() => db.select({
-        id: crmTimelineEventos.id,
-        tipo: crmTimelineEventos.tipo,
-        descricao: crmTimelineEventos.descricao,
-        dataEvento: crmTimelineEventos.dataEvento,
-      }).from(crmTimelineEventos)
-        .orderBy(desc(crmTimelineEventos.dataEvento))
-        .limit(10).then((r: any) => r), []),
-      safeQuery(() => db.select({
-        periodo: crmPrevisaoVendas.periodo,
-        valorPrevisto: crmPrevisaoVendas.valorPrevisto,
-        valorReal: crmPrevisaoVendas.valorReal,
-        dados: crmPrevisaoVendas.dados,
-      }).from(crmPrevisaoVendas)
-        .orderBy(desc(crmPrevisaoVendas.periodo))
-        .limit(12).then((r: any) => r), []),
+      safeQuery(
+        () =>
+          db
+            .select({
+              empresaId: crmOportunidades.empresaId,
+              empresaNome: crmPessoas.razaoSocial,
+              totalValor: sql<string>`SUM(COALESCE(${crmOportunidades.valorEstimado}, 0)::numeric)`,
+            })
+            .from(crmOportunidades)
+            .leftJoin(crmPessoas, eq(crmOportunidades.empresaId, crmPessoas.id))
+            .where(sql`${crmOportunidades.status} NOT IN ('FECHADO_PERDIDO', 'FECHADO_GANHO')`)
+            .groupBy(crmOportunidades.empresaId, crmPessoas.razaoSocial)
+            .orderBy(desc(sql`SUM(COALESCE(${crmOportunidades.valorEstimado}, 0)::numeric)`))
+            .limit(5)
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({ total: sql<string>`COALESCE(SUM(${crmOportunidades.valorEstimado}), 0)` })
+            .from(crmOportunidades)
+            .where(sql`${crmOportunidades.status} NOT IN ('FECHADO_PERDIDO', 'FECHADO_GANHO')`)
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({
+              id: crmTimelineEventos.id,
+              tipo: crmTimelineEventos.tipo,
+              descricao: crmTimelineEventos.descricao,
+              dataEvento: crmTimelineEventos.dataEvento,
+            })
+            .from(crmTimelineEventos)
+            .orderBy(desc(crmTimelineEventos.dataEvento))
+            .limit(10)
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({
+              periodo: crmPrevisaoVendas.periodo,
+              valorPrevisto: crmPrevisaoVendas.valorPrevisto,
+              valorReal: crmPrevisaoVendas.valorReal,
+              dados: crmPrevisaoVendas.dados,
+            })
+            .from(crmPrevisaoVendas)
+            .orderBy(desc(crmPrevisaoVendas.periodo))
+            .limit(12)
+            .then((r: any) => r),
+        []
+      ),
     ])
 
-    const [campanhasTotal, campanhasAtivas, campanhasOrcamento, emailEnviadosTotal, emailEnviadosLidos, emailCliquesTotal] = await Promise.all([
-      safeQuery(() => db.select({ total: count() }).from(crmCampanhas).then((r: any) => r), []),
-      safeQuery(() => db.select({ total: count() }).from(crmCampanhas).where(eq(crmCampanhas.status, "ATIVA")).then((r: any) => r), []),
-      safeQuery(() => db.select({ total: sql<string>`COALESCE(SUM(${crmCampanhas.orcamento}), 0)` }).from(crmCampanhas).then((r: any) => r), []),
-      safeQuery(() => db.select({ total: count() }).from(emailEnviados).then((r: any) => r), []),
-      safeQuery(() => db.select({ total: count() }).from(emailEnviados).where(sql`${emailEnviados.abertoEm} IS NOT NULL`).then((r: any) => r), []),
-      safeQuery(() => db.select({ total: count() }).from(emailCliques).then((r: any) => r), []),
+    const [
+      campanhasTotal,
+      campanhasAtivas,
+      campanhasOrcamento,
+      emailEnviadosTotal,
+      emailEnviadosLidos,
+      emailCliquesTotal,
+    ] = await Promise.all([
+      safeQuery(
+        () =>
+          db
+            .select({ total: count() })
+            .from(crmCampanhas)
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({ total: count() })
+            .from(crmCampanhas)
+            .where(eq(crmCampanhas.status, "ATIVA"))
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({ total: sql<string>`COALESCE(SUM(${crmCampanhas.orcamento}), 0)` })
+            .from(crmCampanhas)
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({ total: count() })
+            .from(emailEnviados)
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({ total: count() })
+            .from(emailEnviados)
+            .where(sql`${emailEnviados.abertoEm} IS NOT NULL`)
+            .then((r: any) => r),
+        []
+      ),
+      safeQuery(
+        () =>
+          db
+            .select({ total: count() })
+            .from(emailCliques)
+            .then((r: any) => r),
+        []
+      ),
     ])
 
     const totalConvertidas = getCount(oportunidadesFechadoGanho)
@@ -105,7 +296,10 @@ export async function GET() {
       oportunidades: {
         total: getCount(oportunidadesTotal),
         esteMes: getCount(oportunidadesMes),
-        byStatus: oportunidadesByStatus.map((r: any) => ({ status: r.status, total: Number(r.total) })),
+        byStatus: oportunidadesByStatus.map((r: any) => ({
+          status: r.status,
+          total: Number(r.total),
+        })),
       },
       propostas: {
         total: getCount(propostasTotal),

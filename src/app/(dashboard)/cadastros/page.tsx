@@ -1,5 +1,15 @@
 import Link from "next/link"
-import { Package, Building2, Users, Palette, Scissors, Droplets, Layers, FlaskConical, Beaker } from "lucide-react"
+import {
+  Package,
+  Building2,
+  Users,
+  Palette,
+  Scissors,
+  Droplets,
+  Layers,
+  FlaskConical,
+  Beaker,
+} from "lucide-react"
 import { PageInfoButton } from "@/components/ui/page-info-button"
 import type { LucideIcon } from "lucide-react"
 
@@ -75,9 +85,7 @@ export default function CadastrosPage() {
           Cadastros
           <PageInfoButton />
         </h1>
-        <p className="text-sm text-slate-500">
-          Módulos de cadastro do sistema
-        </p>
+        <p className="text-sm text-slate-500">Módulos de cadastro do sistema</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -93,9 +101,7 @@ export default function CadastrosPage() {
                 <Icon className="w-6 h-6 text-slate-600 dark:text-slate-400" />
               </div>
               <div>
-                <h2 className="font-semibold text-slate-900 dark:text-slate-50">
-                  {modulo.titulo}
-                </h2>
+                <h2 className="font-semibold text-slate-900 dark:text-slate-50">{modulo.titulo}</h2>
                 <p className="text-sm text-slate-500">{modulo.descricao}</p>
               </div>
             </Link>

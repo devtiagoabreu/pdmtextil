@@ -121,35 +121,109 @@ const NOVO_RISCO: LinhaRisco = { descricao: "", probabilidade: "", impacto: "", 
 const NOVO_CONTROLE: LinhaControle = { descricao: "", responsavel: "", frequencia: "" }
 
 const CAMPOS_INDICADOR = [
-  { campo: "nome", label: "Nome", placeholder: "Ex: Atraso de entrega", className: "sm:col-span-2" },
+  {
+    campo: "nome",
+    label: "Nome",
+    placeholder: "Ex: Atraso de entrega",
+    className: "sm:col-span-2",
+  },
   { campo: "unidade", label: "Unidade", placeholder: "Ex: %" },
   { campo: "meta", label: "Meta", placeholder: "Ex: < 3%" },
-  { campo: "frequencia", label: "Frequência", placeholder: "Ex: semanal", className: "sm:col-span-2" },
+  {
+    campo: "frequencia",
+    label: "Frequência",
+    placeholder: "Ex: semanal",
+    className: "sm:col-span-2",
+  },
 ]
 
 const CAMPOS_RISCO = [
-  { campo: "descricao", label: "Descrição", placeholder: "Ex: Produto divergente do pedido", className: "sm:col-span-2" },
+  {
+    campo: "descricao",
+    label: "Descrição",
+    placeholder: "Ex: Produto divergente do pedido",
+    className: "sm:col-span-2",
+  },
   { campo: "probabilidade", label: "Probabilidade", placeholder: "Ex: Média" },
   { campo: "impacto", label: "Impacto", placeholder: "Ex: Alta" },
-  { campo: "controle", label: "Ação de controle", placeholder: "Ex: Conferência no recebimento", className: "sm:col-span-2" },
+  {
+    campo: "controle",
+    label: "Ação de controle",
+    placeholder: "Ex: Conferência no recebimento",
+    className: "sm:col-span-2",
+  },
 ]
 
 const CAMPOS_CONTROLE = [
-  { campo: "descricao", label: "Descrição", placeholder: "Ex: Conferência de peso e rolos", className: "sm:col-span-2" },
+  {
+    campo: "descricao",
+    label: "Descrição",
+    placeholder: "Ex: Conferência de peso e rolos",
+    className: "sm:col-span-2",
+  },
   { campo: "responsavel", label: "Responsável", placeholder: "Ex: Conferente" },
   { campo: "frequencia", label: "Frequência", placeholder: "Ex: a cada recebimento" },
 ]
 
-type CampoListaTexto = "entradas" | "saidas" | "fornecedores" | "clientes" | "recursos" | "sistemas" | "equipamentos"
+type CampoListaTexto =
+  "entradas" | "saidas" | "fornecedores" | "clientes" | "recursos" | "sistemas" | "equipamentos"
 
-const LISTAS: { campo: CampoListaTexto; titulo: string; info: InfoContent; placeholder: string; rotulo: string }[] = [
-  { campo: "entradas", titulo: "Entradas", info: processoCampos.entradas, placeholder: "Ex.: Fio de algodão", rotulo: "Adicionar entrada" },
-  { campo: "saidas", titulo: "Saídas", info: processoCampos.saidas, placeholder: "Ex.: Tecido acabado", rotulo: "Adicionar saída" },
-  { campo: "fornecedores", titulo: "Fornecedores", info: processoCampos.fornecedores, placeholder: "Ex.: Fornecedor de fios", rotulo: "Adicionar fornecedor" },
-  { campo: "clientes", titulo: "Clientes", info: processoCampos.clientes, placeholder: "Ex.: Corte e costura", rotulo: "Adicionar cliente" },
-  { campo: "recursos", titulo: "Recursos", info: processoCampos.recursos, placeholder: "Ex.: Operadores", rotulo: "Adicionar recurso" },
-  { campo: "sistemas", titulo: "Sistemas", info: processoCampos.sistemas, placeholder: "Ex.: ERP (PDM)", rotulo: "Adicionar sistema" },
-  { campo: "equipamentos", titulo: "Equipamentos", info: processoCampos.equipamentos, placeholder: "Ex.: Autoclave", rotulo: "Adicionar equipamento" },
+const LISTAS: {
+  campo: CampoListaTexto
+  titulo: string
+  info: InfoContent
+  placeholder: string
+  rotulo: string
+}[] = [
+  {
+    campo: "entradas",
+    titulo: "Entradas",
+    info: processoCampos.entradas,
+    placeholder: "Ex.: Fio de algodão",
+    rotulo: "Adicionar entrada",
+  },
+  {
+    campo: "saidas",
+    titulo: "Saídas",
+    info: processoCampos.saidas,
+    placeholder: "Ex.: Tecido acabado",
+    rotulo: "Adicionar saída",
+  },
+  {
+    campo: "fornecedores",
+    titulo: "Fornecedores",
+    info: processoCampos.fornecedores,
+    placeholder: "Ex.: Fornecedor de fios",
+    rotulo: "Adicionar fornecedor",
+  },
+  {
+    campo: "clientes",
+    titulo: "Clientes",
+    info: processoCampos.clientes,
+    placeholder: "Ex.: Corte e costura",
+    rotulo: "Adicionar cliente",
+  },
+  {
+    campo: "recursos",
+    titulo: "Recursos",
+    info: processoCampos.recursos,
+    placeholder: "Ex.: Operadores",
+    rotulo: "Adicionar recurso",
+  },
+  {
+    campo: "sistemas",
+    titulo: "Sistemas",
+    info: processoCampos.sistemas,
+    placeholder: "Ex.: ERP (PDM)",
+    rotulo: "Adicionar sistema",
+  },
+  {
+    campo: "equipamentos",
+    titulo: "Equipamentos",
+    info: processoCampos.equipamentos,
+    placeholder: "Ex.: Autoclave",
+    rotulo: "Adicionar equipamento",
+  },
 ]
 
 function arrayTexto(valor: unknown): string[] {
@@ -338,7 +412,7 @@ export default function ProcessoProcessoFormPage() {
   }
 
   const handleChange = (field: keyof ProcessoObjeto, value: string | boolean) => {
-    setProcesso(prev => ({ ...prev, [field]: value }))
+    setProcesso((prev) => ({ ...prev, [field]: value }))
   }
 
   if (loading) {
@@ -367,7 +441,9 @@ export default function ProcessoProcessoFormPage() {
 
       {isEditing && (
         <div className="flex items-center gap-2 text-sm text-slate-500 dark:text-slate-400">
-          <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[processo.status] || STATUS_COLORS["RASCUNHO"]}`}>
+          <span
+            className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_COLORS[processo.status] || STATUS_COLORS["RASCUNHO"]}`}
+          >
             {statusLabel(processo.status)}
           </span>
           <span>versão {processo.versao || "0"}</span>
@@ -380,12 +456,14 @@ export default function ProcessoProcessoFormPage() {
           <select
             id="areaId"
             value={processo.areaId}
-            onChange={e => handleChange("areaId", e.target.value)}
+            onChange={(e) => handleChange("areaId", e.target.value)}
             className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
           >
             <option value="">Selecione a área</option>
             {areas.map((area) => (
-              <option key={area.id} value={area.id}>{area.nome}</option>
+              <option key={area.id} value={area.id}>
+                {area.nome}
+              </option>
             ))}
           </select>
         </div>
@@ -396,7 +474,7 @@ export default function ProcessoProcessoFormPage() {
             <Input
               id="nome"
               value={processo.nome}
-              onChange={e => handleChange("nome", e.target.value)}
+              onChange={(e) => handleChange("nome", e.target.value)}
               placeholder="Processo de Tecelagem"
               required
             />
@@ -406,7 +484,7 @@ export default function ProcessoProcessoFormPage() {
             <Input
               id="codigo"
               value={processo.codigo || ""}
-              onChange={e => handleChange("codigo", e.target.value)}
+              onChange={(e) => handleChange("codigo", e.target.value)}
               placeholder="PR-001"
             />
           </div>
@@ -418,11 +496,13 @@ export default function ProcessoProcessoFormPage() {
             <select
               id="status"
               value={processo.status}
-              onChange={e => handleChange("status", e.target.value)}
+              onChange={(e) => handleChange("status", e.target.value)}
               className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
             >
               {Object.entries(PROCESSO_STATUS_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+                <option key={value} value={value}>
+                  {label}
+                </option>
               ))}
             </select>
           </div>
@@ -433,16 +513,20 @@ export default function ProcessoProcessoFormPage() {
               type="number"
               min={0}
               value={processo.versao}
-              onChange={e => handleChange("versao", e.target.value)}
+              onChange={(e) => handleChange("versao", e.target.value)}
               placeholder="0"
             />
           </div>
           <div className="space-y-2">
-            <CampoInfo titulo="Responsável" sobre={processoCampos.responsavel} htmlFor="responsavel" />
+            <CampoInfo
+              titulo="Responsável"
+              sobre={processoCampos.responsavel}
+              htmlFor="responsavel"
+            />
             <Input
               id="responsavel"
               value={processo.responsavel || ""}
-              onChange={e => handleChange("responsavel", e.target.value)}
+              onChange={(e) => handleChange("responsavel", e.target.value)}
               placeholder="Nome do responsável"
             />
           </div>
@@ -453,7 +537,7 @@ export default function ProcessoProcessoFormPage() {
           <Textarea
             id="objetivo"
             value={processo.objetivo || ""}
-            onChange={e => handleChange("objetivo", e.target.value)}
+            onChange={(e) => handleChange("objetivo", e.target.value)}
             placeholder="Objetivo do processo"
             rows={2}
           />
@@ -515,23 +599,33 @@ export default function ProcessoProcessoFormPage() {
         />
 
         <LinksEditor
-            links={processo.links}
-            onChange={(links) => setProcesso((p) => ({ ...p, links }))}
-          />
+          links={processo.links}
+          onChange={(links) => setProcesso((p) => ({ ...p, links }))}
+        />
 
         <div className="space-y-2">
-          <CampoInfo titulo="Observações" sobre={processoCampos.observacoes} htmlFor="observacoes" />
+          <CampoInfo
+            titulo="Observações"
+            sobre={processoCampos.observacoes}
+            htmlFor="observacoes"
+          />
           <Textarea
             id="observacoes"
             value={processo.observacoes || ""}
-            onChange={e => handleChange("observacoes", e.target.value)}
+            onChange={(e) => handleChange("observacoes", e.target.value)}
             placeholder="Observações gerais"
             rows={2}
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <input type="checkbox" id="ativo" checked={processo.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={processo.ativo}
+            onChange={(e) => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
           <Label htmlFor="ativo">Ativo</Label>
           <InfoButton content={processoCampos.ativo} />
         </div>
@@ -542,7 +636,9 @@ export default function ProcessoProcessoFormPage() {
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
           <Link href="/processos/processos">
-            <Button variant="outline" type="button">Cancelar</Button>
+            <Button variant="outline" type="button">
+              Cancelar
+            </Button>
           </Link>
         </div>
       </form>
@@ -605,7 +701,9 @@ export default function ProcessoProcessoFormPage() {
                       className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-800 px-3 py-2 text-sm hover:bg-slate-50 dark:hover:bg-slate-800/50"
                     >
                       <span>{atv.nome}</span>
-                      <span className="text-xs text-slate-400">{atv.subprocessoNome || `Subprocesso #${atv.subprocessoId}`}</span>
+                      <span className="text-xs text-slate-400">
+                        {atv.subprocessoNome || `Subprocesso #${atv.subprocessoId}`}
+                      </span>
                     </Link>
                   </li>
                 ))}

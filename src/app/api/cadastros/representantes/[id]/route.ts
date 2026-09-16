@@ -9,10 +9,7 @@ import { notificarDelecao } from "@/lib/notificar"
 import { excluirRepresentanteCascade } from "@/lib/representante-cascade"
 export const dynamic = "force-dynamic"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -36,10 +33,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -47,7 +41,20 @@ export async function PUT(
     const { id } = await params
     const body = await req.json()
 
-    const { nome, cnpj, razaoSocial, email, telefone, contato, endereco, cidade, uf, gerenteId, idIntegracao, ativo } = body
+    const {
+      nome,
+      cnpj,
+      razaoSocial,
+      email,
+      telefone,
+      contato,
+      endereco,
+      cidade,
+      uf,
+      gerenteId,
+      idIntegracao,
+      ativo,
+    } = body
 
     const [atualizado] = await db
       .update(representantes)
@@ -76,15 +83,15 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     if (session.user.role !== "ADMIN" && session.user.role !== "SUDO") {
-      return NextResponse.json({ error: "Apenas administradores podem excluir representantes" }, { status: 403 })
+      return NextResponse.json(
+        { error: "Apenas administradores podem excluir representantes" },
+        { status: 403 }
+      )
     }
 
     const { id } = await params

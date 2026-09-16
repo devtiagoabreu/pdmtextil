@@ -37,7 +37,7 @@ export function BarcodeScanner({ onDetected, onClose }: BarcodeScannerProps) {
             if (result && !stoppedRef.current) {
               onDetected(result.getText())
             }
-          },
+          }
         )
         controlsRef.current = controls
         if (!cancelled) setStatus("scanning")
@@ -45,7 +45,7 @@ export function BarcodeScanner({ onDetected, onClose }: BarcodeScannerProps) {
         if (!cancelled) {
           setStatus("error")
           setError(
-            "Não foi possível acessar a câmera. Verifique as permissões ou digite a OP manualmente.",
+            "Não foi possível acessar a câmera. Verifique as permissões ou digite a OP manualmente."
           )
           console.error("Erro ao iniciar câmera:", err)
         }

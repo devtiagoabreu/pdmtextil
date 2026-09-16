@@ -23,7 +23,7 @@ describe("DashboardShell", () => {
     render(
       <DashboardShell>
         <p>conteudo</p>
-      </DashboardShell>,
+      </DashboardShell>
     )
 
     const wrapper = screen.getByText("conteudo").parentElement as HTMLElement

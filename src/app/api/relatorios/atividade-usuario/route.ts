@@ -38,18 +38,18 @@ export async function GET(req: NextRequest) {
     const condUsuario = usuarioFiltro
       ? sql`AND usuario_nome ILIKE ${"%" + usuarioFiltro + "%"}`
       : sql``
-    const condTipo = tipoFiltro
-      ? sql`AND tipo = ${tipoFiltro}`
-      : sql``
+    const condTipo = tipoFiltro ? sql`AND tipo = ${tipoFiltro}` : sql``
 
-    const agregado = (await rows(sql`
+    const agregado = (
+      await rows(sql`
       SELECT
         COUNT(*)::int AS total,
         COUNT(DISTINCT usuario_nome)::int AS total_usuarios,
         MIN(created_at)::text AS primeira_atividade,
         MAX(created_at)::text AS ultima_atividade
       FROM logs WHERE ${f} ${condUsuario} ${condTipo}
-    `))[0] || { total: 0, total_usuarios: 0, primeira_atividade: null, ultima_atividade: null }
+    `)
+    )[0] || { total: 0, total_usuarios: 0, primeira_atividade: null, ultima_atividade: null }
 
     const porUsuario = await rows(sql`
       SELECT
@@ -112,9 +112,12 @@ export async function GET(req: NextRequest) {
     })
   } catch (error) {
     console.error("[GET /api/relatorios/atividade-usuario]", error)
-    return NextResponse.json({
-      error: "Erro interno",
-      detail: "Erro interno",
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Erro interno",
+        detail: "Erro interno",
+      },
+      { status: 500 }
+    )
   }
 }

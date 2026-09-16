@@ -5,10 +5,7 @@ import { pessoasRepresentantes } from "@/lib/db/schema/pessoas-representantes"
 import { representantes } from "@/lib/db/schema/representantes"
 import { eq, and, desc } from "drizzle-orm"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -41,10 +38,7 @@ export async function GET(
   }
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -60,11 +54,19 @@ export async function POST(
     const [existente] = await db
       .select()
       .from(pessoasRepresentantes)
-      .where(and(eq(pessoasRepresentantes.pessoaId, parseInt(id)), eq(pessoasRepresentantes.representanteId, representanteId)))
+      .where(
+        and(
+          eq(pessoasRepresentantes.pessoaId, parseInt(id)),
+          eq(pessoasRepresentantes.representanteId, representanteId)
+        )
+      )
       .limit(1)
 
     if (existente) {
-      return NextResponse.json({ error: "Representante já vinculado a esta pessoa" }, { status: 409 })
+      return NextResponse.json(
+        { error: "Representante já vinculado a esta pessoa" },
+        { status: 409 }
+      )
     }
 
     const [novo] = await db
@@ -82,10 +84,7 @@ export async function POST(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -100,7 +99,12 @@ export async function DELETE(
 
     await db
       .delete(pessoasRepresentantes)
-      .where(and(eq(pessoasRepresentantes.id, parseInt(vinculoId)), eq(pessoasRepresentantes.pessoaId, parseInt(id))))
+      .where(
+        and(
+          eq(pessoasRepresentantes.id, parseInt(vinculoId)),
+          eq(pessoasRepresentantes.pessoaId, parseInt(id))
+        )
+      )
 
     return NextResponse.json({ success: true })
   } catch (error) {

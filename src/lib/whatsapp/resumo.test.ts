@@ -50,7 +50,9 @@ describe("prepararHistoricoIA", () => {
   })
 
   it("com resumo anterior injeta prefácio e não re-resume antes do intervalo", () => {
-    const dados = { _resumo: { resumo: "lead PJ, cnpj ok", turnos: 24, em: new Date().toISOString() } }
+    const dados = {
+      _resumo: { resumo: "lead PJ, cnpj ok", turnos: 24, em: new Date().toISOString() },
+    }
     const res = prepararHistoricoIA(historico(26), dados)
     expect(res.gerarResumo).toBe(false)
     expect(res.mensagens[0].content).toContain("[Resumo anterior]")

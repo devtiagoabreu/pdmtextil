@@ -42,15 +42,14 @@ export async function GET(req: NextRequest) {
           like(crmPessoas.razaoSocial, searchPattern),
           like(clientes.nome, searchPattern),
           like(crmOportunidades.titulo, searchPattern),
-          like(crmVisitas.nomeAvulso, searchPattern),
+          like(crmVisitas.nomeAvulso, searchPattern)
         )!
       )
     }
     if (searchParams.get("avulsas") === "true") {
-      conditions.push(and(
-        eq(crmVisitas.empresaId, null as any),
-        eq(crmVisitas.clienteId, null as any),
-      )!)
+      conditions.push(
+        and(eq(crmVisitas.empresaId, null as any), eq(crmVisitas.clienteId, null as any))!
+      )
     }
     if (dataInicio) conditions.push(gte(crmVisitas.dataVisita, dataInicio))
     if (dataFim) conditions.push(lte(crmVisitas.dataVisita, dataFim))
@@ -172,7 +171,8 @@ export async function POST(req: NextRequest) {
     const datas: string[] = [body.dataVisita]
 
     if (body.recorrencia && body.recorrenciaFim) {
-      const interval = body.recorrencia === "semanal" ? 7 : body.recorrencia === "quinzenal" ? 14 : 30
+      const interval =
+        body.recorrencia === "semanal" ? 7 : body.recorrencia === "quinzenal" ? 14 : 30
       const start = new Date(body.dataVisita + "T12:00:00")
       const end = new Date(body.recorrenciaFim + "T12:00:00")
       const current = new Date(start)
@@ -195,7 +195,12 @@ export async function POST(req: NextRequest) {
       await db
         .update(crmVisitas)
         .set({ enderecoLat: coordsEndereco.latitude, enderecoLng: coordsEndereco.longitude })
-        .where(inArray(crmVisitas.id, inserted.map((v: any) => v.id)))
+        .where(
+          inArray(
+            crmVisitas.id,
+            inserted.map((v: any) => v.id)
+          )
+        )
       for (const v of inserted) {
         v.enderecoLat = coordsEndereco.latitude
         v.enderecoLng = coordsEndereco.longitude
@@ -220,7 +225,12 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    await notificar("VISITA_CRIADA", `Visita ${primeira.tipo} agendada para ${new Date(primeira.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")}${datas.length > 1 ? ` (${datas.length} recorrencias)` : ""}`, `/comercial/crm/visitas/${primeira.id}`, session.user.name)
+    await notificar(
+      "VISITA_CRIADA",
+      `Visita ${primeira.tipo} agendada para ${new Date(primeira.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")}${datas.length > 1 ? ` (${datas.length} recorrencias)` : ""}`,
+      `/comercial/crm/visitas/${primeira.id}`,
+      session.user.name
+    )
 
     return NextResponse.json({ visita: primeira, total: inserted.length }, { status: 201 })
   } catch (error) {
@@ -229,7 +239,9 @@ export async function POST(req: NextRequest) {
   }
 }
 
-async function buscarCoordenadasDaVisita(baseValues: Record<string, any>): Promise<{ latitude: number; longitude: number } | null> {
+async function buscarCoordenadasDaVisita(
+  baseValues: Record<string, any>
+): Promise<{ latitude: number; longitude: number } | null> {
   const enderecoVisita: EnderecoCampos = {
     endereco: baseValues.endereco || null,
     numero: baseValues.numero || null,

@@ -34,7 +34,7 @@ export default function FaturamentoDetailPage() {
   const [saving, setSaving] = useState(false)
 
   function setField(field: string, value: string) {
-    setForm(prev => ({ ...prev, [field]: value }))
+    setForm((prev) => ({ ...prev, [field]: value }))
   }
 
   useEffect(() => {
@@ -60,7 +60,11 @@ export default function FaturamentoDetailPage() {
   useEffect(() => {
     fetch("/api/crm/oportunidades")
       .then((r) => r.json())
-      .then((data: { id: unknown; titulo: string }[]) => setOportunidades(Array.isArray(data) ? data.map((o) => ({ id: Number(o.id), titulo: o.titulo })) : []))
+      .then((data: { id: unknown; titulo: string }[]) =>
+        setOportunidades(
+          Array.isArray(data) ? data.map((o) => ({ id: Number(o.id), titulo: o.titulo })) : []
+        )
+      )
       .catch(() => setOportunidades([]))
   }, [])
 
@@ -133,25 +137,36 @@ export default function FaturamentoDetailPage() {
     return (
       <div className="text-center py-20">
         <p className="text-slate-500">Faturamento não encontrado</p>
-        <Link href="/comercial/crm/faturamentos" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
+        <Link
+          href="/comercial/crm/faturamentos"
+          className="text-blue-600 hover:underline mt-2 inline-block"
+        >
+          Voltar
+        </Link>
       </div>
     )
   }
 
   const total = somarValoresTotais(faturamento.itens || [])
   const statusLabel = STATUS_FATURAMENTO_LABELS[faturamento.status] || faturamento.status
-  const statusColor = STATUS_FATURAMENTO_CORES[faturamento.status] || "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+  const statusColor =
+    STATUS_FATURAMENTO_CORES[faturamento.status] ||
+    "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
 
   return (
     <div className="max-w-3xl animate-fade-in">
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => router.back()} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <button
+          onClick={() => router.back()}
+          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={18} className="text-slate-500" />
         </button>
         <div className="flex-1">
           <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2">
             <Receipt size={20} className="text-blue-600" />
-            {faturamento.numero || `Faturamento #${faturamento.id}`}{info && <InfoButton content={info} />}
+            {faturamento.numero || `Faturamento #${faturamento.id}`}
+            {info && <InfoButton content={info} />}
           </h1>
           <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400 mt-1">
             {faturamento.oportunidadeTitulo && (
@@ -166,7 +181,9 @@ export default function FaturamentoDetailPage() {
                 {new Date(faturamento.dataEmissao + "T12:00:00").toLocaleDateString("pt-BR")}
               </span>
             )}
-            <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${statusColor}`}>
+            <span
+              className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${statusColor}`}
+            >
               {statusLabel}
             </span>
             {faturamento.origem === "ERP" && (
@@ -196,8 +213,12 @@ export default function FaturamentoDetailPage() {
 
       {faturamento.observacao && !editing && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 mb-4">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">Observação</h2>
-          <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{faturamento.observacao}</p>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">
+            Observação
+          </h2>
+          <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+            {faturamento.observacao}
+          </p>
         </div>
       )}
 
@@ -234,35 +255,52 @@ export default function FaturamentoDetailPage() {
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
           <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-3">Itens</h2>
           {faturamento.itens.length === 0 ? (
-            <p className="text-sm text-slate-500 dark:text-slate-400 py-2">Nenhum item registrado.</p>
+            <p className="text-sm text-slate-500 dark:text-slate-400 py-2">
+              Nenhum item registrado.
+            </p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
                 <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                   <tr>
-                    <th className="px-3 py-2 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Produto</th>
-                    <th className="px-3 py-2 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase hidden sm:table-cell">Un.</th>
-                    <th className="px-3 py-2 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase hidden md:table-cell">Qtd</th>
-                    <th className="px-3 py-2 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Total</th>
+                    <th className="px-3 py-2 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                      Produto
+                    </th>
+                    <th className="px-3 py-2 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase hidden sm:table-cell">
+                      Un.
+                    </th>
+                    <th className="px-3 py-2 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase hidden md:table-cell">
+                      Qtd
+                    </th>
+                    <th className="px-3 py-2 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                      Total
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {faturamento.itens.map((item) => (
                     <tr key={item.id}>
                       <td className="px-3 py-2.5 text-sm">
-                        <p className="font-medium text-slate-900 dark:text-slate-100">{item.produto}</p>
-                        {item.codigo && (
-                          <p className="text-xs text-slate-400">{item.codigo}</p>
-                        )}
+                        <p className="font-medium text-slate-900 dark:text-slate-100">
+                          {item.produto}
+                        </p>
+                        {item.codigo && <p className="text-xs text-slate-400">{item.codigo}</p>}
                       </td>
                       <td className="px-3 py-2.5 text-sm text-slate-500 dark:text-slate-400 hidden sm:table-cell">
-                        {item.unidade === "OUTRA" ? item.unidadeOutra : LABEL_UNIDADES[item.unidade] || item.unidade}
+                        {item.unidade === "OUTRA"
+                          ? item.unidadeOutra
+                          : LABEL_UNIDADES[item.unidade] || item.unidade}
                       </td>
                       <td className="px-3 py-2.5 text-sm text-slate-500 dark:text-slate-400 hidden md:table-cell">
-                        {item.quantidade != null ? Number(item.quantidade).toLocaleString("pt-BR") : "—"}
+                        {item.quantidade != null
+                          ? Number(item.quantidade).toLocaleString("pt-BR")
+                          : "—"}
                       </td>
                       <td className="px-3 py-2.5 text-sm font-semibold text-slate-900 dark:text-slate-100 whitespace-nowrap">
-                        {Number(item.valorTotal || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                        {Number(item.valorTotal || 0).toLocaleString("pt-BR", {
+                          style: "currency",
+                          currency: "BRL",
+                        })}
                       </td>
                     </tr>
                   ))}

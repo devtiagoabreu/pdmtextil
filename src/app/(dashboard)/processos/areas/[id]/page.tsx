@@ -115,7 +115,7 @@ export default function ProcessoAreaFormPage() {
   }
 
   const handleChange = (field: keyof Area, value: string | boolean) => {
-    setArea(prev => ({ ...prev, [field]: value }))
+    setArea((prev) => ({ ...prev, [field]: value }))
   }
 
   if (loading) {
@@ -148,12 +148,14 @@ export default function ProcessoAreaFormPage() {
           <select
             id="siteId"
             value={area.siteId}
-            onChange={e => handleChange("siteId", e.target.value)}
+            onChange={(e) => handleChange("siteId", e.target.value)}
             className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
           >
             <option value="">Selecione o site</option>
             {sites.map((site) => (
-              <option key={site.id} value={site.id}>{site.nome}</option>
+              <option key={site.id} value={site.id}>
+                {site.nome}
+              </option>
             ))}
           </select>
         </div>
@@ -163,7 +165,7 @@ export default function ProcessoAreaFormPage() {
           <Input
             id="nome"
             value={area.nome}
-            onChange={e => handleChange("nome", e.target.value)}
+            onChange={(e) => handleChange("nome", e.target.value)}
             placeholder="Produção / Tecelagem"
             required
           />
@@ -174,13 +176,19 @@ export default function ProcessoAreaFormPage() {
           <Input
             id="descricao"
             value={area.descricao || ""}
-            onChange={e => handleChange("descricao", e.target.value)}
+            onChange={(e) => handleChange("descricao", e.target.value)}
             placeholder="Descrição da área"
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <input type="checkbox" id="ativo" checked={area.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={area.ativo}
+            onChange={(e) => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
           <Label htmlFor="ativo">Ativo</Label>
           <InfoButton content={areaCampos.ativo} />
         </div>
@@ -191,7 +199,9 @@ export default function ProcessoAreaFormPage() {
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
           <Link href="/processos/areas">
-            <Button variant="outline" type="button">Cancelar</Button>
+            <Button variant="outline" type="button">
+              Cancelar
+            </Button>
           </Link>
         </div>
       </form>

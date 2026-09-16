@@ -12,12 +12,7 @@ interface NavLinkProps {
 
 export function NavLink({ href, children, className, title, onClick }: NavLinkProps) {
   return (
-    <Link
-      href={href}
-      onClick={onClick}
-      className={className}
-      title={title}
-    >
+    <Link href={href} onClick={onClick} className={className} title={title}>
       {children}
     </Link>
   )

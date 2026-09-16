@@ -106,7 +106,12 @@ export function Toolbar({
               </select>
             </div>
           )}
-          <Button variant="outline" onClick={onCarregarTodos} disabled={carregarTodosDisabled} className="gap-2">
+          <Button
+            variant="outline"
+            onClick={onCarregarTodos}
+            disabled={carregarTodosDisabled}
+            className="gap-2"
+          >
             {loadingData ? <Loader2 size={16} className="animate-spin" /> : <RefreshCw size={16} />}
             Carregar Todas
           </Button>

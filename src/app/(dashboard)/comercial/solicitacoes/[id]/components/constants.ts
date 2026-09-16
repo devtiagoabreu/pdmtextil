@@ -1,5 +1,5 @@
 export const TIPO_CONFIG: Record<string, string> = {
-  DESENVOLVIMENTO_TECELAGEM:      "Desenvolvimento Tecelagem",
+  DESENVOLVIMENTO_TECELAGEM: "Desenvolvimento Tecelagem",
   DESENVOLVIMENTO_BENEFICIAMENTO: "Desenvolvimento Beneficiamento",
 }
 

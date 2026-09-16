@@ -41,7 +41,10 @@ export function ChatList({ chats, selectedId, onSelect }: ChatListProps) {
             <div className="flex flex-col items-end gap-1 flex-shrink-0">
               {chat.ultimaMensagemData && (
                 <span className="text-[10px] text-slate-400">
-                  {new Date(chat.ultimaMensagemData).toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })}
+                  {new Date(chat.ultimaMensagemData).toLocaleDateString("pt-BR", {
+                    day: "2-digit",
+                    month: "2-digit",
+                  })}
                 </span>
               )}
               {chat.naoLidas > 0 && (

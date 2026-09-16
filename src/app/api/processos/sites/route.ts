@@ -66,7 +66,12 @@ export async function POST(req: NextRequest) {
       usuarioNome: session.user.name,
     })
 
-    await notificar("PROC_SITE_CRIADO", `Site cadastrado: ${nova.nome}`, `/processos/sites/${nova.id}`, session.user.name)
+    await notificar(
+      "PROC_SITE_CRIADO",
+      `Site cadastrado: ${nova.nome}`,
+      `/processos/sites/${nova.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {

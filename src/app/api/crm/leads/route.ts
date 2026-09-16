@@ -29,12 +29,15 @@ export async function GET(req: NextRequest) {
         or(
           like(crmLeads.nome, `%${search}%`),
           like(crmLeads.email, `%${search}%`),
-          like(crmLeads.empresaNome, `%${search}%`),
+          like(crmLeads.empresaNome, `%${search}%`)
         )
       )
     }
 
-    const where = conditions.length > 0 ? sql`${conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`)}` : undefined
+    const where =
+      conditions.length > 0
+        ? sql`${conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`)}`
+        : undefined
 
     const lista = await db
       .select({
@@ -65,7 +68,10 @@ export async function GET(req: NextRequest) {
       })
       .from(crmLeads)
       .leftJoin(usuarios, eq(crmLeads.responsavelId, usuarios.id))
-      .leftJoin(crmPessoas, sql`${crmPessoas.id} = COALESCE(${crmLeads.pessoaId}, ${crmLeads.empresaId})`)
+      .leftJoin(
+        crmPessoas,
+        sql`${crmPessoas.id} = COALESCE(${crmLeads.pessoaId}, ${crmLeads.empresaId})`
+      )
       .where(where)
       .orderBy(desc(crmLeads.createdAt))
 
@@ -121,7 +127,12 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    await notificar("LEAD_CRIADO", `Lead criado: ${novo.nome}`, `/comercial/crm/leads/${novo.id}`, session.user.name)
+    await notificar(
+      "LEAD_CRIADO",
+      `Lead criado: ${novo.nome}`,
+      `/comercial/crm/leads/${novo.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(novo, { status: 201 })
   } catch (error) {

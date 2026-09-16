@@ -15,9 +15,30 @@ const admin = { user: { id: "1", role: "ADMIN" } }
 const comum = { user: { id: "2", role: "COMERCIAL" } }
 
 const usuarios = [
-  { id: 1, name: "Ana", email: "ana@empresa.com", role: "COMERCIAL", ativo: true, celWhatsapp: "5519999999999" },
-  { id: 2, name: "Beto", email: "beto@empresa.com", role: "COMERCIAL", ativo: true, celWhatsapp: "5519999999998" },
-  { id: 3, name: "Carla", email: "carla@empresa.com", role: "ADMIN", ativo: false, celWhatsapp: null },
+  {
+    id: 1,
+    name: "Ana",
+    email: "ana@empresa.com",
+    role: "COMERCIAL",
+    ativo: true,
+    celWhatsapp: "5519999999999",
+  },
+  {
+    id: 2,
+    name: "Beto",
+    email: "beto@empresa.com",
+    role: "COMERCIAL",
+    ativo: true,
+    celWhatsapp: "5519999999998",
+  },
+  {
+    id: 3,
+    name: "Carla",
+    email: "carla@empresa.com",
+    role: "ADMIN",
+    ativo: false,
+    celWhatsapp: null,
+  },
 ]
 
 const configItem = [
@@ -179,7 +200,10 @@ describe("PUT /api/admin/bot-config", () => {
     vi.mocked(getServerSession).mockResolvedValue(admin as any)
     mockGet(usuarios)
 
-    const tx: any = { delete: vi.fn(() => createQueryBuilder(undefined)), insert: vi.fn(() => createQueryBuilder([])) }
+    const tx: any = {
+      delete: vi.fn(() => createQueryBuilder(undefined)),
+      insert: vi.fn(() => createQueryBuilder([])),
+    }
     vi.mocked(db.transaction).mockImplementation(async (cb: any) => cb(tx))
 
     const res = await putReq({ pj: [], pf: [] })
@@ -190,7 +214,11 @@ describe("PUT /api/admin/bot-config", () => {
   it("rejeita monitoramento com campos não booleanos", async () => {
     vi.mocked(getServerSession).mockResolvedValue(admin as any)
     mockGet(usuarios)
-    const res = await putReq({ pj: [], pf: [], monitoramento: { ativo: "sim", emailAlerta: true, notificacaoPdm: true } })
+    const res = await putReq({
+      pj: [],
+      pf: [],
+      monitoramento: { ativo: "sim", emailAlerta: true, notificacaoPdm: true },
+    })
     expect(res.status).toBe(400)
   })
 
@@ -202,10 +230,17 @@ describe("PUT /api/admin/bot-config", () => {
       configBuilder = createQueryBuilder("ok")
       return configBuilder
     })
-    const tx: any = { delete: vi.fn(() => createQueryBuilder(undefined)), insert: vi.fn(() => createQueryBuilder([])) }
+    const tx: any = {
+      delete: vi.fn(() => createQueryBuilder(undefined)),
+      insert: vi.fn(() => createQueryBuilder([])),
+    }
     vi.mocked(db.transaction).mockImplementation(async (cb: any) => cb(tx))
 
-    const res = await putReq({ pj: [], pf: [], monitoramento: { ativo: false, emailAlerta: true, notificacaoPdm: false } })
+    const res = await putReq({
+      pj: [],
+      pf: [],
+      monitoramento: { ativo: false, emailAlerta: true, notificacaoPdm: false },
+    })
     expect(res.status).toBe(200)
 
     const v = configBuilder.values.mock.calls[0][0]

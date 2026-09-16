@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { produtoCruAcabamento, produtoCruAcabamentoAmostra, produtosCru } from "@/lib/db/schema/produto-cru"
+import {
+  produtoCruAcabamento,
+  produtoCruAcabamentoAmostra,
+  produtosCru,
+} from "@/lib/db/schema/produto-cru"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { eq, and } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
@@ -25,19 +29,33 @@ export async function PUT(
 
     const body = await req.json()
 
-    const isAprovacao = body.status ? (body.status.startsWith("APROVADA") || body.status === "REPROVADA") : false
+    const isAprovacao = body.status
+      ? body.status.startsWith("APROVADA") || body.status === "REPROVADA"
+      : false
 
-    if (isAprovacao && !["COMERCIAL", "ADMIN", "SUDO", "PCP", "TECELAGEM"].includes(session.user?.role ?? "")) {
-      return NextResponse.json({ error: "Apenas COMERCIAL, ADMIN, SUDO, PCP e TECELAGEM podem aprovar/reprovar amostras" }, { status: 403 })
+    if (
+      isAprovacao &&
+      !["COMERCIAL", "ADMIN", "SUDO", "PCP", "TECELAGEM"].includes(session.user?.role ?? "")
+    ) {
+      return NextResponse.json(
+        { error: "Apenas COMERCIAL, ADMIN, SUDO, PCP e TECELAGEM podem aprovar/reprovar amostras" },
+        { status: 403 }
+      )
     }
 
     if (isAprovacao && !body.motivoAprovacao?.trim()) {
-      return NextResponse.json({ error: "Motivo é obrigatório para aprovar ou reprovar" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Motivo é obrigatório para aprovar ou reprovar" },
+        { status: 400 }
+      )
     }
 
     // Buscar estado atual para pegar o historico existente
     const [atual] = await db
-      .select({ status: produtoCruAcabamentoAmostra.status, historico: produtoCruAcabamentoAmostra.historico })
+      .select({
+        status: produtoCruAcabamentoAmostra.status,
+        historico: produtoCruAcabamentoAmostra.historico,
+      })
       .from(produtoCruAcabamentoAmostra)
       .where(eq(produtoCruAcabamentoAmostra.id, parseInt(asid)))
       .limit(1)
@@ -81,14 +99,14 @@ export async function PUT(
       if (isAprovacao) {
         await notificar(
           body.status.startsWith("APROVADA") ? "AMOSTRA_APROVADA" : "AMOSTRA_REPROVADA",
-           `Amostra de acabamento #${asid} (acabamento #${aid}) do produto #${id} foi ${body.status.startsWith("APROVADA") ? "aprovada" : "reprovada"} por ${session.user.name}${body.motivoAprovacao ? ` — Motivo: ${body.motivoAprovacao}` : ""}`,
+          `Amostra de acabamento #${asid} (acabamento #${aid}) do produto #${id} foi ${body.status.startsWith("APROVADA") ? "aprovada" : "reprovada"} por ${session.user.name}${body.motivoAprovacao ? ` — Motivo: ${body.motivoAprovacao}` : ""}`,
           `/cadastros/produto-cru/${id}?tab=amostras&amostraId=amostra-acab-${aid}-${asid}`,
           session.user.name
         )
       } else {
         await notificar(
           "AMOSTRA_ATUALIZADA",
-           `Amostra de acabamento #${asid} (acabamento #${aid}) do produto #${id} foi editada por ${session.user.name}`,
+          `Amostra de acabamento #${asid} (acabamento #${aid}) do produto #${id} foi editada por ${session.user.name}`,
           `/cadastros/produto-cru/${id}?tab=amostras&amostraId=amostra-acab-${aid}-${asid}`,
           session.user.name
         )
@@ -113,13 +131,21 @@ export async function PUT(
             .update(solicitacoes)
             .set({ status: "PILOTAGEM", updatedAt: new Date() })
             .where(eq(solicitacoes.id, prod.solicitacaoDesenvolvimentoId))
-          await notificar("SOLICITACAO_ATUALIZADA", `Solicitação #${prod.solicitacaoDesenvolvimentoId} avançou para Pilotagem (amostra acabamento #${asid})`, `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`, session.user.name)
+          await notificar(
+            "SOLICITACAO_ATUALIZADA",
+            `Solicitação #${prod.solicitacaoDesenvolvimentoId} avançou para Pilotagem (amostra acabamento #${asid})`,
+            `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`,
+            session.user.name
+          )
         }
       }
     }
 
     // Se a amostra estava em produção e foi reprovada, volta solicitação para Em Desenvolvimento
-    if (body.status === "REPROVADA" && (statusAnterior === "EM_PRODUCAO_BEN" || statusAnterior === "EM_PRODUCAO_TEC")) {
+    if (
+      body.status === "REPROVADA" &&
+      (statusAnterior === "EM_PRODUCAO_BEN" || statusAnterior === "EM_PRODUCAO_TEC")
+    ) {
       const [acab] = await db
         .select({ produtoCruId: produtoCruAcabamento.produtoCruId })
         .from(produtoCruAcabamento)
@@ -136,12 +162,24 @@ export async function PUT(
             .update(solicitacoes)
             .set({ status: "EM_DESENVOLVIMENTO", updatedAt: new Date() })
             .where(eq(solicitacoes.id, prod.solicitacaoDesenvolvimentoId))
-          await notificar("SOLICITACAO_ATUALIZADA", `Solicitação #${prod.solicitacaoDesenvolvimentoId} voltou para Em Desenvolvimento (amostra acabamento #${asid} reprovada)`, `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`, session.user.name)
+          await notificar(
+            "SOLICITACAO_ATUALIZADA",
+            `Solicitação #${prod.solicitacaoDesenvolvimentoId} voltou para Em Desenvolvimento (amostra acabamento #${asid} reprovada)`,
+            `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`,
+            session.user.name
+          )
         }
       }
     }
 
-    await registrarLog({ tipo: "ATUALIZACAO", acao: "atualizar_status", descricao: `Amostra acabamento #${asid} alterada para ${body.status}`, entidade: "AmostraAcabamento", entidadeId: parseInt(asid), usuarioNome: session.user.name })
+    await registrarLog({
+      tipo: "ATUALIZACAO",
+      acao: "atualizar_status",
+      descricao: `Amostra acabamento #${asid} alterada para ${body.status}`,
+      entidade: "AmostraAcabamento",
+      entidadeId: parseInt(asid),
+      usuarioNome: session.user.name,
+    })
 
     return NextResponse.json(atualizado[0])
   } catch (error) {
@@ -175,13 +213,16 @@ export async function DELETE(
 
     await notificar(
       "AMOSTRA_EXCLUIDA",
-       `Amostra de acabamento #${asid} (acabamento #${aid}) do produto #${id} foi excluída por ${session.user.name}`,
+      `Amostra de acabamento #${asid} (acabamento #${aid}) do produto #${id} foi excluída por ${session.user.name}`,
       `/cadastros/produto-cru/${id}?tab=amostras`,
       session.user.name
     )
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    return handleApiError(error, "DELETE /api/cadastros/produto-cru/[id]/acabamentos/[aid]/amostras/[asid]")
+    return handleApiError(
+      error,
+      "DELETE /api/cadastros/produto-cru/[id]/acabamentos/[aid]/amostras/[asid]"
+    )
   }
 }

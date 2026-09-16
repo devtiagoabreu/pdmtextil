@@ -7,7 +7,19 @@ import { ConfirmModal } from "@/components/ui/confirm-modal"
 import Link from "next/link"
 import { Suspense, useState, useEffect, useCallback, useRef } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { PlusCircle, Plane, Search, ChevronLeft, ChevronRight, Trash2, Pencil, CalendarRange, MapPin, Wallet, Users } from "lucide-react"
+import {
+  PlusCircle,
+  Plane,
+  Search,
+  ChevronLeft,
+  ChevronRight,
+  Trash2,
+  Pencil,
+  CalendarRange,
+  MapPin,
+  Wallet,
+  Users,
+} from "lucide-react"
 import { toast } from "sonner"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
 import type { ViagemResumo } from "./types"
@@ -78,7 +90,9 @@ function ViagensPageContent() {
   }, [])
 
   useEffect(() => {
-    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
   }, [])
 
   const { data: tableData, isLoading } = useQuery<ViagensPage>({
@@ -118,9 +132,15 @@ function ViagensPageContent() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Viagens{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Viagens{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {isLoading ? "Carregando..." : totalRows > 0 ? `${fromRow}-${toRow} de ${totalRows} viagem(ns)` : "0 viagens"}
+            {isLoading
+              ? "Carregando..."
+              : totalRows > 0
+                ? `${fromRow}-${toRow} de ${totalRows} viagem(ns)`
+                : "0 viagens"}
           </p>
         </div>
         <Link
@@ -145,13 +165,18 @@ function ViagensPageContent() {
         </div>
         <select
           value={statusFilter}
-          onChange={(e) => { setStatusFilter(e.target.value); setPage(1) }}
+          onChange={(e) => {
+            setStatusFilter(e.target.value)
+            setPage(1)
+          }}
           className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           aria-label="Filtrar por status"
         >
           <option value="all">Todos os status</option>
           {Object.entries(STATUS_LABELS).map(([value, label]) => (
-            <option key={value} value={value}>{label}</option>
+            <option key={value} value={value}>
+              {label}
+            </option>
           ))}
         </select>
       </div>
@@ -165,9 +190,14 @@ function ViagensPageContent() {
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Plane className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              {debouncedSearch ? "Nenhuma viagem encontrada para essa busca" : "Nenhuma viagem encontrada"}
+              {debouncedSearch
+                ? "Nenhuma viagem encontrada para essa busca"
+                : "Nenhuma viagem encontrada"}
             </p>
-            <Link href="/comercial/crm/viagens/novo" className="text-sm text-blue-600 hover:underline mt-2">
+            <Link
+              href="/comercial/crm/viagens/novo"
+              className="text-sm text-blue-600 hover:underline mt-2"
+            >
               Criar primeira viagem
             </Link>
           </div>
@@ -177,13 +207,27 @@ function ViagensPageContent() {
               <table className="w-full">
                 <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                   <tr>
-                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Viagem</th>
-                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Período</th>
-                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden lg:table-cell">Destino</th>
-                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Investimento</th>
-                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">Visitas</th>
-                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Status</th>
-                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Ações</th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                      Viagem
+                    </th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">
+                      Período
+                    </th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden lg:table-cell">
+                      Destino
+                    </th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                      Investimento
+                    </th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">
+                      Visitas
+                    </th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                      Status
+                    </th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                      Ações
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -207,9 +251,12 @@ function ViagensPageContent() {
                         {v.destinoCidade ? (
                           <span className="inline-flex items-center gap-1">
                             <MapPin size={12} className="text-slate-400" />
-                            {v.destinoCidade}{v.destinoUf ? ` - ${v.destinoUf}` : ""}
+                            {v.destinoCidade}
+                            {v.destinoUf ? ` - ${v.destinoUf}` : ""}
                           </span>
-                        ) : "—"}
+                        ) : (
+                          "—"
+                        )}
                       </td>
                       <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-700 dark:text-slate-300 whitespace-nowrap">
                         <span className="inline-flex items-center gap-1">
@@ -224,11 +271,16 @@ function ViagensPageContent() {
                         </span>
                       </td>
                       <td className="px-2 py-2 md:px-4 md:py-3">
-                        <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[v.status] || ""}`}>
+                        <span
+                          className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[v.status] || ""}`}
+                        >
                           {STATUS_LABELS[v.status] || v.status}
                         </span>
                       </td>
-                      <td className="px-2 py-2 md:px-4 md:py-3" onClick={(e) => e.stopPropagation()}>
+                      <td
+                        className="px-2 py-2 md:px-4 md:py-3"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <div className="flex items-center gap-1">
                           <Link
                             href={`/comercial/crm/viagens/${v.id}`}
@@ -259,7 +311,7 @@ function ViagensPageContent() {
                 </p>
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page === 1}
                     className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
                   >
@@ -291,7 +343,7 @@ function ViagensPageContent() {
                     )
                   })}
                   <button
-                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page === totalPages}
                     className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
                   >

@@ -180,7 +180,7 @@ export default function AtivoFormPage() {
   }
 
   const handleChange = (field: keyof Ativo, value: string | boolean) => {
-    setAtivo(prev => ({ ...prev, [field]: value }))
+    setAtivo((prev) => ({ ...prev, [field]: value }))
   }
 
   if (loading) {
@@ -210,22 +210,26 @@ export default function AtivoFormPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="codigo" className="font-medium">Código</Label>
+            <Label htmlFor="codigo" className="font-medium">
+              Código
+            </Label>
             <Input
               id="codigo"
               value={ativo.codigo}
-              onChange={e => handleChange("codigo", e.target.value)}
+              onChange={(e) => handleChange("codigo", e.target.value)}
               placeholder="EXT-001"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="nome" className="font-medium">Nome</Label>
+            <Label htmlFor="nome" className="font-medium">
+              Nome
+            </Label>
             <Input
               id="nome"
               value={ativo.nome}
-              onChange={e => handleChange("nome", e.target.value)}
+              onChange={(e) => handleChange("nome", e.target.value)}
               placeholder="Extintor de incêndio"
               required
             />
@@ -234,27 +238,33 @@ export default function AtivoFormPage() {
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="categoriaId" className="font-medium">Categoria</Label>
+            <Label htmlFor="categoriaId" className="font-medium">
+              Categoria
+            </Label>
             <select
               id="categoriaId"
               value={ativo.categoriaId}
-              onChange={e => handleChange("categoriaId", e.target.value)}
+              onChange={(e) => handleChange("categoriaId", e.target.value)}
               className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
               required
             >
               <option value="">Selecione a categoria</option>
               {categorias.map((categoria) => (
-                <option key={categoria.id} value={categoria.id}>{categoria.nome}</option>
+                <option key={categoria.id} value={categoria.id}>
+                  {categoria.nome}
+                </option>
               ))}
             </select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="localizacao" className="font-medium">Localização</Label>
+            <Label htmlFor="localizacao" className="font-medium">
+              Localização
+            </Label>
             <Input
               id="localizacao"
               value={ativo.localizacao}
-              onChange={e => handleChange("localizacao", e.target.value)}
+              onChange={(e) => handleChange("localizacao", e.target.value)}
               placeholder="Galpão A — Setor 2"
             />
           </div>
@@ -262,110 +272,138 @@ export default function AtivoFormPage() {
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
           <div className="space-y-2">
-            <Label htmlFor="fabricante" className="font-medium">Fabricante</Label>
+            <Label htmlFor="fabricante" className="font-medium">
+              Fabricante
+            </Label>
             <Input
               id="fabricante"
               value={ativo.fabricante}
-              onChange={e => handleChange("fabricante", e.target.value)}
+              onChange={(e) => handleChange("fabricante", e.target.value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="modelo" className="font-medium">Modelo</Label>
+            <Label htmlFor="modelo" className="font-medium">
+              Modelo
+            </Label>
             <Input
               id="modelo"
               value={ativo.modelo}
-              onChange={e => handleChange("modelo", e.target.value)}
+              onChange={(e) => handleChange("modelo", e.target.value)}
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="numSerie" className="font-medium">Nº de Série</Label>
+            <Label htmlFor="numSerie" className="font-medium">
+              Nº de Série
+            </Label>
             <Input
               id="numSerie"
               value={ativo.numSerie}
-              onChange={e => handleChange("numSerie", e.target.value)}
+              onChange={(e) => handleChange("numSerie", e.target.value)}
             />
           </div>
         </div>
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-3">
           <div className="space-y-2">
-            <Label htmlFor="anoFabricacao" className="font-medium">Ano de Fabricação</Label>
+            <Label htmlFor="anoFabricacao" className="font-medium">
+              Ano de Fabricação
+            </Label>
             <Input
               id="anoFabricacao"
               type="number"
               min={1900}
               max={2100}
               value={ativo.anoFabricacao}
-              onChange={e => handleChange("anoFabricacao", e.target.value)}
+              onChange={(e) => handleChange("anoFabricacao", e.target.value)}
               placeholder="2020"
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="status" className="font-medium">Status</Label>
+            <Label htmlFor="status" className="font-medium">
+              Status
+            </Label>
             <select
               id="status"
               value={ativo.status}
-              onChange={e => handleChange("status", e.target.value)}
+              onChange={(e) => handleChange("status", e.target.value)}
               className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
             >
               {STATUS.map((status) => (
-                <option key={status} value={status}>{status}</option>
+                <option key={status} value={status}>
+                  {status}
+                </option>
               ))}
             </select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="maquinaId" className="font-medium">Máquina (ID)</Label>
+            <Label htmlFor="maquinaId" className="font-medium">
+              Máquina (ID)
+            </Label>
             <Input
               id="maquinaId"
               type="number"
               value={ativo.maquinaId}
-              onChange={e => handleChange("maquinaId", e.target.value)}
+              onChange={(e) => handleChange("maquinaId", e.target.value)}
               placeholder="10"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="responsavelId" className="font-medium">Responsável</Label>
+          <Label htmlFor="responsavelId" className="font-medium">
+            Responsável
+          </Label>
           <select
             id="responsavelId"
             value={ativo.responsavelId}
-            onChange={e => handleChange("responsavelId", e.target.value)}
+            onChange={(e) => handleChange("responsavelId", e.target.value)}
             className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
           >
             <option value="">Sem responsável</option>
             {usuarios.map((usuario) => (
-              <option key={usuario.id} value={usuario.id}>{usuario.name} ({usuario.role})</option>
+              <option key={usuario.id} value={usuario.id}>
+                {usuario.name} ({usuario.role})
+              </option>
             ))}
           </select>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="descricao" className="font-medium">Descrição</Label>
+          <Label htmlFor="descricao" className="font-medium">
+            Descrição
+          </Label>
           <Textarea
             id="descricao"
             value={ativo.descricao}
-            onChange={e => handleChange("descricao", e.target.value)}
+            onChange={(e) => handleChange("descricao", e.target.value)}
             placeholder="Descrição do ativo"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="observacoes" className="font-medium">Observações</Label>
+          <Label htmlFor="observacoes" className="font-medium">
+            Observações
+          </Label>
           <Textarea
             id="observacoes"
             value={ativo.observacoes}
-            onChange={e => handleChange("observacoes", e.target.value)}
+            onChange={(e) => handleChange("observacoes", e.target.value)}
             placeholder="Observações adicionais"
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <input type="checkbox" id="ativo" checked={ativo.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={ativo.ativo}
+            onChange={(e) => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
           <Label htmlFor="ativo">Ativo</Label>
         </div>
 
@@ -375,7 +413,9 @@ export default function AtivoFormPage() {
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
           <Link href="/ativos/ativos">
-            <Button variant="outline" type="button">Cancelar</Button>
+            <Button variant="outline" type="button">
+              Cancelar
+            </Button>
           </Link>
         </div>
       </form>

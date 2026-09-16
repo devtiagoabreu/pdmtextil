@@ -8,6 +8,9 @@ describe("RelatoriosHubPage", () => {
   it("renderiza o heading e os links dos relatórios", () => {
     renderPage(<RelatoriosHubPage />)
     expect(screen.getByRole("heading", { name: /Relatórios/ })).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: /Atividade por Usuário/ })).toHaveAttribute("href", "/dashboard/relatorios/atividade-usuario")
+    expect(screen.getByRole("link", { name: /Atividade por Usuário/ })).toHaveAttribute(
+      "href",
+      "/dashboard/relatorios/atividade-usuario"
+    )
   })
 })

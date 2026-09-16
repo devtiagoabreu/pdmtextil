@@ -25,7 +25,9 @@ describe("ProcessoProcessoFormPage", () => {
       fireEvent.submit(form)
       await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Nome é obrigatório"))
 
-      fireEvent.change(screen.getByPlaceholderText("Processo de Tecelagem"), { target: { value: "Processo de Tecelagem" } })
+      fireEvent.change(screen.getByPlaceholderText("Processo de Tecelagem"), {
+        target: { value: "Processo de Tecelagem" },
+      })
       fireEvent.submit(form)
       await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Selecione a área"))
 
@@ -33,12 +35,18 @@ describe("ProcessoProcessoFormPage", () => {
       fireEvent.change(screen.getByLabelText("Código"), { target: { value: "PR-001" } })
 
       fireEvent.click(screen.getByRole("button", { name: "Adicionar entrada" }))
-      fireEvent.change(screen.getByRole("textbox", { name: "Entradas 1" }), { target: { value: "Fio de algodão" } })
+      fireEvent.change(screen.getByRole("textbox", { name: "Entradas 1" }), {
+        target: { value: "Fio de algodão" },
+      })
       fireEvent.click(screen.getByRole("button", { name: "Adicionar entrada" }))
-      fireEvent.change(screen.getByRole("textbox", { name: "Entradas 2" }), { target: { value: "Corante" } })
+      fireEvent.change(screen.getByRole("textbox", { name: "Entradas 2" }), {
+        target: { value: "Corante" },
+      })
 
       fireEvent.click(screen.getByRole("button", { name: "Adicionar saída" }))
-      fireEvent.change(screen.getByRole("textbox", { name: "Saídas 1" }), { target: { value: "Tecido acabado" } })
+      fireEvent.change(screen.getByRole("textbox", { name: "Saídas 1" }), {
+        target: { value: "Tecido acabado" },
+      })
       fireEvent.submit(form)
 
       await waitFor(() => {
@@ -72,38 +80,81 @@ describe("ProcessoProcessoFormPage", () => {
       const ui = renderPage(<ProcessoProcessoFormPage />)
       const form = ui.container.querySelector("form")!
 
-      fireEvent.change(screen.getByPlaceholderText("Processo de Tecelagem"), { target: { value: "Recebimento de Matéria-Prima" } })
+      fireEvent.change(screen.getByPlaceholderText("Processo de Tecelagem"), {
+        target: { value: "Recebimento de Matéria-Prima" },
+      })
       await screen.findByRole("option", { name: "Produção" })
       fireEvent.change(screen.getByRole("combobox", { name: "Área *" }), { target: { value: "1" } })
 
       fireEvent.click(screen.getByRole("button", { name: /Adicionar indicador/ }))
-      fireEvent.change(screen.getByLabelText("Nome", { selector: "#indicadores-0-nome" }), { target: { value: "Atraso de entrega" } })
-      fireEvent.change(screen.getByLabelText("Unidade", { selector: "#indicadores-0-unidade" }), { target: { value: "%" } })
-      fireEvent.change(screen.getByLabelText("Meta", { selector: "#indicadores-0-meta" }), { target: { value: "< 3%" } })
-      fireEvent.change(screen.getByLabelText("Frequência", { selector: "#indicadores-0-frequencia" }), { target: { value: "semanal" } })
+      fireEvent.change(screen.getByLabelText("Nome", { selector: "#indicadores-0-nome" }), {
+        target: { value: "Atraso de entrega" },
+      })
+      fireEvent.change(screen.getByLabelText("Unidade", { selector: "#indicadores-0-unidade" }), {
+        target: { value: "%" },
+      })
+      fireEvent.change(screen.getByLabelText("Meta", { selector: "#indicadores-0-meta" }), {
+        target: { value: "< 3%" },
+      })
+      fireEvent.change(
+        screen.getByLabelText("Frequência", { selector: "#indicadores-0-frequencia" }),
+        { target: { value: "semanal" } }
+      )
 
       fireEvent.click(screen.getByRole("button", { name: /Adicionar risco/ }))
-      fireEvent.change(screen.getByLabelText("Descrição", { selector: "#riscos-0-descricao" }), { target: { value: "Produto divergente do pedido" } })
-      fireEvent.change(screen.getByLabelText("Probabilidade", { selector: "#riscos-0-probabilidade" }), { target: { value: "Média" } })
-      fireEvent.change(screen.getByLabelText("Impacto", { selector: "#riscos-0-impacto" }), { target: { value: "Alta" } })
-      fireEvent.change(screen.getByLabelText("Ação de controle", { selector: "#riscos-0-controle" }), { target: { value: "Conferência no recebimento" } })
+      fireEvent.change(screen.getByLabelText("Descrição", { selector: "#riscos-0-descricao" }), {
+        target: { value: "Produto divergente do pedido" },
+      })
+      fireEvent.change(
+        screen.getByLabelText("Probabilidade", { selector: "#riscos-0-probabilidade" }),
+        { target: { value: "Média" } }
+      )
+      fireEvent.change(screen.getByLabelText("Impacto", { selector: "#riscos-0-impacto" }), {
+        target: { value: "Alta" },
+      })
+      fireEvent.change(
+        screen.getByLabelText("Ação de controle", { selector: "#riscos-0-controle" }),
+        { target: { value: "Conferência no recebimento" } }
+      )
 
       fireEvent.click(screen.getByRole("button", { name: /Adicionar controle/ }))
-      fireEvent.change(screen.getByLabelText("Descrição", { selector: "#controles-0-descricao" }), { target: { value: "Conferência de peso e rolos" } })
-      fireEvent.change(screen.getByLabelText("Responsável", { selector: "#controles-0-responsavel" }), { target: { value: "Conferente" } })
+      fireEvent.change(screen.getByLabelText("Descrição", { selector: "#controles-0-descricao" }), {
+        target: { value: "Conferência de peso e rolos" },
+      })
+      fireEvent.change(
+        screen.getByLabelText("Responsável", { selector: "#controles-0-responsavel" }),
+        { target: { value: "Conferente" } }
+      )
 
-      fireEvent.change(screen.getByPlaceholderText("https://..."), { target: { value: "https://sistema.com.br/instrucao" } })
-      fireEvent.change(screen.getByPlaceholderText("Foto, laudo..."), { target: { value: "Instrução de trabalho" } })
+      fireEvent.change(screen.getByPlaceholderText("https://..."), {
+        target: { value: "https://sistema.com.br/instrucao" },
+      })
+      fireEvent.change(screen.getByPlaceholderText("Foto, laudo..."), {
+        target: { value: "Instrução de trabalho" },
+      })
       fireEvent.click(screen.getByRole("button", { name: "Adicionar link" }))
       fireEvent.submit(form)
 
       await waitFor(() => {
         const call = findCall(fetchMock.calls, "/api/processos/processos", "POST")
         expect(call).toBeDefined()
-        expect(call?.body?.indicadores).toEqual([{ nome: "Atraso de entrega", unidade: "%", meta: "< 3%", frequencia: "semanal" }])
-        expect(call?.body?.riscos).toEqual([{ descricao: "Produto divergente do pedido", probabilidade: "Média", impacto: "Alta", controle: "Conferência no recebimento" }])
-        expect(call?.body?.controles).toEqual([{ descricao: "Conferência de peso e rolos", responsavel: "Conferente", frequencia: "" }])
-        expect(call?.body?.links).toEqual([{ url: "https://sistema.com.br/instrucao", descricao: "Instrução de trabalho" }])
+        expect(call?.body?.indicadores).toEqual([
+          { nome: "Atraso de entrega", unidade: "%", meta: "< 3%", frequencia: "semanal" },
+        ])
+        expect(call?.body?.riscos).toEqual([
+          {
+            descricao: "Produto divergente do pedido",
+            probabilidade: "Média",
+            impacto: "Alta",
+            controle: "Conferência no recebimento",
+          },
+        ])
+        expect(call?.body?.controles).toEqual([
+          { descricao: "Conferência de peso e rolos", responsavel: "Conferente", frequencia: "" },
+        ])
+        expect(call?.body?.links).toEqual([
+          { url: "https://sistema.com.br/instrucao", descricao: "Instrução de trabalho" },
+        ])
       })
     })
   })
@@ -147,7 +198,19 @@ describe("ProcessoProcessoFormPage", () => {
           return { json: [{ id: 9, nome: "Preparação", descricao: null, ordem: 1, ativo: true }] }
         }
         if (method === "GET" && url === "/api/processos/atividades?processoId=3") {
-          return { json: [{ id: 8, subprocessoId: 9, subprocessoNome: "Preparação", nome: "Encarar", tipo: "MANUAL", responsavel: null, ordem: 1 }] }
+          return {
+            json: [
+              {
+                id: 8,
+                subprocessoId: 9,
+                subprocessoNome: "Preparação",
+                nome: "Encarar",
+                tipo: "MANUAL",
+                responsavel: null,
+                ordem: 1,
+              },
+            ],
+          }
         }
         if (method === "PUT" && url === "/api/processos/processos/3") {
           return { json: { ok: true } }
@@ -159,12 +222,18 @@ describe("ProcessoProcessoFormPage", () => {
       renderPage(<ProcessoProcessoFormPage />)
 
       expect(await screen.findByDisplayValue("Processo de Tecelagem")).toBeDefined()
-      expect((screen.getByRole("combobox", { name: "Área *" }) as HTMLSelectElement).value).toBe("1")
-      expect((screen.getByRole("combobox", { name: "Status" }) as HTMLSelectElement).value).toBe("APROVADO")
+      expect((screen.getByRole("combobox", { name: "Área *" }) as HTMLSelectElement).value).toBe(
+        "1"
+      )
+      expect((screen.getByRole("combobox", { name: "Status" }) as HTMLSelectElement).value).toBe(
+        "APROVADO"
+      )
       expect(await screen.findAllByText("Preparação")).toHaveLength(2)
       expect(screen.getByText("Encarar")).toBeDefined()
 
-      fireEvent.change(screen.getByDisplayValue("Produzir tecidos"), { target: { value: "Produzir tecidos premium" } })
+      fireEvent.change(screen.getByDisplayValue("Produzir tecidos"), {
+        target: { value: "Produzir tecidos premium" },
+      })
       fireEvent.click(screen.getByRole("button", { name: /Atualizar/ }))
 
       await waitFor(() => expect(navMock.router.push).toHaveBeenCalledWith("/processos/processos"))
@@ -173,8 +242,12 @@ describe("ProcessoProcessoFormPage", () => {
       expect(call?.body?.objetivo).toBe("Produzir tecidos premium")
       expect(call?.body?.entradas).toEqual(["Fio de algodão"])
       expect(call?.body?.cliente).toBeUndefined()
-      expect(call?.body?.indicadores).toEqual([{ nome: "OEE", unidade: "", meta: "95%", frequencia: "" }])
-      expect(call?.body?.links).toEqual([{ url: "https://example.com/pop", descricao: "POP de tecelagem" }])
+      expect(call?.body?.indicadores).toEqual([
+        { nome: "OEE", unidade: "", meta: "95%", frequencia: "" },
+      ])
+      expect(call?.body?.links).toEqual([
+        { url: "https://example.com/pop", descricao: "POP de tecelagem" },
+      ])
     })
   })
 })

@@ -90,14 +90,24 @@ export default function ProdutoCruFormPage() {
   const [novoAcabamentoDescricao, setNovoAcabamentoDescricao] = useState("")
   const [novoAcabamentoErp, setNovoAcabamentoErp] = useState("")
 
-  const [fios, setFios] = useState<{ id: number; codigoFio: string; nome: string; idIntegracao: string | null }[]>([])
-  const [basesUrdume, setBasesUrdume] = useState<{ id: number; nome: string; idIntegracao: string | null }[]>([])
+  const [fios, setFios] = useState<
+    { id: number; codigoFio: string; nome: string; idIntegracao: string | null }[]
+  >([])
+  const [basesUrdume, setBasesUrdume] = useState<
+    { id: number; nome: string; idIntegracao: string | null }[]
+  >([])
   const [statusOptionsProd, setStatusOptionsProd] = useState<{ value: string; label: string }[]>([])
-  const [statusOptionsAmostra, setStatusOptionsAmostra] = useState<{ value: string; label: string }[]>([])
+  const [statusOptionsAmostra, setStatusOptionsAmostra] = useState<
+    { value: string; label: string }[]
+  >([])
 
-  const fioLabel = (f: typeof fios[0]) => [f.codigoFio, f.idIntegracao, f.nome].filter(Boolean).join(" — ")
-  const baseLabel = (b: typeof basesUrdume[0]) => [b.idIntegracao, b.nome].filter(Boolean).join(" — ")
-  const [solicitacoes, setSolicitacoes] = useState<{ id: number; cliente: string; projeto: string }[]>([])
+  const fioLabel = (f: (typeof fios)[0]) =>
+    [f.codigoFio, f.idIntegracao, f.nome].filter(Boolean).join(" — ")
+  const baseLabel = (b: (typeof basesUrdume)[0]) =>
+    [b.idIntegracao, b.nome].filter(Boolean).join(" — ")
+  const [solicitacoes, setSolicitacoes] = useState<
+    { id: number; cliente: string; projeto: string }[]
+  >([])
 
   const [expandedAcabamento, setExpandedAcabamento] = useState<number | null>(null)
   const [expandedAmostraForm, setExpandedAmostraForm] = useState<number | null>(null)
@@ -109,9 +119,16 @@ export default function ProdutoCruFormPage() {
   const [acabAmostraLinksAberta, setAcabAmostraLinksAberta] = useState<string | null>(null)
   const [gerandoPdf, setGerandoPdf] = useState<string | null>(null)
 
-  const [motivoModal, setMotivoModal] = useState<MotivoModalState>({ open: false, target: null as unknown as MotivoModalState["target"], novoStatus: "" })
+  const [motivoModal, setMotivoModal] = useState<MotivoModalState>({
+    open: false,
+    target: null as unknown as MotivoModalState["target"],
+    novoStatus: "",
+  })
   const [motivoText, setMotivoText] = useState("")
-  const [receitaDialog, setReceitaDialog] = useState<{ amostraId: number; acabamentoId: number } | null>(null)
+  const [receitaDialog, setReceitaDialog] = useState<{
+    amostraId: number
+    acabamentoId: number
+  } | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<DeleteTarget | null>(null)
 
   const [editAmostra, setEditAmostra] = useState<Amostra | null>(null)
@@ -121,7 +138,9 @@ export default function ProdutoCruFormPage() {
   const [editAmostraErp, setEditAmostraErp] = useState("")
   const [editAmostraTear, setEditAmostraTear] = useState("")
 
-  const { data: fiosData } = useQuery<{ id: number; codigoFio: string; nome: string; idIntegracao: string | null }[]>({
+  const { data: fiosData } = useQuery<
+    { id: number; codigoFio: string; nome: string; idIntegracao: string | null }[]
+  >({
     queryKey: ["cadastro-fios"],
     queryFn: async () => {
       const res = await fetch("/api/cadastros/fios")
@@ -129,7 +148,9 @@ export default function ProdutoCruFormPage() {
     },
   })
 
-  const { data: basesUrdumeData } = useQuery<{ id: number; nome: string; idIntegracao: string | null }[]>({
+  const { data: basesUrdumeData } = useQuery<
+    { id: number; nome: string; idIntegracao: string | null }[]
+  >({
     queryKey: ["cadastro-bases-urdume"],
     queryFn: async () => {
       const res = await fetch("/api/cadastros/bases-urdume")
@@ -174,11 +195,17 @@ export default function ProdutoCruFormPage() {
   }, [solicitacoesData])
 
   useEffect(() => {
-    if (Array.isArray(statusProdData)) setStatusOptionsProd(statusProdData.map((s) => ({ value: s.nome, label: s.rotulo || s.nome })))
+    if (Array.isArray(statusProdData))
+      setStatusOptionsProd(
+        statusProdData.map((s) => ({ value: s.nome, label: s.rotulo || s.nome }))
+      )
   }, [statusProdData])
 
   useEffect(() => {
-    if (Array.isArray(statusAmostraData)) setStatusOptionsAmostra(statusAmostraData.map((s) => ({ value: s.nome, label: s.rotulo || s.nome })))
+    if (Array.isArray(statusAmostraData))
+      setStatusOptionsAmostra(
+        statusAmostraData.map((s) => ({ value: s.nome, label: s.rotulo || s.nome }))
+      )
   }, [statusAmostraData])
 
   const { data: produtoData, isLoading: loading } = useQuery<ProdutoData>({
@@ -207,7 +234,9 @@ export default function ProdutoCruFormPage() {
     setComposicao(produtoData.composicao || [])
     setEstrutura(produtoData.estrutura || [])
     setAmostras(produtoData.amostras || [])
-    setAcabamentos(produtoData.acabamentos?.map((a: Acabamento) => ({ ...a, receitas: undefined })) || [])
+    setAcabamentos(
+      produtoData.acabamentos?.map((a: Acabamento) => ({ ...a, receitas: undefined })) || []
+    )
   }, [produtoData])
 
   useEffect(() => {
@@ -226,22 +255,24 @@ export default function ProdutoCruFormPage() {
   }, [loading])
 
   const handleChange = (field: keyof ProdutoCru, value: string | boolean | number | null) => {
-    setProduto(prev => ({ ...prev, [field]: value }))
+    setProduto((prev) => ({ ...prev, [field]: value }))
   }
 
   const handleStatusChange = (newStatus: string) => {
     if (newStatus === "APROVADO") {
       const temAmostraCruAprovada = amostras.some((a) => a.status.startsWith("APROVADA"))
       if (!temAmostraCruAprovada) {
-        toast.error("—0 necessário pelo menos uma amostra de tecido cru aprovada para aprovar o produto")
+        toast.error(
+          "—0 necessário pelo menos uma amostra de tecido cru aprovada para aprovar o produto"
+        )
         return
       }
     }
-    setProduto(prev => ({ ...prev, status: newStatus }))
+    setProduto((prev) => ({ ...prev, status: newStatus }))
   }
 
   const handleFichaTecnicaChange = (field: keyof FichaTecnica, value: string) => {
-    setProduto(prev => ({
+    setProduto((prev) => ({
       ...prev,
       fichaTecnica: { ...(prev.fichaTecnica || {}), [field]: value } as FichaTecnica,
     }))
@@ -257,7 +288,9 @@ export default function ProdutoCruFormPage() {
     if (produto.status === "APROVADO") {
       const temAmostraCruAprovada = amostras.some((a) => a.status.startsWith("APROVADA"))
       if (!temAmostraCruAprovada) {
-        toast.error("—0 necessário pelo menos uma amostra de tecido cru aprovada para aprovar o produto")
+        toast.error(
+          "—0 necessário pelo menos uma amostra de tecido cru aprovada para aprovar o produto"
+        )
         return
       }
     }
@@ -332,13 +365,18 @@ export default function ProdutoCruFormPage() {
 
   const removeComposicao = async (cid: number) => {
     if (!id) return
-    if (await removeItem(`/api/cadastros/produto-cru/${id}/composicao/${cid}`, "Material removido")) {
+    if (
+      await removeItem(`/api/cadastros/produto-cru/${id}/composicao/${cid}`, "Material removido")
+    ) {
       setComposicao(composicao.filter((c) => c.id !== cid))
     }
   }
 
   const addEstrutura = async () => {
-    if (!id) { toast.error("Salve o produto primeiro"); return }
+    if (!id) {
+      toast.error("Salve o produto primeiro")
+      return
+    }
     try {
       const body: Record<string, unknown> = { tipo: novaEstruturaTipo }
       if (novaEstruturaTipo === "TRAMA") body.fioId = parseInt(novaEstruturaFioId)
@@ -364,36 +402,56 @@ export default function ProdutoCruFormPage() {
 
   const removeEstrutura = async (eid: number) => {
     if (!id) return
-    if (await removeItem(`/api/cadastros/produto-cru/${id}/estrutura/${eid}`, "Estrutura removida")) {
+    if (
+      await removeItem(`/api/cadastros/produto-cru/${id}/estrutura/${eid}`, "Estrutura removida")
+    ) {
       setEstrutura(estrutura.filter((e) => e.id !== eid))
     }
   }
 
-  const confirmUpdateStatusAmostraAcabamento = async (acabamentoId: number, asid: number, status: string, motivo?: string) => {
+  const confirmUpdateStatusAmostraAcabamento = async (
+    acabamentoId: number,
+    asid: number,
+    status: string,
+    motivo?: string
+  ) => {
     if (!id) return
     try {
-      const res = await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras/${asid}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status, motivoAprovacao: motivo }),
-      })
+      const res = await fetch(
+        `/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras/${asid}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status, motivoAprovacao: motivo }),
+        }
+      )
       if (!res.ok) {
         const err = await res.json()
         toast.error(err.error || "Erro ao atualizar status")
         return
       }
-      setAcabamentos(acabamentos.map((a) =>
-        a.id === acabamentoId
-          ? { ...a, amostras: a.amostras.map((as) => as.id === asid ? { ...as, status, motivoAprovacao: motivo } : as) }
-          : a
-      ))
+      setAcabamentos(
+        acabamentos.map((a) =>
+          a.id === acabamentoId
+            ? {
+                ...a,
+                amostras: a.amostras.map((as) =>
+                  as.id === asid ? { ...as, status, motivoAprovacao: motivo } : as
+                ),
+              }
+            : a
+        )
+      )
       toast.success("Status atualizado")
     } catch {
       toast.error("Erro ao atualizar status")
     }
   }
 
-  const handleGerarPdfAmostra = async (amostra: Amostra | AcabamentoAmostra, tipoAmostra: string) => {
+  const handleGerarPdfAmostra = async (
+    amostra: Amostra | AcabamentoAmostra,
+    tipoAmostra: string
+  ) => {
     const key = `${tipoAmostra}-${amostra.id}`
     setGerandoPdf(key)
     try {
@@ -414,7 +472,8 @@ export default function ProdutoCruFormPage() {
         produtoCruId: produto.id,
         solicitacaoDesenvolvimentoId: produto.solicitacaoDesenvolvimentoId,
       })
-    } catch {} finally {
+    } catch {
+    } finally {
       setGerandoPdf(null)
     }
   }
@@ -439,10 +498,18 @@ export default function ProdutoCruFormPage() {
     }
   }
 
-  const updateStatusAmostraAcabamento = async (acabamentoId: number, asid: number, novoStatus: string) => {
+  const updateStatusAmostraAcabamento = async (
+    acabamentoId: number,
+    asid: number,
+    novoStatus: string
+  ) => {
     const allow = ["REPROVADA"]
     if (novoStatus.startsWith("APROVADA") || allow.includes(novoStatus)) {
-      setMotivoModal({ open: true, target: { type: "acabamento", id: asid, acabamentoId }, novoStatus })
+      setMotivoModal({
+        open: true,
+        target: { type: "acabamento", id: asid, acabamentoId },
+        novoStatus,
+      })
     } else {
       await confirmUpdateStatusAmostraAcabamento(acabamentoId, asid, novoStatus)
     }
@@ -462,14 +529,17 @@ export default function ProdutoCruFormPage() {
         return
       }
       const atualizado = await res.json()
-      setAmostras(amostras.map((a) => a.id === amostraId ? atualizado : a))
+      setAmostras(amostras.map((a) => (a.id === amostraId ? atualizado : a)))
       toast.success("Status atualizado")
     } catch {
       toast.error("Erro ao atualizar status")
     }
   }
 
-  const saveAmostraLinks = async (amostraId: number, links: { url: string; descricao: string }[]) => {
+  const saveAmostraLinks = async (
+    amostraId: number,
+    links: { url: string; descricao: string }[]
+  ) => {
     if (!id) return
     const anteriores = amostras.find((a) => a.id === amostraId)?.links || []
     try {
@@ -479,59 +549,93 @@ export default function ProdutoCruFormPage() {
         body: JSON.stringify({ links }),
       })
       if (res.ok) {
-        setAmostras(amostras.map((a) => a.id === amostraId ? { ...a, links } : a))
+        setAmostras(amostras.map((a) => (a.id === amostraId ? { ...a, links } : a)))
       } else {
-        setAmostras(amostras.map((a) => a.id === amostraId ? { ...a, links: anteriores } : a))
+        setAmostras(amostras.map((a) => (a.id === amostraId ? { ...a, links: anteriores } : a)))
         toast.error("Erro ao salvar links")
       }
     } catch {
-      setAmostras(amostras.map((a) => a.id === amostraId ? { ...a, links: anteriores } : a))
+      setAmostras(amostras.map((a) => (a.id === amostraId ? { ...a, links: anteriores } : a)))
       toast.error("Erro de rede ao salvar links")
     }
   }
 
-  const saveAcabAmostraLinks = async (acabamentoId: number, amostraId: number, links: { url: string; descricao: string }[]) => {
+  const saveAcabAmostraLinks = async (
+    acabamentoId: number,
+    amostraId: number,
+    links: { url: string; descricao: string }[]
+  ) => {
     if (!id) return
-    const anteriores = acabamentos
-      .find((a) => a.id === acabamentoId)
-      ?.amostras?.find((as) => as.id === amostraId)?.links || []
+    const anteriores =
+      acabamentos.find((a) => a.id === acabamentoId)?.amostras?.find((as) => as.id === amostraId)
+        ?.links || []
     try {
-      const res = await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras/${amostraId}`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ links }),
-      })
+      const res = await fetch(
+        `/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras/${amostraId}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ links }),
+        }
+      )
       if (res.ok) {
-        setAcabamentos(acabamentos.map((a) =>
-          a.id === acabamentoId
-            ? { ...a, amostras: a.amostras.map((as) => as.id === amostraId ? { ...as, links } : as) }
-            : a
-        ))
+        setAcabamentos(
+          acabamentos.map((a) =>
+            a.id === acabamentoId
+              ? {
+                  ...a,
+                  amostras: a.amostras.map((as) => (as.id === amostraId ? { ...as, links } : as)),
+                }
+              : a
+          )
+        )
       } else {
-        setAcabamentos(acabamentos.map((a) =>
-          a.id === acabamentoId
-            ? { ...a, amostras: a.amostras.map((as) => as.id === amostraId ? { ...as, links: anteriores } : as) }
-            : a
-        ))
+        setAcabamentos(
+          acabamentos.map((a) =>
+            a.id === acabamentoId
+              ? {
+                  ...a,
+                  amostras: a.amostras.map((as) =>
+                    as.id === amostraId ? { ...as, links: anteriores } : as
+                  ),
+                }
+              : a
+          )
+        )
         toast.error("Erro ao salvar links")
       }
     } catch {
-      setAcabamentos(acabamentos.map((a) =>
-        a.id === acabamentoId
-          ? { ...a, amostras: a.amostras.map((as) => as.id === amostraId ? { ...as, links: anteriores } : as) }
-          : a
-      ))
+      setAcabamentos(
+        acabamentos.map((a) =>
+          a.id === acabamentoId
+            ? {
+                ...a,
+                amostras: a.amostras.map((as) =>
+                  as.id === amostraId ? { ...as, links: anteriores } : as
+                ),
+              }
+            : a
+        )
+      )
       toast.error("Erro de rede ao salvar links")
     }
   }
 
   const addAmostra = async () => {
-    if (!id) { toast.error("Salve o produto primeiro"); return }
+    if (!id) {
+      toast.error("Salve o produto primeiro")
+      return
+    }
     try {
       const res = await fetch(`/api/cadastros/produto-cru/${id}/amostras`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ descricao: novaAmostraDescricao || null, observacoes: novaAmostraObs || null, quantidadeProduzida: novaAmostraQtd || null, idIntegracaoErpCru: novaAmostraErp || null }),
+        body: JSON.stringify({
+          descricao: novaAmostraDescricao || null,
+          observacoes: novaAmostraObs || null,
+          quantidadeProduzida: novaAmostraQtd || null,
+          idIntegracaoErpCru: novaAmostraErp || null,
+        }),
       })
       if (!res.ok) throw new Error()
       const item = await res.json()
@@ -548,7 +652,9 @@ export default function ProdutoCruFormPage() {
 
   const removeAmostra = async (amostraId: number) => {
     if (!id) return
-    if (await removeItem(`/api/cadastros/produto-cru/${id}/amostras/${amostraId}`, "Amostra removida")) {
+    if (
+      await removeItem(`/api/cadastros/produto-cru/${id}/amostras/${amostraId}`, "Amostra removida")
+    ) {
       setAmostras(amostras.filter((a) => a.id !== amostraId))
     }
   }
@@ -578,7 +684,7 @@ export default function ProdutoCruFormPage() {
       })
       if (!res.ok) throw new Error()
       const atualizado = await res.json()
-      setAmostras(amostras.map((a) => a.id === editAmostra.id ? atualizado : a))
+      setAmostras(amostras.map((a) => (a.id === editAmostra.id ? atualizado : a)))
       setEditAmostra(null)
       toast.success("Amostra atualizada")
     } catch {
@@ -587,7 +693,10 @@ export default function ProdutoCruFormPage() {
   }
 
   const addAcabamento = async () => {
-    if (!id) { toast.error("Salve o produto primeiro"); return }
+    if (!id) {
+      toast.error("Salve o produto primeiro")
+      return
+    }
     try {
       const res = await fetch(`/api/cadastros/produto-cru/${id}/acabamentos`, {
         method: "POST",
@@ -611,7 +720,12 @@ export default function ProdutoCruFormPage() {
 
   const removeAcabamento = async (acabamentoId: number) => {
     if (!id) return
-    if (await removeItem(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}`, "Acabamento removido")) {
+    if (
+      await removeItem(
+        `/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}`,
+        "Acabamento removido"
+      )
+    ) {
       setAcabamentos(acabamentos.filter((a) => a.id !== acabamentoId))
     }
   }
@@ -619,16 +733,24 @@ export default function ProdutoCruFormPage() {
   const addAmostraAcabamento = async (acabamentoId: number) => {
     if (!id) return
     try {
-      const res = await fetch(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ descricao: novaAmostraAcabDescricao || null, quantidadeProduzida: novaAmostraAcabQtd || null }),
-      })
+      const res = await fetch(
+        `/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            descricao: novaAmostraAcabDescricao || null,
+            quantidadeProduzida: novaAmostraAcabQtd || null,
+          }),
+        }
+      )
       if (!res.ok) throw new Error()
       const item = await res.json()
-      setAcabamentos(acabamentos.map((a) =>
-        a.id === acabamentoId ? { ...a, amostras: [...a.amostras, item] } : a
-      ))
+      setAcabamentos(
+        acabamentos.map((a) =>
+          a.id === acabamentoId ? { ...a, amostras: [...a.amostras, item] } : a
+        )
+      )
       setNovaAmostraAcabDescricao("")
       setNovaAmostraAcabQtd("")
       setExpandedAmostraForm(null)
@@ -640,10 +762,17 @@ export default function ProdutoCruFormPage() {
 
   const removeAmostraAcabamento = async (acabamentoId: number, asid: number) => {
     if (!id) return
-    if (await removeItem(`/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras/${asid}`, "Amostra removida")) {
-      setAcabamentos(acabamentos.map((a) =>
-        a.id === acabamentoId ? { ...a, amostras: a.amostras.filter((as) => as.id !== asid) } : a
-      ))
+    if (
+      await removeItem(
+        `/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras/${asid}`,
+        "Amostra removida"
+      )
+    ) {
+      setAcabamentos(
+        acabamentos.map((a) =>
+          a.id === acabamentoId ? { ...a, amostras: a.amostras.filter((as) => as.id !== asid) } : a
+        )
+      )
     }
   }
 
@@ -652,16 +781,38 @@ export default function ProdutoCruFormPage() {
     if (target.type === "amostra") {
       await confirmUpdateStatusAmostra(target.id, novoStatus, motivoText.trim())
     } else {
-      await confirmUpdateStatusAmostraAcabamento(target.acabamentoId!, target.id, novoStatus, motivoText.trim())
+      await confirmUpdateStatusAmostraAcabamento(
+        target.acabamentoId!,
+        target.id,
+        novoStatus,
+        motivoText.trim()
+      )
     }
-    setMotivoModal(m => ({ ...m, open: false }))
+    setMotivoModal((m) => ({ ...m, open: false }))
   }
 
-  const excluirComposicao = (c: Composicao) => setDeleteTarget({ type: "composicao", label: `material "${c.material}"`, fn: () => removeComposicao(c.id) })
-  const excluirEstrutura = (e: Estrutura) => setDeleteTarget({ type: "estrutura", label: "esta estrutura", fn: () => removeEstrutura(e.id) })
-  const excluirAmostra = (a: Amostra) => setDeleteTarget({ type: "amostra", label: "esta amostra", fn: () => removeAmostra(a.id) })
-  const excluirAcabamento = (a: Acabamento) => setDeleteTarget({ type: "acabamento", label: "este acabamento", fn: () => removeAcabamento(a.id) })
-  const excluirAmostraAcabamento = (acabamentoId: number, asid: number) => setDeleteTarget({ type: "amostra-acabamento", label: "esta amostra", fn: () => removeAmostraAcabamento(acabamentoId, asid) })
+  const excluirComposicao = (c: Composicao) =>
+    setDeleteTarget({
+      type: "composicao",
+      label: `material "${c.material}"`,
+      fn: () => removeComposicao(c.id),
+    })
+  const excluirEstrutura = (e: Estrutura) =>
+    setDeleteTarget({ type: "estrutura", label: "esta estrutura", fn: () => removeEstrutura(e.id) })
+  const excluirAmostra = (a: Amostra) =>
+    setDeleteTarget({ type: "amostra", label: "esta amostra", fn: () => removeAmostra(a.id) })
+  const excluirAcabamento = (a: Acabamento) =>
+    setDeleteTarget({
+      type: "acabamento",
+      label: "este acabamento",
+      fn: () => removeAcabamento(a.id),
+    })
+  const excluirAmostraAcabamento = (acabamentoId: number, asid: number) =>
+    setDeleteTarget({
+      type: "amostra-acabamento",
+      label: "esta amostra",
+      fn: () => removeAmostraAcabamento(acabamentoId, asid),
+    })
 
   return (
     <div className="max-w-4xl mx-auto space-y-6 animate-fade-in">
@@ -681,7 +832,11 @@ export default function ProdutoCruFormPage() {
           <EntityChatButton
             entidadeTipo="PRODUTO_CRU"
             entidadeId={id}
-            titulo={produto.codigoPdm ? `Produto ${produto.codigoPdm} — ${produto.descricao}` : `Produto #${id}`}
+            titulo={
+              produto.codigoPdm
+                ? `Produto ${produto.codigoPdm} — ${produto.descricao}`
+                : `Produto #${id}`
+            }
           />
         )}
       </div>
@@ -800,14 +955,16 @@ export default function ProdutoCruFormPage() {
             novaAmostraAcabQtd={novaAmostraAcabQtd}
             setNovaAmostraAcabQtd={setNovaAmostraAcabQtd}
             onAddAmostraAcabamento={addAmostraAcabamento}
-            onAbrirReceita={(acabamentoId, amostraId) => setReceitaDialog({ acabamentoId, amostraId })}
+            onAbrirReceita={(acabamentoId, amostraId) =>
+              setReceitaDialog({ acabamentoId, amostraId })
+            }
           />
         )}
 
         {activeTab === "links" && (
           <LinksTab
             links={produto.links || []}
-            onChangeLinks={links => setProduto(prev => ({ ...prev, links }))}
+            onChangeLinks={(links) => setProduto((prev) => ({ ...prev, links }))}
             saving={saving}
             isEditing={!!isEditing}
           />
@@ -816,7 +973,7 @@ export default function ProdutoCruFormPage() {
 
       <ProdutoCruModais
         motivoModal={motivoModal}
-        onFecharMotivo={() => setMotivoModal(m => ({ ...m, open: false }))}
+        onFecharMotivo={() => setMotivoModal((m) => ({ ...m, open: false }))}
         motivoText={motivoText}
         setMotivoText={setMotivoText}
         onConfirmarMotivo={confirmarMotivo}
@@ -838,7 +995,12 @@ export default function ProdutoCruFormPage() {
         produtoCruId={id}
         deleteTarget={deleteTarget}
         onCancelarExclusao={() => setDeleteTarget(null)}
-        onConfirmarExclusao={() => { if (deleteTarget) { deleteTarget.fn(); setDeleteTarget(null) } }}
+        onConfirmarExclusao={() => {
+          if (deleteTarget) {
+            deleteTarget.fn()
+            setDeleteTarget(null)
+          }
+        }}
       />
     </div>
   )

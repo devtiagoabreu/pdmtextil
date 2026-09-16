@@ -14,10 +14,7 @@ function idInvalido(id: string): boolean {
   return Number.isNaN(n) || n <= 0
 }
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -38,10 +35,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -73,7 +67,9 @@ export async function PUT(
     const nomeDuplicado = await db
       .select({ id: reunioesProjetos.id })
       .from(reunioesProjetos)
-      .where(sql`lower(${reunioesProjetos.nome}) = lower(${resultado.data.nome}) AND ${reunioesProjetos.id} <> ${id}`)
+      .where(
+        sql`lower(${reunioesProjetos.nome}) = lower(${resultado.data.nome}) AND ${reunioesProjetos.id} <> ${id}`
+      )
       .limit(1)
     if (nomeDuplicado.length > 0) {
       return NextResponse.json({ error: "Já existe um projeto com esse nome." }, { status: 409 })
@@ -100,10 +96,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth

@@ -54,7 +54,9 @@ describe("DELETE /api/cadastros/representantes/[id]", () => {
     vi.mocked(getServerSession).mockResolvedValue({ user: { name: "Jo", role: "VENDEDOR" } } as any)
     const res = await del("3")
     expect(res.status).toBe(403)
-    expect(await res.json()).toEqual({ error: "Apenas administradores podem excluir representantes" })
+    expect(await res.json()).toEqual({
+      error: "Apenas administradores podem excluir representantes",
+    })
   })
 
   it("exclui o representante e seus vínculos em transação", async () => {
@@ -66,7 +68,9 @@ describe("DELETE /api/cadastros/representantes/[id]", () => {
   })
 
   it("retorna 404 quando o representante não existe", async () => {
-    db.transaction = vi.fn((cb: any) => cb({ ...txMock(), delete: vi.fn(() => createQueryBuilder([])) }))
+    db.transaction = vi.fn((cb: any) =>
+      cb({ ...txMock(), delete: vi.fn(() => createQueryBuilder([])) })
+    )
     const res = await del("999")
     expect(res.status).toBe(404)
   })

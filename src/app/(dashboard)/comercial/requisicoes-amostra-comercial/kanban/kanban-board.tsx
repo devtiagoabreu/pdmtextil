@@ -5,7 +5,15 @@ import { useQuery } from "@tanstack/react-query"
 import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
+import {
+  DndContext,
+  DragOverlay,
+  useDraggable,
+  useDroppable,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
 import type { DragStartEvent, DragEndEvent } from "@dnd-kit/core"
 import { Loader2, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
@@ -28,7 +36,19 @@ interface RequisicaoCard {
   quantidade: string | null
 }
 
-function DroppableColumn({ id, children, rotulo, cor, count }: { id: string; children: React.ReactNode; rotulo: string; cor: string | null; count: number }) {
+function DroppableColumn({
+  id,
+  children,
+  rotulo,
+  cor,
+  count,
+}: {
+  id: string
+  children: React.ReactNode
+  rotulo: string
+  cor: string | null
+  count: number
+}) {
   const { setNodeRef, isOver } = useDroppable({ id })
 
   return (
@@ -48,9 +68,7 @@ function DroppableColumn({ id, children, rotulo, cor, count }: { id: string; chi
           {count}
         </span>
       </div>
-      <div className="flex-1 min-h-0 p-2 space-y-2 overflow-y-auto">
-        {children}
-      </div>
+      <div className="flex-1 min-h-0 p-2 space-y-2 overflow-y-auto">{children}</div>
     </div>
   )
 }
@@ -62,10 +80,12 @@ function DraggableCard({ requisicao }: { requisicao: RequisicaoCard }) {
     data: { requisicao },
   })
 
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    zIndex: 50,
-  } : undefined
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        zIndex: 50,
+      }
+    : undefined
 
   const handleClick = () => {
     router.push(`/comercial/requisicoes-amostra-comercial/${requisicao.id}`)
@@ -112,12 +132,13 @@ export function KanbanAmostraComercial() {
 
   const [requisicoes, setRequisicoes] = useState<RequisicaoCard[]>([])
   const [activeCard, setActiveCard] = useState<RequisicaoCard | null>(null)
-  const [motivoModal, setMotivoModal] = useState<{ requisicao: RequisicaoCard; novoStatus: string } | null>(null)
+  const [motivoModal, setMotivoModal] = useState<{
+    requisicao: RequisicaoCard
+    novoStatus: string
+  } | null>(null)
   const [motivoText, setMotivoText] = useState("")
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  )
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   const { data: statusList = [] } = useQuery<StatusCol[]>({
     queryKey: ["admin-status", "AMOSTRA_COMERCIAL"],
@@ -150,11 +171,10 @@ export function KanbanAmostraComercial() {
     if (dadosRequisicoes) setRequisicoes(dadosRequisicoes)
   }, [dadosRequisicoes])
 
-  const colunas = statusList
-    .map((col) => ({
-      ...col,
-      cards: requisicoes.filter((r) => r.status === col.nome),
-    }))
+  const colunas = statusList.map((col) => ({
+    ...col,
+    cards: requisicoes.filter((r) => r.status === col.nome),
+  }))
 
   const handleDragStart = (event: DragStartEvent) => {
     const card = event.active.data.current?.requisicao
@@ -185,11 +205,15 @@ export function KanbanAmostraComercial() {
     await executarMudancaStatus(requisicao, novoStatus)
   }
 
-  const executarMudancaStatus = async (requisicao: RequisicaoCard, novoStatus: string, motivo?: string) => {
+  const executarMudancaStatus = async (
+    requisicao: RequisicaoCard,
+    novoStatus: string,
+    motivo?: string
+  ) => {
     const statusAntigo = requisicao.status
 
-    setRequisicoes(prev =>
-      prev.map((r) => r.id === requisicao.id ? { ...r, status: novoStatus } : r)
+    setRequisicoes((prev) =>
+      prev.map((r) => (r.id === requisicao.id ? { ...r, status: novoStatus } : r))
     )
 
     try {
@@ -206,10 +230,12 @@ export function KanbanAmostraComercial() {
         const err = await res.json()
         throw new Error(err.error || "Erro ao alterar status")
       }
-      toast.success(`Requisição #${requisicao.id} movida para ${statusList.find((s) => s.nome === novoStatus)?.rotulo || novoStatus}`)
+      toast.success(
+        `Requisição #${requisicao.id} movida para ${statusList.find((s) => s.nome === novoStatus)?.rotulo || novoStatus}`
+      )
     } catch (err) {
-      setRequisicoes(prev =>
-        prev.map((r) => r.id === requisicao.id ? { ...r, status: statusAntigo } : r)
+      setRequisicoes((prev) =>
+        prev.map((r) => (r.id === requisicao.id ? { ...r, status: statusAntigo } : r))
       )
       toast.error(err instanceof Error ? err.message : "Erro ao alterar status")
     }
@@ -236,7 +262,13 @@ export function KanbanAmostraComercial() {
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto">
           {colunas.map((col) => (
-            <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo} cor={col.cor} count={col.cards.length}>
+            <DroppableColumn
+              key={col.nome}
+              id={col.nome}
+              rotulo={col.rotulo}
+              cor={col.cor}
+              count={col.cards.length}
+            >
               {col.cards.map((card) => (
                 <DraggableCard key={`req-${card.id}`} requisicao={card} />
               ))}
@@ -252,7 +284,9 @@ export function KanbanAmostraComercial() {
                   #{activeCard.id}
                 </span>
               </div>
-              <p className="text-sm font-medium text-slate-900 mt-1">{activeCard.titulo || "Sem título"}</p>
+              <p className="text-sm font-medium text-slate-900 mt-1">
+                {activeCard.titulo || "Sem título"}
+              </p>
               {activeCard.produtoCodigo && (
                 <p className="text-xs font-mono text-blue-600 mt-0.5">{activeCard.produtoCodigo}</p>
               )}
@@ -277,7 +311,7 @@ export function KanbanAmostraComercial() {
             </p>
             <textarea
               value={motivoText}
-              onChange={e => setMotivoText(e.target.value)}
+              onChange={(e) => setMotivoText(e.target.value)}
               className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows={4}
               placeholder="Motivo / Observação *"

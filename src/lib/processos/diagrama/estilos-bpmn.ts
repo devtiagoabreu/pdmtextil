@@ -82,7 +82,11 @@ export function lerEstilosTexto(di: unknown): EstilosTextoBpmn {
   const fontSize = attrs[CHAVES.fontSize]
   if (typeof fontSize === "number") {
     out.fontSize = fontSize
-  } else if (typeof fontSize === "string" && fontSize.trim() !== "" && !Number.isNaN(Number(fontSize))) {
+  } else if (
+    typeof fontSize === "string" &&
+    fontSize.trim() !== "" &&
+    !Number.isNaN(Number(fontSize))
+  ) {
     out.fontSize = Number(fontSize)
   }
   const fontWeight = attrs[CHAVES.fontWeight]
@@ -96,7 +100,12 @@ export function salvarEstilosTexto(di: unknown, estilos: EstilosTextoBpmn): bool
   if (!di || typeof di !== "object") return false
   const alvo = di as DiComAttrs
   if (!alvo.$attrs) {
-    Object.defineProperty(alvo, "$attrs", { value: {}, writable: true, configurable: true, enumerable: true })
+    Object.defineProperty(alvo, "$attrs", {
+      value: {},
+      writable: true,
+      configurable: true,
+      enumerable: true,
+    })
   }
   const attrs = alvo.$attrs as Record<string, unknown>
   const pares: Array<[string, EstilosTextoBpmn[keyof EstilosTextoBpmn]]> = [

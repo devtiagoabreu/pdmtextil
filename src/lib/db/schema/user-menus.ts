@@ -18,7 +18,9 @@ export type NewUserMenu = typeof userMenus.$inferInsert
 
 export const userMenuItens = pgTable("user_menu_itens", {
   id: serial("id").primaryKey(),
-  userMenuId: integer("user_menu_id").notNull().references(() => userMenus.id, { onDelete: "cascade" }),
+  userMenuId: integer("user_menu_id")
+    .notNull()
+    .references(() => userMenus.id, { onDelete: "cascade" }),
   titulo: varchar("titulo", { length: 100 }).notNull(),
   url: varchar("url", { length: 255 }).notNull(),
   ordem: integer("ordem").notNull().default(0),

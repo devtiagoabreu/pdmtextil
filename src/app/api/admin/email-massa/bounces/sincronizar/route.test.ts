@@ -19,7 +19,11 @@ describe("POST /api/admin/email-massa/bounces/sincronizar", () => {
 
   it("retorna 401 sem sessão de admin", async () => {
     vi.mocked(getServerSession).mockResolvedValue(null as any)
-    const res = await POST(new NextRequest("http://localhost/api/admin/email-massa/bounces/sincronizar", { method: "POST" }))
+    const res = await POST(
+      new NextRequest("http://localhost/api/admin/email-massa/bounces/sincronizar", {
+        method: "POST",
+      })
+    )
     expect(res.status).toBe(401)
   })
 
@@ -29,16 +33,28 @@ describe("POST /api/admin/email-massa/bounces/sincronizar", () => {
       marcados: 163,
       disparos: [{ disparoId: 2, marcados: 163 }],
     })
-    const res = await POST(new NextRequest("http://localhost/api/admin/email-massa/bounces/sincronizar", { method: "POST" }))
+    const res = await POST(
+      new NextRequest("http://localhost/api/admin/email-massa/bounces/sincronizar", {
+        method: "POST",
+      })
+    )
     expect(res.status).toBe(200)
     const data = await res.json()
-    expect(data).toEqual({ processados: 195, marcados: 163, disparos: [{ disparoId: 2, marcados: 163 }] })
+    expect(data).toEqual({
+      processados: 195,
+      marcados: 163,
+      disparos: [{ disparoId: 2, marcados: 163 }],
+    })
     expect(sincronizarBounces).toHaveBeenCalledWith(16)
   })
 
   it("retorna 500 quando o IMAP falha", async () => {
     vi.mocked(sincronizarBounces).mockRejectedValue(new Error("connection refused"))
-    const res = await POST(new NextRequest("http://localhost/api/admin/email-massa/bounces/sincronizar", { method: "POST" }))
+    const res = await POST(
+      new NextRequest("http://localhost/api/admin/email-massa/bounces/sincronizar", {
+        method: "POST",
+      })
+    )
     expect(res.status).toBe(500)
   })
 })

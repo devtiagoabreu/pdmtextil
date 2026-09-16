@@ -14,7 +14,13 @@ const modulos = [
     ordem: 1,
     ativo: true,
     licoes: [
-      { id: 10, titulo: "O que é um processo", ordem: 1, ativo: true, pathnameRelacionado: "/processos" },
+      {
+        id: 10,
+        titulo: "O que é um processo",
+        ordem: 1,
+        ativo: true,
+        pathnameRelacionado: "/processos",
+      },
       { id: 11, titulo: "Lição Inativa", ordem: 2, ativo: false, pathnameRelacionado: null },
     ],
   },
@@ -43,7 +49,9 @@ describe("TreinamentoPage", () => {
   it("renderiza os módulos ativos com heading", async () => {
     renderPage(<TreinamentoPage />)
 
-    expect(screen.getByRole("heading", { name: "Treinamento Engenharia de Processos" })).toBeInTheDocument()
+    expect(
+      screen.getByRole("heading", { name: "Treinamento Engenharia de Processos" })
+    ).toBeInTheDocument()
     expect(await screen.findByText("Visão Geral")).toBeInTheDocument()
     expect(screen.getByText("Primeiros passos na Engenharia de Processos")).toBeInTheDocument()
     expect(screen.getByText("2 lições")).toBeInTheDocument()

@@ -122,7 +122,11 @@ export default function ProcessoSubprocessoFormPage() {
 
       if (res.ok) {
         toast.success(isEditing ? "Subprocesso atualizado!" : "Subprocesso criado!")
-        router.push(subprocesso.processoId ? `/processos/processos/${subprocesso.processoId}` : "/processos/subprocessos")
+        router.push(
+          subprocesso.processoId
+            ? `/processos/processos/${subprocesso.processoId}`
+            : "/processos/subprocessos"
+        )
       } else {
         const err = await res.json()
         throw new Error(err.error || "Erro ao salvar")
@@ -136,7 +140,7 @@ export default function ProcessoSubprocessoFormPage() {
   }
 
   const handleChange = (field: keyof Subprocesso, value: string | boolean) => {
-    setSubprocesso(prev => ({ ...prev, [field]: value }))
+    setSubprocesso((prev) => ({ ...prev, [field]: value }))
   }
 
   if (loading) {
@@ -150,7 +154,11 @@ export default function ProcessoSubprocessoFormPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link href={processoIdParam ? `/processos/processos/${processoIdParam}` : "/processos/subprocessos"}>
+        <Link
+          href={
+            processoIdParam ? `/processos/processos/${processoIdParam}` : "/processos/subprocessos"
+          }
+        >
           <Button variant="ghost" size="icon">
             <ArrowLeft size={20} />
           </Button>
@@ -165,16 +173,23 @@ export default function ProcessoSubprocessoFormPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
-          <CampoInfo titulo="Processo" sobre={subprocessoCampos.processoId} htmlFor="processoId" obrigatorio />
+          <CampoInfo
+            titulo="Processo"
+            sobre={subprocessoCampos.processoId}
+            htmlFor="processoId"
+            obrigatorio
+          />
           <select
             id="processoId"
             value={subprocesso.processoId}
-            onChange={e => handleChange("processoId", e.target.value)}
+            onChange={(e) => handleChange("processoId", e.target.value)}
             className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
           >
             <option value="">Selecione o processo</option>
             {processos.map((proc) => (
-              <option key={proc.id} value={proc.id}>{proc.nome}</option>
+              <option key={proc.id} value={proc.id}>
+                {proc.nome}
+              </option>
             ))}
           </select>
         </div>
@@ -184,7 +199,7 @@ export default function ProcessoSubprocessoFormPage() {
           <Input
             id="nome"
             value={subprocesso.nome}
-            onChange={e => handleChange("nome", e.target.value)}
+            onChange={(e) => handleChange("nome", e.target.value)}
             placeholder="Preparação dos fios"
             required
           />
@@ -195,7 +210,7 @@ export default function ProcessoSubprocessoFormPage() {
           <Input
             id="descricao"
             value={subprocesso.descricao || ""}
-            onChange={e => handleChange("descricao", e.target.value)}
+            onChange={(e) => handleChange("descricao", e.target.value)}
             placeholder="Descrição do subprocesso"
           />
         </div>
@@ -207,7 +222,7 @@ export default function ProcessoSubprocessoFormPage() {
             type="number"
             min={0}
             value={subprocesso.ordem}
-            onChange={e => handleChange("ordem", e.target.value)}
+            onChange={(e) => handleChange("ordem", e.target.value)}
             placeholder="1"
           />
         </div>
@@ -218,7 +233,13 @@ export default function ProcessoSubprocessoFormPage() {
         />
 
         <div className="flex items-center gap-2">
-          <input type="checkbox" id="ativo" checked={subprocesso.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={subprocesso.ativo}
+            onChange={(e) => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
           <Label htmlFor="ativo">Ativo</Label>
           <InfoButton content={subprocessoCampos.ativo} />
         </div>
@@ -228,8 +249,16 @@ export default function ProcessoSubprocessoFormPage() {
             {saving && <Loader2 size={16} className="animate-spin" />}
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
-          <Link href={processoIdParam ? `/processos/processos/${processoIdParam}` : "/processos/subprocessos"}>
-            <Button variant="outline" type="button">Cancelar</Button>
+          <Link
+            href={
+              processoIdParam
+                ? `/processos/processos/${processoIdParam}`
+                : "/processos/subprocessos"
+            }
+          >
+            <Button variant="outline" type="button">
+              Cancelar
+            </Button>
           </Link>
         </div>
       </form>

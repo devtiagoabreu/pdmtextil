@@ -1,9 +1,20 @@
 "use client"
 
-import {Suspense, useEffect, useMemo, useRef, useState, type ReactNode} from "react"
+import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
-import { BarChart3, Search, Clock, FileText, FlaskConical, CheckCircle, AlertCircle, ExternalLink, Activity, Beaker } from "lucide-react"
+import {
+  BarChart3,
+  Search,
+  Clock,
+  FileText,
+  FlaskConical,
+  CheckCircle,
+  AlertCircle,
+  ExternalLink,
+  Activity,
+  Beaker,
+} from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { exportPDFRelatorio } from "@/lib/export-utils"
@@ -30,7 +41,12 @@ function HistoricoAmostraPageContent() {
   const id = selectedId ? parseInt(selectedId) : 0
   const tipo = selectedTipo || ""
 
-  const { data, isLoading: loading, isError, error } = useQuery<any>({
+  const {
+    data,
+    isLoading: loading,
+    isError,
+    error,
+  } = useQuery<any>({
     queryKey: ["relatorio-historico-amostra", id, tipo],
     enabled: !!id && !!tipo,
     queryFn: async () => {
@@ -52,13 +68,16 @@ function HistoricoAmostraPageContent() {
   const idTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    fetch("/api/amostras").then((r: any) => r.json()).then((res: any) => {
-      const combined = [
-        ...(res.tecidoCru || []).map((a: any) => ({ ...a, tipoAmostra: "tecido_cru" })),
-        ...(res.acabamento || []).map((a: any) => ({ ...a, tipoAmostra: "acabamento" })),
-      ]
-      setAmostrasList(combined)
-    }).catch(console.error)
+    fetch("/api/amostras")
+      .then((r: any) => r.json())
+      .then((res: any) => {
+        const combined = [
+          ...(res.tecidoCru || []).map((a: any) => ({ ...a, tipoAmostra: "tecido_cru" })),
+          ...(res.acabamento || []).map((a: any) => ({ ...a, tipoAmostra: "acabamento" })),
+        ]
+        setAmostrasList(combined)
+      })
+      .catch(console.error)
   }, [])
 
   useEffect(() => {
@@ -72,11 +91,14 @@ function HistoricoAmostraPageContent() {
   const filteredAmostras = useMemo(() => {
     if (!searchText) return amostrasList.slice(0, 50)
     const q = searchText.toLowerCase()
-    return amostrasList.filter((a: any) =>
-      a.id.toString().includes(q) ||
-      (a.descricao && a.descricao.toLowerCase().includes(q)) ||
-      (a.produtoCodigo && a.produtoCodigo.toLowerCase().includes(q))
-    ).slice(0, 50)
+    return amostrasList
+      .filter(
+        (a: any) =>
+          a.id.toString().includes(q) ||
+          (a.descricao && a.descricao.toLowerCase().includes(q)) ||
+          (a.produtoCodigo && a.produtoCodigo.toLowerCase().includes(q))
+      )
+      .slice(0, 50)
   }, [amostrasList, searchText])
 
   function selectAmostra(id: number, tipo: string) {
@@ -91,11 +113,13 @@ function HistoricoAmostraPageContent() {
     if (amostra?.historico && Array.isArray(amostra.historico)) {
       for (const h of amostra.historico) {
         let desc = ""
-        if (h.acao === "CRIACAO") desc = h.status ? `Amostra criada (status: ${h.status})` : "Amostra criada"
-        else if (h.acao === "MUDANCA_STATUS") desc = `Status: ${h.de || "?"} —  ${h.para || "?"}${h.motivo ? ` — ${h.motivo}` : ""}`
+        if (h.acao === "CRIACAO")
+          desc = h.status ? `Amostra criada (status: ${h.status})` : "Amostra criada"
+        else if (h.acao === "MUDANCA_STATUS")
+          desc = `Status: ${h.de || "?"} —  ${h.para || "?"}${h.motivo ? ` — ${h.motivo}` : ""}`
         else desc = h.acao
         entries.push({
-          id: `h-${h.id ?? (h.data + "-" + h.acao + "-" + h.usuario)}`,
+          id: `h-${h.id ?? h.data + "-" + h.acao + "-" + h.usuario}`,
           data: h.data,
           tipo: "historico",
           usuario: h.usuario || "Sistema",
@@ -107,7 +131,7 @@ function HistoricoAmostraPageContent() {
     }
     for (const l of data?.logs || []) {
       entries.push({
-        id: `l-${l.id ?? (l.createdAt + "-" + l.acao + "-" + l.usuarioNome)}`,
+        id: `l-${l.id ?? l.createdAt + "-" + l.acao + "-" + l.usuarioNome}`,
         data: l.createdAt,
         tipo: "log",
         usuario: l.usuarioNome || "Sistema",
@@ -136,18 +160,20 @@ function HistoricoAmostraPageContent() {
 
     tables.push({
       headers: ["#", "Descrição", "Tipo", "Status", "Produto"],
-      rows: [[a.id, a.descricao || "—", tipoLabel, statusLabel, data.produto?.codigoPdm || "—"]]
+      rows: [[a.id, a.descricao || "—", tipoLabel, statusLabel, data.produto?.codigoPdm || "—"]],
     })
 
     if (data.solicitacao) {
       tables.push({
         headers: ["Solicitação", "Cliente", "Projeto", "Status Sol."],
-        rows: [[
-          `#${data.solicitacao.id}`,
-          data.solicitacao.cliente,
-          data.solicitacao.projeto || "—",
-          data.solicitacao.status,
-        ]]
+        rows: [
+          [
+            `#${data.solicitacao.id}`,
+            data.solicitacao.cliente,
+            data.solicitacao.projeto || "—",
+            data.solicitacao.status,
+          ],
+        ],
       })
     }
 
@@ -158,11 +184,11 @@ function HistoricoAmostraPageContent() {
     await exportPDFRelatorio({
       title: `Histórico — Amostra #${a.id} (${tipoLabel})`,
       stats: {
-        "Descrição": a.descricao || "—",
-        "Status": statusLabel,
-        "Tipo": tipoLabel,
-        "Produto": data.produto?.codigoPdm || "—",
-        "Eventos": timeline.length,
+        Descrição: a.descricao || "—",
+        Status: statusLabel,
+        Tipo: tipoLabel,
+        Produto: data.produto?.codigoPdm || "—",
+        Eventos: timeline.length,
       },
       tables,
       filename: `historico-amostra-${a.id}`,
@@ -180,7 +206,8 @@ function HistoricoAmostraPageContent() {
           Histórico de Amostra de Desenvolvimento{info && <InfoButton content={info} />}
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Acompanhe todo o histórico de uma amostra de desenvolvimento: dados, produto, solicitação e timeline
+          Acompanhe todo o histórico de uma amostra de desenvolvimento: dados, produto, solicitação
+          e timeline
         </p>
       </div>
 
@@ -189,12 +216,18 @@ function HistoricoAmostraPageContent() {
           <div className="flex-1 min-w-[260px] relative">
             <label className="block text-xs text-slate-400 mb-1">Buscar amostra</label>
             <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              />
               <input
                 type="text"
                 placeholder="Digite ID, descrição ou código do produto..."
                 value={searchText}
-                onChange={(e) => { setSearchText(e.target.value); setShowDropdown(true) }}
+                onChange={(e) => {
+                  setSearchText(e.target.value)
+                  setShowDropdown(true)
+                }}
                 onFocus={() => setShowDropdown(true)}
                 className="w-full h-10 pl-9 pr-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
               />
@@ -208,11 +241,15 @@ function HistoricoAmostraPageContent() {
                     className="w-full text-left px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-700/50 border-b border-slate-100 dark:border-slate-700/50 last:border-0"
                   >
                     <span className="font-medium text-slate-700 dark:text-slate-300">#{a.id}</span>{" "}
-                    <span className="text-slate-600 dark:text-slate-400">{a.descricao || "Sem descrição"}</span>
+                    <span className="text-slate-600 dark:text-slate-400">
+                      {a.descricao || "Sem descrição"}
+                    </span>
                     <span className="text-slate-400 ml-2 text-[10px]">
                       [{a.tipoAmostra === "tecido_cru" ? "CRU" : "ACAB"}]
                     </span>
-                    {a.produtoCodigo && <span className="text-slate-400 ml-2">({a.produtoCodigo})</span>}
+                    {a.produtoCodigo && (
+                      <span className="text-slate-400 ml-2">({a.produtoCodigo})</span>
+                    )}
                     <StatusBadge status={a.status} />
                   </button>
                 ))}
@@ -301,7 +338,10 @@ function HistoricoAmostraPageContent() {
                   Exportar
                 </button>
               </div>
-              <Link href={pathname} className="h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 text-sm hover:bg-slate-50 dark:hover:bg-slate-800 inline-flex items-center">
+              <Link
+                href={pathname}
+                className="h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 text-sm hover:bg-slate-50 dark:hover:bg-slate-800 inline-flex items-center"
+              >
                 Limpar
               </Link>
             </>
@@ -310,7 +350,9 @@ function HistoricoAmostraPageContent() {
       </div>
 
       {isError && error && (
-        <div className="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 p-4 text-sm text-red-600 dark:text-red-400">{error instanceof Error ? error.message : "Erro ao carregar histórico"}</div>
+        <div className="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 p-4 text-sm text-red-600 dark:text-red-400">
+          {error instanceof Error ? error.message : "Erro ao carregar histórico"}
+        </div>
       )}
 
       {loading && <div className="text-center py-16 text-slate-500">Carregando histórico...</div>}
@@ -318,7 +360,9 @@ function HistoricoAmostraPageContent() {
       {!selectedId && !loading && (
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <Beaker className="w-16 h-16 text-slate-200 dark:text-slate-700 mb-4" />
-          <p className="text-base font-medium text-slate-400 dark:text-slate-500">Selecione uma amostra para ver o histórico completo</p>
+          <p className="text-base font-medium text-slate-400 dark:text-slate-500">
+            Selecione uma amostra para ver o histórico completo
+          </p>
         </div>
       )}
 
@@ -334,22 +378,31 @@ function HistoricoAmostraPageContent() {
                     ({data.tipo === "tecido_cru" ? "Tecido Cru" : "Acabamento"})
                   </span>
                 </h2>
-                <p className="text-sm text-slate-500 mt-1">{data.amostra.descricao || "Sem descrição"}</p>
+                <p className="text-sm text-slate-500 mt-1">
+                  {data.amostra.descricao || "Sem descrição"}
+                </p>
               </div>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-y-3 gap-x-6 text-sm">
               <div>
                 <span className="text-xs text-slate-400 block">Status</span>
-                <span className="font-medium text-slate-700 dark:text-slate-300"><StatusBadge status={data.amostra.status} /></span>
+                <span className="font-medium text-slate-700 dark:text-slate-300">
+                  <StatusBadge status={data.amostra.status} />
+                </span>
               </div>
               <div>
                 <span className="text-xs text-slate-400 block">Produto</span>
                 <span className="font-medium text-slate-700 dark:text-slate-300">
                   {data.produto ? (
-                    <Link href={`/cadastros/produto-cru/${data.produto.id}`} className="text-blue-600 hover:text-blue-700">
+                    <Link
+                      href={`/cadastros/produto-cru/${data.produto.id}`}
+                      className="text-blue-600 hover:text-blue-700"
+                    >
                       {data.produto.codigoPdm}
                     </Link>
-                  ) : "—"}
+                  ) : (
+                    "—"
+                  )}
                 </span>
               </div>
               <div>
@@ -362,7 +415,8 @@ function HistoricoAmostraPageContent() {
                 <div>
                   <span className="text-xs text-slate-400 block">Acabamento</span>
                   <span className="font-medium text-slate-700 dark:text-slate-300">
-                    {data.acabamento.tipoAcabamento}{data.acabamento.descricao ? ` — ${data.acabamento.descricao}` : ""}
+                    {data.acabamento.tipoAcabamento}
+                    {data.acabamento.descricao ? ` — ${data.acabamento.descricao}` : ""}
                   </span>
                 </div>
               )}
@@ -371,22 +425,31 @@ function HistoricoAmostraPageContent() {
                   <div>
                     <span className="text-xs text-slate-400 block">Solicitação</span>
                     <span className="font-medium text-slate-700 dark:text-slate-300">
-                      <Link href={`/comercial/solicitacoes/${data.solicitacao.id}`} className="text-blue-600 hover:text-blue-700">
+                      <Link
+                        href={`/comercial/solicitacoes/${data.solicitacao.id}`}
+                        className="text-blue-600 hover:text-blue-700"
+                      >
                         #{data.solicitacao.id}
                       </Link>
                     </span>
                   </div>
                   <div>
                     <span className="text-xs text-slate-400 block">Cliente</span>
-                    <span className="font-medium text-slate-700 dark:text-slate-300">{data.solicitacao.cliente}</span>
+                    <span className="font-medium text-slate-700 dark:text-slate-300">
+                      {data.solicitacao.cliente}
+                    </span>
                   </div>
                   <div>
                     <span className="text-xs text-slate-400 block">Projeto</span>
-                    <span className="font-medium text-slate-700 dark:text-slate-300">{data.solicitacao.projeto || "—"}</span>
+                    <span className="font-medium text-slate-700 dark:text-slate-300">
+                      {data.solicitacao.projeto || "—"}
+                    </span>
                   </div>
                   <div>
                     <span className="text-xs text-slate-400 block">Status Solic.</span>
-                    <span className="font-medium text-slate-700 dark:text-slate-300"><StatusBadge status={data.solicitacao.status} /></span>
+                    <span className="font-medium text-slate-700 dark:text-slate-300">
+                      <StatusBadge status={data.solicitacao.status} />
+                    </span>
                   </div>
                 </>
               )}
@@ -402,11 +465,17 @@ function HistoricoAmostraPageContent() {
             {timeline.length > 0 ? (
               <div className="space-y-0 max-h-[600px] overflow-y-auto">
                 {timeline.map((entry: any) => (
-                  <TimelineItem key={entry.id} entry={entry} isLast={timeline[timeline.length - 1]?.id === entry.id} />
+                  <TimelineItem
+                    key={entry.id}
+                    entry={entry}
+                    isLast={timeline[timeline.length - 1]?.id === entry.id}
+                  />
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-slate-400 italic text-center py-8">Nenhum evento registrado</p>
+              <p className="text-sm text-slate-400 italic text-center py-8">
+                Nenhum evento registrado
+              </p>
             )}
           </div>
         </>
@@ -422,11 +491,15 @@ function StatusBadge({ status }: { status: string }) {
     REPROVADO: "bg-red-50 text-red-600 dark:bg-red-950/50 dark:text-red-400",
     EM_PRODUCAO_TEC: "bg-cyan-50 text-cyan-600 dark:bg-cyan-950/50 dark:text-cyan-400",
     EM_PRODUCAO_BEN: "bg-purple-50 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400",
-    APROVADO_DESENVOLVIMENTO: "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400",
-    APROVADO_COMERCIAL: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400",
+    APROVADO_DESENVOLVIMENTO:
+      "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400",
+    APROVADO_COMERCIAL:
+      "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400",
   }
   return (
-    <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ml-1 ${colors[status] || "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}>
+    <span
+      className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ml-1 ${colors[status] || "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}
+    >
       {status}
     </span>
   )
@@ -449,14 +522,18 @@ function TimelineItem({ entry, isLast }: { entry: TimelineEntry; isLast: boolean
       </div>
       <div className="pb-4">
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-xs font-medium text-slate-800 dark:text-slate-200">{entry.usuario}</span>
+          <span className="text-xs font-medium text-slate-800 dark:text-slate-200">
+            {entry.usuario}
+          </span>
           <span className="text-[10px] text-slate-400">{date.toLocaleString("pt-BR")}</span>
         </div>
         <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">{entry.descricao}</p>
         {entry.detalhes && entry.detalhes.length > 0 && (
           <ul className="mt-1 space-y-0.5">
             {entry.detalhes.map((d: any, i: any) => (
-              <li key={d} className="text-xs text-slate-500 dark:text-slate-500">⬢ {d}</li>
+              <li key={d} className="text-xs text-slate-500 dark:text-slate-500">
+                ⬢ {d}
+              </li>
             ))}
           </ul>
         )}

@@ -51,7 +51,9 @@ describe("GET /api/crm/viagens/[id]", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await get("1")
     expect(res.status).toBe(401)
   })
@@ -65,9 +67,22 @@ describe("GET /api/crm/viagens/[id]", () => {
 
   it("retorna viagem com investimentos, visitas e KPIs de retorno", async () => {
     db.select
-      .mockReturnValueOnce(createQueryBuilder([{ id: 1, titulo: "Feira Agritech", status: "PLANEJADA", possivelRetorno: 5000, retornoReal: 1800, vendas: 3000 }]))
+      .mockReturnValueOnce(
+        createQueryBuilder([
+          {
+            id: 1,
+            titulo: "Feira Agritech",
+            status: "PLANEJADA",
+            possivelRetorno: 5000,
+            retornoReal: 1800,
+            vendas: 3000,
+          },
+        ])
+      )
       .mockReturnValueOnce(createQueryBuilder([{ id: 10, tipo: "PASSAGEM", valor: 500 }]))
-      .mockReturnValueOnce(createQueryBuilder([{ id: 3, dataVisita: "2026-07-01", nomeAvulso: "Cliente X" }]))
+      .mockReturnValueOnce(
+        createQueryBuilder([{ id: 3, dataVisita: "2026-07-01", nomeAvulso: "Cliente X" }])
+      )
     const res = await get("1")
     expect(res.status).toBe(200)
     const body = await res.json()
@@ -88,7 +103,9 @@ describe("PUT /api/crm/viagens/[id]", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await put("1", { titulo: "X" })
     expect(res.status).toBe(401)
   })
@@ -101,7 +118,10 @@ describe("PUT /api/crm/viagens/[id]", () => {
   })
 
   it("retorna 403 quando não é o criador e não é admin", async () => {
-    vi.mocked(requireAuth).mockResolvedValue({ session: { user: { id: "2", role: "GERENTE" } }, userId: 2 } as any)
+    vi.mocked(requireAuth).mockResolvedValue({
+      session: { user: { id: "2", role: "GERENTE" } },
+      userId: 2,
+    } as any)
     db.select.mockReturnValue(createQueryBuilder([{ id: 1, criadoPor: 1 }]))
     const res = await put("1", { titulo: "X" })
     expect(res.status).toBe(403)
@@ -124,7 +144,12 @@ describe("PUT /api/crm/viagens/[id]", () => {
     expect(res.status).toBe(200)
     expect(db.transaction).toHaveBeenCalled()
     expect(tx.delete).toHaveBeenCalled()
-    expect(notificar).toHaveBeenCalledWith("VIAGEM_ATUALIZADA", expect.stringContaining("Feira 2026"), expect.stringContaining("/1"), "Tiago")
+    expect(notificar).toHaveBeenCalledWith(
+      "VIAGEM_ATUALIZADA",
+      expect.stringContaining("Feira 2026"),
+      expect.stringContaining("/1"),
+      "Tiago"
+    )
   })
 })
 
@@ -136,7 +161,9 @@ describe("DELETE /api/crm/viagens/[id]", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await del("1")
     expect(res.status).toBe(401)
   })
@@ -148,7 +175,10 @@ describe("DELETE /api/crm/viagens/[id]", () => {
   })
 
   it("retorna 403 quando não é o criador e não é admin", async () => {
-    vi.mocked(requireAuth).mockResolvedValue({ session: { user: { id: "2", role: "GERENTE" } }, userId: 2 } as any)
+    vi.mocked(requireAuth).mockResolvedValue({
+      session: { user: { id: "2", role: "GERENTE" } },
+      userId: 2,
+    } as any)
     db.select.mockReturnValue(createQueryBuilder([{ id: 1, criadoPor: 1 }]))
     const res = await del("1")
     expect(res.status).toBe(403)

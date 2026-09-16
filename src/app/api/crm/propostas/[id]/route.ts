@@ -9,10 +9,7 @@ import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { inserirTimelineEvento, excluirTimelineEventosEntidade } from "@/lib/crm-timeline"
 import { handleApiError } from "@/lib/api-error"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -55,10 +52,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -115,11 +109,20 @@ export async function PUT(
         empresaId: existente.empresaId,
         tipo: "PROPOSTA",
         descricao: `Proposta "${existente.titulo}" ${body.status === "ACEITA" ? "aceita" : body.status === "RECUSADA" ? "recusada" : body.status === "REVISAO" ? "enviada para revisão" : "enviada"}`,
-        metadados: { propostaId: atualizada.id, statusAnterior: existente.status, statusNovo: body.status },
+        metadados: {
+          propostaId: atualizada.id,
+          statusAnterior: existente.status,
+          statusNovo: body.status,
+        },
       })
     }
 
-    await notificar("PROPOSTA_ATUALIZADA", `Proposta #${id} ${body.status ? `alterada para ${body.status}` : "atualizada"}`, `/comercial/crm/propostas/${atualizada.id}`, session.user.name)
+    await notificar(
+      "PROPOSTA_ATUALIZADA",
+      `Proposta #${id} ${body.status ? `alterada para ${body.status}` : "atualizada"}`,
+      `/comercial/crm/propostas/${atualizada.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(atualizada)
   } catch (error) {
@@ -127,10 +130,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -141,7 +141,10 @@ export async function DELETE(
     const { id } = await params
     const propostaId = parseInt(id)
     await db.transaction(async (tx: any) => {
-      await excluirTimelineEventosEntidade({ tipo: "PROPOSTA", campo: "propostaId", id: propostaId }, tx)
+      await excluirTimelineEventosEntidade(
+        { tipo: "PROPOSTA", campo: "propostaId", id: propostaId },
+        tx
+      )
       await tx.delete(crmPropostas).where(eq(crmPropostas.id, propostaId))
     })
 

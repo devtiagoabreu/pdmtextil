@@ -78,15 +78,23 @@ export default function RelatorioTempoStatusAmostras() {
         t.duracaoLabel,
       ])
     )
-    exportCSV(`tempo-status-amostras-${prefix}`, ["Produto", "Descrição", "Status Atual", "Status", "Entrada", "Saída", "Duração"], rows)
+    exportCSV(
+      `tempo-status-amostras-${prefix}`,
+      ["Produto", "Descrição", "Status Atual", "Status", "Entrada", "Saída", "Duração"],
+      rows
+    )
     setTimeout(() => {
-      exportCSV(`tempo-status-amostras-${prefix}-resumo`, ["Produto", "Descrição", "Status", "Tempo Total", "Trocas"], currentList.map((r: any) => [
-        r.produtoCodigo,
-        r.descricao || r.produtoDescricao,
-        STATUS_LABELS[r.statusAtual] || r.statusAtual,
-        r.tempoTotalLabel,
-        r.trocasStatus,
-      ]))
+      exportCSV(
+        `tempo-status-amostras-${prefix}-resumo`,
+        ["Produto", "Descrição", "Status", "Tempo Total", "Trocas"],
+        currentList.map((r: any) => [
+          r.produtoCodigo,
+          r.descricao || r.produtoDescricao,
+          STATUS_LABELS[r.statusAtual] || r.statusAtual,
+          r.tempoTotalLabel,
+          r.trocasStatus,
+        ])
+      )
     }, 200)
   }
 
@@ -96,25 +104,37 @@ export default function RelatorioTempoStatusAmostras() {
 
     await exportPDFRelatorio({
       title: `Relatório de Amostras - ${prefix} - Tempo em cada Status`,
-      stats: stats ? {
-        "Total": stats.total,
-        [`Total ${prefix}`]: aba === "tecidoCru" ? stats.totalTecidoCru : stats.totalAcabamento,
-        "Pendentes": stats.pendentes,
-        "Aprovadas": stats.aprovadas,
-      } : undefined,
+      stats: stats
+        ? {
+            Total: stats.total,
+            [`Total ${prefix}`]: aba === "tecidoCru" ? stats.totalTecidoCru : stats.totalAcabamento,
+            Pendentes: stats.pendentes,
+            Aprovadas: stats.aprovadas,
+          }
+        : undefined,
       tables: [
-        { headers: ["Produto", "Descrição", "Status", "Tempo Total", "Trocas"], rows: currentList.map((r: any) => [
-          r.produtoCodigo, r.descricao || r.produtoDescricao, STATUS_LABELS[r.statusAtual] || r.statusAtual, r.tempoTotalLabel, r.trocasStatus,
-        ])},
-        { headers: ["Produto", "Status", "Entrada", "Saída", "Duração"], rows: currentList.flatMap((r: any) =>
-          r.timeline.map((t: any) => [
-            `${r.produtoCodigo} - ${r.descricao || r.produtoDescricao}`,
-            t.statusLabel,
-            t.entrada ? new Date(t.entrada).toLocaleString("pt-BR") : "-",
-            t.saida ? new Date(t.saida).toLocaleString("pt-BR") : "Em andamento",
-            t.duracaoLabel,
-          ])
-        )},
+        {
+          headers: ["Produto", "Descrição", "Status", "Tempo Total", "Trocas"],
+          rows: currentList.map((r: any) => [
+            r.produtoCodigo,
+            r.descricao || r.produtoDescricao,
+            STATUS_LABELS[r.statusAtual] || r.statusAtual,
+            r.tempoTotalLabel,
+            r.trocasStatus,
+          ]),
+        },
+        {
+          headers: ["Produto", "Status", "Entrada", "Saída", "Duração"],
+          rows: currentList.flatMap((r: any) =>
+            r.timeline.map((t: any) => [
+              `${r.produtoCodigo} - ${r.descricao || r.produtoDescricao}`,
+              t.statusLabel,
+              t.entrada ? new Date(t.entrada).toLocaleString("pt-BR") : "-",
+              t.saida ? new Date(t.saida).toLocaleString("pt-BR") : "Em andamento",
+              t.duracaoLabel,
+            ])
+          ),
+        },
       ],
     })
   }
@@ -125,7 +145,10 @@ export default function RelatorioTempoStatusAmostras() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Amostras de Desenvolvimento - Tempo em cada Status{info && <InfoButton content={info} />}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+          Relatório: Amostras de Desenvolvimento - Tempo em cada Status
+          {info && <InfoButton content={info} />}
+        </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
           Histórico de status de todas as amostras de desenvolvimento do sistema
         </p>
@@ -136,23 +159,33 @@ export default function RelatorioTempoStatusAmostras() {
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Amostras</p>
-            <p className="text-3xl font-bold text-slate-700 dark:text-slate-200 mt-1">{stats.total}</p>
+            <p className="text-3xl font-bold text-slate-700 dark:text-slate-200 mt-1">
+              {stats.total}
+            </p>
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-cyan-50 dark:bg-cyan-950/50 p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Tecido Cru</p>
-            <p className="text-3xl font-bold text-cyan-600 dark:text-cyan-400 mt-1">{stats.totalTecidoCru}</p>
+            <p className="text-3xl font-bold text-cyan-600 dark:text-cyan-400 mt-1">
+              {stats.totalTecidoCru}
+            </p>
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-orange-50 dark:bg-orange-950/50 p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Acabamento</p>
-            <p className="text-3xl font-bold text-orange-600 dark:text-orange-400 mt-1">{stats.totalAcabamento}</p>
+            <p className="text-3xl font-bold text-orange-600 dark:text-orange-400 mt-1">
+              {stats.totalAcabamento}
+            </p>
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-yellow-50 dark:bg-yellow-950/50 p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Pendentes</p>
-            <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400 mt-1">{stats.pendentes}</p>
+            <p className="text-3xl font-bold text-yellow-600 dark:text-yellow-400 mt-1">
+              {stats.pendentes}
+            </p>
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-green-50 dark:bg-green-950/50 p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Aprovadas</p>
-            <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">{stats.aprovadas}</p>
+            <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">
+              {stats.aprovadas}
+            </p>
           </div>
         </div>
       )}
@@ -169,7 +202,9 @@ export default function RelatorioTempoStatusAmostras() {
         >
           <FlaskConical size={16} />
           Tecido Cru
-          <span className="text-xs bg-slate-100 dark:bg-slate-800 rounded-full px-2 py-0.5">{tecidoCru.length}</span>
+          <span className="text-xs bg-slate-100 dark:bg-slate-800 rounded-full px-2 py-0.5">
+            {tecidoCru.length}
+          </span>
         </button>
         <button
           onClick={() => setAba("acabamento")}
@@ -181,16 +216,24 @@ export default function RelatorioTempoStatusAmostras() {
         >
           <FlaskConical size={16} />
           Acabamento
-          <span className="text-xs bg-slate-100 dark:bg-slate-800 rounded-full px-2 py-0.5">{acabamento.length}</span>
+          <span className="text-xs bg-slate-100 dark:bg-slate-800 rounded-full px-2 py-0.5">
+            {acabamento.length}
+          </span>
         </button>
       </div>
 
       {/* Export */}
       <div className="flex gap-3 items-center justify-end">
-        <button onClick={handleExportCSV} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+        <button
+          onClick={handleExportCSV}
+          className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
+        >
           CSV
         </button>
-        <button onClick={handleExportPDF} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+        <button
+          onClick={handleExportPDF}
+          className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
+        >
           PDF
         </button>
       </div>
@@ -202,13 +245,18 @@ export default function RelatorioTempoStatusAmostras() {
         ) : lista.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
             <Clock className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma amostra encontrada</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Nenhuma amostra encontrada
+            </p>
           </div>
         ) : (
           lista.map((r: any, i: any) => {
             const key = `${r.tipoAmostra}-${r.id}-${i}`
             return (
-              <div key={key} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+              <div
+                key={key}
+                className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden"
+              >
                 {/* Header */}
                 <button
                   onClick={() => setExpandido(expandido === key ? null : key)}
@@ -219,16 +267,23 @@ export default function RelatorioTempoStatusAmostras() {
                       <p className="text-sm font-semibold text-slate-800 dark:text-slate-100 truncate">
                         {r.produtoCodigo}
                       </p>
-                      <p className="text-xs text-slate-400 truncate">{r.descricao || r.produtoDescricao}</p>
+                      <p className="text-xs text-slate-400 truncate">
+                        {r.descricao || r.produtoDescricao}
+                      </p>
                     </div>
                     {r.acabamentoDescricao && (
-                      <span className="text-xs text-slate-400 shrink-0">({r.acabamentoDescricao})</span>
+                      <span className="text-xs text-slate-400 shrink-0">
+                        ({r.acabamentoDescricao})
+                      </span>
                     )}
                   </div>
                   <div className="flex items-center gap-4 text-sm shrink-0">
                     <span
                       className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
-                      style={{ backgroundColor: STATUS_COLORS[r.statusAtual] + "20", color: STATUS_COLORS[r.statusAtual] }}
+                      style={{
+                        backgroundColor: STATUS_COLORS[r.statusAtual] + "20",
+                        color: STATUS_COLORS[r.statusAtual],
+                      }}
                     >
                       {r.statusLabel}
                     </span>
@@ -247,7 +302,9 @@ export default function RelatorioTempoStatusAmostras() {
                       <div className="space-y-3">
                         {r.timeline.length > 0 && (
                           <div className="flex items-center gap-3 mb-4">
-                            <span className="text-xs text-slate-400 w-24 shrink-0 text-right">Tempo total:</span>
+                            <span className="text-xs text-slate-400 w-24 shrink-0 text-right">
+                              Tempo total:
+                            </span>
                             <span className="text-sm font-medium">{r.tempoTotalLabel}</span>
                           </div>
                         )}
@@ -258,7 +315,9 @@ export default function RelatorioTempoStatusAmostras() {
                           return (
                             <div key={ti} className="flex items-center gap-3">
                               <div className="w-24 shrink-0 text-right">
-                                <span className="text-xs font-medium" style={{ color: cor }}>{t.statusLabel}</span>
+                                <span className="text-xs font-medium" style={{ color: cor }}>
+                                  {t.statusLabel}
+                                </span>
                               </div>
                               <div className="flex-1 h-6 rounded-md bg-slate-100 dark:bg-slate-800 overflow-hidden">
                                 <div

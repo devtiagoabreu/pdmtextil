@@ -47,11 +47,10 @@ export function ConversationView({ chatId, onBack }: { chatId: number; onBack: (
   const isMentioning = mentionMatch !== null
   const mentionQuery = mentionMatch?.[1]?.toLowerCase() || ""
 
-  const mentionOptions = isMentioning && mentionQuery !== undefined
-    ? mentionUsers.filter((u: any) =>
-        u.name.toLowerCase().includes(mentionQuery)
-      )
-    : []
+  const mentionOptions =
+    isMentioning && mentionQuery !== undefined
+      ? mentionUsers.filter((u: any) => u.name.toLowerCase().includes(mentionQuery))
+      : []
 
   useEffect(() => {
     setMentionIndex(0)
@@ -153,12 +152,12 @@ export function ConversationView({ chatId, onBack }: { chatId: number; onBack: (
     if (isMentioning && mentionOptions.length > 0) {
       if (e.key === "ArrowDown") {
         e.preventDefault()
-        setMentionIndex(i => Math.min(i + 1, mentionOptions.length - 1))
+        setMentionIndex((i) => Math.min(i + 1, mentionOptions.length - 1))
         return
       }
       if (e.key === "ArrowUp") {
         e.preventDefault()
-        setMentionIndex(i => Math.max(i - 1, 0))
+        setMentionIndex((i) => Math.max(i - 1, 0))
         return
       }
       if (e.key === "Enter" || e.key === "Tab") {
@@ -187,7 +186,9 @@ export function ConversationView({ chatId, onBack }: { chatId: number; onBack: (
           <ArrowLeft size={18} />
         </button>
         <div>
-          <p className="font-medium text-sm text-slate-900 dark:text-slate-200">{chat?.titulo || "Carregando..."}</p>
+          <p className="font-medium text-sm text-slate-900 dark:text-slate-200">
+            {chat?.titulo || "Carregando..."}
+          </p>
           {chat?.participantes && (
             <p className="text-xs text-slate-500 flex items-center gap-1 mt-0.5">
               <Users size={12} />
@@ -218,7 +219,10 @@ export function ConversationView({ chatId, onBack }: { chatId: number; onBack: (
               editText={editText}
               editPending={editMsg.isPending}
               setEditText={setEditText}
-              onStartEdit={() => { setEditMsgId(msg.id); setEditText(msg.mensagem) }}
+              onStartEdit={() => {
+                setEditMsgId(msg.id)
+                setEditText(msg.mensagem)
+              }}
               onCancelEdit={() => setEditMsgId(null)}
               onSaveEdit={() => editMsg.mutate({ msgId: msg.id, mensagem: editText.trim() })}
               onDelete={() => {
@@ -232,9 +236,7 @@ export function ConversationView({ chatId, onBack }: { chatId: number; onBack: (
 
       <div className="border-t border-slate-200 dark:border-slate-700 p-4 relative">
         {isMentioning && mentionOptions.length > 0 && (
-          <div
-            className="absolute bottom-full left-4 mb-1 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto"
-          >
+          <div className="absolute bottom-full left-4 mb-1 w-64 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl shadow-xl z-50 max-h-60 overflow-y-auto">
             <div className="px-3 py-1.5 text-[10px] font-medium text-slate-400 uppercase tracking-wider bg-slate-50 dark:bg-slate-800/50 border-b border-slate-100 dark:border-slate-700">
               Usuários
             </div>
@@ -242,7 +244,10 @@ export function ConversationView({ chatId, onBack }: { chatId: number; onBack: (
               <button
                 key={user.id}
                 type="button"
-                onMouseDown={(e) => { e.preventDefault(); insertMention(user.name) }}
+                onMouseDown={(e) => {
+                  e.preventDefault()
+                  insertMention(user.name)
+                }}
                 className={`w-full text-left px-3 py-2 text-sm flex items-center gap-2 transition-colors ${
                   i === mentionIndex
                     ? "bg-blue-50 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300"

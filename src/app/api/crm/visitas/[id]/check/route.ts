@@ -4,10 +4,7 @@ import { db } from "@/lib/db"
 import { crmVisitas } from "@/lib/db/schema/crm-visitas"
 import { eq } from "drizzle-orm"
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -16,8 +13,16 @@ export async function POST(
     const body = await req.json()
     const { tipo, latitude, longitude } = body
 
-    if (tipo !== "check_in" && tipo !== "check_out" && tipo !== "undo_check_in" && tipo !== "undo_check_out") {
-      return NextResponse.json({ error: "Tipo inválido (use check_in, check_out, undo_check_in ou undo_check_out)" }, { status: 400 })
+    if (
+      tipo !== "check_in" &&
+      tipo !== "check_out" &&
+      tipo !== "undo_check_in" &&
+      tipo !== "undo_check_out"
+    ) {
+      return NextResponse.json(
+        { error: "Tipo inválido (use check_in, check_out, undo_check_in ou undo_check_out)" },
+        { status: 400 }
+      )
     }
 
     const [visita] = await db
@@ -32,7 +37,10 @@ export async function POST(
 
     const userRole = auth.session.user?.role ?? ""
     if (userRole !== "ADMIN" && userRole !== "SUDO" && visita.criadoPor !== auth.userId) {
-      return NextResponse.json({ error: "Apenas o criador da visita pode registrar check-in/out" }, { status: 403 })
+      return NextResponse.json(
+        { error: "Apenas o criador da visita pode registrar check-in/out" },
+        { status: 403 }
+      )
     }
 
     if (tipo === "check_in" && visita.checkInTime) {

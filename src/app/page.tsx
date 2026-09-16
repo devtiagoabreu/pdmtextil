@@ -4,15 +4,46 @@ import { useEffect, useRef, useState, useCallback } from "react"
 import Link from "next/link"
 import { ArrowRight, Factory, ShoppingCart, Settings, PenTool, Users, Wrench } from "lucide-react"
 
-const PDM_TOOLTIP = "PDM·PRO·TÊXTIL — Plataforma completa de gestão para a indústria têxtil. Integra Comercial, CRM, Desenvolvimento (Tecelagem e Beneficiamento), PCP e Admin em um único sistema. Gestão de clientes, leads, propostas, amostras, fichas técnicas, receitas, roteiros de produção, e-mail marketing, notificações inteligentes e exportação para ERP."
+const PDM_TOOLTIP =
+  "PDM·PRO·TÊXTIL — Plataforma completa de gestão para a indústria têxtil. Integra Comercial, CRM, Desenvolvimento (Tecelagem e Beneficiamento), PCP e Admin em um único sistema. Gestão de clientes, leads, propostas, amostras, fichas técnicas, receitas, roteiros de produção, e-mail marketing, notificações inteligentes e exportação para ERP."
 
 const DEPARTMENTS = [
-  { icon: Factory, abbr: "PCP", label: "Planejamento", phrase: "Controle total da produção — do fio ao tecido acabado" },
-  { icon: ShoppingCart, abbr: "COM", label: "Comercial", phrase: "Gestão de pedidos, clientes e representantes em tempo real" },
-  { icon: Users, abbr: "CRM", label: "CRM", phrase: "Pipeline de vendas, leads, propostas e visitas integradas" },
-  { icon: PenTool, abbr: "DES", label: "Desenvolvimento", phrase: "Fichas técnicas, receitas e controle de amostras do conceito à aprovação" },
-  { icon: Settings, abbr: "ADM", label: "Admin", phrase: "Usuários, permissões, menus e configurações centralizadas" },
-  { icon: Wrench, abbr: "FER", label: "Ferramentas", phrase: "Ferramentas personalizadas para cada tipo de negócio" },
+  {
+    icon: Factory,
+    abbr: "PCP",
+    label: "Planejamento",
+    phrase: "Controle total da produção — do fio ao tecido acabado",
+  },
+  {
+    icon: ShoppingCart,
+    abbr: "COM",
+    label: "Comercial",
+    phrase: "Gestão de pedidos, clientes e representantes em tempo real",
+  },
+  {
+    icon: Users,
+    abbr: "CRM",
+    label: "CRM",
+    phrase: "Pipeline de vendas, leads, propostas e visitas integradas",
+  },
+  {
+    icon: PenTool,
+    abbr: "DES",
+    label: "Desenvolvimento",
+    phrase: "Fichas técnicas, receitas e controle de amostras do conceito à aprovação",
+  },
+  {
+    icon: Settings,
+    abbr: "ADM",
+    label: "Admin",
+    phrase: "Usuários, permissões, menus e configurações centralizadas",
+  },
+  {
+    icon: Wrench,
+    abbr: "FER",
+    label: "Ferramentas",
+    phrase: "Ferramentas personalizadas para cada tipo de negócio",
+  },
 ]
 
 export default function LandingPage() {
@@ -168,9 +199,7 @@ export default function LandingPage() {
 
       <div className="relative z-10 min-h-screen flex flex-col">
         <header className="px-8 py-6 flex justify-between items-center">
-          <div className="text-xl font-bold text-white tracking-wide">
-            PDM·PRO·TÊXTIL
-          </div>
+          <div className="text-xl font-bold text-white tracking-wide">PDM·PRO·TÊXTIL</div>
           <Link
             href="/login"
             className="px-5 py-2 text-sm text-slate-300 hover:text-white transition-colors border border-slate-600 hover:border-slate-400 rounded"
@@ -182,7 +211,7 @@ export default function LandingPage() {
         <main className="flex-1 flex items-center justify-center px-6">
           <div className="text-center max-w-2xl">
             <div className="relative inline-block mb-4">
-              <h1 
+              <h1
                 className="text-5xl md:text-7xl font-bold text-white tracking-tight cursor-default"
                 onMouseEnter={() => setShowTooltip(true)}
                 onMouseLeave={() => setShowTooltip(false)}

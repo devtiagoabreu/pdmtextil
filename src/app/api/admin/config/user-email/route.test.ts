@@ -10,7 +10,10 @@ vi.mock("next-auth", () => ({ getServerSession: vi.fn() }))
 vi.mock("@/lib/db", () => ({
   db: { select: vi.fn(), insert: vi.fn(), update: vi.fn(), delete: vi.fn(), execute: vi.fn() },
 }))
-vi.mock("@/lib/crypto", () => ({ encrypt: vi.fn((p: string) => `enc:${p}`), decrypt: vi.fn((p: string) => String(p).replace("enc:", "")) }))
+vi.mock("@/lib/crypto", () => ({
+  encrypt: vi.fn((p: string) => `enc:${p}`),
+  decrypt: vi.fn((p: string) => String(p).replace("enc:", "")),
+}))
 
 function session(role: string) {
   return { user: { id: "1", name: "Admin", email: "admin@pdm.com", role } } as any
@@ -41,8 +44,16 @@ describe("GET /api/admin/config/user-email", () => {
     vi.mocked(getServerSession).mockResolvedValue(session("ADMIN"))
     db.select = vi.fn(() =>
       createQueryBuilder([
-        { id: 1, usuarioId: 2, email: "ana@gmail.com", ativo: true, limiteDiario: 1500, usuarioNome: "Ana Comercial", usuarioEmail: "ana@pdm.com" },
-      ]),
+        {
+          id: 1,
+          usuarioId: 2,
+          email: "ana@gmail.com",
+          ativo: true,
+          limiteDiario: 1500,
+          usuarioNome: "Ana Comercial",
+          usuarioEmail: "ana@pdm.com",
+        },
+      ])
     )
     const res = await GET()
     expect(res.status).toBe(200)
@@ -71,7 +82,11 @@ describe("PUT /api/admin/config/user-email", () => {
 
   it("atualiza config existente", async () => {
     vi.mocked(getServerSession).mockResolvedValue(session("ADMIN"))
-    db.select = vi.fn(() => createQueryBuilder([{ id: 1, usuarioId: 2, email: "old@gmail.com", pass: "x", limiteDiario: 1500, ativo: true }]))
+    db.select = vi.fn(() =>
+      createQueryBuilder([
+        { id: 1, usuarioId: 2, email: "old@gmail.com", pass: "x", limiteDiario: 1500, ativo: true },
+      ])
+    )
     db.update = vi.fn(() => createQueryBuilder([]))
     const res = await PUT(req("PUT", { usuarioId: 2, email: "new@gmail.com", senhaApp: "senha" }))
     expect(res.status).toBe(200)

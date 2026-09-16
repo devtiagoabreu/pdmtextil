@@ -57,7 +57,7 @@ const pendente = {
 }
 
 const limiteErr = new Error(
-  "Data command failed: 550-5.4.5 Daily user sending limit exceeded. 6a1803df08f44-908a9352288sm - gsmtp",
+  "Data command failed: 550-5.4.5 Daily user sending limit exceeded. 6a1803df08f44-908a9352288sm - gsmtp"
 ) as any
 limiteErr.responseCode = 550
 
@@ -67,7 +67,9 @@ rateErr.responseCode = 421
 function post(authHeader?: string) {
   const headers = new Headers()
   if (authHeader) headers.set("authorization", authHeader)
-  return POST(new NextRequest("http://localhost/api/admin/email-massa/processar", { method: "POST", headers }))
+  return POST(
+    new NextRequest("http://localhost/api/admin/email-massa/processar", { method: "POST", headers })
+  )
 }
 
 function mockSelectSequence(...results: any[]) {
@@ -135,7 +137,14 @@ describe("POST /api/admin/email-massa/processar", () => {
     const updBuilder = createQueryBuilder(undefined)
     db.update = vi.fn(() => updBuilder)
     const transporter = mockTransporter(vi.fn().mockRejectedValue(limiteErr))
-    mockSelectSequence([disparo], [cfg], [{ total: 0 }], [pendente], [{ total: 4335 }], [{ total: 4335 }])
+    mockSelectSequence(
+      [disparo],
+      [cfg],
+      [{ total: 0 }],
+      [pendente],
+      [{ total: 4335 }],
+      [{ total: 4335 }]
+    )
 
     const res = await post()
     expect(res.status).toBe(200)
@@ -182,11 +191,22 @@ describe("POST /api/admin/email-massa/processar", () => {
     const transporter = mockTransporter(vi.fn().mockResolvedValue(true))
     mockSelectSequence(
       [{ ...disparo, remetente: "usuario" }],
-      [{ id: 1, usuarioId: 28, email: "contato@empresa.com", senhaApp: "apppass", host: "smtp.gmail.com", port: 587, ativo: true, limiteDiario: 1 }],
+      [
+        {
+          id: 1,
+          usuarioId: 28,
+          email: "contato@empresa.com",
+          senhaApp: "apppass",
+          host: "smtp.gmail.com",
+          port: 587,
+          ativo: true,
+          limiteDiario: 1,
+        },
+      ],
       [{ total: 0 }],
       [pendente],
       [{ total: 1 }],
-      [{ total: 1 }],
+      [{ total: 1 }]
     )
 
     const res = await post()
@@ -213,7 +233,7 @@ describe("POST /api/admin/email-massa/processar", () => {
       [pendente],
       [],
       [{ total: 0 }],
-      [{ total: 0 }],
+      [{ total: 0 }]
     )
 
     const res = await post()
@@ -233,7 +253,14 @@ describe("POST /api/admin/email-massa/processar", () => {
     const updBuilder = createQueryBuilder(undefined)
     db.update = vi.fn(() => updBuilder)
     mockTransporter(vi.fn().mockRejectedValue(rateErr))
-    mockSelectSequence([disparo], [cfg], [{ total: 0 }], [pendente], [{ total: 4335 }], [{ total: 4335 }])
+    mockSelectSequence(
+      [disparo],
+      [cfg],
+      [{ total: 0 }],
+      [pendente],
+      [{ total: 4335 }],
+      [{ total: 4335 }]
+    )
 
     const res = await post()
     expect(res.status).toBe(200)
@@ -255,7 +282,14 @@ describe("POST /api/admin/email-massa/processar", () => {
     const upd1 = createQueryBuilder(undefined)
     db.update = vi.fn(() => upd1)
     mockTransporter(vi.fn().mockRejectedValue(rateErr))
-    mockSelectSequence([disparo], [cfg], [{ total: 0 }], [pendente], [{ total: 4335 }], [{ total: 4335 }])
+    mockSelectSequence(
+      [disparo],
+      [cfg],
+      [{ total: 0 }],
+      [pendente],
+      [{ total: 4335 }],
+      [{ total: 4335 }]
+    )
     let res = await post()
     expect(res.status).toBe(200)
     expect(upd1.set.mock.calls.find((c: any[]) => c[0]?.status === "pausado")).toBeDefined()
@@ -270,7 +304,7 @@ describe("POST /api/admin/email-massa/processar", () => {
       [pendente],
       [],
       [{ total: 0 }],
-      [{ total: 0 }],
+      [{ total: 0 }]
     )
     res = await post()
     expect(res.status).toBe(200)
@@ -287,13 +321,19 @@ describe("POST /api/admin/email-massa/processar", () => {
     db.update = vi.fn(() => updBuilder)
     mockTransporter(vi.fn().mockResolvedValue(true))
     mockSelectSequence(
-      [{ ...disparo, status: "erro", erro: "Data command failed: 421 4.3.0 Temporary System Problem" }],
+      [
+        {
+          ...disparo,
+          status: "erro",
+          erro: "Data command failed: 421 4.3.0 Temporary System Problem",
+        },
+      ],
       [cfg],
       [{ total: 0 }],
       [pendente],
       [],
       [{ total: 0 }],
-      [{ total: 0 }],
+      [{ total: 0 }]
     )
 
     const res = await post()
@@ -315,13 +355,19 @@ describe("POST /api/admin/email-massa/processar", () => {
     db.update = vi.fn(() => updBuilder)
     mockTransporter(vi.fn().mockResolvedValue(true))
     mockSelectSequence(
-      [{ ...disparo, status: "erro", erro: "Falha ao conectar ao SMTP: Invalid login: 535-5.7.8 Username and Password not accepted" }],
+      [
+        {
+          ...disparo,
+          status: "erro",
+          erro: "Falha ao conectar ao SMTP: Invalid login: 535-5.7.8 Username and Password not accepted",
+        },
+      ],
       [cfg],
       [{ total: 0 }],
       [pendente],
       [],
       [{ total: 0 }],
-      [{ total: 0 }],
+      [{ total: 0 }]
     )
 
     const res = await post()
@@ -393,7 +439,18 @@ describe("POST /api/admin/email-massa/processar", () => {
     db.select = vi.fn()
     vi.mocked(db.select).mockImplementationOnce(() => mk([{ ...disparo, remetente: "usuario" }]))
     vi.mocked(db.select).mockImplementationOnce(() =>
-      mk([{ id: 1, usuarioId: 28, email: "contato@empresa.com", senhaApp: "apppass", host: "smtp.gmail.com", port: 587, ativo: true, limiteDiario: 1500 }])
+      mk([
+        {
+          id: 1,
+          usuarioId: 28,
+          email: "contato@empresa.com",
+          senhaApp: "apppass",
+          host: "smtp.gmail.com",
+          port: 587,
+          ativo: true,
+          limiteDiario: 1500,
+        },
+      ])
     )
     vi.mocked(db.select).mockImplementationOnce(() => mk([{ total: 0 }]))
     vi.mocked(db.select).mockImplementationOnce(() => mk([pendente]))
@@ -405,7 +462,10 @@ describe("POST /api/admin/email-massa/processar", () => {
     expect(res.status).toBe(200)
 
     const strings = collectStrings(builders[2].where.mock.calls[0][0])
-    expect(strings.some((s: string) => s.includes("interval") && s.includes("24")), JSON.stringify(strings)).toBe(true)
+    expect(
+      strings.some((s: string) => s.includes("interval") && s.includes("24")),
+      JSON.stringify(strings)
+    ).toBe(true)
   })
 
   it("usa o SMTP do CRM quando o disparo tem remetente CRM", async () => {
@@ -415,12 +475,22 @@ describe("POST /api/admin/email-massa/processar", () => {
     const transporter = mockTransporter(vi.fn().mockResolvedValue(true))
     mockSelectSequence(
       [{ ...disparo, remetente: "crm" }],
-      [{ id: 1, host: "smtp.crm.com", port: 587, user: "crm@empresa.com", pass: "crmsenha", fromName: "PDM CRM", ativo: true }],
+      [
+        {
+          id: 1,
+          host: "smtp.crm.com",
+          port: 587,
+          user: "crm@empresa.com",
+          pass: "crmsenha",
+          fromName: "PDM CRM",
+          ativo: true,
+        },
+      ],
       [{ total: 0 }],
       [pendente],
       [],
       [{ total: 0 }],
-      [{ total: 0 }],
+      [{ total: 0 }]
     )
 
     const res = await post()
@@ -431,7 +501,10 @@ describe("POST /api/admin/email-massa/processar", () => {
     expect(data.restantes).toBe(0)
 
     expect(vi.mocked(nodemailer.createTransport)).toHaveBeenCalledWith(
-      expect.objectContaining({ host: "smtp.crm.com", auth: { user: "crm@empresa.com", pass: "crmsenha" } })
+      expect.objectContaining({
+        host: "smtp.crm.com",
+        auth: { user: "crm@empresa.com", pass: "crmsenha" },
+      })
     )
     const chamada = transporter.sendMail.mock.calls[0][0] as any
     expect(chamada.from).toBe('"PDM CRM" <crm@empresa.com>')
@@ -450,7 +523,7 @@ describe("POST /api/admin/email-massa/processar", () => {
       [pendente],
       [],
       [{ total: 0 }],
-      [{ total: 0 }],
+      [{ total: 0 }]
     )
 
     const res = await post()
@@ -461,7 +534,10 @@ describe("POST /api/admin/email-massa/processar", () => {
     expect(data.restantes).toBe(0)
 
     expect(vi.mocked(nodemailer.createTransport)).toHaveBeenCalledWith(
-      expect.objectContaining({ host: "smtp.gmail.com", auth: { user: "pdmprotextil@gmail.com", pass: "apppass" } })
+      expect.objectContaining({
+        host: "smtp.gmail.com",
+        auth: { user: "pdmprotextil@gmail.com", pass: "apppass" },
+      })
     )
     const chamada = transporter.sendMail.mock.calls[0][0] as any
     expect(chamada.from).toBe('"PDM Pro Moda Têxtil" <pdmprotextil@gmail.com>')

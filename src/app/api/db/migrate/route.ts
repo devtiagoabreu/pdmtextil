@@ -13,7 +13,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Criar tabela de fios
-    await db.execute(sql`
+    await db
+      .execute(
+        sql`
       CREATE TABLE IF NOT EXISTS "fios" (
         "id" serial PRIMARY KEY NOT NULL,
         "codigo_completo" varchar(30) NOT NULL,
@@ -32,10 +34,14 @@ export async function POST(req: NextRequest) {
         "created_at" timestamp DEFAULT now(),
         "updated_at" timestamp DEFAULT now()
       );
-    `).catch(() => {})
+    `
+      )
+      .catch(() => {})
 
     // Criar tabela de cores_solidas
-    await db.execute(sql`
+    await db
+      .execute(
+        sql`
       CREATE TABLE IF NOT EXISTS "cores_solidas" (
         "id" serial PRIMARY KEY NOT NULL,
         "codigo" varchar(6) NOT NULL,
@@ -44,10 +50,14 @@ export async function POST(req: NextRequest) {
         "familia" varchar(50),
         "ativo" boolean DEFAULT true
       );
-    `).catch(() => {})
+    `
+      )
+      .catch(() => {})
 
     // Criar tabela de cores_fundo
-    await db.execute(sql`
+    await db
+      .execute(
+        sql`
       CREATE TABLE IF NOT EXISTS "cores_fundo" (
         "id" serial PRIMARY KEY NOT NULL,
         "codigo" varchar(3) NOT NULL,
@@ -55,10 +65,14 @@ export async function POST(req: NextRequest) {
         "descricao" text,
         "ativo" boolean DEFAULT true
       );
-    `).catch(() => {})
+    `
+      )
+      .catch(() => {})
 
     // Criar tabela de acabamentos
-    await db.execute(sql`
+    await db
+      .execute(
+        sql`
       CREATE TABLE IF NOT EXISTS "acabamentos" (
         "id" serial PRIMARY KEY NOT NULL,
         "nome" varchar(100) NOT NULL,
@@ -66,10 +80,14 @@ export async function POST(req: NextRequest) {
         "categoria" varchar(50),
         "ativo" boolean DEFAULT true
       );
-    `).catch(() => {})
+    `
+      )
+      .catch(() => {})
 
     // Criar tabela de maquinas
-    await db.execute(sql`
+    await db
+      .execute(
+        sql`
       CREATE TABLE IF NOT EXISTS "maquinas" (
         "id" serial PRIMARY KEY NOT NULL,
         "codigo" varchar(30) NOT NULL,
@@ -80,10 +98,14 @@ export async function POST(req: NextRequest) {
         "disponivel" boolean DEFAULT true,
         "ativo" boolean DEFAULT true
       );
-    `).catch(() => {})
+    `
+      )
+      .catch(() => {})
 
     // Criar tabela de operacoes
-    await db.execute(sql`
+    await db
+      .execute(
+        sql`
       CREATE TABLE IF NOT EXISTS "operacoes" (
         "id" serial PRIMARY KEY NOT NULL,
         "codigo" varchar(20) NOT NULL,
@@ -92,31 +114,89 @@ export async function POST(req: NextRequest) {
         "descricao" text,
         "ativo" boolean DEFAULT true
       );
-    `).catch(() => {})
+    `
+      )
+      .catch(() => {})
 
     // Adicionar unique constraints
-    await db.execute(sql`ALTER TABLE "fios" ADD CONSTRAINT IF NOT EXISTS "fios_codigo_completo_unique" UNIQUE("codigo_completo");`).catch(() => {})
-    await db.execute(sql`ALTER TABLE "fios" ADD CONSTRAINT IF NOT EXISTS "fios_codigo_fio_unique" UNIQUE("codigo_fio");`).catch(() => {})
-    await db.execute(sql`ALTER TABLE "cores_solidas" ADD CONSTRAINT IF NOT EXISTS "cores_solidas_codigo_unique" UNIQUE("codigo");`).catch(() => {})
-    await db.execute(sql`ALTER TABLE "cores_fundo" ADD CONSTRAINT IF NOT EXISTS "cores_fundo_codigo_unique" UNIQUE("codigo");`).catch(() => {})
-    await db.execute(sql`ALTER TABLE "maquinas" ADD CONSTRAINT IF NOT EXISTS "maquinas_codigo_unique" UNIQUE("codigo");`).catch(() => {})
-    await db.execute(sql`ALTER TABLE "operacoes" ADD CONSTRAINT IF NOT EXISTS "operacoes_codigo_unique" UNIQUE("codigo");`).catch(() => {})
+    await db
+      .execute(
+        sql`ALTER TABLE "fios" ADD CONSTRAINT IF NOT EXISTS "fios_codigo_completo_unique" UNIQUE("codigo_completo");`
+      )
+      .catch(() => {})
+    await db
+      .execute(
+        sql`ALTER TABLE "fios" ADD CONSTRAINT IF NOT EXISTS "fios_codigo_fio_unique" UNIQUE("codigo_fio");`
+      )
+      .catch(() => {})
+    await db
+      .execute(
+        sql`ALTER TABLE "cores_solidas" ADD CONSTRAINT IF NOT EXISTS "cores_solidas_codigo_unique" UNIQUE("codigo");`
+      )
+      .catch(() => {})
+    await db
+      .execute(
+        sql`ALTER TABLE "cores_fundo" ADD CONSTRAINT IF NOT EXISTS "cores_fundo_codigo_unique" UNIQUE("codigo");`
+      )
+      .catch(() => {})
+    await db
+      .execute(
+        sql`ALTER TABLE "maquinas" ADD CONSTRAINT IF NOT EXISTS "maquinas_codigo_unique" UNIQUE("codigo");`
+      )
+      .catch(() => {})
+    await db
+      .execute(
+        sql`ALTER TABLE "operacoes" ADD CONSTRAINT IF NOT EXISTS "operacoes_codigo_unique" UNIQUE("codigo");`
+      )
+      .catch(() => {})
 
     // Adicionar coluna idIntegracao às tabelas
-    await db.execute(sql`ALTER TABLE proveedores ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
-    await db.execute(sql`ALTER TABLE fios ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
-    await db.execute(sql`ALTER TABLE fios_fornecedores ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
-    await db.execute(sql`ALTER TABLE bases_urdume ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
-    await db.execute(sql`ALTER TABLE cores_solidas ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
-    await db.execute(sql`ALTER TABLE cores_fundo ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
-    await db.execute(sql`ALTER TABLE estampas ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
-    await db.execute(sql`ALTER TABLE clientes ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
-    await db.execute(sql`ALTER TABLE maquinas ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
-    await db.execute(sql`ALTER TABLE operacoes ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
-    await db.execute(sql`ALTER TABLE acabamentos ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
-    await db.execute(sql`ALTER TABLE solicitacoes ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
-    await db.execute(sql`ALTER TABLE anexos ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
-    await db.execute(sql`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`).catch(() => {})
+    await db
+      .execute(sql`ALTER TABLE proveedores ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`)
+      .catch(() => {})
+    await db
+      .execute(sql`ALTER TABLE fios ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`)
+      .catch(() => {})
+    await db
+      .execute(
+        sql`ALTER TABLE fios_fornecedores ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`
+      )
+      .catch(() => {})
+    await db
+      .execute(sql`ALTER TABLE bases_urdume ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`)
+      .catch(() => {})
+    await db
+      .execute(
+        sql`ALTER TABLE cores_solidas ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`
+      )
+      .catch(() => {})
+    await db
+      .execute(sql`ALTER TABLE cores_fundo ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`)
+      .catch(() => {})
+    await db
+      .execute(sql`ALTER TABLE estampas ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`)
+      .catch(() => {})
+    await db
+      .execute(sql`ALTER TABLE clientes ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`)
+      .catch(() => {})
+    await db
+      .execute(sql`ALTER TABLE maquinas ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`)
+      .catch(() => {})
+    await db
+      .execute(sql`ALTER TABLE operacoes ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`)
+      .catch(() => {})
+    await db
+      .execute(sql`ALTER TABLE acabamentos ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`)
+      .catch(() => {})
+    await db
+      .execute(sql`ALTER TABLE solicitacoes ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`)
+      .catch(() => {})
+    await db
+      .execute(sql`ALTER TABLE anexos ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`)
+      .catch(() => {})
+    await db
+      .execute(sql`ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS "id_integracao" varchar(100);`)
+      .catch(() => {})
 
     return NextResponse.json({ success: true, message: "Tabelas criadas com sucesso" })
   } catch (error) {

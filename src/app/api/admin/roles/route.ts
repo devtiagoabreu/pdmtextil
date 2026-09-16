@@ -33,13 +33,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "name e label são obrigatórios" }, { status: 400 })
     }
 
-    const [novo] = await db.insert(roles).values({
-      name: body.name.toUpperCase().replace(/[^A-Z0-9_]/g, "_"),
-      label: body.label,
-      description: body.description || null,
-      permissions: body.permissions || {},
-      ativo: body.ativo ?? true,
-    }).returning()
+    const [novo] = await db
+      .insert(roles)
+      .values({
+        name: body.name.toUpperCase().replace(/[^A-Z0-9_]/g, "_"),
+        label: body.label,
+        description: body.description || null,
+        permissions: body.permissions || {},
+        ativo: body.ativo ?? true,
+      })
+      .returning()
 
     return NextResponse.json(novo)
   } catch (error: any) {

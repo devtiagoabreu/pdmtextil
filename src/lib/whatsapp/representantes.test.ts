@@ -1,6 +1,11 @@
 import { describe, expect, it, vi } from "vitest"
 import { db } from "@/lib/db"
-import { obterDestinatarios, obterRepresentantes, notificarDestinatariosEmail, notificarRepresentantes } from "./representantes"
+import {
+  obterDestinatarios,
+  obterRepresentantes,
+  notificarDestinatariosEmail,
+  notificarRepresentantes,
+} from "./representantes"
 import { evolutionConfigurado, enviarMensagem } from "@/lib/evolution-api"
 import { createQueryBuilder } from "@/test/route-db-mock"
 
@@ -18,10 +23,7 @@ const configurados = [
   { usuarioId: 2, nome: "Beto", email: "beto@empresa.com", celWhatsapp: "5519999999998" },
 ]
 
-const legados = [
-  { celWhatsapp: "5519999999997" },
-  { celWhatsapp: "5519999999996" },
-]
+const legados = [{ celWhatsapp: "5519999999997" }, { celWhatsapp: "5519999999996" }]
 
 function mockSequencia(primeiro: unknown, resto?: unknown) {
   vi.mocked(db.select).mockReset()
@@ -84,7 +86,10 @@ describe("obterRepresentantes", () => {
   })
 
   it("ignora destinatário configurado sem celular válido e cai para usuários", async () => {
-    mockSequencia([{ usuarioId: 1, nome: "Ana", email: "ana@empresa.com", celWhatsapp: null }], [legados])
+    mockSequencia(
+      [{ usuarioId: 1, nome: "Ana", email: "ana@empresa.com", celWhatsapp: null }],
+      [legados]
+    )
 
     const numeros = await obterRepresentantes("PF")
     expect(numeros).toEqual(["5519999999997", "5519999999996"])
@@ -92,7 +97,9 @@ describe("obterRepresentantes", () => {
 
   it("limpa digitos nao numericos do cel_whatsapp configurado", async () => {
     vi.mocked(db.select).mockImplementation(() =>
-      createQueryBuilder([{ usuarioId: 1, nome: "Ana", email: "ana@empresa.com", celWhatsapp: "(19) 99999-9999" }])
+      createQueryBuilder([
+        { usuarioId: 1, nome: "Ana", email: "ana@empresa.com", celWhatsapp: "(19) 99999-9999" },
+      ])
     )
 
     const numeros = await obterRepresentantes("PF")
@@ -103,7 +110,12 @@ describe("obterRepresentantes", () => {
     vi.mocked(db.select).mockImplementation(() =>
       createQueryBuilder([
         { usuarioId: 1, nome: "Ana", email: "ana@empresa.com", celWhatsapp: "123" },
-        { usuarioId: 2, nome: "Beto", email: "beto@empresa.com", celWhatsapp: "123456789012345678901234" },
+        {
+          usuarioId: 2,
+          nome: "Beto",
+          email: "beto@empresa.com",
+          celWhatsapp: "123456789012345678901234",
+        },
       ])
     )
 
@@ -190,7 +202,9 @@ describe("notificarDestinatariosEmail", () => {
         tipoPessoa: "PJ",
         assunto: "Lead",
         html: "<p>Lead</p>",
-        destinatarios: [{ usuarioId: 1, nome: "Ana", email: "ana@empresa.com", celWhatsapp: "5519999999999" }],
+        destinatarios: [
+          { usuarioId: 1, nome: "Ana", email: "ana@empresa.com", celWhatsapp: "5519999999999" },
+        ],
       })
     ).resolves.toBeUndefined()
   })

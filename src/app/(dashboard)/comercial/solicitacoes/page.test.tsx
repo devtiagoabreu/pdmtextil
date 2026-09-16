@@ -5,14 +5,33 @@ import { createFetchMock, renderPage, findCall, navMock, toastMock } from "@/tes
 import ListaSolicitacoesPage from "./page"
 
 const dados = [
-  { id: 1, tipo: "DESENVOLVIMENTO_TECELAGEM", cliente: "Cliente A", solicitanteNome: "Ana", status: "EM_ANDAMENTO", createdAt: "2026-01-01", observacoes: "", anexosCount: 0 },
-  { id: 2, tipo: "DESENVOLVIMENTO_BENEFICIAMENTO", cliente: "Cliente B", solicitanteNome: "Bia", status: "SOLICITADO", createdAt: "2026-01-02", observacoes: "", anexosCount: 0 },
+  {
+    id: 1,
+    tipo: "DESENVOLVIMENTO_TECELAGEM",
+    cliente: "Cliente A",
+    solicitanteNome: "Ana",
+    status: "EM_ANDAMENTO",
+    createdAt: "2026-01-01",
+    observacoes: "",
+    anexosCount: 0,
+  },
+  {
+    id: 2,
+    tipo: "DESENVOLVIMENTO_BENEFICIAMENTO",
+    cliente: "Cliente B",
+    solicitanteNome: "Bia",
+    status: "SOLICITADO",
+    createdAt: "2026-01-02",
+    observacoes: "",
+    anexosCount: 0,
+  },
 ]
 
 function makeMock() {
   return createFetchMock(({ method, url }) => {
     if (method === "GET" && url === "/api/solicitacoes") return { json: dados }
-    if (method === "GET" && url === "/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO") return { json: [] }
+    if (method === "GET" && url === "/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO")
+      return { json: [] }
     if (method === "DELETE" && url === "/api/solicitacoes/1") return { json: { ok: true } }
     return { status: 404, json: { error: "Rota não mockada" } }
   })
@@ -29,10 +48,15 @@ describe("ListaSolicitacoesPage", () => {
 
     renderPage(<ListaSolicitacoesPage />)
 
-    expect(await screen.findByRole("heading", { name: /Minhas Solicitações de Desenvolvimento/ })).toBeInTheDocument()
+    expect(
+      await screen.findByRole("heading", { name: /Minhas Solicitações de Desenvolvimento/ })
+    ).toBeInTheDocument()
     expect(screen.getByText("Cliente A")).toBeInTheDocument()
     expect(screen.getByText("Cliente B")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Nova Solicitação" })).toHaveAttribute("href", "/comercial/solicitacoes/nova")
+    expect(screen.getByRole("link", { name: "Nova Solicitação" })).toHaveAttribute(
+      "href",
+      "/comercial/solicitacoes/nova"
+    )
   })
 
   it("mostra o estado vazio quando não há solicitações", async () => {
@@ -51,9 +75,12 @@ describe("ListaSolicitacoesPage", () => {
     renderPage(<ListaSolicitacoesPage />)
     await screen.findByText("Cliente A")
 
-    fireEvent.change(screen.getByPlaceholderText("Buscar por cliente, produto, tipo, criado por..."), {
-      target: { value: "cliente a" },
-    })
+    fireEvent.change(
+      screen.getByPlaceholderText("Buscar por cliente, produto, tipo, criado por..."),
+      {
+        target: { value: "cliente a" },
+      }
+    )
 
     expect(screen.getByText("Cliente A")).toBeInTheDocument()
     expect(screen.queryByText("Cliente B")).not.toBeInTheDocument()
@@ -72,7 +99,11 @@ describe("ListaSolicitacoesPage", () => {
     const dialog = screen.getByRole("dialog", { name: "Excluir solicitação?" })
     fireEvent.click(within(dialog).getByRole("button", { name: "Excluir" }))
 
-    await waitFor(() => expect(findCall(fetchMock.calls, "/api/solicitacoes/1", "DELETE")).toBeDefined())
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Solicitação excluída com sucesso"))
+    await waitFor(() =>
+      expect(findCall(fetchMock.calls, "/api/solicitacoes/1", "DELETE")).toBeDefined()
+    )
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Solicitação excluída com sucesso")
+    )
   })
 })

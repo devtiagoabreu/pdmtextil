@@ -24,7 +24,9 @@ describe("NovaCampanhaPage", () => {
 
     fireEvent.submit(ui.container.querySelector("form")!)
 
-    await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("O nome da campanha é obrigatório"))
+    await waitFor(() =>
+      expect(toastMock.error).toHaveBeenCalledWith("O nome da campanha é obrigatório")
+    )
     expect(findCall(fetchMock.calls, "/api/crm/campanhas", "POST")).toBeUndefined()
   })
 

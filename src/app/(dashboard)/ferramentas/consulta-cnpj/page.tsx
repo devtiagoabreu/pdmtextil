@@ -5,14 +5,36 @@ import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { ArrowLeft, Search, Building2, RefreshCw, Check, X, AlertCircle, ExternalLink, PlusCircle, UserPlus } from "lucide-react"
+import {
+  ArrowLeft,
+  Search,
+  Building2,
+  RefreshCw,
+  Check,
+  X,
+  AlertCircle,
+  ExternalLink,
+  PlusCircle,
+  UserPlus,
+} from "lucide-react"
 import { toast } from "sonner"
 
-type FieldMap = { field: string; label: string; apiKey: string; localKey: string; format?: (v: any) => string }
+type FieldMap = {
+  field: string
+  label: string
+  apiKey: string
+  localKey: string
+  format?: (v: any) => string
+}
 
 const PESSOA_FIELDS: FieldMap[] = [
   { field: "razaoSocial", label: "Razão Social", apiKey: "razao_social", localKey: "razaoSocial" },
-  { field: "nomeFantasia", label: "Nome Fantasia", apiKey: "nome_fantasia", localKey: "nomeFantasia" },
+  {
+    field: "nomeFantasia",
+    label: "Nome Fantasia",
+    apiKey: "nome_fantasia",
+    localKey: "nomeFantasia",
+  },
   { field: "endereco", label: "Logradouro", apiKey: "logradouro", localKey: "endereco" },
   { field: "numero", label: "Número", apiKey: "numero", localKey: "numero" },
   { field: "complemento", label: "Complemento", apiKey: "complemento", localKey: "complemento" },
@@ -20,7 +42,12 @@ const PESSOA_FIELDS: FieldMap[] = [
   { field: "cidade", label: "Cidade", apiKey: "municipio", localKey: "cidade" },
   { field: "uf", label: "UF", apiKey: "uf", localKey: "uf" },
   { field: "cep", label: "CEP", apiKey: "cep", localKey: "cep" },
-  { field: "segmento", label: "Segmento", apiKey: "cnae_principal_descricao", localKey: "segmento" },
+  {
+    field: "segmento",
+    label: "Segmento",
+    apiKey: "cnae_principal_descricao",
+    localKey: "segmento",
+  },
   { field: "porte", label: "Porte", apiKey: "porte_empresa", localKey: "porte" },
 ]
 
@@ -32,7 +59,8 @@ const CLIENTE_FIELDS: FieldMap[] = [
     label: "Endereço",
     apiKey: "logradouro",
     localKey: "endereco",
-    format: (api: any) => [api.logradouro, api.numero, api.bairro, api.complemento].filter(Boolean).join(", "),
+    format: (api: any) =>
+      [api.logradouro, api.numero, api.bairro, api.complemento].filter(Boolean).join(", "),
   },
   { field: "cidade", label: "Cidade", apiKey: "municipio", localKey: "cidade" },
   { field: "uf", label: "UF", apiKey: "uf", localKey: "uf" },
@@ -134,7 +162,9 @@ export default function ConsultaCnpjPage() {
         nome: api.nome_fantasia || cliente.nome,
         cnpj: api.cnpj || cliente.cnpj,
         razaoSocial: api.razao_social || cliente.razaoSocial,
-        endereco: [api.logradouro, api.numero, api.bairro, api.complemento].filter(Boolean).join(", ") || cliente.endereco,
+        endereco:
+          [api.logradouro, api.numero, api.bairro, api.complemento].filter(Boolean).join(", ") ||
+          cliente.endereco,
         cidade: api.municipio || cliente.cidade,
         uf: api.uf || cliente.uf,
       }
@@ -200,7 +230,9 @@ export default function ConsultaCnpjPage() {
         nome: api.nome_fantasia || api.razao_social || "",
         cnpj: api.cnpj || "",
         razaoSocial: api.razao_social || "",
-        endereco: [api.logradouro, api.numero, api.bairro, api.complemento].filter(Boolean).join(", "),
+        endereco: [api.logradouro, api.numero, api.bairro, api.complemento]
+          .filter(Boolean)
+          .join(", "),
         cidade: api.municipio || "",
         uf: api.uf || "",
       }
@@ -226,12 +258,17 @@ export default function ConsultaCnpjPage() {
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl">
       <div className="flex items-center gap-3">
-        <Link href="/ferramentas" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link
+          href="/ferramentas"
+          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div className="flex items-center gap-2">
           <Building2 className="text-blue-600" size={22} />
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Consulta CNPJ{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+            Consulta CNPJ{info && <InfoButton content={info} />}
+          </h1>
         </div>
       </div>
 
@@ -262,9 +299,12 @@ export default function ConsultaCnpjPage() {
         <div className="rounded-xl border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 p-4 flex items-start gap-3">
           <AlertCircle size={20} className="text-amber-500 mt-0.5 shrink-0" />
           <div>
-            <p className="font-medium text-amber-800 dark:text-amber-300">CNPJ não encontrado na Receita Federal</p>
+            <p className="font-medium text-amber-800 dark:text-amber-300">
+              CNPJ não encontrado na Receita Federal
+            </p>
             <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
-              O CNPJ {formatCnpj(cnpj)} não foi localizado na base de dados da Receita Federal do Brasil.
+              O CNPJ {formatCnpj(cnpj)} não foi localizado na base de dados da Receita Federal do
+              Brasil.
             </p>
           </div>
         </div>
@@ -279,19 +319,24 @@ export default function ConsultaCnpjPage() {
                 {apiData.razao_social}
               </p>
               <p className="text-sm text-emerald-600 dark:text-emerald-400 mt-0.5">
-                {apiData.nome_fantasia} &mdash; {apiData.situacao_cadastral} &mdash; {apiData.matriz_filial}
+                {apiData.nome_fantasia} &mdash; {apiData.situacao_cadastral} &mdash;{" "}
+                {apiData.matriz_filial}
               </p>
             </div>
           </div>
 
           <div className="grid gap-6">
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-1">Dados da Receita Federal</h2>
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-1">
+                Dados da Receita Federal
+              </h2>
               <p className="text-xs text-slate-400 mb-4">Fonte: OpenCNPJ (api.opencnpj.org)</p>
               <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-sm">
                 <div>
                   <p className="text-xs text-slate-500 mb-0.5">CNPJ</p>
-                  <p className="text-slate-900 dark:text-slate-200 font-mono">{formatCnpj(apiData.cnpj)}</p>
+                  <p className="text-slate-900 dark:text-slate-200 font-mono">
+                    {formatCnpj(apiData.cnpj)}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 mb-0.5">Situação</p>
@@ -299,32 +344,46 @@ export default function ConsultaCnpjPage() {
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 mb-0.5">Abertura</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.data_inicio_atividade || "—"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">
+                    {apiData.data_inicio_atividade || "—"}
+                  </p>
                 </div>
                 <div className="col-span-2 sm:col-span-3">
                   <p className="text-xs text-slate-500 mb-0.5">Razão Social</p>
-                  <p className="text-slate-900 dark:text-slate-200 font-medium">{apiData.razao_social}</p>
+                  <p className="text-slate-900 dark:text-slate-200 font-medium">
+                    {apiData.razao_social}
+                  </p>
                 </div>
                 <div className="col-span-2 sm:col-span-3">
                   <p className="text-xs text-slate-500 mb-0.5">Nome Fantasia</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.nome_fantasia || "—"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">
+                    {apiData.nome_fantasia || "—"}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 mb-0.5">Porte</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.porte_empresa || "—"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">
+                    {apiData.porte_empresa || "—"}
+                  </p>
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 mb-0.5">Natureza Jurídica</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.natureza_juridica || "—"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">
+                    {apiData.natureza_juridica || "—"}
+                  </p>
                 </div>
                 <div className="col-span-2 sm:col-span-3">
                   <p className="text-xs text-slate-500 mb-0.5">CNAE Principal</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.cnae_principal} — {apiData.cnae_principal_descricao || "—"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">
+                    {apiData.cnae_principal} — {apiData.cnae_principal_descricao || "—"}
+                  </p>
                 </div>
                 <div className="col-span-2 sm:col-span-3">
                   <p className="text-xs text-slate-500 mb-0.5">Endereço</p>
                   <p className="text-slate-900 dark:text-slate-200">
-                    {[apiData.logradouro, apiData.numero, apiData.bairro, apiData.complemento].filter(Boolean).join(", ") || "—"}
+                    {[apiData.logradouro, apiData.numero, apiData.bairro, apiData.complemento]
+                      .filter(Boolean)
+                      .join(", ") || "—"}
                     {apiData.cep && ` — CEP ${apiData.cep}`}
                     {apiData.municipio && ` — ${apiData.municipio}/${apiData.uf}`}
                   </p>
@@ -339,7 +398,13 @@ export default function ConsultaCnpjPage() {
                 </div>
                 <div>
                   <p className="text-xs text-slate-500 mb-0.5">Simples Nacional</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.opcao_simples === "S" ? "Optante" : apiData.opcao_simples === "N" ? "Não optante" : "—"}</p>
+                  <p className="text-slate-900 dark:text-slate-200">
+                    {apiData.opcao_simples === "S"
+                      ? "Optante"
+                      : apiData.opcao_simples === "N"
+                        ? "Não optante"
+                        : "—"}
+                  </p>
                 </div>
                 {apiData.email && (
                   <div>
@@ -356,9 +421,15 @@ export default function ConsultaCnpjPage() {
                   CRM Pessoas ({result.crmPessoas.length} encontrada(s))
                 </h2>
                 {result.crmPessoas.map((pessoa: any) => (
-                  <div key={pessoa.id} className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3">
+                  <div
+                    key={pessoa.id}
+                    className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3"
+                  >
                     <div className="flex items-center justify-between">
-                      <Link href={`/comercial/crm/pessoas/${pessoa.id}`} className="text-sm font-medium text-blue-600 hover:underline inline-flex items-center gap-1">
+                      <Link
+                        href={`/comercial/crm/pessoas/${pessoa.id}`}
+                        className="text-sm font-medium text-blue-600 hover:underline inline-flex items-center gap-1"
+                      >
                         {pessoa.razaoSocial || pessoa.nome} <ExternalLink size={12} />
                       </Link>
                       <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-medium">
@@ -369,9 +440,15 @@ export default function ConsultaCnpjPage() {
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b border-slate-100 dark:border-slate-800">
-                            <th className="text-left text-[10px] font-medium text-slate-400 uppercase pb-1.5 pr-3">Campo</th>
-                            <th className="text-left text-[10px] font-medium text-slate-400 uppercase pb-1.5 pr-3">Atual</th>
-                            <th className="text-left text-[10px] font-medium text-slate-400 uppercase pb-1.5">API</th>
+                            <th className="text-left text-[10px] font-medium text-slate-400 uppercase pb-1.5 pr-3">
+                              Campo
+                            </th>
+                            <th className="text-left text-[10px] font-medium text-slate-400 uppercase pb-1.5 pr-3">
+                              Atual
+                            </th>
+                            <th className="text-left text-[10px] font-medium text-slate-400 uppercase pb-1.5">
+                              API
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
@@ -380,12 +457,21 @@ export default function ConsultaCnpjPage() {
                             const local = getLocalValue(pessoa, f)
                             const diff = valDiffers(api, local)
                             return (
-                              <tr key={f.field} className={`border-b border-slate-50 dark:border-slate-800/50 ${diff ? "bg-amber-50/50 dark:bg-amber-950/20" : ""}`}>
-                                <td className="py-1.5 pr-3 text-xs text-slate-500 whitespace-nowrap">{f.label}</td>
-                                <td className={`py-1.5 pr-3 ${local ? "text-slate-900 dark:text-slate-200" : "text-slate-400 italic"}`}>
+                              <tr
+                                key={f.field}
+                                className={`border-b border-slate-50 dark:border-slate-800/50 ${diff ? "bg-amber-50/50 dark:bg-amber-950/20" : ""}`}
+                              >
+                                <td className="py-1.5 pr-3 text-xs text-slate-500 whitespace-nowrap">
+                                  {f.label}
+                                </td>
+                                <td
+                                  className={`py-1.5 pr-3 ${local ? "text-slate-900 dark:text-slate-200" : "text-slate-400 italic"}`}
+                                >
                                   {local || "vazio"}
                                 </td>
-                                <td className={`py-1.5 ${diff ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-slate-600 dark:text-slate-300"}`}>
+                                <td
+                                  className={`py-1.5 ${diff ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-slate-600 dark:text-slate-300"}`}
+                                >
                                   {api || "—"}
                                 </td>
                               </tr>
@@ -400,8 +486,13 @@ export default function ConsultaCnpjPage() {
                         disabled={syncing === `pessoa-${pessoa.id}`}
                         className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
                       >
-                        <RefreshCw size={13} className={syncing === `pessoa-${pessoa.id}` ? "animate-spin" : ""} />
-                        {syncing === `pessoa-${pessoa.id}` ? "Sincronizando..." : "Sincronizar dados com a Receita"}
+                        <RefreshCw
+                          size={13}
+                          className={syncing === `pessoa-${pessoa.id}` ? "animate-spin" : ""}
+                        />
+                        {syncing === `pessoa-${pessoa.id}`
+                          ? "Sincronizando..."
+                          : "Sincronizar dados com a Receita"}
                       </button>
                     </div>
                   </div>
@@ -415,7 +506,10 @@ export default function ConsultaCnpjPage() {
                   Clientes ({result.clientes.length} encontrado(s))
                 </h2>
                 {result.clientes.map((cliente: any) => (
-                  <div key={cliente.id} className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3">
+                  <div
+                    key={cliente.id}
+                    className="border border-slate-200 dark:border-slate-700 rounded-lg p-4 space-y-3"
+                  >
                     <div className="flex items-center justify-between">
                       <span className="text-sm font-medium text-slate-900 dark:text-slate-200">
                         {cliente.nome}
@@ -428,9 +522,15 @@ export default function ConsultaCnpjPage() {
                       <table className="w-full text-sm">
                         <thead>
                           <tr className="border-b border-slate-100 dark:border-slate-800">
-                            <th className="text-left text-[10px] font-medium text-slate-400 uppercase pb-1.5 pr-3">Campo</th>
-                            <th className="text-left text-[10px] font-medium text-slate-400 uppercase pb-1.5 pr-3">Atual</th>
-                            <th className="text-left text-[10px] font-medium text-slate-400 uppercase pb-1.5">API</th>
+                            <th className="text-left text-[10px] font-medium text-slate-400 uppercase pb-1.5 pr-3">
+                              Campo
+                            </th>
+                            <th className="text-left text-[10px] font-medium text-slate-400 uppercase pb-1.5 pr-3">
+                              Atual
+                            </th>
+                            <th className="text-left text-[10px] font-medium text-slate-400 uppercase pb-1.5">
+                              API
+                            </th>
                           </tr>
                         </thead>
                         <tbody>
@@ -439,12 +539,21 @@ export default function ConsultaCnpjPage() {
                             const local = getLocalValue(cliente, f)
                             const diff = valDiffers(api, local)
                             return (
-                              <tr key={f.field} className={`border-b border-slate-50 dark:border-slate-800/50 ${diff ? "bg-amber-50/50 dark:bg-amber-950/20" : ""}`}>
-                                <td className="py-1.5 pr-3 text-xs text-slate-500 whitespace-nowrap">{f.label}</td>
-                                <td className={`py-1.5 pr-3 ${local ? "text-slate-900 dark:text-slate-200" : "text-slate-400 italic"}`}>
+                              <tr
+                                key={f.field}
+                                className={`border-b border-slate-50 dark:border-slate-800/50 ${diff ? "bg-amber-50/50 dark:bg-amber-950/20" : ""}`}
+                              >
+                                <td className="py-1.5 pr-3 text-xs text-slate-500 whitespace-nowrap">
+                                  {f.label}
+                                </td>
+                                <td
+                                  className={`py-1.5 pr-3 ${local ? "text-slate-900 dark:text-slate-200" : "text-slate-400 italic"}`}
+                                >
                                   {local || "vazio"}
                                 </td>
-                                <td className={`py-1.5 ${diff ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-slate-600 dark:text-slate-300"}`}>
+                                <td
+                                  className={`py-1.5 ${diff ? "text-emerald-600 dark:text-emerald-400 font-medium" : "text-slate-600 dark:text-slate-300"}`}
+                                >
                                   {api || "—"}
                                 </td>
                               </tr>
@@ -459,8 +568,13 @@ export default function ConsultaCnpjPage() {
                         disabled={syncing === `cliente-${cliente.id}`}
                         className="inline-flex items-center gap-1.5 rounded-lg bg-blue-600 px-3 py-1.5 text-xs font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors"
                       >
-                        <RefreshCw size={13} className={syncing === `cliente-${cliente.id}` ? "animate-spin" : ""} />
-                        {syncing === `cliente-${cliente.id}` ? "Sincronizando..." : "Sincronizar dados com a Receita"}
+                        <RefreshCw
+                          size={13}
+                          className={syncing === `cliente-${cliente.id}` ? "animate-spin" : ""}
+                        />
+                        {syncing === `cliente-${cliente.id}`
+                          ? "Sincronizando..."
+                          : "Sincronizar dados com a Receita"}
                       </button>
                     </div>
                   </div>
@@ -468,10 +582,12 @@ export default function ConsultaCnpjPage() {
               </div>
             )}
 
-            {(!result.crmPessoas?.length && !result.clientes?.length) && (
+            {!result.crmPessoas?.length && !result.clientes?.length && (
               <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 text-center">
                 <Building2 size={32} className="mx-auto text-slate-300 dark:text-slate-600 mb-3" />
-                <p className="font-medium text-slate-900 dark:text-slate-200">Nenhum registro local encontrado</p>
+                <p className="font-medium text-slate-900 dark:text-slate-200">
+                  Nenhum registro local encontrado
+                </p>
                 <p className="text-sm text-slate-500 mt-1">
                   Este CNPJ não está cadastrado. Deseja cadastrar?
                 </p>

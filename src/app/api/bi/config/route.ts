@@ -29,6 +29,9 @@ export async function PUT(req: NextRequest) {
     return NextResponse.json({ ttlMinutos: await getTtlMinutos() })
   } catch (error: any) {
     console.error("[BI] Error updating config:", error)
-    return NextResponse.json({ error: error.message || "Erro ao atualizar configuração" }, { status: 500 })
+    return NextResponse.json(
+      { error: error.message || "Erro ao atualizar configuração" },
+      { status: 500 }
+    )
   }
 }

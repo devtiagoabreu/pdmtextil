@@ -90,7 +90,12 @@ function reaplicarTodosEstilos(container: HTMLElement, elementRegistry: ServicoE
 
 const DEFAULT_COR = "#ffffff"
 
-export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning }: BpmnEditorProps) {
+export default function BpmnEditor({
+  xml,
+  readOnly = false,
+  onChange,
+  onWarning,
+}: BpmnEditorProps) {
   const containerRef = useRef<HTMLDivElement | null>(null)
   const modelerRef = useRef<ModelerCompleto | null>(null)
   const xmlAtualRef = useRef(xml)
@@ -111,26 +116,23 @@ export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning 
     return window.document.documentElement.classList.contains("dark")
   })
 
-  const atualizarPainel = useCallback(
-    (el: BpmnElement | null) => {
-      if (!el) {
-        setElementoSel(null)
-        return
-      }
-      setElementoSel(el)
-      setPainelAberto(true)
-      const di = el.businessObject.di
-      setFill(di?.fill ?? DEFAULT_COR)
-      setStroke(di?.stroke ?? "#333333")
-      const txt = di ? lerEstilosTexto(di) : {}
-      setTextFill(txt.textFill ?? "#000000")
-      setFontFamily(txt.fontFamily ?? "Arial")
-      setFontSize(txt.fontSize ?? 14)
-      setFontWeight(txt.fontWeight ?? "normal")
-      setFontStyle(txt.fontStyle ?? "normal")
-    },
-    []
-  )
+  const atualizarPainel = useCallback((el: BpmnElement | null) => {
+    if (!el) {
+      setElementoSel(null)
+      return
+    }
+    setElementoSel(el)
+    setPainelAberto(true)
+    const di = el.businessObject.di
+    setFill(di?.fill ?? DEFAULT_COR)
+    setStroke(di?.stroke ?? "#333333")
+    const txt = di ? lerEstilosTexto(di) : {}
+    setTextFill(txt.textFill ?? "#000000")
+    setFontFamily(txt.fontFamily ?? "Arial")
+    setFontSize(txt.fontSize ?? 14)
+    setFontWeight(txt.fontWeight ?? "normal")
+    setFontStyle(txt.fontStyle ?? "normal")
+  }, [])
 
   const persistir = useCallback(async () => {
     const modeler = modelerRef.current
@@ -146,17 +148,14 @@ export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning 
     }
   }, [readOnly])
 
-  const aplicarCorForma = useCallback(
-    (el: BpmnElement, novaFill: string, novaStroke: string) => {
-      const modeler = modelerRef.current
-      if (!modeler) return
-      modeler.get("modeling").setColor(el, {
-        fill: novaFill === DEFAULT_COR ? undefined : novaFill,
-        stroke: novaStroke === "#333333" ? undefined : novaStroke,
-      })
-    },
-    []
-  )
+  const aplicarCorForma = useCallback((el: BpmnElement, novaFill: string, novaStroke: string) => {
+    const modeler = modelerRef.current
+    if (!modeler) return
+    modeler.get("modeling").setColor(el, {
+      fill: novaFill === DEFAULT_COR ? undefined : novaFill,
+      stroke: novaStroke === "#333333" ? undefined : novaStroke,
+    })
+  }, [])
 
   const aplicarTexto = useCallback(
     (el: BpmnElement, estilos: EstilosTextoBpmn) => {
@@ -178,7 +177,8 @@ export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning 
       if (!containerRef.current) return
       const mod = await import("bpmn-js/lib/Modeler")
       if (!ativo || !containerRef.current) return
-      const BpmnModeler = (mod as { default?: new (opts: Record<string, unknown>) => unknown }).default
+      const BpmnModeler = (mod as { default?: new (opts: Record<string, unknown>) => unknown })
+        .default
       if (!BpmnModeler) {
         onWarning?.("Não foi possível carregar o editor BPMN.")
         return
@@ -256,13 +256,15 @@ export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning 
   function toggleBold() {
     const novo = fontWeight === "bold" ? "normal" : "bold"
     setFontWeight(novo)
-    if (elementoSel) aplicarTexto(elementoSel, { textFill, fontFamily, fontSize, fontWeight: novo, fontStyle })
+    if (elementoSel)
+      aplicarTexto(elementoSel, { textFill, fontFamily, fontSize, fontWeight: novo, fontStyle })
   }
 
   function toggleItalic() {
     const novo = fontStyle === "italic" ? "normal" : "italic"
     setFontStyle(novo)
-    if (elementoSel) aplicarTexto(elementoSel, { textFill, fontFamily, fontSize, fontWeight, fontStyle: novo })
+    if (elementoSel)
+      aplicarTexto(elementoSel, { textFill, fontFamily, fontSize, fontWeight, fontStyle: novo })
   }
 
   function limparEstilos() {
@@ -292,7 +294,9 @@ export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning 
           ref={containerRef}
           data-escuro={escuro ? "true" : "false"}
           className={`h-[560px] w-full rounded-lg border ${
-            escuro ? "border-slate-700 bg-slate-900" : "border-slate-200 bg-white dark:border-slate-800"
+            escuro
+              ? "border-slate-700 bg-slate-900"
+              : "border-slate-200 bg-white dark:border-slate-800"
           }`}
         />
         <div className="pointer-events-none absolute left-3 top-3 text-xs text-slate-400">
@@ -329,12 +333,21 @@ export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning 
         {painelAberto && (
           <div className="w-56 space-y-3 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-3 text-sm shadow-lg">
             {!elementoSel ? (
-              <p className="text-xs text-slate-400">Selecione uma forma ou conexão para editar seus estilos.</p>
+              <p className="text-xs text-slate-400">
+                Selecione uma forma ou conexão para editar seus estilos.
+              </p>
             ) : (
               <>
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-mono text-slate-400">{elementoSel.id}</span>
-                  <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={limparEstilos} aria-label="Limpar estilos">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    className="h-6 w-6"
+                    onClick={limparEstilos}
+                    aria-label="Limpar estilos"
+                  >
                     <RotateCcw size={12} />
                   </Button>
                 </div>
@@ -376,7 +389,13 @@ export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning 
                     onChange={(e) => {
                       setTextFill(e.target.value)
                       if (elementoSel)
-                        aplicarTexto(elementoSel, { textFill: e.target.value, fontFamily, fontSize, fontWeight, fontStyle })
+                        aplicarTexto(elementoSel, {
+                          textFill: e.target.value,
+                          fontFamily,
+                          fontSize,
+                          fontWeight,
+                          fontStyle,
+                        })
                     }}
                     className="h-8 w-full cursor-pointer rounded border-0 p-0"
                   />
@@ -389,7 +408,13 @@ export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning 
                     onChange={(e) => {
                       setFontFamily(e.target.value)
                       if (elementoSel)
-                        aplicarTexto(elementoSel, { textFill, fontFamily: e.target.value, fontSize, fontWeight, fontStyle })
+                        aplicarTexto(elementoSel, {
+                          textFill,
+                          fontFamily: e.target.value,
+                          fontSize,
+                          fontWeight,
+                          fontStyle,
+                        })
                     }}
                     className="w-full rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 p-1.5 text-xs"
                   >
@@ -409,7 +434,13 @@ export default function BpmnEditor({ xml, readOnly = false, onChange, onWarning 
                       const val = Number(e.target.value)
                       setFontSize(val)
                       if (elementoSel)
-                        aplicarTexto(elementoSel, { textFill, fontFamily, fontSize: val, fontWeight, fontStyle })
+                        aplicarTexto(elementoSel, {
+                          textFill,
+                          fontFamily,
+                          fontSize: val,
+                          fontWeight,
+                          fontStyle,
+                        })
                     }}
                     className="w-full rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 p-1.5 text-xs"
                   >

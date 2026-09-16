@@ -78,8 +78,12 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
-    const res = await GET(new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7"))
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
+    const res = await GET(
+      new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7")
+    )
     expect(res.status).toBe(401)
   })
 
@@ -91,7 +95,9 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
   it("retorna 404 quando a viagem não existe", async () => {
     ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(createQueryBuilder([]))
     ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(createQueryBuilder([]))
-    const res = await GET(new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=99"))
+    const res = await GET(
+      new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=99")
+    )
     expect(res.status).toBe(404)
   })
 
@@ -99,13 +105,27 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
     ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(createQueryBuilder([viagem]))
     ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(
       createQueryBuilder([
-        visitaRow(11, { hora: "09:00", checkInLat: -23.55, checkInLng: -46.63, checkOutLat: -23.56, checkOutLng: -46.64 }),
-        visitaRow(12, { hora: "11:00", checkInLat: -22.90, checkInLng: -43.17, checkOutLat: -22.91, checkOutLng: -43.18 }),
+        visitaRow(11, {
+          hora: "09:00",
+          checkInLat: -23.55,
+          checkInLng: -46.63,
+          checkOutLat: -23.56,
+          checkOutLng: -46.64,
+        }),
+        visitaRow(12, {
+          hora: "11:00",
+          checkInLat: -22.9,
+          checkInLng: -43.17,
+          checkOutLat: -22.91,
+          checkOutLng: -43.18,
+        }),
         visitaRow(13, { hora: "15:00", status: "CANCELADA" }),
       ])
     )
 
-    const res = await GET(new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7"))
+    const res = await GET(
+      new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7")
+    )
     expect(res.status).toBe(200)
     const body = await res.json()
 
@@ -116,7 +136,13 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
     expect(body.visitas[1].km).toBeGreaterThan(340)
     expect(body.visitas[1].km).toBeLessThan(380)
     expect(body.visitas[1].latitude).toBe(-22.9)
-    expect(body.visitas[2]).toMatchObject({ id: 13, status: "CANCELADA", latitude: null, longitude: null, km: null })
+    expect(body.visitas[2]).toMatchObject({
+      id: 13,
+      status: "CANCELADA",
+      latitude: null,
+      longitude: null,
+      km: null,
+    })
     expect(body.visitas[2].enderecoTexto).toContain("Goiânia")
 
     expect(body.resumo).toMatchObject({
@@ -139,7 +165,9 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
       ])
     )
 
-    const res = await GET(new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7"))
+    const res = await GET(
+      new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7")
+    )
     const body = await res.json()
     expect(body.visitas[0].latitude).toBe(-23.55)
     expect(body.resumo.comLocalizacao).toBe(2)
@@ -156,10 +184,19 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
       ])
     )
 
-    const res = await GET(new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7"))
+    const res = await GET(
+      new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7")
+    )
     const body = await res.json()
 
-    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({ endereco: "Av. X", numero: "100", complemento: null, bairro: "Centro", cidade: "Goiânia", uf: "GO" })
+    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({
+      endereco: "Av. X",
+      numero: "100",
+      complemento: null,
+      bairro: "Centro",
+      cidade: "Goiânia",
+      uf: "GO",
+    })
     expect(body.visitas[0]).toMatchObject({
       id: 31,
       latitude: -23.5,
@@ -196,10 +233,19 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
       ])
     )
 
-    const res = await GET(new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7"))
+    const res = await GET(
+      new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7")
+    )
     const body = await res.json()
 
-    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({ endereco: "Av. das Empresas", numero: "500", complemento: null, bairro: "Industrial", cidade: "Aparecida de Goiânia", uf: "GO" })
+    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({
+      endereco: "Av. das Empresas",
+      numero: "500",
+      complemento: null,
+      bairro: "Industrial",
+      cidade: "Aparecida de Goiânia",
+      uf: "GO",
+    })
     expect(body.visitas[0].localizacaoFonte).toBe("geocodificada")
   })
 
@@ -226,11 +272,22 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
       ])
     )
 
-    const res = await GET(new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7"))
+    const res = await GET(
+      new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7")
+    )
     const body = await res.json()
 
-    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({ endereco: "Rua do Cliente, 90", cidade: "Anápolis", uf: "GO" })
-    expect(body.visitas[0]).toMatchObject({ id: 51, latitude: -16.33, longitude: -48.95, localizacaoFonte: "geocodificada" })
+    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({
+      endereco: "Rua do Cliente, 90",
+      cidade: "Anápolis",
+      uf: "GO",
+    })
+    expect(body.visitas[0]).toMatchObject({
+      id: 51,
+      latitude: -16.33,
+      longitude: -48.95,
+      localizacaoFonte: "geocodificada",
+    })
   })
 
   it("usa as coordenadas de endereço persistidas sem chamar o Nominatim", async () => {
@@ -238,17 +295,35 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
     ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(
       createQueryBuilder([
         visitaRow(71, { enderecoLat: -23.55, enderecoLng: -46.63 }),
-        visitaRow(72, { enderecoLat: -22.90, enderecoLng: -43.17 }),
+        visitaRow(72, { enderecoLat: -22.9, enderecoLng: -43.17 }),
       ])
     )
 
-    const res = await GET(new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7"))
+    const res = await GET(
+      new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7")
+    )
     const body = await res.json()
 
     expect(geocodificarCamposEndereco).not.toHaveBeenCalled()
-    expect(body.visitas[0]).toMatchObject({ id: 71, latitude: -23.55, longitude: -46.63, localizacaoFonte: "endereco", km: 0 })
-    expect(body.visitas[1]).toMatchObject({ id: 72, latitude: -22.9, longitude: -43.17, localizacaoFonte: "endereco" })
-    expect(body.resumo).toMatchObject({ comLocalizacao: 2, comEndereco: 2, geocodificadas: 0, kmSemLocalizacao: 0 })
+    expect(body.visitas[0]).toMatchObject({
+      id: 71,
+      latitude: -23.55,
+      longitude: -46.63,
+      localizacaoFonte: "endereco",
+      km: 0,
+    })
+    expect(body.visitas[1]).toMatchObject({
+      id: 72,
+      latitude: -22.9,
+      longitude: -43.17,
+      localizacaoFonte: "endereco",
+    })
+    expect(body.resumo).toMatchObject({
+      comLocalizacao: 2,
+      comEndereco: 2,
+      geocodificadas: 0,
+      kmSemLocalizacao: 0,
+    })
     expect(body.resumo.kmTotal).toBeCloseTo(body.visitas[1].km, 0)
   })
 
@@ -274,11 +349,18 @@ describe("GET /api/crm/visitas/dashboard/viagem", () => {
       ])
     )
 
-    const res = await GET(new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7"))
+    const res = await GET(
+      new NextRequest("http://localhost/api/crm/visitas/dashboard/viagem?viagemId=7")
+    )
     const body = await res.json()
 
     expect(geocodificarCamposEndereco).not.toHaveBeenCalled()
-    expect(body.visitas[0]).toMatchObject({ latitude: null, longitude: null, localizacaoFonte: null, km: null })
+    expect(body.visitas[0]).toMatchObject({
+      latitude: null,
+      longitude: null,
+      localizacaoFonte: null,
+      km: null,
+    })
     expect(body.resumo).toMatchObject({ comLocalizacao: 0, geocodificadas: 0, kmSemLocalizacao: 1 })
   })
 })

@@ -6,7 +6,17 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-import { Loader2, Mail, Send, Trash2, ArrowLeft, Plus, Pencil, XCircle, CheckCircle2 } from "lucide-react"
+import {
+  Loader2,
+  Mail,
+  Send,
+  Trash2,
+  ArrowLeft,
+  Plus,
+  Pencil,
+  XCircle,
+  CheckCircle2,
+} from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
@@ -62,19 +72,30 @@ export default function EmailConfigPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-8">
       <div className="flex items-center gap-4">
-        <Link href="/admin/configuracoes" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link
+          href="/admin/configuracoes"
+          className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={20} />
         </Link>
         <div>
           <div className="flex items-center gap-2">
             <Mail className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Configuração de Email{info && <InfoButton content={info} />}</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+              Configuração de Email{info && <InfoButton content={info} />}
+            </h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">SMTP do sistema, email por usuário e email do CRM em um só lugar</p>
+          <p className="text-sm text-slate-500 mt-1">
+            SMTP do sistema, email por usuário e email do CRM em um só lugar
+          </p>
         </div>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col space-y-6">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="w-full flex flex-col space-y-6"
+      >
         <TabsList variant="line" className="w-full border-b">
           <TabsTrigger value="sistema">SMTP Sistema</TabsTrigger>
           <TabsTrigger value="usuarios">Email por Usuário</TabsTrigger>
@@ -190,7 +211,11 @@ function SistemaSmtp() {
   }
 
   if (loading) {
-    return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-400" size={24} /></div>
+    return (
+      <div className="flex justify-center p-8">
+        <Loader2 className="animate-spin text-slate-400" size={24} />
+      </div>
+    )
   }
 
   return (
@@ -200,32 +225,57 @@ function SistemaSmtp() {
         <h2 className="text-lg font-semibold">SMTP Padrão do Sistema</h2>
       </div>
       <p className="text-sm text-slate-500">
-        Usado pelas <strong>notificações do sistema</strong>, menções no chat e envio em massa com remetente <strong>sistema</strong>. Para Gmail, use a senha de app gerada em <strong>Conta Google &gt; Segurança &gt; Senhas de app</strong>.
+        Usado pelas <strong>notificações do sistema</strong>, menções no chat e envio em massa com
+        remetente <strong>sistema</strong>. Para Gmail, use a senha de app gerada em{" "}
+        <strong>Conta Google &gt; Segurança &gt; Senhas de app</strong>.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Servidor SMTP</Label>
-          <Input value={host} onChange={e => setHost(e.target.value)} placeholder="smtp.gmail.com" />
+          <Input
+            value={host}
+            onChange={(e) => setHost(e.target.value)}
+            placeholder="smtp.gmail.com"
+          />
         </div>
         <div className="space-y-2">
           <Label>Porta</Label>
-          <Input value={port} onChange={e => setPort(e.target.value)} placeholder="587" />
+          <Input value={port} onChange={(e) => setPort(e.target.value)} placeholder="587" />
         </div>
         <div className="space-y-2">
           <Label>Email de envio *</Label>
-          <Input value={user} onChange={e => setUser(e.target.value)} placeholder="seuemail@gmail.com" />
+          <Input
+            value={user}
+            onChange={(e) => setUser(e.target.value)}
+            placeholder="seuemail@gmail.com"
+          />
         </div>
         <div className="space-y-2">
           <Label>Senha de App *</Label>
-          <Input type="password" value={pass} onChange={e => setPass(e.target.value)} placeholder="Senha de app do Gmail" />
+          <Input
+            type="password"
+            value={pass}
+            onChange={(e) => setPass(e.target.value)}
+            placeholder="Senha de app do Gmail"
+          />
         </div>
         <div className="space-y-2">
           <Label>Nome do Remetente</Label>
-          <Input value={fromName} onChange={e => setFromName(e.target.value)} placeholder="PDM Têxtil" />
+          <Input
+            value={fromName}
+            onChange={(e) => setFromName(e.target.value)}
+            placeholder="PDM Têxtil"
+          />
         </div>
         <div className="flex items-end gap-2">
-          <input type="checkbox" id="smtpAtivo" checked={ativo} onChange={e => setAtivo(e.target.checked)} className="w-4 h-4 mb-2" />
+          <input
+            type="checkbox"
+            id="smtpAtivo"
+            checked={ativo}
+            onChange={(e) => setAtivo(e.target.checked)}
+            className="w-4 h-4 mb-2"
+          />
           <Label htmlFor="smtpAtivo">Configuração ativa</Label>
         </div>
       </div>
@@ -248,7 +298,11 @@ function SistemaSmtp() {
           <div className="flex gap-2 items-end">
             <div className="space-y-2 flex-1">
               <Label>Email de destino</Label>
-              <Input value={testEmail} onChange={e => setTestEmail(e.target.value)} placeholder="teste@exemplo.com" />
+              <Input
+                value={testEmail}
+                onChange={(e) => setTestEmail(e.target.value)}
+                placeholder="teste@exemplo.com"
+              />
             </div>
             <Button onClick={handleTest} disabled={testing} variant="outline" className="gap-2">
               {testing ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
@@ -283,13 +337,16 @@ function UsuariosEmail() {
     },
   })
 
-  const edited = new Set(configs.map(c => c.usuarioId))
+  const edited = new Set(configs.map((c) => c.usuarioId))
 
-  const filtered = configs
-    .filter(c => matchesSearch(c.usuarioNome + " " + c.email, search))
+  const filtered = configs.filter((c) => matchesSearch(c.usuarioNome + " " + c.email, search))
 
   if (loading) {
-    return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-400" size={24} /></div>
+    return (
+      <div className="flex justify-center p-8">
+        <Loader2 className="animate-spin text-slate-400" size={24} />
+      </div>
+    )
   }
 
   return (
@@ -299,30 +356,47 @@ function UsuariosEmail() {
         <h2 className="text-lg font-semibold">Email por Usuário (Envio em Massa)</h2>
       </div>
       <p className="text-sm text-slate-500">
-        Configure o SMTP pessoal de cada usuário, usado no envio em massa quando o remetente é o <strong>usuário</strong>.
+        Configure o SMTP pessoal de cada usuário, usado no envio em massa quando o remetente é o{" "}
+        <strong>usuário</strong>.
       </p>
 
       <div className="mb-2">
-        <Input placeholder="Buscar por nome ou email..." value={search} onChange={e => setSearch(e.target.value)} />
+        <Input
+          placeholder="Buscar por nome ou email..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+        />
       </div>
 
       <div className="space-y-2">
         {filtered.length === 0 && (
-          <p className="text-sm text-slate-400 py-4 text-center">Nenhum usuário com configuração de email cadastrada.</p>
+          <p className="text-sm text-slate-400 py-4 text-center">
+            Nenhum usuário com configuração de email cadastrada.
+          </p>
         )}
-        {filtered.map(c => (
-          <UsuarioEmailRow key={c.id} config={c} onSaved={() => queryClient.invalidateQueries({ queryKey: ["admin-user-email"] })} />
+        {filtered.map((c) => (
+          <UsuarioEmailRow
+            key={c.id}
+            config={c}
+            onSaved={() => queryClient.invalidateQueries({ queryKey: ["admin-user-email"] })}
+          />
         ))}
       </div>
 
       <div className="pt-4 border-t border-slate-200 dark:border-slate-800 mt-4">
-        <h3 className="text-sm font-semibold mb-3 flex items-center gap-2"><Plus size={16} /> Novo cadastro por usuário</h3>
+        <h3 className="text-sm font-semibold mb-3 flex items-center gap-2">
+          <Plus size={16} /> Novo cadastro por usuário
+        </h3>
         <p className="text-sm text-slate-500 mb-2">
           {usuarios.length - edited.size > 0
             ? `Existem ${usuarios.length - edited.size} usuários sem configuração.`
             : "Todos os usuários já possuem configuração."}
         </p>
-        <NovoUsuarioEmail usuarios={usuarios} edited={edited} onSaved={() => queryClient.invalidateQueries({ queryKey: ["admin-user-email"] })} />
+        <NovoUsuarioEmail
+          usuarios={usuarios}
+          edited={edited}
+          onSaved={() => queryClient.invalidateQueries({ queryKey: ["admin-user-email"] })}
+        />
       </div>
     </div>
   )
@@ -367,7 +441,9 @@ function UsuarioEmailRow({ config, onSaved }: { config: UsuarioEmail; onSaved: (
     if (!confirm(`Remover a configuração de email de ${config.usuarioNome}?`)) return
     setDeleting(true)
     try {
-      const res = await fetch(`/api/admin/config/user-email?usuarioId=${config.usuarioId}`, { method: "DELETE" })
+      const res = await fetch(`/api/admin/config/user-email?usuarioId=${config.usuarioId}`, {
+        method: "DELETE",
+      })
       if (!res.ok) throw new Error()
       toast.success("Configuração removida")
       onSaved()
@@ -387,14 +463,24 @@ function UsuarioEmailRow({ config, onSaved }: { config: UsuarioEmail; onSaved: (
         </div>
         <div className="flex items-center gap-1">
           {ativo ? (
-            <span className="inline-flex items-center gap-1 text-xs text-green-600"><CheckCircle2 size={14} /> Ativo</span>
+            <span className="inline-flex items-center gap-1 text-xs text-green-600">
+              <CheckCircle2 size={14} /> Ativo
+            </span>
           ) : (
-            <span className="inline-flex items-center gap-1 text-xs text-slate-400"><XCircle size={14} /> Inativo</span>
+            <span className="inline-flex items-center gap-1 text-xs text-slate-400">
+              <XCircle size={14} /> Inativo
+            </span>
           )}
           <Button variant="ghost" size="sm" onClick={() => setEditing(!editing)} className="gap-1">
             <Pencil size={16} /> Editar
           </Button>
-          <Button variant="ghost" size="sm" onClick={handleDelete} disabled={deleting} className="gap-1 text-red-600">
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleDelete}
+            disabled={deleting}
+            className="gap-1 text-red-600"
+          >
             {deleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
           </Button>
         </div>
@@ -404,26 +490,48 @@ function UsuarioEmailRow({ config, onSaved }: { config: UsuarioEmail; onSaved: (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3 pt-2 border-t border-slate-200 dark:border-slate-800">
           <div className="space-y-1">
             <Label className="text-xs">Email</Label>
-            <Input value={email} onChange={e => setEmail(e.target.value)} />
+            <Input value={email} onChange={(e) => setEmail(e.target.value)} />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">Senha de App (vazia mantém a atual)</Label>
-            <Input type="password" value={senhaApp} onChange={e => setSenhaApp(e.target.value)} placeholder="••••••••" />
+            <Input
+              type="password"
+              value={senhaApp}
+              onChange={(e) => setSenhaApp(e.target.value)}
+              placeholder="••••••••"
+            />
           </div>
           <div className="space-y-1">
             <Label className="text-xs">Limite Diário</Label>
-            <Input type="number" min={100} max={50000} step={100} value={limiteDiario} onChange={e => setLimiteDiario(e.target.value)} />
+            <Input
+              type="number"
+              min={100}
+              max={50000}
+              step={100}
+              value={limiteDiario}
+              onChange={(e) => setLimiteDiario(e.target.value)}
+            />
           </div>
           <div className="flex items-end gap-2">
-            <input type="checkbox" id={`ativo-${config.usuarioId}`} checked={ativo} onChange={e => setAtivo(e.target.checked)} className="w-4 h-4" />
-            <Label htmlFor={`ativo-${config.usuarioId}`} className="text-xs">Configuração ativa</Label>
+            <input
+              type="checkbox"
+              id={`ativo-${config.usuarioId}`}
+              checked={ativo}
+              onChange={(e) => setAtivo(e.target.checked)}
+              className="w-4 h-4"
+            />
+            <Label htmlFor={`ativo-${config.usuarioId}`} className="text-xs">
+              Configuração ativa
+            </Label>
           </div>
           <div className="col-span-full flex gap-2">
             <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1">
               {saving && <Loader2 size={16} className="animate-spin" />}
               Salvar
             </Button>
-            <Button size="sm" variant="outline" onClick={() => setEditing(false)}>Cancelar</Button>
+            <Button size="sm" variant="outline" onClick={() => setEditing(false)}>
+              Cancelar
+            </Button>
           </div>
         </div>
       )}
@@ -431,14 +539,22 @@ function UsuarioEmailRow({ config, onSaved }: { config: UsuarioEmail; onSaved: (
   )
 }
 
-function NovoUsuarioEmail({ usuarios, edited, onSaved }: { usuarios: Usuario[]; edited: Set<number>; onSaved: () => void }) {
+function NovoUsuarioEmail({
+  usuarios,
+  edited,
+  onSaved,
+}: {
+  usuarios: Usuario[]
+  edited: Set<number>
+  onSaved: () => void
+}) {
   const [usuarioId, setUsuarioId] = useState("")
   const [email, setEmail] = useState("")
   const [senhaApp, setSenhaApp] = useState("")
   const [limiteDiario, setLimiteDiario] = useState("1500")
   const [saving, setSaving] = useState(false)
 
-  const disponiveis = usuarios.filter(u => !edited.has(u.id))
+  const disponiveis = usuarios.filter((u) => !edited.has(u.id))
 
   const handleSave = async () => {
     if (!usuarioId || !email || !senhaApp) {
@@ -450,7 +566,12 @@ function NovoUsuarioEmail({ usuarios, edited, onSaved }: { usuarios: Usuario[]; 
       const res = await fetch("/api/admin/config/user-email", {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ usuarioId: Number(usuarioId), email, senhaApp, limiteDiario: Number(limiteDiario) }),
+        body: JSON.stringify({
+          usuarioId: Number(usuarioId),
+          email,
+          senhaApp,
+          limiteDiario: Number(limiteDiario),
+        }),
       })
       if (!res.ok) throw new Error()
       toast.success("Configuração cadastrada!")
@@ -472,26 +593,44 @@ function NovoUsuarioEmail({ usuarios, edited, onSaved }: { usuarios: Usuario[]; 
         <Label className="text-xs">Usuário *</Label>
         <select
           value={usuarioId}
-          onChange={e => setUsuarioId(e.target.value)}
+          onChange={(e) => setUsuarioId(e.target.value)}
           className="w-full h-9 rounded-md border border-input bg-transparent px-3 text-sm"
         >
           <option value="">Selecione...</option>
-          {disponiveis.map(u => (
-            <option key={u.id} value={u.id}>{u.name} ({u.email})</option>
+          {disponiveis.map((u) => (
+            <option key={u.id} value={u.id}>
+              {u.name} ({u.email})
+            </option>
           ))}
         </select>
       </div>
       <div className="space-y-1">
         <Label className="text-xs">Email de envio *</Label>
-        <Input value={email} onChange={e => setEmail(e.target.value)} placeholder="usuario@gmail.com" />
+        <Input
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          placeholder="usuario@gmail.com"
+        />
       </div>
       <div className="space-y-1">
         <Label className="text-xs">Senha de App *</Label>
-        <Input type="password" value={senhaApp} onChange={e => setSenhaApp(e.target.value)} placeholder="Senha de app do Gmail" />
+        <Input
+          type="password"
+          value={senhaApp}
+          onChange={(e) => setSenhaApp(e.target.value)}
+          placeholder="Senha de app do Gmail"
+        />
       </div>
       <div className="space-y-1">
         <Label className="text-xs">Limite Diário</Label>
-        <Input type="number" min={100} max={50000} step={100} value={limiteDiario} onChange={e => setLimiteDiario(e.target.value)} />
+        <Input
+          type="number"
+          min={100}
+          max={50000}
+          step={100}
+          value={limiteDiario}
+          onChange={(e) => setLimiteDiario(e.target.value)}
+        />
       </div>
       <div className="col-span-full">
         <Button size="sm" onClick={handleSave} disabled={saving} className="gap-1">
@@ -576,7 +715,11 @@ function CrmSmtp() {
   }
 
   if (loading) {
-    return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-400" size={24} /></div>
+    return (
+      <div className="flex justify-center p-8">
+        <Loader2 className="animate-spin text-slate-400" size={24} />
+      </div>
+    )
   }
 
   return (
@@ -586,36 +729,64 @@ function CrmSmtp() {
         <h2 className="text-lg font-semibold">SMTP CRM</h2>
       </div>
       <p className="text-sm text-slate-500">
-        Usado para envio automático de <strong>pesquisas de satisfação</strong> e outros emails do CRM. Se não configurado, usa o SMTP do sistema.
+        Usado para envio automático de <strong>pesquisas de satisfação</strong> e outros emails do
+        CRM. Se não configurado, usa o SMTP do sistema.
       </p>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div className="space-y-2">
           <Label>Servidor SMTP</Label>
-          <Input value={host} onChange={e => setHost(e.target.value)} placeholder="smtp.gmail.com" />
+          <Input
+            value={host}
+            onChange={(e) => setHost(e.target.value)}
+            placeholder="smtp.gmail.com"
+          />
         </div>
         <div className="space-y-2">
           <Label>Porta</Label>
-          <Input value={port} onChange={e => setPort(e.target.value)} placeholder="587" />
+          <Input value={port} onChange={(e) => setPort(e.target.value)} placeholder="587" />
         </div>
         <div className="space-y-2">
           <Label>Email de envio *</Label>
-          <Input value={user} onChange={e => setUser(e.target.value)} placeholder="crm@seudominio.com" />
+          <Input
+            value={user}
+            onChange={(e) => setUser(e.target.value)}
+            placeholder="crm@seudominio.com"
+          />
         </div>
         <div className="space-y-2">
           <Label>Senha de App *</Label>
-          <Input type="password" value={pass} onChange={e => setPass(e.target.value)} placeholder="Senha de app do Gmail" />
+          <Input
+            type="password"
+            value={pass}
+            onChange={(e) => setPass(e.target.value)}
+            placeholder="Senha de app do Gmail"
+          />
         </div>
         <div className="space-y-2">
           <Label>Nome do Remetente</Label>
-          <Input value={fromName} onChange={e => setFromName(e.target.value)} placeholder="PDM PRO TEXTIL - CRM" />
+          <Input
+            value={fromName}
+            onChange={(e) => setFromName(e.target.value)}
+            placeholder="PDM PRO TEXTIL - CRM"
+          />
         </div>
         <div className="space-y-2">
           <Label>Email de Resposta (Reply-To)</Label>
-          <Input value={replyTo} onChange={e => setReplyTo(e.target.value)} placeholder="comercial@seudominio.com" />
+          <Input
+            value={replyTo}
+            onChange={(e) => setReplyTo(e.target.value)}
+            placeholder="comercial@seudominio.com"
+          />
         </div>
         <div className="flex items-end gap-2">
-          <input type="checkbox" id="crmAtivo" checked={ativo} onChange={e => setAtivo(e.target.checked)} className="w-4 h-4 mb-2" />
+          <input
+            type="checkbox"
+            id="crmAtivo"
+            checked={ativo}
+            onChange={(e) => setAtivo(e.target.checked)}
+            className="w-4 h-4 mb-2"
+          />
           <Label htmlFor="crmAtivo">Configuração ativa</Label>
         </div>
       </div>

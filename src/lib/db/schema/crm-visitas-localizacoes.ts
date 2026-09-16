@@ -1,10 +1,20 @@
-import { pgTable, serial, integer, varchar, text, timestamp, doublePrecision } from "drizzle-orm/pg-core"
+import {
+  pgTable,
+  serial,
+  integer,
+  varchar,
+  text,
+  timestamp,
+  doublePrecision,
+} from "drizzle-orm/pg-core"
 import { crmVisitas } from "./crm-visitas"
 import { usuarios } from "./usuarios"
 
 export const crmVisitasLocalizacoes = pgTable("crm_visitas_localizacoes", {
   id: serial("id").primaryKey(),
-  visitaId: integer("visita_id").notNull().references(() => crmVisitas.id, { onDelete: "cascade" }),
+  visitaId: integer("visita_id")
+    .notNull()
+    .references(() => crmVisitas.id, { onDelete: "cascade" }),
   latitude: doublePrecision("latitude").notNull(),
   longitude: doublePrecision("longitude").notNull(),
   endereco: varchar("endereco", { length: 500 }),

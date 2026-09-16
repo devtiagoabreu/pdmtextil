@@ -9,10 +9,7 @@ import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 import { normalizarItensVenda } from "@/lib/crm/documento-venda"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -55,10 +52,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -90,7 +84,8 @@ export async function PUT(
     if (body.dataEmissao !== undefined) values.dataEmissao = body.dataEmissao || null
     if (body.status !== undefined) values.status = body.status
     if (body.observacao !== undefined) values.observacao = body.observacao?.trim() || null
-    if (body.referenciaExterna !== undefined) values.referenciaExterna = body.referenciaExterna?.trim() || null
+    if (body.referenciaExterna !== undefined)
+      values.referenciaExterna = body.referenciaExterna?.trim() || null
 
     const itens = body.itens !== undefined ? normalizarItensVenda(body.itens) : null
 
@@ -107,9 +102,9 @@ export async function PUT(
 
       if (itens) {
         await tx.delete(crmPedidoVendaItens).where(eq(crmPedidoVendaItens.pedidoVendaId, pedidoId))
-        await tx.insert(crmPedidoVendaItens).values(
-          itens.map((item: any) => ({ ...item, pedidoVendaId: pedidoId }))
-        )
+        await tx
+          .insert(crmPedidoVendaItens)
+          .values(itens.map((item: any) => ({ ...item, pedidoVendaId: pedidoId })))
       }
 
       return [updated]
@@ -124,7 +119,12 @@ export async function PUT(
       usuarioNome: session.user.name,
     })
 
-    await notificar("PEDIDO_VENDA_ATUALIZADO", `Pedido de venda${atualizado.numero ? ` "${atualizado.numero}"` : ""} atualizado`, `/comercial/crm/pedidos-venda/${atualizado.id}`, session.user.name)
+    await notificar(
+      "PEDIDO_VENDA_ATUALIZADO",
+      `Pedido de venda${atualizado.numero ? ` "${atualizado.numero}"` : ""} atualizado`,
+      `/comercial/crm/pedidos-venda/${atualizado.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(atualizado)
   } catch (error) {
@@ -132,10 +132,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth

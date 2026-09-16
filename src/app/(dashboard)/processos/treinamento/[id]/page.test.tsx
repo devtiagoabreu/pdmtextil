@@ -96,7 +96,12 @@ describe("LicaoDetailPage", () => {
     fireEvent.click(await screen.findByRole("button", { name: "Exportar PDF" }))
 
     await waitFor(() => expect(exportLicaoPdf).toHaveBeenCalled())
-    expect(exportLicaoPdf).toHaveBeenCalledWith(expect.objectContaining({ id: 10 }), "Visão Geral", 0, 1)
+    expect(exportLicaoPdf).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 10 }),
+      "Visão Geral",
+      0,
+      1
+    )
   })
 
   it("mostra mensagem quando a lição não é encontrada", async () => {

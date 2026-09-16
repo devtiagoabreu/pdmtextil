@@ -10,13 +10,20 @@ export const dynamic = "force-dynamic"
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
+    if (
+      !session ||
+      (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")
+    ) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
     const { id } = await params
     const listaId = Number(id)
-    const contatos = await db.select().from(emailListaContatos).where(eq(emailListaContatos.listaId, listaId)).orderBy(emailListaContatos.nome)
+    const contatos = await db
+      .select()
+      .from(emailListaContatos)
+      .where(eq(emailListaContatos.listaId, listaId))
+      .orderBy(emailListaContatos.nome)
     return NextResponse.json(contatos)
   } catch (error) {
     console.error("[GET /api/admin/email-massa/listas/contatos]", error)
@@ -27,7 +34,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
+    if (
+      !session ||
+      (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")
+    ) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -67,7 +77,11 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Nome e email são obrigatórios" }, { status: 400 })
     }
 
-    const limpos = extrairEmails(email).map((e: string) => ({ listaId, nome: nome.trim(), email: e }))
+    const limpos = extrairEmails(email).map((e: string) => ({
+      listaId,
+      nome: nome.trim(),
+      email: e,
+    }))
     if (limpos.length === 0) {
       return NextResponse.json({ error: "Email inválido" }, { status: 400 })
     }
@@ -83,7 +97,10 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
+    if (
+      !session ||
+      (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")
+    ) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -93,9 +110,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     const contatoId = searchParams.get("contatoId")
 
     if (contatoId) {
-      await db.delete(emailListaContatos).where(
-        eq(emailListaContatos.id, Number(contatoId))
-      )
+      await db.delete(emailListaContatos).where(eq(emailListaContatos.id, Number(contatoId)))
     } else {
       await db.delete(emailListaContatos).where(eq(emailListaContatos.listaId, listaId))
     }

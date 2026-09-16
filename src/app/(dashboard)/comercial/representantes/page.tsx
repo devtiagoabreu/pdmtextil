@@ -2,7 +2,18 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { PlusCircle, Search, Building2, Phone, Mail, MapPin, Pencil, Users, Database, Loader2 } from "lucide-react"
+import {
+  PlusCircle,
+  Search,
+  Building2,
+  Phone,
+  Mail,
+  MapPin,
+  Pencil,
+  Users,
+  Database,
+  Loader2,
+} from "lucide-react"
 import { toast } from "sonner"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
@@ -46,16 +57,29 @@ export default function RepresentantesPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Representantes{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Representantes{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {loading ? "Carregando..." : `${filtered.length} representante${filtered.length !== 1 ? "s" : ""} encontrado${filtered.length !== 1 ? "s" : ""}`}
+            {loading
+              ? "Carregando..."
+              : `${filtered.length} representante${filtered.length !== 1 ? "s" : ""} encontrado${filtered.length !== 1 ? "s" : ""}`}
           </p>
         </div>
         <div className="flex gap-2">
-          <ExportarDados data={filtered} columns={[
-            { key: "nome", label: "Nome" }, { key: "cnpj", label: "CNPJ" }, { key: "email", label: "Email" },
-            { key: "telefone", label: "Telefone" }, { key: "cidade", label: "Cidade" }, { key: "uf", label: "UF" },
-          ]} filename="representantes" title="Representantes" />
+          <ExportarDados
+            data={filtered}
+            columns={[
+              { key: "nome", label: "Nome" },
+              { key: "cnpj", label: "CNPJ" },
+              { key: "email", label: "Email" },
+              { key: "telefone", label: "Telefone" },
+              { key: "cidade", label: "Cidade" },
+              { key: "uf", label: "UF" },
+            ]}
+            filename="representantes"
+            title="Representantes"
+          />
           <Button variant="outline" onClick={() => setShowCnpjSearch(true)} className="gap-2">
             <Building2 size={16} />
             Buscar CNPJ
@@ -94,7 +118,9 @@ export default function RepresentantesPage() {
         ) : filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Building2 className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhum representante encontrado</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Nenhum representante encontrado
+            </p>
           </div>
         ) : (
           <div className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-3">
@@ -135,7 +161,10 @@ export default function RepresentantesPage() {
                   {r.cidade && (
                     <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
                       <MapPin size={14} className="text-slate-400" />
-                      <span>{r.cidade}{r.uf ? `, ${r.uf}` : ""}</span>
+                      <span>
+                        {r.cidade}
+                        {r.uf ? `, ${r.uf}` : ""}
+                      </span>
                     </div>
                   )}
                 </div>

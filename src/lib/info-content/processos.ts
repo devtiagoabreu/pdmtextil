@@ -3,7 +3,8 @@ import type { InfoContent } from "./types"
 export const processosContent: Record<string, InfoContent> = {
   "/processos": {
     title: "Engenharia de Processos",
-    description: "Módulo de documentação e mapeamento dos processos da organização. A hierarquia vai de Empresa até Atividade, com o Processo como objeto central.",
+    description:
+      "Módulo de documentação e mapeamento dos processos da organização. A hierarquia vai de Empresa até Atividade, com o Processo como objeto central.",
     rules: [
       "A hierarquia é: Empresa → Site → Área → Processo → Subprocesso → Atividade.",
       "O Processo é o objeto central: documenta objetivo, responsável, entradas/saídas, fornecedores e clientes.",
@@ -13,7 +14,8 @@ export const processosContent: Record<string, InfoContent> = {
   },
   "/processos/empresas": {
     title: "Empresas",
-    description: "Organizações que compõem o workspace de engenharia de processos. A Empresa é o nível mais alto da hierarquia.",
+    description:
+      "Organizações que compõem o workspace de engenharia de processos. A Empresa é o nível mais alto da hierarquia.",
     rules: [
       "Uma empresa pode ter um ou mais sites (unidades físicas).",
       "Empresas inativas não aparecem na seleção de novos cadastros.",
@@ -54,7 +56,8 @@ export const processosContent: Record<string, InfoContent> = {
   },
   "/processos/processos": {
     title: "Processos",
-    description: "Objeto central do mapeamento. Cada processo documenta o fluxo de trabalho de uma área com objetivo, entradas, saídas e responsabilidades.",
+    description:
+      "Objeto central do mapeamento. Cada processo documenta o fluxo de trabalho de uma área com objetivo, entradas, saídas e responsabilidades.",
     rules: [
       "Todo processo pertence a uma área.",
       "Entradas, saídas, fornecedores, clientes, recursos, sistemas e equipamentos são listas: clique em Adicionar e informe cada item, com botão para remover.",
@@ -74,7 +77,8 @@ export const processosContent: Record<string, InfoContent> = {
   },
   "/processos/subprocessos": {
     title: "Subprocessos",
-    description: "Grandes etapas em que um processo é decomposto. Cada subprocesso pertence a um processo e pode conter atividades.",
+    description:
+      "Grandes etapas em que um processo é decomposto. Cada subprocesso pertence a um processo e pode conter atividades.",
     rules: [
       "Todo subprocesso pertence a um processo.",
       "A ordem define a sequência de execução dentro do processo.",
@@ -90,7 +94,8 @@ export const processosContent: Record<string, InfoContent> = {
   },
   "/processos/atividades": {
     title: "Atividades",
-    description: "Unidades de execução do mapeamento. Cada atividade representa uma ação concreta executada dentro de um subprocesso.",
+    description:
+      "Unidades de execução do mapeamento. Cada atividade representa uma ação concreta executada dentro de um subprocesso.",
     rules: [
       "Toda atividade pertence a um subprocesso.",
       "O tipo define a natureza da atividade: Manual, Automática, Decisão ou Espera.",
@@ -107,7 +112,8 @@ export const processosContent: Record<string, InfoContent> = {
   },
   "/processos/visual": {
     title: "Diagramas",
-    description: "Representação visual dos processos. Um conhecimento, múltiplas representações: o modelo semântico é a fonte única e as representações (Mermaid, BPMN, canvas) são derivadas dele.",
+    description:
+      "Representação visual dos processos. Um conhecimento, múltiplas representações: o modelo semântico é a fonte única e as representações (Mermaid, BPMN, canvas) são derivadas dele.",
     rules: [
       "O modelo semântico guarda atividades, decisões e fluxos — é o que de fato é salvo.",
       "As abas Mermaid, BPMN e Canvas são representações editadas a partir do modelo.",
@@ -122,7 +128,8 @@ export const processosContent: Record<string, InfoContent> = {
   },
   "/processos/treinamento": {
     title: "Treinamento Engenharia de Processos",
-    description: "Central de documentação e treinamento da Engenharia de Processos. Aqui você encontra explicações detalhadas de cada tela, campo por campo, com pré-requisitos, links para POPs e vídeos tutoriais.",
+    description:
+      "Central de documentação e treinamento da Engenharia de Processos. Aqui você encontra explicações detalhadas de cada tela, campo por campo, com pré-requisitos, links para POPs e vídeos tutoriais.",
     rules: [
       "Os módulos ativos aparecem como acordeões; clique em um módulo para ver suas lições.",
       "Cada lição aponta para a tela relacionada do módulo de processos.",
@@ -131,7 +138,8 @@ export const processosContent: Record<string, InfoContent> = {
   },
   "/processos/treinamento/admin": {
     title: "Gerenciar Treinamento",
-    description: "Gerencie os módulos e lições do treinamento da Engenharia de Processos. Crie, edite ou remova conteúdo de documentação.",
+    description:
+      "Gerencie os módulos e lições do treinamento da Engenharia de Processos. Crie, edite ou remova conteúdo de documentação.",
     rules: [
       "Cada módulo pode conter várias lições.",
       "Remover um módulo remove também as lições vinculadas (cascade).",
@@ -140,19 +148,24 @@ export const processosContent: Record<string, InfoContent> = {
   },
   "/processos/treinamento/admin/novo": {
     title: "Nova Lição",
-    description: "Crie uma nova lição de treinamento com conteúdo markdown, pré-requisitos e links multimídia.",
+    description:
+      "Crie uma nova lição de treinamento com conteúdo markdown, pré-requisitos e links multimídia.",
     fields: [
       { name: "Módulo", desc: "Obrigatório. Módulo de treinamento ao qual esta lição pertence" },
       { name: "Título", desc: "Obrigatório. Título da lição" },
       { name: "Ordem", desc: "Sequência da lição dentro do módulo" },
-      { name: "Pathname relacionado", desc: "Tela do módulo de processos à qual a lição se refere" },
+      {
+        name: "Pathname relacionado",
+        desc: "Tela do módulo de processos à qual a lição se refere",
+      },
       { name: "Pré-requisitos", desc: "Cadastros indispensáveis antes de usar a tela" },
       { name: "Conteúdo (Markdown)", desc: "Corpo da lição em markdown" },
     ],
   },
   "/processos/treinamento/": {
     title: "Lição de Treinamento",
-    description: "Leia o conteúdo completo da lição de treinamento. Aqui você encontra a documentação detalhada da tela, pré-requisitos, links para POPs e vídeos tutoriais.",
+    description:
+      "Leia o conteúdo completo da lição de treinamento. Aqui você encontra a documentação detalhada da tela, pré-requisitos, links para POPs e vídeos tutoriais.",
     rules: [
       "Use Exportar PDF para gerar a lição em PDF.",
       "Navegue entre lições anterior e próxima pelas setas no rodapé.",
@@ -160,7 +173,8 @@ export const processosContent: Record<string, InfoContent> = {
   },
   "/processos/treinamento/admin/": {
     title: "Editar Lição",
-    description: "Edite os dados da lição de treinamento: módulo, título, conteúdo markdown, pré-requisitos e links multimídia.",
+    description:
+      "Edite os dados da lição de treinamento: módulo, título, conteúdo markdown, pré-requisitos e links multimídia.",
     fields: [
       { name: "Módulo", desc: "Módulo de treinamento ao qual a lição pertence" },
       { name: "Título", desc: "Título da lição" },

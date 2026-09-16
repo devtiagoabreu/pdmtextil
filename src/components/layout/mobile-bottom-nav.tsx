@@ -37,9 +37,7 @@ export function MobileBottomNav() {
               key={item.href}
               href={item.href}
               className={`flex flex-col items-center gap-1 rounded-xl px-4 py-2 transition-colors ${
-                isActive
-                  ? "text-blue-600 dark:text-blue-400"
-                  : "text-slate-500 dark:text-slate-400"
+                isActive ? "text-blue-600 dark:text-blue-400" : "text-slate-500 dark:text-slate-400"
               }`}
             >
               <Icon size={22} />

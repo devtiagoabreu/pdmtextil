@@ -7,7 +7,9 @@ import { renderPage } from "@/test/harness"
 describe("RegraDeTresPage", () => {
   it("renderiza o heading e os controles da calculadora", () => {
     renderPage(<RegraDeTresPage />)
-    expect(screen.getByRole("heading", { name: "Calculadora de Regra de Três" })).toBeInTheDocument()
+    expect(
+      screen.getByRole("heading", { name: "Calculadora de Regra de Três" })
+    ).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Simples Direta" })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Simples Inversa" })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Composta" })).toBeInTheDocument()

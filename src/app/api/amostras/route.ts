@@ -2,7 +2,12 @@ import { NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { produtosCru, produtoCruAmostra, produtoCruAcabamento, produtoCruAcabamentoAmostra } from "@/lib/db/schema/produto-cru"
+import {
+  produtosCru,
+  produtoCruAmostra,
+  produtoCruAcabamento,
+  produtoCruAcabamentoAmostra,
+} from "@/lib/db/schema/produto-cru"
 import { eq } from "drizzle-orm"
 export const dynamic = "force-dynamic"
 
@@ -52,14 +57,23 @@ export async function GET() {
         solicitacaoDesenvolvimentoId: produtosCru.solicitacaoDesenvolvimentoId,
       })
       .from(produtoCruAcabamentoAmostra)
-      .innerJoin(produtoCruAcabamento, eq(produtoCruAcabamentoAmostra.acabamentoId, produtoCruAcabamento.id))
+      .innerJoin(
+        produtoCruAcabamento,
+        eq(produtoCruAcabamentoAmostra.acabamentoId, produtoCruAcabamento.id)
+      )
       .innerJoin(produtosCru, eq(produtoCruAcabamento.produtoCruId, produtosCru.id))
       .orderBy(produtoCruAcabamentoAmostra.createdAt)
       .limit(500)
 
     return NextResponse.json({
-      tecidoCru: amostrasCru.map((a: Record<string, unknown>) => ({ ...a, tipoAmostra: "TECIDO_CRU" })),
-      acabamento: amostrasAcabamento.map((a: Record<string, unknown>) => ({ ...a, tipoAmostra: "ACABAMENTO" })),
+      tecidoCru: amostrasCru.map((a: Record<string, unknown>) => ({
+        ...a,
+        tipoAmostra: "TECIDO_CRU",
+      })),
+      acabamento: amostrasAcabamento.map((a: Record<string, unknown>) => ({
+        ...a,
+        tipoAmostra: "ACABAMENTO",
+      })),
     })
   } catch (error) {
     console.error("[GET /api/amostras]", error)

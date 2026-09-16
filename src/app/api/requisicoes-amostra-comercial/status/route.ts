@@ -23,7 +23,10 @@ export async function PATCH(req: NextRequest) {
 
     const validStatuses = await getValidStatuses("AMOSTRA_COMERCIAL")
     if (!validStatuses.includes(novoStatus)) {
-      return NextResponse.json({ error: `Status inválido. Use: ${validStatuses.join(", ")}` }, { status: 400 })
+      return NextResponse.json(
+        { error: `Status inválido. Use: ${validStatuses.join(", ")}` },
+        { status: 400 }
+      )
     }
 
     const [existing] = await db
@@ -36,7 +39,9 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json({ error: "Requisição não encontrada" }, { status: 404 })
     }
 
-    const historico = (Array.isArray(existing.historico) ? existing.historico : []) as Array<Record<string, unknown>>
+    const historico = (Array.isArray(existing.historico) ? existing.historico : []) as Array<
+      Record<string, unknown>
+    >
     historico.push({
       data: new Date().toISOString(),
       usuario: session.user.name,

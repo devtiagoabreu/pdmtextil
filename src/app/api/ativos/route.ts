@@ -92,7 +92,12 @@ export async function POST(req: NextRequest) {
       usuarioNome: session.user.name,
     })
 
-    await notificar("ATIVO_CRIADO", `Ativo cadastrado: ${novo.nome}`, `/ativos/ativos/`, session.user.name)
+    await notificar(
+      "ATIVO_CRIADO",
+      `Ativo cadastrado: ${novo.nome}`,
+      `/ativos/ativos/`,
+      session.user.name
+    )
 
     return NextResponse.json(novo, { status: 201 })
   } catch (error) {

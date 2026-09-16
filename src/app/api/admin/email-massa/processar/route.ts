@@ -10,7 +10,12 @@ import { userEmailConfig } from "@/lib/db/schema/user-email-config"
 import { crmEmailConfig } from "@/lib/db/schema/crm-email-config"
 import { and, asc, eq, inArray, or, sql } from "drizzle-orm"
 import { decrypt } from "@/lib/crypto"
-import { aplicarTracking, injectPreheader, injectUnsubscribe, montarLinkDescadastro } from "@/lib/email-massa"
+import {
+  aplicarTracking,
+  injectPreheader,
+  injectUnsubscribe,
+  montarLinkDescadastro,
+} from "@/lib/email-massa"
 import crypto from "crypto"
 
 export const dynamic = "force-dynamic"
@@ -43,7 +48,10 @@ async function contagemEnviadasJanela(remetente: "usuario" | "sistema", usuarioI
         eq(emailEnviados.status, "enviado"),
         sql`${emailEnviados.enviadoEm} >= now() - interval '24 hours'`,
         remetente === "usuario"
-          ? and(eq(emailDisparos.remetente, "usuario"), eq(emailDisparos.criadoPor, usuarioId ?? -1))
+          ? and(
+              eq(emailDisparos.remetente, "usuario"),
+              eq(emailDisparos.criadoPor, usuarioId ?? -1)
+            )
           : eq(emailDisparos.remetente, "sistema")
       )
     )
@@ -68,13 +76,27 @@ async function finalizar(disparoId: number) {
     .where(eq(emailDisparos.id, disparoId))
 }
 
-type TransportConfig = { host: string; port: number; user: string; pass: string; fromName: string; limiteDiario: number }
+type TransportConfig = {
+  host: string
+  port: number
+  user: string
+  pass: string
+  fromName: string
+  limiteDiario: number
+}
 
 async function tcSistema(): Promise<TransportConfig | null> {
   const cfgs = await db.select().from(emailConfig).where(eq(emailConfig.ativo, true)).limit(1)
   if (cfgs.length === 0) return null
   const cfg = cfgs[0]
-  return { host: cfg.host, port: cfg.port, user: cfg.user, pass: decrypt(cfg.pass), fromName: cfg.fromName || "PDM Têxtil", limiteDiario: LIMITE_DIARIO_PADRAO }
+  return {
+    host: cfg.host,
+    port: cfg.port,
+    user: cfg.user,
+    pass: decrypt(cfg.pass),
+    fromName: cfg.fromName || "PDM Têxtil",
+    limiteDiario: LIMITE_DIARIO_PADRAO,
+  }
 }
 
 async function marcarErroTransporte(disparoId: number, msg: string) {
@@ -98,7 +120,8 @@ async function pausarDisparo(disparoId: number, msg: string) {
 function isFalhaTransiente(err: any): boolean {
   const code = err?.code
   const rc = err?.responseCode
-  if (code && ["ECONNECTION", "EAUTH", "ETIMEDOUT", "ESOCKET", "ECONNRESET"].includes(code)) return true
+  if (code && ["ECONNECTION", "EAUTH", "ETIMEDOUT", "ESOCKET", "ECONNRESET"].includes(code))
+    return true
   if (rc != null) {
     if (rc >= 500) return true
     if ([421, 450, 451, 452, 454].includes(rc)) return true
@@ -113,7 +136,8 @@ export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions).catch(() => null)
     const isCron = Boolean(cronSecret && authHeader === `Bearer ${cronSecret}`)
     const isAdmin =
-      session && (session.user.role === "ADMIN" || session.user.role === "SUDO" || session.user.role === "CRM")
+      session &&
+      (session.user.role === "ADMIN" || session.user.role === "SUDO" || session.user.role === "CRM")
     if (!isCron && !isAdmin) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
@@ -129,7 +153,7 @@ export async function POST(req: NextRequest) {
       sql`lower(erro) like '%try again later%'`,
       sql`lower(erro) like '%temporary%'`,
       sql`lower(erro) like '%too many consecutive%'`,
-      sql`lower(erro) like '%insufficient system storage%'`,
+      sql`lower(erro) like '%insufficient system storage%'`
     )
     const condicaoErro = isCron
       ? and(eq(emailDisparos.status, "erro"), erroTransiente)
@@ -138,12 +162,7 @@ export async function POST(req: NextRequest) {
     const disparos = await db
       .select()
       .from(emailDisparos)
-      .where(
-        or(
-          inArray(emailDisparos.status, ["fila", "enviando", "pausado"]),
-          condicaoErro,
-        ),
-      )
+      .where(or(inArray(emailDisparos.status, ["fila", "enviando", "pausado"]), condicaoErro))
       .orderBy(asc(emailDisparos.id))
 
     for (const d of disparos) {
@@ -158,7 +177,11 @@ export async function POST(req: NextRequest) {
 
       let tc: TransportConfig | null = null
       if (d.remetente === "usuario" && d.criadoPor) {
-        const cfgs = await db.select().from(userEmailConfig).where(eq(userEmailConfig.usuarioId, d.criadoPor)).limit(1)
+        const cfgs = await db
+          .select()
+          .from(userEmailConfig)
+          .where(eq(userEmailConfig.usuarioId, d.criadoPor))
+          .limit(1)
         if (cfgs.length === 0) {
           await marcarErroTransporte(d.id, "Configuração de email do usuário não encontrada")
           continue
@@ -168,12 +191,31 @@ export async function POST(req: NextRequest) {
           await marcarErroTransporte(d.id, "Configuração de email do usuário está inativa")
           continue
         }
-        tc = { host: cfg.host, port: cfg.port, user: cfg.email, pass: decrypt(cfg.senhaApp), fromName: cfg.email.split("@")[0], limiteDiario: cfg.limiteDiario }
+        tc = {
+          host: cfg.host,
+          port: cfg.port,
+          user: cfg.email,
+          pass: decrypt(cfg.senhaApp),
+          fromName: cfg.email.split("@")[0],
+          limiteDiario: cfg.limiteDiario,
+        }
       } else if (d.remetente === "crm") {
-        const cfgsCrm = await db.select().from(crmEmailConfig).where(eq(crmEmailConfig.ativo, true)).limit(1)
-        tc = cfgsCrm.length > 0
-          ? { host: cfgsCrm[0].host, port: cfgsCrm[0].port, user: cfgsCrm[0].user, pass: decrypt(cfgsCrm[0].pass), fromName: cfgsCrm[0].fromName || "PDM PRO TEXTIL - CRM", limiteDiario: LIMITE_DIARIO_PADRAO }
-          : await tcSistema()
+        const cfgsCrm = await db
+          .select()
+          .from(crmEmailConfig)
+          .where(eq(crmEmailConfig.ativo, true))
+          .limit(1)
+        tc =
+          cfgsCrm.length > 0
+            ? {
+                host: cfgsCrm[0].host,
+                port: cfgsCrm[0].port,
+                user: cfgsCrm[0].user,
+                pass: decrypt(cfgsCrm[0].pass),
+                fromName: cfgsCrm[0].fromName || "PDM PRO TEXTIL - CRM",
+                limiteDiario: LIMITE_DIARIO_PADRAO,
+              }
+            : await tcSistema()
       } else {
         tc = await tcSistema()
       }
@@ -182,9 +224,15 @@ export async function POST(req: NextRequest) {
         continue
       }
 
-      const enviadasHoje = await contagemEnviadasJanela(d.remetente === "usuario" ? "usuario" : "sistema", d.criadoPor ?? undefined)
+      const enviadasHoje = await contagemEnviadasJanela(
+        d.remetente === "usuario" ? "usuario" : "sistema",
+        d.criadoPor ?? undefined
+      )
       if (enviadasHoje >= tc.limiteDiario) {
-        await pausarDisparo(d.id, `Limite diário configurado atingido (${tc.limiteDiario}) nas últimas 24h. Retomada automática quando a janela liberar.`)
+        await pausarDisparo(
+          d.id,
+          `Limite diário configurado atingido (${tc.limiteDiario}) nas últimas 24h. Retomada automática quando a janela liberar.`
+        )
         continue
       }
       const restantesDoCap = tc.limiteDiario - enviadasHoje
@@ -200,14 +248,22 @@ export async function POST(req: NextRequest) {
       try {
         await transporter.verify()
       } catch (err: any) {
-        await marcarErroTransporte(d.id, `Falha ao conectar ao SMTP: ${err?.message || "erro desconhecido"}`)
+        await marcarErroTransporte(
+          d.id,
+          `Falha ao conectar ao SMTP: ${err?.message || "erro desconhecido"}`
+        )
         transporter.close()
         continue
       }
 
       const htmlBase = injectPreheader(d.html, d.preheader || "")
 
-      const atualizarEnvio = (id: number, ok: boolean, trackingId: string | null, error: string | null) =>
+      const atualizarEnvio = (
+        id: number,
+        ok: boolean,
+        trackingId: string | null,
+        error: string | null
+      ) =>
         db
           .update(emailEnviados)
           .set({
@@ -230,7 +286,10 @@ export async function POST(req: NextRequest) {
       let capRestante = restantesDoCap
 
       const marcarCapAtingido = async () => {
-        await pausarDisparo(d.id, `Limite diário configurado atingido (${tc.limiteDiario}) nas últimas 24h. Retomada automática quando a janela liberar.`)
+        await pausarDisparo(
+          d.id,
+          `Limite diário configurado atingido (${tc.limiteDiario}) nas últimas 24h. Retomada automática quando a janela liberar.`
+        )
         pararDreno = true
       }
 
@@ -253,7 +312,7 @@ export async function POST(req: NextRequest) {
               html,
               headers: {
                 "List-Unsubscribe": `<${montarLinkDescadastro(chunk[0].email, BASE_URL)}>`,
-                "Precedence": "bulk",
+                Precedence: "bulk",
               },
             })
             for (let j = 0; j < chunk.length; j++) {
@@ -279,7 +338,9 @@ export async function POST(req: NextRequest) {
         if (!pararDreno && capRestante <= 0) await marcarCapAtingido()
       } else {
         while (!pararDreno && capRestante > 0 && elapsed() <= MAX_RUN_MS) {
-          const batch: EmailEnviado[] = await buscarPendentes(Math.min(INDIVIDUAL_BATCH, capRestante))
+          const batch: EmailEnviado[] = await buscarPendentes(
+            Math.min(INDIVIDUAL_BATCH, capRestante)
+          )
           if (batch.length === 0) break
           for (const p of batch) {
             if (elapsed() > MAX_RUN_MS || capRestante <= 0) {
@@ -301,7 +362,7 @@ export async function POST(req: NextRequest) {
                 html,
                 headers: {
                   "List-Unsubscribe": `<${montarLinkDescadastro(p.email, BASE_URL)}>`,
-                  "Precedence": "bulk",
+                  Precedence: "bulk",
                 },
               })
               await atualizarEnvio(p.id, true, trackingId, null)

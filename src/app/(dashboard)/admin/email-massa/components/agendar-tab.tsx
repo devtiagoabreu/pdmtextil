@@ -10,12 +10,21 @@ import { RefreshCw, Plus, Pencil, Trash2, Clock, Send } from "lucide-react"
 import { EnvioProgresso } from "./envio-progresso"
 import type { Agendado, Disparo } from "../types"
 
-function ScheduleButton({ agendado, onAgendar }: { agendado: Agendado; onAgendar: (a: Agendado, data: string) => void }) {
+function ScheduleButton({
+  agendado,
+  onAgendar,
+}: {
+  agendado: Agendado
+  onAgendar: (a: Agendado, data: string) => void
+}) {
   const [open, setOpen] = useState(false)
   const [data, setData] = useState("")
 
   const handleSchedule = () => {
-    if (!data) { toast.error("Informe a data e hora"); return }
+    if (!data) {
+      toast.error("Informe a data e hora")
+      return
+    }
     onAgendar(agendado, new Date(data).toISOString())
     setOpen(false)
     setData("")
@@ -23,16 +32,33 @@ function ScheduleButton({ agendado, onAgendar }: { agendado: Agendado; onAgendar
 
   return (
     <>
-      <Button variant="outline" size="xs" onClick={() => setOpen(true)} className="gap-1"><Clock size={12} /> Agendar</Button>
+      <Button variant="outline" size="xs" onClick={() => setOpen(true)} className="gap-1">
+        <Clock size={12} /> Agendar
+      </Button>
       {open && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setOpen(false)}>
-          <div className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-2xl w-96" onClick={e => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => setOpen(false)}
+        >
+          <div
+            className="bg-white dark:bg-slate-900 rounded-xl p-6 shadow-2xl w-96"
+            onClick={(e) => e.stopPropagation()}
+          >
             <h3 className="font-semibold mb-4">Agendar Disparo</h3>
             <p className="text-sm text-slate-500 mb-3">{agendado.nome || agendado.assunto}</p>
-            <Input type="datetime-local" value={data} onChange={e => setData(e.target.value)} className="mb-4" />
+            <Input
+              type="datetime-local"
+              value={data}
+              onChange={(e) => setData(e.target.value)}
+              className="mb-4"
+            />
             <div className="flex justify-end gap-2">
-              <Button variant="outline" size="sm" onClick={() => setOpen(false)}>Cancelar</Button>
-              <Button size="sm" onClick={handleSchedule}>Agendar</Button>
+              <Button variant="outline" size="sm" onClick={() => setOpen(false)}>
+                Cancelar
+              </Button>
+              <Button size="sm" onClick={handleSchedule}>
+                Agendar
+              </Button>
             </div>
           </div>
         </div>
@@ -48,7 +74,12 @@ export interface AgendarTabProps {
   disparoProgresso?: Disparo | null
 }
 
-export function AgendarTab({ onCarregarNoEditor, onNovoDisparo, onEnviarAgendado, disparoProgresso }: AgendarTabProps) {
+export function AgendarTab({
+  onCarregarNoEditor,
+  onNovoDisparo,
+  onEnviarAgendado,
+  disparoProgresso,
+}: AgendarTabProps) {
   const queryClient = useQueryClient()
 
   const { data: agendados = [], isLoading: loadingAgendados } = useQuery<Agendado[]>({
@@ -71,34 +102,52 @@ export function AgendarTab({ onCarregarNoEditor, onNovoDisparo, onEnviarAgendado
   const agendarExistente = async (a: Agendado, data: string) => {
     try {
       const res = await fetch(`/api/admin/email-massa/agendados/${a.id}`, {
-        method: "PUT", headers: { "Content-Type": "application/json" },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ agendadoPara: data, status: "agendado" }),
       })
-      if (res.ok) { toast.success("Disparo agendado!"); queryClient.invalidateQueries({ queryKey: ["email-massa-agendados"] }) }
-    } catch { toast.error("Erro ao agendar") }
+      if (res.ok) {
+        toast.success("Disparo agendado!")
+        queryClient.invalidateQueries({ queryKey: ["email-massa-agendados"] })
+      }
+    } catch {
+      toast.error("Erro ao agendar")
+    }
   }
 
   const cancelarAgendado = async (a: Agendado) => {
     try {
       const res = await fetch(`/api/admin/email-massa/agendados/${a.id}`, {
-        method: "PUT", headers: { "Content-Type": "application/json" },
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ status: "cancelado" }),
       })
-      if (res.ok) { toast.success("Disparo cancelado"); queryClient.invalidateQueries({ queryKey: ["email-massa-agendados"] }) }
-    } catch { toast.error("Erro ao cancelar") }
+      if (res.ok) {
+        toast.success("Disparo cancelado")
+        queryClient.invalidateQueries({ queryKey: ["email-massa-agendados"] })
+      }
+    } catch {
+      toast.error("Erro ao cancelar")
+    }
   }
 
   const excluirAgendado = async () => {
     if (deleteTarget === null) return
     setDeleteLoading(true)
     try {
-      const res = await fetch(`/api/admin/email-massa/agendados/${deleteTarget}`, { method: "DELETE" })
+      const res = await fetch(`/api/admin/email-massa/agendados/${deleteTarget}`, {
+        method: "DELETE",
+      })
       if (res.ok) {
         toast.success("Excluído")
         setDeleteTarget(null)
         queryClient.invalidateQueries({ queryKey: ["email-massa-agendados"] })
       }
-    } catch { toast.error("Erro ao excluir") } finally { setDeleteLoading(false) }
+    } catch {
+      toast.error("Erro ao excluir")
+    } finally {
+      setDeleteLoading(false)
+    }
   }
 
   const executarAgendamentos = async () => {
@@ -108,10 +157,14 @@ export function AgendarTab({ onCarregarNoEditor, onNovoDisparo, onEnviarAgendado
       if (data.executados > 0) toast.success(`${data.executados} disparo(s) executado(s)`)
       else toast.info("Nenhum agendamento pendente")
       queryClient.invalidateQueries({ queryKey: ["email-massa-agendados"] })
-    } catch { toast.error("Erro ao verificar agendamentos") }
+    } catch {
+      toast.error("Erro ao verificar agendamentos")
+    }
   }
 
-  const filtered = agendados.filter((a: any) => agendadoFiltro === "todos" || a.status === agendadoFiltro)
+  const filtered = agendados.filter(
+    (a: any) => agendadoFiltro === "todos" || a.status === agendadoFiltro
+  )
 
   return (
     <div className="w-full rounded-xl border bg-card text-card-foreground shadow">
@@ -132,9 +185,22 @@ export function AgendarTab({ onCarregarNoEditor, onNovoDisparo, onEnviarAgendado
 
         <div className="flex gap-2">
           {["todos", "rascunho", "agendado", "enviado", "cancelado", "erro"].map((f: any) => (
-            <button key={f} onClick={() => setAgendadoFiltro(f)}
-              className={`px-3 py-1 text-xs rounded-full border transition-colors ${agendadoFiltro === f ? "bg-blue-50 border-blue-300 text-blue-700 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-300" : "border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"}`}>
-              {f === "todos" ? "Todos" : f === "rascunho" ? "Rascunhos" : f === "agendado" ? "Agendados" : f === "enviado" ? "Enviados" : f === "cancelado" ? "Cancelados" : "Com Erro"}
+            <button
+              key={f}
+              onClick={() => setAgendadoFiltro(f)}
+              className={`px-3 py-1 text-xs rounded-full border transition-colors ${agendadoFiltro === f ? "bg-blue-50 border-blue-300 text-blue-700 dark:bg-blue-900/30 dark:border-blue-700 dark:text-blue-300" : "border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"}`}
+            >
+              {f === "todos"
+                ? "Todos"
+                : f === "rascunho"
+                  ? "Rascunhos"
+                  : f === "agendado"
+                    ? "Agendados"
+                    : f === "enviado"
+                      ? "Enviados"
+                      : f === "cancelado"
+                        ? "Cancelados"
+                        : "Com Erro"}
             </button>
           ))}
         </div>
@@ -159,47 +225,114 @@ export function AgendarTab({ onCarregarNoEditor, onNovoDisparo, onEnviarAgendado
               </thead>
               <tbody>
                 {filtered.map((a: any) => (
-                  <tr key={a.id} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                  <tr
+                    key={a.id}
+                    className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                  >
                     <td className="p-2">
-                      <span className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full ${
-                        a.status === "rascunho" ? "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400" :
-                        a.status === "agendado" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400" :
-                        a.status === "enviado" ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" :
-                        a.status === "cancelado" ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400" :
-                        "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
-                      }`}>
-                        {a.status === "rascunho" ? "Rascunho" : a.status === "agendado" ? "Agendado" : a.status === "enviado" ? "Enviado" : a.status === "cancelado" ? "Cancelado" : "Erro"}
+                      <span
+                        className={`inline-flex items-center gap-1 text-xs font-medium px-2.5 py-0.5 rounded-full ${
+                          a.status === "rascunho"
+                            ? "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                            : a.status === "agendado"
+                              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400"
+                              : a.status === "enviado"
+                                ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                                : a.status === "cancelado"
+                                  ? "bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400"
+                                  : "bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400"
+                        }`}
+                      >
+                        {a.status === "rascunho"
+                          ? "Rascunho"
+                          : a.status === "agendado"
+                            ? "Agendado"
+                            : a.status === "enviado"
+                              ? "Enviado"
+                              : a.status === "cancelado"
+                                ? "Cancelado"
+                                : "Erro"}
                       </span>
                     </td>
                     <td className="p-2 font-medium">{a.nome || a.assunto}</td>
                     <td className="p-2 text-slate-500 truncate max-w-[200px]">{a.assunto}</td>
-                    <td className="p-2 text-xs">{a.para === "lista" ? `${a.listas?.length || 0} lista(s)` : a.para}</td>
-                    <td className="p-2 text-xs">{a.agendadoPara ? new Date(a.agendadoPara).toLocaleString("pt-BR") : "—"}</td>
-                    <td className="p-2 text-xs text-slate-400">{new Date(a.createdAt).toLocaleString("pt-BR")}</td>
+                    <td className="p-2 text-xs">
+                      {a.para === "lista" ? `${a.listas?.length || 0} lista(s)` : a.para}
+                    </td>
+                    <td className="p-2 text-xs">
+                      {a.agendadoPara ? new Date(a.agendadoPara).toLocaleString("pt-BR") : "—"}
+                    </td>
+                    <td className="p-2 text-xs text-slate-400">
+                      {new Date(a.createdAt).toLocaleString("pt-BR")}
+                    </td>
                     <td className="p-2 text-right">
                       <div className="flex gap-1 justify-end">
                         {a.status === "rascunho" && (
                           <>
-                            <Button variant="outline" size="xs" onClick={() => onCarregarNoEditor(a)} className="gap-1"><Pencil size={12} /> Editar</Button>
+                            <Button
+                              variant="outline"
+                              size="xs"
+                              onClick={() => onCarregarNoEditor(a)}
+                              className="gap-1"
+                            >
+                              <Pencil size={12} /> Editar
+                            </Button>
                             <ScheduleButton agendado={a} onAgendar={agendarExistente} />
                           </>
                         )}
                         {a.status === "agendado" && (
                           <>
-                            <Button variant="outline" size="xs" onClick={() => onEnviarAgendado(a)} className="gap-1 text-blue-600">
+                            <Button
+                              variant="outline"
+                              size="xs"
+                              onClick={() => onEnviarAgendado(a)}
+                              className="gap-1 text-blue-600"
+                            >
                               <Send size={12} /> Enviar agora
                             </Button>
-                            <Button variant="outline" size="xs" onClick={() => cancelarAgendado(a)} className="gap-1 text-yellow-600">Cancelar</Button>
+                            <Button
+                              variant="outline"
+                              size="xs"
+                              onClick={() => cancelarAgendado(a)}
+                              className="gap-1 text-yellow-600"
+                            >
+                              Cancelar
+                            </Button>
                           </>
                         )}
                         {a.status === "enviado" && (
                           <>
-                            <Button variant="outline" size="xs" onClick={() => onCarregarNoEditor(a)} className="gap-1"><RefreshCw size={12} /> Reutilizar</Button>
-                            <Button variant="ghost" size="xs" onClick={() => setDeleteTarget(a.id)} aria-label={`Excluir ${a.nome || a.assunto}`} className="gap-1 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>
+                            <Button
+                              variant="outline"
+                              size="xs"
+                              onClick={() => onCarregarNoEditor(a)}
+                              className="gap-1"
+                            >
+                              <RefreshCw size={12} /> Reutilizar
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="xs"
+                              onClick={() => setDeleteTarget(a.id)}
+                              aria-label={`Excluir ${a.nome || a.assunto}`}
+                              className="gap-1 text-red-500 hover:text-red-700"
+                            >
+                              <Trash2 size={12} />
+                            </Button>
                           </>
                         )}
-                        {(a.status === "rascunho" || a.status === "cancelado" || a.status === "erro") && (
-                          <Button variant="ghost" size="xs" onClick={() => setDeleteTarget(a.id)} aria-label={`Excluir ${a.nome || a.assunto}`} className="gap-1 text-red-500 hover:text-red-700"><Trash2 size={12} /></Button>
+                        {(a.status === "rascunho" ||
+                          a.status === "cancelado" ||
+                          a.status === "erro") && (
+                          <Button
+                            variant="ghost"
+                            size="xs"
+                            onClick={() => setDeleteTarget(a.id)}
+                            aria-label={`Excluir ${a.nome || a.assunto}`}
+                            className="gap-1 text-red-500 hover:text-red-700"
+                          >
+                            <Trash2 size={12} />
+                          </Button>
                         )}
                       </div>
                     </td>

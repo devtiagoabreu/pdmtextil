@@ -2,10 +2,22 @@ declare module "@dnd-kit/core" {
   import React from "react"
 
   export const KeyboardCode: Record<string, string>
-  export enum AutoScrollActivator { Always = "Always", Draggable = "Draggable" }
-  export enum TraversalOrder { Tree = "Tree", BreadthFirst = "BreadthFirst" }
-  export enum MeasuringStrategy { Always = "Always", BeforeDragging = "BeforeDragging", WhileDragging = "WhileDragging" }
-  export enum MeasuringFrequency { Optimized = "Optimized" }
+  export enum AutoScrollActivator {
+    Always = "Always",
+    Draggable = "Draggable",
+  }
+  export enum TraversalOrder {
+    Tree = "Tree",
+    BreadthFirst = "BreadthFirst",
+  }
+  export enum MeasuringStrategy {
+    Always = "Always",
+    BeforeDragging = "BeforeDragging",
+    WhileDragging = "WhileDragging",
+  }
+  export enum MeasuringFrequency {
+    Optimized = "Optimized",
+  }
 
   export interface DndContextProps {
     id?: string
@@ -70,11 +82,7 @@ declare module "@dnd-kit/core" {
     node: HTMLElement | null
   }
 
-  export function useDroppable(options: {
-    id: string
-    data?: any
-    disabled?: boolean
-  }): {
+  export function useDroppable(options: { id: string; data?: any; disabled?: boolean }): {
     isOver: boolean
     setNodeRef: (node: HTMLElement | null) => void
     over: any

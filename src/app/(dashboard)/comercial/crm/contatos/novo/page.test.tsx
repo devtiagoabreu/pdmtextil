@@ -59,13 +59,16 @@ describe("NovoContatoPage", () => {
       expect(call!.body.empresaId).toBeUndefined()
       expect(call!.body.clienteId).toBeUndefined()
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Contato criado com sucesso"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Contato criado com sucesso")
+    )
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/crm/contatos/5")
   })
 
   it("cria contato vinculado a uma pessoa", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
-      if (method === "GET" && url === "/api/crm/pessoas") return { json: [{ id: 1, razaoSocial: "Tecelagem Alpha" }] }
+      if (method === "GET" && url === "/api/crm/pessoas")
+        return { json: [{ id: 1, razaoSocial: "Tecelagem Alpha" }] }
       if (method === "GET" && url === "/api/clientes") return { json: [] }
       if (method === "POST" && url === "/api/crm/contatos") return { status: 201, json: { id: 5 } }
       return { status: 404, json: { error: "Rota não mockada" } }
@@ -90,7 +93,8 @@ describe("NovoContatoPage", () => {
   it("cria contato vinculado a um cliente", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
       if (method === "GET" && url === "/api/crm/pessoas") return { json: [] }
-      if (method === "GET" && url === "/api/clientes") return { json: [{ id: 9, nome: "Cliente SP" }] }
+      if (method === "GET" && url === "/api/clientes")
+        return { json: [{ id: 9, nome: "Cliente SP" }] }
       if (method === "POST" && url === "/api/crm/contatos") return { status: 201, json: { id: 5 } }
       return { status: 404, json: { error: "Rota não mockada" } }
     })

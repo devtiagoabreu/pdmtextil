@@ -1,6 +1,6 @@
 "use client"
 
-import {Suspense, useState, useEffect, useRef} from "react"
+import { Suspense, useState, useEffect, useRef } from "react"
 import { Loader2, FileText, ArrowUp, LayoutGrid, List } from "lucide-react"
 import { usePathname, useSearchParams, useRouter } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
@@ -110,7 +110,9 @@ function AmostrasPageContent() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Amostras de Desenvolvimento{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Amostras de Desenvolvimento{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {lista?.length || 0} amostra(s)
           </p>
@@ -167,35 +169,56 @@ function AmostrasPageContent() {
         ) : lista.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <List className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma amostra encontrada</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Nenhuma amostra encontrada
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full">
               <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">ID</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Produto</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Descrição</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    ID
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Produto
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Descrição
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Status
+                  </th>
                   {aba === "acabamento" && (
-                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Acabamento</th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                      Acabamento
+                    </th>
                   )}
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Motivo</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ações</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Data
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Motivo
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Ações
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                  {lista.map((a: any) => {
+                {lista.map((a: any) => {
                   const isFoco = focoId === a.id
                   const temProduto = !!a.produtoCruId
                   const handleRowClick = () => {
                     if (!temProduto) return
-                    const amostraId = aba === "acabamento" && a.acabamentoId
-                      ? `amostra-acab-${a.acabamentoId}-${a.id}`
-                      : `amostra-${a.id}`
-                    router.push(`/cadastros/produto-cru/${a.produtoCruId}?tab=amostras&amostraId=${amostraId}`)
+                    const amostraId =
+                      aba === "acabamento" && a.acabamentoId
+                        ? `amostra-acab-${a.acabamentoId}-${a.id}`
+                        : `amostra-${a.id}`
+                    router.push(
+                      `/cadastros/produto-cru/${a.produtoCruId}?tab=amostras&amostraId=${amostraId}`
+                    )
                   }
                   return (
                     <tr
@@ -204,25 +227,38 @@ function AmostrasPageContent() {
                       onClick={handleRowClick}
                       className={`${temProduto ? "cursor-pointer" : ""} hover:bg-slate-50 dark:hover:bg-slate-800/50 ${isFoco ? "ring-2 ring-purple-500/40 bg-purple-50 dark:bg-purple-950/20" : ""}`}
                     >
-                      <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">#{a.id}</td>
+                      <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">
+                        #{a.id}
+                      </td>
                       <td className="px-4 py-3 text-sm">
                         <span className="text-xs text-slate-400">{a.produtoCodigo}</span>
                         <p className="text-xs text-slate-500 mt-0.5">{a.produtoDescricao}</p>
                       </td>
-                      <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">{a.descricao || "—"}</td>
+                      <td className="px-4 py-3 text-sm text-slate-600 dark:text-slate-300">
+                        {a.descricao || "—"}
+                      </td>
                       <td className="px-4 py-3">
-                        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{
-                          backgroundColor: hexToRgba(getStatusColor(a.status), 0.15),
-                          color: getStatusColor(a.status),
-                        }}>
+                        <span
+                          className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                          style={{
+                            backgroundColor: hexToRgba(getStatusColor(a.status), 0.15),
+                            color: getStatusColor(a.status),
+                          }}
+                        >
                           {getStatusLabel(a.status)}
                         </span>
                       </td>
                       {aba === "acabamento" && (
-                        <td className="px-4 py-3 text-sm text-slate-500">{a.acabamentoDescricao || "—"}</td>
+                        <td className="px-4 py-3 text-sm text-slate-500">
+                          {a.acabamentoDescricao || "—"}
+                        </td>
                       )}
-                      <td className="px-4 py-3 text-sm text-slate-500">{a.data ? new Date(a.data).toLocaleDateString("pt-BR") : "—"}</td>
-                      <td className="px-4 py-3 text-sm text-slate-500 max-w-[200px] truncate">{a.motivoAprovacao || "—"}</td>
+                      <td className="px-4 py-3 text-sm text-slate-500">
+                        {a.data ? new Date(a.data).toLocaleDateString("pt-BR") : "—"}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-slate-500 max-w-[200px] truncate">
+                        {a.motivoAprovacao || "—"}
+                      </td>
                       <td className="px-4 py-3">
                         <button
                           onClick={(e) => {

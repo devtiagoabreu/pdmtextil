@@ -23,7 +23,7 @@ export async function GET(req: NextRequest) {
           ilike(requisicoesAmostraComercial.titulo, `%${search}%`),
           ilike(requisicoesAmostraComercial.cliente, `%${search}%`),
           ilike(produtosCru.codigoPdm, `%${search}%`),
-          ilike(produtosCru.descricao, `%${search}%`),
+          ilike(produtosCru.descricao, `%${search}%`)
         )
       : undefined
 
@@ -60,7 +60,16 @@ export async function POST(req: NextRequest) {
     const { session } = auth
 
     const body = await req.json()
-    const { cliente, produtoCruId, titulo, quantidade, motivo, observacoes, prazoDesejado, solicitacaoDesenvolvimentoId } = body
+    const {
+      cliente,
+      produtoCruId,
+      titulo,
+      quantidade,
+      motivo,
+      observacoes,
+      prazoDesejado,
+      solicitacaoDesenvolvimentoId,
+    } = body
 
     const historico = [
       { data: new Date().toISOString(), usuario: session.user.name, acao: "CRIACAO" },
@@ -77,7 +86,9 @@ export async function POST(req: NextRequest) {
         motivo: motivo || null,
         observacoes: observacoes || null,
         prazoDesejado: prazoDesejado ? new Date(prazoDesejado) : null,
-        solicitacaoDesenvolvimentoId: solicitacaoDesenvolvimentoId ? parseInt(solicitacaoDesenvolvimentoId) : null,
+        solicitacaoDesenvolvimentoId: solicitacaoDesenvolvimentoId
+          ? parseInt(solicitacaoDesenvolvimentoId)
+          : null,
         historico,
       })
       .returning()

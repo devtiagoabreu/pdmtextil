@@ -5,13 +5,19 @@ import BancoDadosPage from "./page"
 import { createFetchMock, findCall, renderPage, toastMock } from "@/test/harness"
 
 const bancos = [
-  { id: 1, nome: "Produção Neon", connectionString: "postgresql://user:pass@host:5432/pdm", ativo: true },
+  {
+    id: 1,
+    nome: "Produção Neon",
+    connectionString: "postgresql://user:pass@host:5432/pdm",
+    ativo: true,
+  },
 ]
 
 function setup() {
   const fetchMock = createFetchMock(({ method, url }) => {
     if (method === "GET" && url === "/api/admin/config/banco-dados") return { json: bancos }
-    if (method === "POST" && url === "/api/admin/config/banco-dados") return { status: 201, json: { id: 2, nome: "Backup", connectionString: "postgresql://..." } }
+    if (method === "POST" && url === "/api/admin/config/banco-dados")
+      return { status: 201, json: { id: 2, nome: "Backup", connectionString: "postgresql://..." } }
     return { status: 404, json: { error: "Rota não mockada" } }
   })
   vi.stubGlobal("fetch", fetchMock.fn)
@@ -47,8 +53,12 @@ describe("BancoDadosPage", () => {
     await screen.findByText("Produção Neon")
 
     fireEvent.click(screen.getByRole("button", { name: "Nova Conexão" }))
-    fireEvent.change(screen.getByPlaceholderText("Ex: Produção Neon"), { target: { value: "Ibirapuera" } })
-    fireEvent.change(screen.getByPlaceholderText("postgresql://user:pass@host:5432/postgres"), { target: { value: "postgresql://outro" } })
+    fireEvent.change(screen.getByPlaceholderText("Ex: Produção Neon"), {
+      target: { value: "Ibirapuera" },
+    })
+    fireEvent.change(screen.getByPlaceholderText("postgresql://user:pass@host:5432/postgres"), {
+      target: { value: "postgresql://outro" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Adicionar" }))
 
     await waitFor(() => {

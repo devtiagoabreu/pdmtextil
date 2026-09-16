@@ -8,7 +8,19 @@ vi.mock("@/lib/auth", () => ({ authOptions: {} }))
 modeloRouteSpec({
   title: "GET /api/cadastros/bases-urdume/modelo",
   GET,
-  csvHeader: ["codigoBase", "codigoCompleto", "nome", "descricao", "densidade", "tratamento", "tensaoUrdume", "largura", "observacoes", "idIntegracao", "ativo"],
+  csvHeader: [
+    "codigoBase",
+    "codigoCompleto",
+    "nome",
+    "descricao",
+    "densidade",
+    "tratamento",
+    "tensaoUrdume",
+    "largura",
+    "observacoes",
+    "idIntegracao",
+    "ativo",
+  ],
   filename: "bases_urdume_modelo.csv",
   modelo: "Bases de Urdume",
 })

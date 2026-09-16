@@ -30,7 +30,11 @@ export default function ProcessoEmpresasPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
 
-  const { data: empresas = [], isLoading, refetch } = useQuery({
+  const {
+    data: empresas = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["proc-empresas"],
     queryFn: async () => {
       const res = await fetch("/api/processos/empresas")
@@ -104,18 +108,26 @@ export default function ProcessoEmpresasPage() {
             <Loader2 className="animate-spin text-slate-400" size={24} />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
-            Nenhuma empresa encontrada
-          </div>
+          <div className="p-8 text-center text-slate-500">Nenhuma empresa encontrada</div>
         ) : (
           <table className="w-full">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Nome</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">CNPJ</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Segmento</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Nome
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  CNPJ
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Segmento
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Status
+                </th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -125,7 +137,10 @@ export default function ProcessoEmpresasPage() {
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 >
                   <td className="p-4 text-sm font-medium">
-                    <Link href={`/processos/empresas/${empresa.id}`} className="flex items-center gap-2">
+                    <Link
+                      href={`/processos/empresas/${empresa.id}`}
+                      className="flex items-center gap-2"
+                    >
                       <Building2 size={14} className="text-slate-400" />
                       {empresa.nome}
                     </Link>
@@ -133,17 +148,22 @@ export default function ProcessoEmpresasPage() {
                   <td className="p-4 text-sm text-slate-500">{empresa.cnpj || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{empresa.segmento || "—"}</td>
                   <td className="p-4">
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                      empresa.ativo
-                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                        : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                    }`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                        empresa.ativo
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                          : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                      }`}
+                    >
                       {empresa.ativo ? "Ativo" : "Inativo"}
                     </span>
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/processos/empresas/${empresa.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Link
+                        href={`/processos/empresas/${empresa.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
@@ -172,12 +192,16 @@ export default function ProcessoEmpresasPage() {
       <ConfirmModal
         open={deleteTarget !== null}
         title={deleteBlocked ? "Exclusão não permitida" : "Excluir empresa?"}
-        message={deleteBlocked
-          ? "Esta empresa possui sites ou áreas vinculados e não pode ser excluída."
-          : `Tem certeza que deseja excluir?`}
-        subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
-          : undefined}
+        message={
+          deleteBlocked
+            ? "Esta empresa possui sites ou áreas vinculados e não pode ser excluída."
+            : `Tem certeza que deseja excluir?`
+        }
+        subMessage={
+          deleteBlocked
+            ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+            : undefined
+        }
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}
         loading={deleteLoading}

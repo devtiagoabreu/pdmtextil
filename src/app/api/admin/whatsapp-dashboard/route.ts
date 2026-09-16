@@ -36,18 +36,12 @@ export async function GET(req: NextRequest) {
     const totalLeads = await db
       .select({ count: sql<number>`count(*)` })
       .from(crmLeads)
-      .where(
-        and(
-          eq(crmLeads.origem, "WHATSAPP"),
-          gte(crmLeads.createdAt, desde)
-        )
-      )
+      .where(and(eq(crmLeads.origem, "WHATSAPP"), gte(crmLeads.createdAt, desde)))
       .then((r: any) => Number(r[0]?.count || 0))
 
     const encerrados = porEstado.find((e: any) => e.estado === "ENCERRADO")
-    const taxaConclusao = totalConversas > 0
-      ? Math.round(((encerrados?.count || 0) / totalConversas) * 100)
-      : 0
+    const taxaConclusao =
+      totalConversas > 0 ? Math.round(((encerrados?.count || 0) / totalConversas) * 100) : 0
 
     const dropoff = porEstado
       .filter((e: any) => e.estado !== "ENCERRADO" && e.estado !== "SAUDACAO")
@@ -86,10 +80,7 @@ export async function GET(req: NextRequest) {
       })
       .from(crmWhatsappFlowLogs)
       .where(
-        and(
-          eq(crmWhatsappFlowLogs.status, "error"),
-          gte(crmWhatsappFlowLogs.createdAt, desde)
-        )
+        and(eq(crmWhatsappFlowLogs.status, "error"), gte(crmWhatsappFlowLogs.createdAt, desde))
       )
       .groupBy(crmWhatsappFlowLogs.step)
       .orderBy(desc(sql`count(*)`))

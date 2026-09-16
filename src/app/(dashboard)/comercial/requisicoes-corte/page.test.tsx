@@ -5,8 +5,22 @@ import { createFetchMock, renderPage, findCall, navMock, toastMock } from "@/tes
 import ListaRequisicoesCortePage from "./page"
 
 const dados = [
-  { id: 30, requisitanteNome: "Tiago", totalCortes: 4, quantidadeTotal: 120, status: "SOLICITADO", createdAt: "2026-01-01T00:00:00.000Z" },
-  { id: 31, requisitanteNome: "Ana", totalCortes: 2, quantidadeTotal: 50, status: "ATENDIDO", createdAt: "2026-01-02T00:00:00.000Z" },
+  {
+    id: 30,
+    requisitanteNome: "Tiago",
+    totalCortes: 4,
+    quantidadeTotal: 120,
+    status: "SOLICITADO",
+    createdAt: "2026-01-01T00:00:00.000Z",
+  },
+  {
+    id: 31,
+    requisitanteNome: "Ana",
+    totalCortes: 2,
+    quantidadeTotal: 50,
+    status: "ATENDIDO",
+    createdAt: "2026-01-02T00:00:00.000Z",
+  },
 ]
 
 const detalheRequisicao = {
@@ -16,15 +30,25 @@ const detalheRequisicao = {
   observacoes: "Observação teste",
   entreguePor: "Vilma",
   itens: [
-    { id: 1, codigoProduto: "2.K2620.001", ordem: "10", artigo: "ART-1", cor: "Preto", desenho: "500101", quantidade: "3 M" },
+    {
+      id: 1,
+      codigoProduto: "2.K2620.001",
+      ordem: "10",
+      artigo: "ART-1",
+      cor: "Preto",
+      desenho: "500101",
+      quantidade: "3 M",
+    },
   ],
 }
 
 function makeMock() {
   return createFetchMock(({ method, url }) => {
     if (method === "GET" && url === "/api/comercial/requisicoes-corte") return { json: dados }
-    if (method === "DELETE" && url === "/api/comercial/requisicoes-corte/30") return { json: { ok: true } }
-    if (method === "GET" && url.startsWith("/api/comercial/requisicoes-corte/30?t=")) return { json: detalheRequisicao }
+    if (method === "DELETE" && url === "/api/comercial/requisicoes-corte/30")
+      return { json: { ok: true } }
+    if (method === "GET" && url.startsWith("/api/comercial/requisicoes-corte/30?t="))
+      return { json: detalheRequisicao }
     return { status: 404, json: { error: "Rota não mockada" } }
   })
 }
@@ -45,8 +69,14 @@ describe("ListaRequisicoesCortePage", () => {
     expect(screen.getByText("Ana")).toBeInTheDocument()
     expect(screen.getByText("Solicitado")).toBeInTheDocument()
     expect(screen.getByText("Atendido")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Nova Requisição" })).toHaveAttribute("href", "/comercial/requisicoes-corte/nova")
-    expect(screen.getByRole("link", { name: /Requisição por Romaneio/ })).toHaveAttribute("href", "/comercial/requisicoes-corte/por-romaneio")
+    expect(screen.getByRole("link", { name: "Nova Requisição" })).toHaveAttribute(
+      "href",
+      "/comercial/requisicoes-corte/nova"
+    )
+    expect(screen.getByRole("link", { name: /Requisição por Romaneio/ })).toHaveAttribute(
+      "href",
+      "/comercial/requisicoes-corte/por-romaneio"
+    )
   })
 
   it("mostra o estado vazio quando não há requisições", async () => {
@@ -56,7 +86,10 @@ describe("ListaRequisicoesCortePage", () => {
     renderPage(<ListaRequisicoesCortePage />)
 
     expect(await screen.findByText("Nenhuma requisição encontrada")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Criar primeira requisição" })).toHaveAttribute("href", "/comercial/requisicoes-corte/nova")
+    expect(screen.getByRole("link", { name: "Criar primeira requisição" })).toHaveAttribute(
+      "href",
+      "/comercial/requisicoes-corte/nova"
+    )
   })
 
   it("filtra a lista pela busca", async () => {
@@ -87,8 +120,14 @@ describe("ListaRequisicoesCortePage", () => {
     const dialog = screen.getByRole("dialog", { name: "Excluir requisição?" })
     fireEvent.click(within(dialog).getByRole("button", { name: "Excluir" }))
 
-    await waitFor(() => expect(findCall(fetchMock.calls, "/api/comercial/requisicoes-corte/30", "DELETE")).toBeDefined())
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Requisição excluída com sucesso"))
+    await waitFor(() =>
+      expect(
+        findCall(fetchMock.calls, "/api/comercial/requisicoes-corte/30", "DELETE")
+      ).toBeDefined()
+    )
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Requisição excluída com sucesso")
+    )
     expect(screen.queryByText("Tiago")).not.toBeInTheDocument()
   })
 
@@ -103,8 +142,8 @@ describe("ListaRequisicoesCortePage", () => {
     fireEvent.click(within(row).getByText("Copiar"))
 
     await waitFor(() => {
-      const call = fetchMock.calls.find((c) =>
-        c.url.startsWith("/api/comercial/requisicoes-corte/30") && c.method === "GET"
+      const call = fetchMock.calls.find(
+        (c) => c.url.startsWith("/api/comercial/requisicoes-corte/30") && c.method === "GET"
       )
       expect(call).toBeDefined()
     })

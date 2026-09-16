@@ -84,7 +84,7 @@ export async function POST(req: NextRequest) {
     if (!body.ativoId || !body.tipoVistoriaId) {
       return NextResponse.json(
         { error: "Ativo e tipo de vistoria são obrigatórios" },
-        { status: 400 },
+        { status: 400 }
       )
     }
 

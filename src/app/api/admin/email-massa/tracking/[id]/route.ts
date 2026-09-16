@@ -10,10 +10,7 @@ const TRANSPARENT_1X1_GIF = Buffer.from(
   "base64"
 )
 
-export async function GET(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   const { id } = await params
 
   if (!id) {

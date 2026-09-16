@@ -75,7 +75,7 @@ export function ProdutoCruModais({
             </p>
             <textarea
               value={motivoText}
-              onChange={e => setMotivoText(e.target.value)}
+              onChange={(e) => setMotivoText(e.target.value)}
               className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 min-h-[100px] resize-y"
               placeholder="Motivo / Observação *"
               autoFocus
@@ -89,7 +89,11 @@ export function ProdutoCruModais({
                 onClick={async () => {
                   await onConfirmarMotivo()
                 }}
-                className={motivoModal.novoStatus.startsWith("APROVADA") ? "bg-green-600 hover:bg-green-700" : "bg-red-600 hover:bg-red-700"}
+                className={
+                  motivoModal.novoStatus.startsWith("APROVADA")
+                    ? "bg-green-600 hover:bg-green-700"
+                    : "bg-red-600 hover:bg-red-700"
+                }
               >
                 {motivoModal.novoStatus.startsWith("APROVADA") ? "Aprovar" : "Reprovar"}
               </Button>
@@ -105,27 +109,49 @@ export function ProdutoCruModais({
             <div className="space-y-3">
               <div>
                 <Label>Descrição</Label>
-                <Input value={editAmostraDescricao} onChange={e => setEditAmostraDescricao(e.target.value)} placeholder="AMOSTRA - PILOTAGEM 001" />
+                <Input
+                  value={editAmostraDescricao}
+                  onChange={(e) => setEditAmostraDescricao(e.target.value)}
+                  placeholder="AMOSTRA - PILOTAGEM 001"
+                />
               </div>
               <div>
                 <Label>Observações</Label>
-                <Input value={editAmostraObs} onChange={e => setEditAmostraObs(e.target.value)} placeholder="Observações" />
+                <Input
+                  value={editAmostraObs}
+                  onChange={(e) => setEditAmostraObs(e.target.value)}
+                  placeholder="Observações"
+                />
               </div>
               <div>
                 <Label>Qtd Produzida</Label>
-                <Input value={editAmostraQtd} onChange={e => setEditAmostraQtd(e.target.value)} placeholder="10 M" />
+                <Input
+                  value={editAmostraQtd}
+                  onChange={(e) => setEditAmostraQtd(e.target.value)}
+                  placeholder="10 M"
+                />
               </div>
               <div>
                 <Label>ERP (Cru)</Label>
-                <Input value={editAmostraErp} onChange={e => setEditAmostraErp(e.target.value)} placeholder="ERP.00001" />
+                <Input
+                  value={editAmostraErp}
+                  onChange={(e) => setEditAmostraErp(e.target.value)}
+                  placeholder="ERP.00001"
+                />
               </div>
               <div>
                 <Label>Tear</Label>
-                <Input value={editAmostraTear} onChange={e => setEditAmostraTear(e.target.value)} placeholder="Tear 01" />
+                <Input
+                  value={editAmostraTear}
+                  onChange={(e) => setEditAmostraTear(e.target.value)}
+                  placeholder="Tear 01"
+                />
               </div>
             </div>
             <div className="flex justify-end gap-2">
-              <Button variant="outline" onClick={onFecharEdicao}>Cancelar</Button>
+              <Button variant="outline" onClick={onFecharEdicao}>
+                Cancelar
+              </Button>
               <Button onClick={onSalvarEdicao}>Salvar</Button>
             </div>
           </div>

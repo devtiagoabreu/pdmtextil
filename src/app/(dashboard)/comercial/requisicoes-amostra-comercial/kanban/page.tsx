@@ -50,7 +50,10 @@ export default function KanbanAmostraComercialPage() {
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <Link href="/comercial/requisicoes-amostra-comercial" className="text-sm text-blue-600 hover:underline">
+          <Link
+            href="/comercial/requisicoes-amostra-comercial"
+            className="text-sm text-blue-600 hover:underline"
+          >
             Lista
           </Link>
           <Link
@@ -62,7 +65,9 @@ export default function KanbanAmostraComercialPage() {
           <button
             onClick={isDetached ? handleReattach : handleDetach}
             className="inline-flex items-center gap-1 text-sm border border-slate-300 dark:border-slate-600 text-slate-600 dark:text-slate-300 px-3 py-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
-            title={isDetached ? "Recolocar kanban na aplicação" : "Descolar kanban em janela flutuante"}
+            title={
+              isDetached ? "Recolocar kanban na aplicação" : "Descolar kanban em janela flutuante"
+            }
           >
             {isDetached ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
             {isDetached ? "Recolocar" : "Flutuar"}
@@ -75,7 +80,9 @@ export default function KanbanAmostraComercialPage() {
           <div className="text-center space-y-3">
             <Maximize2 size={48} className="mx-auto text-slate-300 dark:text-slate-600" />
             <p className="text-lg font-medium">Kanban aberto em janela separada</p>
-            <p className="text-sm text-slate-400">Você pode arrastá-lo para outra tela ou monitor</p>
+            <p className="text-sm text-slate-400">
+              Você pode arrastá-lo para outra tela ou monitor
+            </p>
             <button
               onClick={handleReattach}
               className="inline-flex items-center gap-1.5 text-sm bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors"

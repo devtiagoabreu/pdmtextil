@@ -51,7 +51,9 @@ describe("GET /api/crm/oportunidades/[id]", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await get("1")
     expect(res.status).toBe(401)
   })
@@ -73,8 +75,16 @@ describe("GET /api/crm/oportunidades/[id]", () => {
     db.select
       .mockReturnValueOnce(createQueryBuilder([oportunidade]))
       .mockReturnValueOnce(createQueryBuilder([]))
-      .mockReturnValueOnce(createQueryBuilder([{ id: 10, numero: "NF-001", status: "EMITIDO", origem: "MANUAL", total: 1250 }]))
-      .mockReturnValueOnce(createQueryBuilder([{ id: 11, numero: "PV-001", status: "ABERTO", origem: "MANUAL", total: 850 }]))
+      .mockReturnValueOnce(
+        createQueryBuilder([
+          { id: 10, numero: "NF-001", status: "EMITIDO", origem: "MANUAL", total: 1250 },
+        ])
+      )
+      .mockReturnValueOnce(
+        createQueryBuilder([
+          { id: 11, numero: "PV-001", status: "ABERTO", origem: "MANUAL", total: 850 },
+        ])
+      )
 
     const res = await get("1")
     expect(res.status).toBe(200)
@@ -102,13 +112,18 @@ describe("DELETE /api/crm/oportunidades/[id]", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await del("1")
     expect(res.status).toBe(401)
   })
 
   it("retorna 403 para usuário não administrador", async () => {
-    vi.mocked(requireAuth).mockResolvedValue({ session: { user: { id: "2", role: "CRM" } }, userId: 2 } as any)
+    vi.mocked(requireAuth).mockResolvedValue({
+      session: { user: { id: "2", role: "CRM" } },
+      userId: 2,
+    } as any)
     const res = await del("1")
     expect(res.status).toBe(403)
     expect(await res.json()).toEqual({ error: "Apenas administradores podem excluir" })

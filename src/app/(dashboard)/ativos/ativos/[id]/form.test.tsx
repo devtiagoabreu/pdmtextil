@@ -110,7 +110,7 @@ describe("AtivoFormPage", () => {
       fireEvent.click(screen.getByRole("button", { name: "Atualizar" }))
 
       await waitFor(() =>
-        expect(findCall(fetchMock.calls, "/api/ativos/ativos/3", "PUT")).toBeDefined(),
+        expect(findCall(fetchMock.calls, "/api/ativos/ativos/3", "PUT")).toBeDefined()
       )
       const call = findCall(fetchMock.calls, "/api/ativos/ativos/3", "PUT")
       expect(call?.body?.responsavelId).toBe(5)

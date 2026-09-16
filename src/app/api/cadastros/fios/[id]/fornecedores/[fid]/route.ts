@@ -19,12 +19,7 @@ export async function DELETE(
 
     const deleted = await db
       .delete(fiosFornecedores)
-      .where(
-        and(
-          eq(fiosFornecedores.id, parseInt(fid)),
-          eq(fiosFornecedores.fioId, parseInt(id))
-        )
-      )
+      .where(and(eq(fiosFornecedores.id, parseInt(fid)), eq(fiosFornecedores.fioId, parseInt(id))))
       .returning()
 
     if (deleted.length === 0) {

@@ -31,7 +31,11 @@ export default function AtivosTiposVistoriaPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
 
-  const { data: tipos = [], isLoading, refetch } = useQuery({
+  const {
+    data: tipos = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["ativos-tipos-vistoria"],
     queryFn: async () => {
       const res = await fetch("/api/ativos/tipos-vistoria")
@@ -105,18 +109,26 @@ export default function AtivosTiposVistoriaPage() {
             <Loader2 className="animate-spin text-slate-400" size={24} />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
-            Nenhum tipo de vistoria encontrado
-          </div>
+          <div className="p-8 text-center text-slate-500">Nenhum tipo de vistoria encontrado</div>
         ) : (
           <table className="w-full">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Nome</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Área</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Periodicidade</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Base Legal</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Nome
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Área
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Periodicidade
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Base Legal
+                </th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -126,9 +138,7 @@ export default function AtivosTiposVistoriaPage() {
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 >
                   <td className="p-4 text-sm font-medium">
-                    <Link href={`/ativos/tipos-vistoria/${tipo.id}`}>
-                      {tipo.nome}
-                    </Link>
+                    <Link href={`/ativos/tipos-vistoria/${tipo.id}`}>{tipo.nome}</Link>
                   </td>
                   <td className="p-4">
                     <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
@@ -136,10 +146,15 @@ export default function AtivosTiposVistoriaPage() {
                     </span>
                   </td>
                   <td className="p-4 text-sm text-slate-500">{tipo.periodicidade}</td>
-                  <td className="p-4 text-sm text-slate-500 line-clamp-1">{tipo.baseLegal || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500 line-clamp-1">
+                    {tipo.baseLegal || "—"}
+                  </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/ativos/tipos-vistoria/${tipo.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Link
+                        href={`/ativos/tipos-vistoria/${tipo.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
@@ -168,12 +183,16 @@ export default function AtivosTiposVistoriaPage() {
       <ConfirmModal
         open={deleteTarget !== null}
         title={deleteBlocked ? "Exclusão não permitida" : "Excluir tipo de vistoria?"}
-        message={deleteBlocked
-          ? "Este tipo de vistoria possui planos vinculados e não pode ser excluído."
-          : "Tem certeza que deseja excluir?"}
-        subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir."
-          : undefined}
+        message={
+          deleteBlocked
+            ? "Este tipo de vistoria possui planos vinculados e não pode ser excluído."
+            : "Tem certeza que deseja excluir?"
+        }
+        subMessage={
+          deleteBlocked
+            ? "Remova ou desvincule os registros associados antes de excluir."
+            : undefined
+        }
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}
         loading={deleteLoading}

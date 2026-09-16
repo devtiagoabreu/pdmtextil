@@ -3,7 +3,8 @@ import type { InfoContent } from "./types"
 export const comercialContent: Record<string, InfoContent> = {
   "/comercial/solicitacoes": {
     title: "Solicitações",
-    description: "Lista de todas as solicitações comerciais registradas no sistema. Aqui você pode visualizar, filtrar e gerenciar cada solicitação.",
+    description:
+      "Lista de todas as solicitações comerciais registradas no sistema. Aqui você pode visualizar, filtrar e gerenciar cada solicitação.",
     rules: [
       "Solicitações passam por um fluxo de status: PENDENTE → EM_DESENVOLVIMENTO → APROVADO/REPROVADO → EM_PRODUÇÃO → CONCLUÍDO.",
       "Apenas usuários com perfil ADMIN ou SUDO podem excluir solicitações.",
@@ -13,14 +14,21 @@ export const comercialContent: Record<string, InfoContent> = {
     ],
     fields: [
       { name: "Cliente", desc: "Nome do cliente solicitante (autocomplete com dados cadastrados)" },
-      { name: "Tipo", desc: "Tecelagem (desenvolvimento de tecido) ou Beneficiamento (processo químico)" },
+      {
+        name: "Tipo",
+        desc: "Tecelagem (desenvolvimento de tecido) ou Beneficiamento (processo químico)",
+      },
       { name: "Status", desc: "Etapa atual no fluxo de desenvolvimento" },
-      { name: "Briefing", desc: "Detalhamento técnico da solicitação com campos dinâmicos conforme o tipo" },
+      {
+        name: "Briefing",
+        desc: "Detalhamento técnico da solicitação com campos dinâmicos conforme o tipo",
+      },
     ],
   },
   "/comercial/solicitacoes/nova": {
     title: "Nova Solicitação",
-    description: "Formulário de criação de uma nova solicitação comercial. Preencha os dados do cliente, tipo, briefing técnico e prazos.",
+    description:
+      "Formulário de criação de uma nova solicitação comercial. Preencha os dados do cliente, tipo, briefing técnico e prazos.",
     rules: [
       "Campos marcados com * são obrigatórios.",
       "O briefing é dividido em seções dinâmicas que mudam conforme o tipo de solicitação.",
@@ -31,7 +39,8 @@ export const comercialContent: Record<string, InfoContent> = {
   },
   "/comercial/clientes": {
     title: "Clientes",
-    description: "Cadastro de clientes comerciais. Gerencie informações como nome, CNPJ, contatos e endereço.",
+    description:
+      "Cadastro de clientes comerciais. Gerencie informações como nome, CNPJ, contatos e endereço.",
     rules: [
       "O CNPJ é validado para garantir unicidade no cadastro.",
       "Clientes ativos podem ser vinculados a solicitações.",
@@ -45,7 +54,8 @@ export const comercialContent: Record<string, InfoContent> = {
   },
   "/comercial/requisicoes-amostra-comercial": {
     title: "Requisições de Amostra Comercial",
-    description: "Lista de requisições de amostra comercial. Gerencie solicitações de amostras para clientes, vinculadas a produtos cadastrados.",
+    description:
+      "Lista de requisições de amostra comercial. Gerencie solicitações de amostras para clientes, vinculadas a produtos cadastrados.",
     rules: [
       "Cada requisição deve estar vinculada a um produto existente.",
       "O título é obrigatório; os demais campos são opcionais.",
@@ -80,7 +90,8 @@ export const comercialContent: Record<string, InfoContent> = {
   },
   "/comercial/requisicoes-corte": {
     title: "Requisições de Corte",
-    description: "Gerencie as requisições de corte de produtos. Uma requisição pode conter múltiplos itens (cortes) para diferentes produtos.",
+    description:
+      "Gerencie as requisições de corte de produtos. Uma requisição pode conter múltiplos itens (cortes) para diferentes produtos.",
     rules: [
       "Cada requisição pode ter vários itens de corte, cada um com seu próprio produto, ordem e quantidade.",
       "Status disponíveis: Solicitado → Processando → Atendido.",
@@ -90,7 +101,8 @@ export const comercialContent: Record<string, InfoContent> = {
   },
   "/comercial/requisicoes-corte/por-romaneio": {
     title: "Requisição de Corte por Romaneio",
-    description: "Crie requisições de corte a partir de romaneios de expedição. Selecione um romaneio, informe a metragem desejada para cada produto e crie a requisição automaticamente.",
+    description:
+      "Crie requisições de corte a partir de romaneios de expedição. Selecione um romaneio, informe a metragem desejada para cada produto e crie a requisição automaticamente.",
     rules: [
       "Os romaneios são carregados da integração configurada para a tela com o nome desta página.",
       "Cada romaneio exibe os produtos disponíveis com suas respectivas metragens.",

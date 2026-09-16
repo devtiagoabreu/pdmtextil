@@ -16,7 +16,7 @@ describe("GET /api/user/menus/todas-telas", () => {
 
   it("retorna 401 quando não autenticado", async () => {
     vi.mocked(requireAuth).mockResolvedValue(
-      NextResponse.json({ error: "Não autorizado" }, { status: 401 }) as any,
+      NextResponse.json({ error: "Não autorizado" }, { status: 401 }) as any
     )
     const res = await GET()
     expect(res.status).toBe(401)

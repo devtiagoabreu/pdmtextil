@@ -9,7 +9,10 @@ export const maxDuration = 300
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
+    if (
+      !session ||
+      (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")
+    ) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -17,7 +20,10 @@ export async function POST(req: NextRequest) {
     const { para, assunto, html, listas, modo_envio, remetente, preheader, nome } = body
 
     if (!para || !assunto || !html) {
-      return NextResponse.json({ error: "Para, assunto e conteúdo são obrigatórios" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Para, assunto e conteúdo são obrigatórios" },
+        { status: 400 }
+      )
     }
 
     if (para === "lista" && (!listas || listas.length === 0)) {

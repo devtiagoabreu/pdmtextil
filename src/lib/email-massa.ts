@@ -23,9 +23,15 @@ async function aplicarOptouts(destinatarios: Destinatario[]): Promise<Destinatar
   return destinatarios.filter((d) => !set.has(d.email.toLowerCase()))
 }
 
-export async function buscarDestinatarios(para: string, listas?: number[]): Promise<Destinatario[]> {
+export async function buscarDestinatarios(
+  para: string,
+  listas?: number[]
+): Promise<Destinatario[]> {
   if (para === "clientes") {
-    const lista = await db.select({ email: clientes.email, nome: clientes.nome }).from(clientes).where(eq(clientes.ativo, true))
+    const lista = await db
+      .select({ email: clientes.email, nome: clientes.nome })
+      .from(clientes)
+      .where(eq(clientes.ativo, true))
     const result: Destinatario[] = []
     for (const c of lista) {
       for (const addr of parseEmails(c.email)) {
@@ -36,17 +42,26 @@ export async function buscarDestinatarios(para: string, listas?: number[]): Prom
   }
 
   if (para === "usuarios") {
-    const lista = await db.select({ email: usuarios.email, name: usuarios.name }).from(usuarios).where(eq(usuarios.ativo, true))
+    const lista = await db
+      .select({ email: usuarios.email, name: usuarios.name })
+      .from(usuarios)
+      .where(eq(usuarios.ativo, true))
     return aplicarOptouts(
       lista
         .filter((u: any) => u.email && u.email.includes("@"))
-        .map((u: any) => ({ email: u.email!, nome: u.name || "Usuário" })),
+        .map((u: any) => ({ email: u.email!, nome: u.name || "Usuário" }))
     )
   }
 
   if (para === "todos") {
-    const clientesLista = await db.select({ email: clientes.email, nome: clientes.nome }).from(clientes).where(eq(clientes.ativo, true))
-    const usuariosLista = await db.select({ email: usuarios.email, name: usuarios.name }).from(usuarios).where(eq(usuarios.ativo, true))
+    const clientesLista = await db
+      .select({ email: clientes.email, nome: clientes.nome })
+      .from(clientes)
+      .where(eq(clientes.ativo, true))
+    const usuariosLista = await db
+      .select({ email: usuarios.email, name: usuarios.name })
+      .from(usuarios)
+      .where(eq(usuarios.ativo, true))
 
     const result: Destinatario[] = []
     for (const c of clientesLista) {

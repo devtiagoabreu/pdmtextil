@@ -7,16 +7,16 @@ import { eq } from "drizzle-orm"
 import { notificar } from "@/lib/notificar"
 export const dynamic = "force-dynamic"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
     const id = parseInt((await params).id)
-    const lista = await db.select().from(produtoCruAcabamento).where(eq(produtoCruAcabamento.produtoCruId, id))
+    const lista = await db
+      .select()
+      .from(produtoCruAcabamento)
+      .where(eq(produtoCruAcabamento.produtoCruId, id))
 
     return NextResponse.json(lista)
   } catch (error) {
@@ -25,10 +25,7 @@ export async function GET(
   }
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })

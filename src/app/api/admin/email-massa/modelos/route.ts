@@ -9,7 +9,10 @@ export const dynamic = "force-dynamic"
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
+    if (
+      !session ||
+      (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")
+    ) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -24,7 +27,10 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
+    if (
+      !session ||
+      (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")
+    ) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -33,11 +39,14 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 })
     }
 
-    const [novo] = await db.insert(emailModelos).values({
-      nome: body.nome,
-      assunto: body.assunto || "",
-      html: body.html || "",
-    }).returning()
+    const [novo] = await db
+      .insert(emailModelos)
+      .values({
+        nome: body.nome,
+        assunto: body.assunto || "",
+        html: body.html || "",
+      })
+      .returning()
 
     return NextResponse.json(novo)
   } catch (error) {

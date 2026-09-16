@@ -9,7 +9,10 @@ export const dynamic = "force-dynamic"
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
+    if (
+      !session ||
+      (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")
+    ) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -30,7 +33,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
+    if (
+      !session ||
+      (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")
+    ) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -41,8 +47,14 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 })
     }
 
-    const [atualizado] = await db.update(emailModelos)
-      .set({ nome: body.nome, assunto: body.assunto || "", html: body.html || "", updatedAt: new Date() })
+    const [atualizado] = await db
+      .update(emailModelos)
+      .set({
+        nome: body.nome,
+        assunto: body.assunto || "",
+        html: body.html || "",
+        updatedAt: new Date(),
+      })
       .where(eq(emailModelos.id, idNum))
       .returning()
 
@@ -60,7 +72,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
+    if (
+      !session ||
+      (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")
+    ) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 

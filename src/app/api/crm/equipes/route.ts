@@ -72,7 +72,12 @@ export async function POST(req: NextRequest) {
       usuarioNome: session.user.name,
     })
 
-    await notificar("EQUIPE_CRIADA", `Equipe criada: ${nova.nome}`, `/comercial/crm/equipes/${nova.id}`, session.user.name)
+    await notificar(
+      "EQUIPE_CRIADA",
+      `Equipe criada: ${nova.nome}`,
+      `/comercial/crm/equipes/${nova.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {

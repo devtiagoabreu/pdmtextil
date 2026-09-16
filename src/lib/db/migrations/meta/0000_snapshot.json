@@ -83,12 +83,8 @@
           "name": "anexos_solicitacao_id_solicitacoes_id_fk",
           "tableFrom": "anexos",
           "tableTo": "solicitacoes",
-          "columnsFrom": [
-            "solicitacao_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["solicitacao_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -96,12 +92,8 @@
           "name": "anexos_criado_por_usuarios_id_fk",
           "tableFrom": "anexos",
           "tableTo": "usuarios",
-          "columnsFrom": [
-            "criado_por"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["criado_por"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -154,12 +146,8 @@
           "name": "sessions_user_id_usuarios_id_fk",
           "tableFrom": "sessions",
           "tableTo": "usuarios",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -169,9 +157,7 @@
         "sessions_session_token_unique": {
           "name": "sessions_session_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "session_token"
-          ]
+          "columns": ["session_token"]
         }
       },
       "policies": {},
@@ -248,9 +234,7 @@
         "usuarios_email_unique": {
           "name": "usuarios_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -362,12 +346,8 @@
           "name": "solicitacoes_solicitante_id_usuarios_id_fk",
           "tableFrom": "solicitacoes",
           "tableTo": "usuarios",
-          "columnsFrom": [
-            "solicitante_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["solicitante_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -375,12 +355,8 @@
           "name": "solicitacoes_responsavel_id_usuarios_id_fk",
           "tableFrom": "solicitacoes",
           "tableTo": "usuarios",
-          "columnsFrom": [
-            "responsavel_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["responsavel_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }

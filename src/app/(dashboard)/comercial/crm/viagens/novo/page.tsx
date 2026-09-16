@@ -26,7 +26,7 @@ export default function NovaViagemPage() {
   const [saving, setSaving] = useState(false)
 
   function setField(field: string, value: string) {
-    setForm(prev => ({ ...prev, [field]: value }))
+    setForm((prev) => ({ ...prev, [field]: value }))
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -71,12 +71,19 @@ export default function NovaViagemPage() {
   return (
     <div className="max-w-2xl animate-fade-in">
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => router.back()} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <button
+          onClick={() => router.back()}
+          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={18} className="text-slate-500" />
         </button>
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Nova Viagem{info && <InfoButton content={info} />}</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Planejar viagem e investimentos</p>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+            Nova Viagem{info && <InfoButton content={info} />}
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Planejar viagem e investimentos
+          </p>
         </div>
       </div>
 

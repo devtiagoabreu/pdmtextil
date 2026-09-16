@@ -1,4 +1,13 @@
-import { pgTable, serial, varchar, boolean, text, integer, timestamp, numeric } from "drizzle-orm/pg-core"
+import {
+  pgTable,
+  serial,
+  varchar,
+  boolean,
+  text,
+  integer,
+  timestamp,
+  numeric,
+} from "drizzle-orm/pg-core"
 import { usuarios } from "./usuarios"
 import { fios } from "./fios"
 
@@ -22,8 +31,12 @@ export const basesUrdume = pgTable("bases_urdume", {
 
 export const baseUrdumeFios = pgTable("base_urdume_fios", {
   id: serial("id").primaryKey(),
-  baseUrdumeId: integer("base_urdume_id").notNull().references(() => basesUrdume.id, { onDelete: "cascade" }),
-  fioId: integer("fio_id").notNull().references(() => fios.id),
+  baseUrdumeId: integer("base_urdume_id")
+    .notNull()
+    .references(() => basesUrdume.id, { onDelete: "cascade" }),
+  fioId: integer("fio_id")
+    .notNull()
+    .references(() => fios.id),
   createdAt: timestamp("created_at").defaultNow(),
 })
 

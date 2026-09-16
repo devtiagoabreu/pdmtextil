@@ -16,9 +16,7 @@ export default function DashboardError({
 
   return (
     <div className="flex flex-col items-center justify-center min-h-[60vh] gap-4 p-8 text-center">
-      <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">
-        Algo deu errado
-      </h1>
+      <h1 className="text-2xl font-semibold text-slate-900 dark:text-slate-100">Algo deu errado</h1>
       <p className="text-sm text-slate-500 dark:text-slate-400 max-w-md">
         Ocorreu um erro ao carregar esta página. Por favor, tente novamente.
       </p>

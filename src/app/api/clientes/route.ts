@@ -28,11 +28,7 @@ export async function GET(req: NextRequest) {
         .orderBy(desc(clientes.createdAt))
         .limit(20)
     } else {
-      resultados = await db
-        .select()
-        .from(clientes)
-        .orderBy(desc(clientes.createdAt))
-        .limit(20)
+      resultados = await db.select().from(clientes).orderBy(desc(clientes.createdAt)).limit(20)
     }
 
     return NextResponse.json(resultados)
@@ -53,7 +49,21 @@ export async function POST(req: NextRequest) {
     } catch {
       body = {}
     }
-    const { nome, cnpj, razaoSocial, email, emailNf, telefone, celular, contato, segmento, endereco, cidade, uf, idIntegracao } = body
+    const {
+      nome,
+      cnpj,
+      razaoSocial,
+      email,
+      emailNf,
+      telefone,
+      celular,
+      contato,
+      segmento,
+      endereco,
+      cidade,
+      uf,
+      idIntegracao,
+    } = body
 
     if (!nome?.trim()) {
       return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 })

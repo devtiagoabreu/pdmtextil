@@ -123,7 +123,8 @@ export default function ProjetosPage() {
         body: JSON.stringify(payload),
       })
       const json = await res.json().catch(() => null)
-      if (!res.ok) throw new Error((json as { error?: string })?.error ?? "Falha ao salvar o projeto.")
+      if (!res.ok)
+        throw new Error((json as { error?: string })?.error ?? "Falha ao salvar o projeto.")
       return json
     },
     onSuccess: () => {
@@ -143,7 +144,8 @@ export default function ProjetosPage() {
     mutationFn: async (id: number) => {
       const res = await fetch(`/api/reunioes/projetos/${id}`, { method: "DELETE" })
       const json = await res.json().catch(() => null)
-      if (!res.ok) throw new Error((json as { error?: string })?.error ?? "Falha ao excluir o projeto.")
+      if (!res.ok)
+        throw new Error((json as { error?: string })?.error ?? "Falha ao excluir o projeto.")
       return id
     },
     onSuccess: (id) => {
@@ -213,7 +215,8 @@ export default function ProjetosPage() {
           {info && <InfoButton content={info} />}
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Cada reunião pertence a um projeto. Crie e edite projetos para organizar as reuniões por iniciativa.
+          Cada reunião pertence a um projeto. Crie e edite projetos para organizar as reuniões por
+          iniciativa.
         </p>
       </div>
 
@@ -262,7 +265,8 @@ export default function ProjetosPage() {
                     </span>
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                        STATUS_CORES[p.status] ?? "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                        STATUS_CORES[p.status] ??
+                        "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
                       }`}
                     >
                       {labelStatusProjeto(p.status)}
@@ -307,7 +311,12 @@ export default function ProjetosPage() {
         </div>
       )}
 
-      <Dialog open={formAberto} onOpenChange={(next) => { if (!next) fecharFormulario() }}>
+      <Dialog
+        open={formAberto}
+        onOpenChange={(next) => {
+          if (!next) fecharFormulario()
+        }}
+      >
         <DialogContent className="max-w-xl">
           <form onSubmit={aoSubmeter} className="max-h-[75vh] overflow-y-auto pr-1">
             <DialogHeader>
@@ -402,7 +411,12 @@ export default function ProjetosPage() {
             </div>
 
             <DialogFooter className="mt-5">
-              <Button type="button" variant="outline" onClick={fecharFormulario} disabled={mutationSalvar.isPending}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={fecharFormulario}
+                disabled={mutationSalvar.isPending}
+              >
                 Cancelar
               </Button>
               <Button type="submit" disabled={mutationSalvar.isPending}>
@@ -425,7 +439,11 @@ export default function ProjetosPage() {
       <ConfirmModal
         open={confirmandoExcluir}
         title="Excluir projeto"
-        message={excluindo ? `Deseja excluir o projeto "${excluindo.nome}"?` : "Deseja excluir este projeto?"}
+        message={
+          excluindo
+            ? `Deseja excluir o projeto "${excluindo.nome}"?`
+            : "Deseja excluir este projeto?"
+        }
         subMessage="As reuniões vinculadas a este projeto precisam ser movidas antes da exclusão."
         confirmLabel="Excluir"
         loading={mutationExcluir.isPending}

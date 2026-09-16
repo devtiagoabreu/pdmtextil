@@ -6,7 +6,18 @@ import { useQuery } from "@tanstack/react-query"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
-import { ArrowLeft, Save, Building2, Search, Loader2, CheckCircle2, AlertCircle, Trash2, Users, UserPlus } from "lucide-react"
+import {
+  ArrowLeft,
+  Save,
+  Building2,
+  Search,
+  Loader2,
+  CheckCircle2,
+  AlertCircle,
+  Trash2,
+  Users,
+  UserPlus,
+} from "lucide-react"
 import { toast } from "sonner"
 import type { Representante, RepresentanteComClientes, ConsultaCnpjData } from "../types"
 import type { Cliente } from "../../clientes/types"
@@ -89,11 +100,11 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
   }
 
   const handleChange = (field: keyof Representante, value: string) => {
-    setRepresentante((prev) => prev ? { ...prev, [field]: value } : null)
+    setRepresentante((prev) => (prev ? { ...prev, [field]: value } : null))
   }
 
   const handleNumberChange = (field: keyof Representante, value: string) => {
-    setRepresentante((prev) => prev ? { ...prev, [field]: value ? parseInt(value) : null } : null)
+    setRepresentante((prev) => (prev ? { ...prev, [field]: value ? parseInt(value) : null } : null))
   }
 
   function formatCnpj(v: string) {
@@ -127,14 +138,18 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
       }
       setApiData(api)
       setConsulted(true)
-      setRepresentante((prev) => prev ? {
-        ...prev,
-        cnpj: formatCnpj(digits),
-        razaoSocial: api.razao_social || prev.razaoSocial,
-        endereco: api.logradouro || prev.endereco,
-        cidade: api.municipio || prev.cidade,
-        uf: api.uf || prev.uf,
-      } : prev)
+      setRepresentante((prev) =>
+        prev
+          ? {
+              ...prev,
+              cnpj: formatCnpj(digits),
+              razaoSocial: api.razao_social || prev.razaoSocial,
+              endereco: api.logradouro || prev.endereco,
+              cidade: api.municipio || prev.cidade,
+              uf: api.uf || prev.uf,
+            }
+          : prev
+      )
       toast.success("Dados preenchidos automaticamente")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao consultar CNPJ")
@@ -145,7 +160,10 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
 
   async function searchClientes(query: string) {
     setSearchCliente(query)
-    if (query.length < 2) { setClienteResults([]); return }
+    if (query.length < 2) {
+      setClienteResults([])
+      return
+    }
     setSearchingCliente(true)
     try {
       const res = await fetch(`/api/clientes?q=${encodeURIComponent(query)}`)
@@ -153,20 +171,25 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
       const data = await res.json()
       const existentes = new Set((representante?.clientes || []).map((c) => c.id))
       setClienteResults(Array.isArray(data) ? data.filter((c) => !existentes.has(c.id)) : [])
-    } catch {} finally {
+    } catch {
+    } finally {
       setSearchingCliente(false)
     }
   }
 
   function addCliente(c: Cliente) {
     if ((representante?.clientes || []).find((x) => x.id === c.id)) return
-    setRepresentante((prev) => prev ? { ...prev, clientes: [...(prev.clientes || []), { id: c.id, nome: c.nome }] } : prev)
+    setRepresentante((prev) =>
+      prev ? { ...prev, clientes: [...(prev.clientes || []), { id: c.id, nome: c.nome }] } : prev
+    )
     setClienteResults([])
     setSearchCliente("")
   }
 
   function removeCliente(cid: number) {
-    setRepresentante((prev) => prev ? { ...prev, clientes: (prev.clientes || []).filter((c) => c.id !== cid) } : prev)
+    setRepresentante((prev) =>
+      prev ? { ...prev, clientes: (prev.clientes || []).filter((c) => c.id !== cid) } : prev
+    )
   }
 
   if (loading) {
@@ -197,7 +220,9 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
             <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Editar Representante{info && <InfoButton content={info} />}</h1>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+              Editar Representante{info && <InfoButton content={info} />}
+            </h1>
             <p className="text-sm text-slate-500">{representante.nome}</p>
           </div>
         </div>
@@ -226,7 +251,9 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
                   type="text"
                   value={representante.cnpj}
                   onChange={(e) => handleChange("cnpj", e.target.value)}
-                  onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleConsultarCnpj())}
+                  onKeyDown={(e) =>
+                    e.key === "Enter" && (e.preventDefault(), handleConsultarCnpj())
+                  }
                   className="flex-1 min-w-0 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm font-mono"
                   required
                 />
@@ -236,7 +263,11 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
                   disabled={consulting}
                   className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-cyan-600 bg-cyan-50 hover:bg-cyan-100 dark:bg-cyan-950/50 dark:hover:bg-cyan-950/80 border border-cyan-200 dark:border-cyan-800 rounded-lg transition-colors disabled:opacity-50"
                 >
-                  {consulting ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+                  {consulting ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Search size={14} />
+                  )}
                   <span className="hidden sm:inline">Consultar</span>
                 </button>
               </div>
@@ -254,7 +285,9 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
               <div className="md:col-span-2 rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 p-3 flex items-start gap-2">
                 <CheckCircle2 size={16} className="text-emerald-500 mt-0.5 shrink-0" />
                 <div className="text-sm">
-                  <p className="font-medium text-emerald-800 dark:text-emerald-300">{apiData.razao_social}</p>
+                  <p className="font-medium text-emerald-800 dark:text-emerald-300">
+                    {apiData.razao_social}
+                  </p>
                   <p className="text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">
                     {apiData.nome_fantasia} — {apiData.situacao_cadastral}
                   </p>
@@ -323,9 +356,7 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                UF
-              </label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">UF</label>
               <input
                 type="text"
                 value={representante.uf || ""}
@@ -358,10 +389,14 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
               >
                 <option value="">Selecione o gerente (usuário do comercial)</option>
                 {(gerentes || []).map((g) => (
-                  <option key={g.id} value={String(g.id)}>{g.name}</option>
+                  <option key={g.id} value={String(g.id)}>
+                    {g.name}
+                  </option>
                 ))}
               </select>
-              <p className="text-xs text-slate-400">Usuários do setor comercial que serão gerentes</p>
+              <p className="text-xs text-slate-400">
+                Usuários do setor comercial que serão gerentes
+              </p>
             </div>
 
             <div className="space-y-2 md:col-span-2">
@@ -387,9 +422,16 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
             {(representante.clientes || []).length > 0 && (
               <div className="space-y-2">
                 {(representante.clientes || []).map((c) => (
-                  <div key={c.id} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 rounded-lg px-3 py-2">
+                  <div
+                    key={c.id}
+                    className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 rounded-lg px-3 py-2"
+                  >
                     <span className="text-sm text-slate-700 dark:text-slate-300">{c.nome}</span>
-                    <button type="button" onClick={() => removeCliente(c.id)} className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-slate-400 hover:text-red-600">
+                    <button
+                      type="button"
+                      onClick={() => removeCliente(c.id)}
+                      className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-slate-400 hover:text-red-600"
+                    >
                       <Trash2 size={14} />
                     </button>
                   </div>
@@ -399,7 +441,10 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
 
             <div className="relative">
               <div className="relative flex-1">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search
+                  size={14}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                />
                 <input
                   type="text"
                   value={searchCliente}
@@ -407,7 +452,12 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
                   placeholder="Buscar cliente pelo nome ou CNPJ..."
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                {searchingCliente && <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-slate-400" />}
+                {searchingCliente && (
+                  <Loader2
+                    size={14}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-slate-400"
+                  />
+                )}
               </div>
               {clienteResults.length > 0 && (
                 <div className="absolute z-10 mt-1 w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 shadow-lg max-h-48 overflow-y-auto">
@@ -420,7 +470,9 @@ export default function EditarRepresentantePage({ params }: { params: Promise<{ 
                     >
                       <UserPlus size={14} className="text-slate-400" />
                       {c.nome}
-                      {c.cnpj && <span className="text-slate-400 text-xs font-mono ml-auto">{c.cnpj}</span>}
+                      {c.cnpj && (
+                        <span className="text-slate-400 text-xs font-mono ml-auto">{c.cnpj}</span>
+                      )}
                     </button>
                   ))}
                 </div>

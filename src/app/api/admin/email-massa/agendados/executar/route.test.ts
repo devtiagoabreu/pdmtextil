@@ -40,7 +40,12 @@ const pendente = {
 function post(authHeader?: string) {
   const headers = new Headers()
   if (authHeader) headers.set("authorization", authHeader)
-  return POST(new NextRequest("http://localhost/api/admin/email-massa/agendados/executar", { method: "POST", headers }))
+  return POST(
+    new NextRequest("http://localhost/api/admin/email-massa/agendados/executar", {
+      method: "POST",
+      headers,
+    })
+  )
 }
 
 describe("POST /api/admin/email-massa/agendados/executar", () => {
@@ -83,7 +88,7 @@ describe("POST /api/admin/email-massa/agendados/executar", () => {
     expect(data.executados).toBe(1)
     expect(criarDisparo).toHaveBeenCalledTimes(1)
     expect(criarDisparo).toHaveBeenCalledWith(
-      expect.objectContaining({ nome: "Campanha", para: "todos", assunto: "Promo", criadoPor: 16 }),
+      expect.objectContaining({ nome: "Campanha", para: "todos", assunto: "Promo", criadoPor: 16 })
     )
     expect(db.update).toHaveBeenCalled()
   })

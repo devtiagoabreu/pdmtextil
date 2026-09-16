@@ -1,4 +1,14 @@
-import { pgTable, serial, varchar, boolean, text, integer, timestamp, numeric, jsonb } from "drizzle-orm/pg-core"
+import {
+  pgTable,
+  serial,
+  varchar,
+  boolean,
+  text,
+  integer,
+  timestamp,
+  numeric,
+  jsonb,
+} from "drizzle-orm/pg-core"
 import { usuarios } from "./usuarios"
 
 export const fornecedores = pgTable("fornecedores", {
@@ -48,8 +58,12 @@ export type NewFio = typeof fios.$inferInsert
 
 export const fiosFornecedores = pgTable("fios_fornecedores", {
   id: serial("id").primaryKey(),
-  fioId: integer("fio_id").notNull().references(() => fios.id, { onDelete: "cascade" }),
-  fornecedorId: integer("fornecedor_id").notNull().references(() => fornecedores.id, { onDelete: "cascade" }),
+  fioId: integer("fio_id")
+    .notNull()
+    .references(() => fios.id, { onDelete: "cascade" }),
+  fornecedorId: integer("fornecedor_id")
+    .notNull()
+    .references(() => fornecedores.id, { onDelete: "cascade" }),
   codigoFornecedor: varchar("codigo_fornecedor", { length: 50 }),
   valorUnitario: numeric("valor_unitario", { precision: 10, scale: 2 }),
   observacoes: text("observacoes"),

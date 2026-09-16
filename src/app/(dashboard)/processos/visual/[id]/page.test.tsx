@@ -38,7 +38,7 @@ const diagramaBase = {
 const fluxoImportado = [
   "flowchart TD",
   "  inicio((Início))",
-  "  A1[\"Conferir NF\"]",
+  '  A1["Conferir NF"]',
   "  fim([Fim])",
   "  inicio --> A1",
   "  A1 --> fim",
@@ -76,11 +76,13 @@ describe("ProcessoDiagramaPage", () => {
     renderPage(<ProcessoDiagramaPage />)
     expect(await screen.findByRole("heading", { name: "Novo Diagrama" })).toBeInTheDocument()
 
-    fireEvent.change(screen.getByLabelText(/Nome/), { target: { value: "Fluxograma de expedição" } })
+    fireEvent.change(screen.getByLabelText(/Nome/), {
+      target: { value: "Fluxograma de expedição" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Criar" }))
 
     await waitFor(() =>
-      expect(findCall(mock.calls, "/api/processos/diagramas", "POST")).toBeDefined(),
+      expect(findCall(mock.calls, "/api/processos/diagramas", "POST")).toBeDefined()
     )
     await waitFor(() => expect(navMock.router.push).toHaveBeenCalledWith("/processos/visual/99"))
   })
@@ -105,7 +107,7 @@ describe("ProcessoDiagramaPage", () => {
     await screen.findByLabelText("Nome da atividade A1")
 
     expect(
-      screen.getByText(/representação estruturada do processo — a fonte da verdade/),
+      screen.getByText(/representação estruturada do processo — a fonte da verdade/)
     ).toBeInTheDocument()
 
     for (const aba of ["Modelo semântico", "Texto Mermaid", "BPMN", "Canvas", "Exportar"]) {
@@ -127,7 +129,9 @@ describe("ProcessoDiagramaPage", () => {
     const corpo = bodies[0] as { nome: string; modelo: { atividades: unknown[] } }
     expect(corpo.nome).toBe("Fluxograma de recebimento")
     expect(corpo.modelo.atividades).toHaveLength(1)
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Diagrama salvo com sucesso"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Diagrama salvo com sucesso")
+    )
   })
 
   it("importa o texto Mermaid de volta para o modelo semântico", async () => {
@@ -143,7 +147,9 @@ describe("ProcessoDiagramaPage", () => {
     fireEvent.change(textarea, { target: { value: fluxoImportado } })
     fireEvent.click(screen.getByRole("button", { name: /Importar texto/ }))
 
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Modelo importado do texto Mermaid"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Modelo importado do texto Mermaid")
+    )
     fireEvent.click(screen.getByRole("button", { name: "Modelo semântico" }))
     const atividade = await screen.findByLabelText("Nome da atividade A1")
     expect((atividade as HTMLInputElement).value).toBe("Conferir NF")

@@ -9,10 +9,7 @@ export async function GET() {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
-    const lista = await db
-      .select()
-      .from(crmPaises)
-      .orderBy(crmPaises.nome)
+    const lista = await db.select().from(crmPaises).orderBy(crmPaises.nome)
 
     return NextResponse.json(lista)
   } catch (error) {
@@ -37,10 +34,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Código do país é obrigatório" }, { status: 400 })
     }
 
-    const [novo] = await db
-      .insert(crmPaises)
-      .values({ nome, codigo })
-      .returning()
+    const [novo] = await db.insert(crmPaises).values({ nome, codigo }).returning()
 
     return NextResponse.json(novo, { status: 201 })
   } catch (error: any) {

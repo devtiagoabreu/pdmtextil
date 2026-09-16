@@ -95,10 +95,7 @@ function getImageBlock(el: HTMLElement): ModeloBlock | null {
 export function htmlToModelo(html: string): string {
   if (typeof DOMParser === "undefined") return html
   const parser = new DOMParser()
-  const doc = parser.parseFromString(
-    `<div id="_r">${html}</div>`,
-    "text/html"
-  )
+  const doc = parser.parseFromString(`<div id="_r">${html}</div>`, "text/html")
   const root = doc.getElementById("_r")
   if (!root) return html
   const blocks: ModeloBlock[] = []
@@ -193,7 +190,11 @@ export function modeloToHtml(stored: string): string {
 
   return blocks
     .map((b: any) => {
-      const style = [b.l ? `text-align:${b.l}` : "", b.f ? `font-family:${b.f}` : "", b.z ? `font-size:${b.z}` : ""]
+      const style = [
+        b.l ? `text-align:${b.l}` : "",
+        b.f ? `font-family:${b.f}` : "",
+        b.z ? `font-size:${b.z}` : "",
+      ]
         .filter(Boolean)
         .join(";")
       const sty = style ? ` style="${style}"` : ""

@@ -1,4 +1,4 @@
-import * as z from "zod";
+import * as z from "zod"
 
 export const dadosComerciaisSchema = z.object({
   tipo: z.enum(["DESENVOLVIMENTO_TECELAGEM", "DESENVOLVIMENTO_BENEFICIAMENTO"], {
@@ -9,9 +9,9 @@ export const dadosComerciaisSchema = z.object({
   cnpj: z.string().optional(),
   projeto: z.string().optional(),
   prazoDesejado: z.string().optional(),
-});
+})
 
-export type DadosComerciais = z.infer<typeof dadosComerciaisSchema>;
+export type DadosComerciais = z.infer<typeof dadosComerciaisSchema>
 
 export const SEGMENTOS = [
   "UNIFORME_CORPORATIVO",
@@ -31,7 +31,7 @@ export const SEGMENTOS = [
   "DECORACAO",
   "INDUSTRIAL",
   "OUTROS",
-] as const;
+] as const
 
 export const TECNOLOGIAS = [
   "ANTIBACTERIANO",
@@ -47,7 +47,7 @@ export const TECNOLOGIAS = [
   "SOFT_TOUCH",
   "HYDRARE",
   "OUTROS",
-] as const;
+] as const
 
 export const TIPO_FIBRA = [
   "POLIESTER",
@@ -60,7 +60,7 @@ export const TIPO_FIBRA = [
   "LINHA_RECICLADA",
   "ORGANICO",
   "OUTROS",
-] as const;
+] as const
 
 export const LIGAMENTO = [
   "TAFETAN",
@@ -71,7 +71,7 @@ export const LIGAMENTO = [
   "DOBRADINHA",
   "MALHA",
   "OUTROS",
-] as const;
+] as const
 
 export const TIPOS_ACABAMENTO = [
   "SANFORIZADO",
@@ -85,7 +85,7 @@ export const TIPOS_ACABAMENTO = [
   "ESTAMPADO",
   "TINGIDO",
   "OUTROS",
-] as const;
+] as const
 
 export const SEGMENTOS_LABELS: Record<string, string> = {
   UNIFORME_CORPORATIVO: "Uniforme Corporativo",
@@ -221,13 +221,13 @@ export const briefingTecelagemSchema = z.object({
     prazoEntrega: z.string().optional(),
     observacoes: z.string().optional(),
   }),
-});
+})
 
-export type BriefingTecelagem = z.infer<typeof briefingTecelagemSchema>;
+export type BriefingTecelagem = z.infer<typeof briefingTecelagemSchema>
 
 export const solicitacaoCompletaSchema = z.object({
   ...dadosComerciaisSchema.shape,
   briefing: briefingTecelagemSchema,
-});
+})
 
-export type SolicitacaoCompleta = z.infer<typeof solicitacaoCompletaSchema>;
+export type SolicitacaoCompleta = z.infer<typeof solicitacaoCompletaSchema>

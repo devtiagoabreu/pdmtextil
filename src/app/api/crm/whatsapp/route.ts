@@ -20,7 +20,10 @@ export async function GET(req: NextRequest) {
     if (empresaId) conditions.push(eq(crmWhatsappMensagens.empresaId, Number(empresaId)))
     if (remoteJid) conditions.push(eq(crmWhatsappMensagens.remoteJid, remoteJid))
 
-    const where = conditions.length > 0 ? sql`${conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`)}` : undefined
+    const where =
+      conditions.length > 0
+        ? sql`${conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`)}`
+        : undefined
 
     const lista = await db
       .select()
@@ -50,10 +53,7 @@ export async function POST(req: NextRequest) {
         .select()
         .from(crmContatos)
         .where(
-          and(
-            eq(crmContatos.empresaId, Number(body.empresaId)),
-            eq(crmContatos.principal, true),
-          )
+          and(eq(crmContatos.empresaId, Number(body.empresaId)), eq(crmContatos.principal, true))
         )
         .limit(1)
         .then((r: any) => r[0] || null)

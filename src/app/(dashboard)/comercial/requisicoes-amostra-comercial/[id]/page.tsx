@@ -36,7 +36,10 @@ export default function DetalheRequisicaoAmostraComercialPage() {
   useEffect(() => {
     if (!mounted || !id) return
     fetch(`/api/requisicoes-amostra-comercial/${id}?t=${Date.now()}`)
-      .then((res: Response) => { if (!res.ok) throw new Error(); return res.json() })
+      .then((res: Response) => {
+        if (!res.ok) throw new Error()
+        return res.json()
+      })
       .then((d: RequisicaoAmostraDetalhe) => setData(d))
       .catch(() => toast.error("Erro ao carregar requisição"))
       .finally(() => setLoading(false))
@@ -56,7 +59,10 @@ export default function DetalheRequisicaoAmostraComercialPage() {
     return (
       <div className="text-center py-20">
         <p className="text-red-500 mb-2">Erro ao carregar requisição</p>
-        <Link href="/comercial/requisicoes-amostra-comercial" className="text-blue-600 hover:underline mt-2 inline-block">
+        <Link
+          href="/comercial/requisicoes-amostra-comercial"
+          className="text-blue-600 hover:underline mt-2 inline-block"
+        >
           Voltar à lista
         </Link>
       </div>
@@ -86,10 +92,13 @@ export default function DetalheRequisicaoAmostraComercialPage() {
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">#{data.id}</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium" style={{
-            backgroundColor: hexToRgba(getColor(data.status), 0.15),
-            color: getColor(data.status),
-          }}>
+          <span
+            className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium"
+            style={{
+              backgroundColor: hexToRgba(getColor(data.status), 0.15),
+              color: getColor(data.status),
+            }}
+          >
             {getLabel(data.status)}
           </span>
           <button
@@ -118,11 +127,13 @@ export default function DetalheRequisicaoAmostraComercialPage() {
                     href={`/cadastros/produto-cru/${data.produto.id}`}
                     className="font-medium text-blue-600 dark:text-blue-400 hover:underline"
                   >
-                    {data.produto.codigoPdm || data.produtoCodigo} — {data.produto.descricao || data.produtoDescricao}
+                    {data.produto.codigoPdm || data.produtoCodigo} —{" "}
+                    {data.produto.descricao || data.produtoDescricao}
                   </Link>
                 ) : (
                   <p className="font-medium">
-                    {data.produtoCodigo || "—"}{data.produtoDescricao ? ` — ${data.produtoDescricao}` : ""}
+                    {data.produtoCodigo || "—"}
+                    {data.produtoDescricao ? ` — ${data.produtoDescricao}` : ""}
                   </p>
                 )}
               </div>
@@ -137,7 +148,9 @@ export default function DetalheRequisicaoAmostraComercialPage() {
               <div>
                 <p className="text-slate-500 dark:text-slate-400">Prazo Desejado</p>
                 <p className="font-medium">
-                  {data.prazoDesejado ? new Date(data.prazoDesejado).toLocaleDateString("pt-BR") : "—"}
+                  {data.prazoDesejado
+                    ? new Date(data.prazoDesejado).toLocaleDateString("pt-BR")
+                    : "—"}
                 </p>
               </div>
               <div>
@@ -172,12 +185,24 @@ export default function DetalheRequisicaoAmostraComercialPage() {
           {historico.length > 0 ? (
             <div className="space-y-4 max-h-96 overflow-y-auto">
               {historico.map((h) => (
-                <div key={h.id ?? `${h.data}-${h.acao || h.status}`} className="border-l-2 border-slate-200 dark:border-slate-700 pl-3">
+                <div
+                  key={h.id ?? `${h.data}-${h.acao || h.status}`}
+                  className="border-l-2 border-slate-200 dark:border-slate-700 pl-3"
+                >
                   <p className="text-sm font-medium">{h.acao || h.status || "Atualização"}</p>
                   {h.descricao && <p className="text-xs text-slate-600 mt-0.5">{h.descricao}</p>}
-                  {h.observacao && <p className="text-xs text-slate-500 mt-0.5 italic">&ldquo;{h.observacao}&rdquo;</p>}
+                  {h.observacao && (
+                    <p className="text-xs text-slate-500 mt-0.5 italic">
+                      &ldquo;{h.observacao}&rdquo;
+                    </p>
+                  )}
                   <p className="text-xs text-slate-400 mt-1">
-                    {h.usuario && <><User size={10} className="inline mr-0.5" />{h.usuario} — </>}
+                    {h.usuario && (
+                      <>
+                        <User size={10} className="inline mr-0.5" />
+                        {h.usuario} —{" "}
+                      </>
+                    )}
                     {h.data ? new Date(h.data).toLocaleString("pt-BR") : ""}
                   </p>
                 </div>

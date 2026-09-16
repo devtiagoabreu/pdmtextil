@@ -25,7 +25,8 @@ describe("EditarLicaoPage", () => {
     navMock.setPathname("/processos/treinamento/admin/10")
     navMock.setParams({ id: "10" })
     const handler = ({ method, url }: { method: string; url: string }) => {
-      if (method === "GET" && url === "/api/processos/treinamento/modulos") return { json: [{ id: 1, titulo: "Visão Geral" }] }
+      if (method === "GET" && url === "/api/processos/treinamento/modulos")
+        return { json: [{ id: 1, titulo: "Visão Geral" }] }
       if (method === "GET" && url === "/api/processos/treinamento/10") return { json: licao }
       if (method === "PUT" && url === "/api/processos/treinamento/10") return { json: { ok: true } }
       return { json: null }
@@ -51,7 +52,9 @@ describe("EditarLicaoPage", () => {
     fireEvent.change(screen.getByDisplayValue("O que é um processo"), { target: { value: "" } })
     fireEvent.submit(container.querySelector("form")!)
 
-    await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Módulo e título são obrigatórios"))
+    await waitFor(() =>
+      expect(toastMock.error).toHaveBeenCalledWith("Módulo e título são obrigatórios")
+    )
     expect(findCall(fetchMock.calls, "/api/processos/treinamento/10", "PUT")).toBeUndefined()
   })
 

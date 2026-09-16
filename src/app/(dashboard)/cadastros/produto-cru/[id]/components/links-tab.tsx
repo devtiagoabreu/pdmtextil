@@ -17,10 +17,7 @@ export function LinksTab({ links, onChangeLinks, saving, isEditing }: Props) {
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
-        <LinksEditor
-          links={links}
-          onChange={onChangeLinks}
-        />
+        <LinksEditor links={links} onChange={onChangeLinks} />
       </div>
 
       <div className="flex gap-4">
@@ -29,7 +26,9 @@ export function LinksTab({ links, onChangeLinks, saving, isEditing }: Props) {
           {isEditing ? "Atualizar" : "Salvar"}
         </Button>
         <Link href="/cadastros/produto-cru">
-          <Button variant="outline" type="button">Cancelar</Button>
+          <Button variant="outline" type="button">
+            Cancelar
+          </Button>
         </Link>
       </div>
     </div>

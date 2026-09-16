@@ -31,7 +31,10 @@ export async function POST(req: NextRequest) {
     const { periodo, valorPrevisto, valorReal, dados } = body
 
     if (!periodo || valorPrevisto === undefined) {
-      return NextResponse.json({ error: "periodo e valorPrevisto são obrigatórios" }, { status: 400 })
+      return NextResponse.json(
+        { error: "periodo e valorPrevisto são obrigatórios" },
+        { status: 400 }
+      )
     }
 
     const [previsao] = await db

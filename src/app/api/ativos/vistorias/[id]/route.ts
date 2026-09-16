@@ -6,10 +6,7 @@ import { eq } from "drizzle-orm"
 import { registrarLog, notificarDelecao } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -32,10 +29,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -58,8 +52,10 @@ export async function PUT(
       .update(ativosVistorias)
       .set({
         status: body.status !== undefined ? body.status : existente.status,
-        dataProgramada: body.dataProgramada !== undefined ? body.dataProgramada : existente.dataProgramada,
-        executadoPorId: body.executadoPorId !== undefined ? body.executadoPorId : existente.executadoPorId,
+        dataProgramada:
+          body.dataProgramada !== undefined ? body.dataProgramada : existente.dataProgramada,
+        executadoPorId:
+          body.executadoPorId !== undefined ? body.executadoPorId : existente.executadoPorId,
         observacoes: body.observacoes !== undefined ? body.observacoes : existente.observacoes,
         updatedAt: new Date(),
       })
@@ -81,10 +77,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth

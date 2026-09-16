@@ -32,7 +32,9 @@ export default function DetalheSolicitacaoPage() {
   const [novoStatus, setNovoStatus] = useState("")
   const [statusLoading, setStatusLoading] = useState(false)
   const [statusOptions, setStatusOptions] = useState<{ value: string; label: string }[]>([])
-  const { getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
+  const { getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses(
+    "SOLICITACAO_DESENVOLVIMENTO"
+  )
 
   useEffect(() => {
     fetch("/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO")
@@ -61,7 +63,12 @@ export default function DetalheSolicitacaoPage() {
     carregarProdutos()
   }, [id])
 
-  const { data: sol, isLoading, error, refetch } = useQuery({
+  const {
+    data: sol,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ["solicitacao", id],
     queryFn: () => fetchSolicitacao(id),
     enabled: mounted && !!id,
@@ -132,7 +139,10 @@ export default function DetalheSolicitacaoPage() {
     return (
       <div className="text-center py-20">
         <p className="text-red-500">Erro ao carregar solicitação</p>
-        <Link href="/comercial/solicitacoes" className="text-blue-600 hover:underline mt-2 inline-block">
+        <Link
+          href="/comercial/solicitacoes"
+          className="text-blue-600 hover:underline mt-2 inline-block"
+        >
           Voltar à lista
         </Link>
       </div>
@@ -224,14 +234,18 @@ export default function DetalheSolicitacaoPage() {
       <ConfirmModal
         open={deleteTarget !== null}
         title={deleteBlocked ? "Exclusão não permitida" : "Excluir solicitação?"}
-        message={deleteBlocked
-          ? "Esta solicitação possui cadastros vinculados e não pode ser excluída."
-          : (deleteTarget?.anexos?.length ?? 0) > 0
-            ? `Esta solicitação possui ${deleteTarget?.anexos?.length} link(s) anexado(s). Ao excluir, os links também serão removidos. Continuar?`
-            : `Tem certeza que deseja excluir esta solicitação?`}
-        subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
-          : undefined}
+        message={
+          deleteBlocked
+            ? "Esta solicitação possui cadastros vinculados e não pode ser excluída."
+            : (deleteTarget?.anexos?.length ?? 0) > 0
+              ? `Esta solicitação possui ${deleteTarget?.anexos?.length} link(s) anexado(s). Ao excluir, os links também serão removidos. Continuar?`
+              : `Tem certeza que deseja excluir esta solicitação?`
+        }
+        subMessage={
+          deleteBlocked
+            ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+            : undefined
+        }
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}
         loading={deleteLoading}

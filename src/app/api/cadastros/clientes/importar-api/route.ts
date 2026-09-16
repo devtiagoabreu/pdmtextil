@@ -39,12 +39,10 @@ export async function POST(req: NextRequest) {
         continue
       }
 
-      const existing = await db.select({ id: clientes.id })
+      const existing = await db
+        .select({ id: clientes.id })
         .from(clientes)
-        .where(or(
-          eq(clientes.idIntegracao, String(keyValue)),
-          eq(clientes.cnpj, String(keyValue)),
-        ))
+        .where(or(eq(clientes.idIntegracao, String(keyValue)), eq(clientes.cnpj, String(keyValue))))
         .limit(1)
 
       if (existing.length > 0) {

@@ -1,6 +1,9 @@
 "use client"
 
-import { exportTreinamentoCompletoPdf as exportarCompleto, exportLicaoPdf as exportarLicao } from "./export-treinamento-pdf"
+import {
+  exportTreinamentoCompletoPdf as exportarCompleto,
+  exportLicaoPdf as exportarLicao,
+} from "./export-treinamento-pdf"
 import type { TreinamentoContexto } from "./export-treinamento-pdf"
 
 export const contextoProcessos: TreinamentoContexto = {
@@ -14,7 +17,9 @@ export const contextoProcessos: TreinamentoContexto = {
   moduloTituloHeader: "Treinamento Engenharia de Processos",
 }
 
-export async function exportTreinamentoCompletoPdf(modulos: Parameters<typeof exportarCompleto>[0]) {
+export async function exportTreinamentoCompletoPdf(
+  modulos: Parameters<typeof exportarCompleto>[0]
+) {
   return exportarCompleto(modulos, contextoProcessos)
 }
 

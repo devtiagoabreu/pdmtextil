@@ -6,7 +6,22 @@ import { useRouter, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
-import { ArrowLeft, Save, Trash2, Building2, Search, UserPlus, Users, Loader2, X, Mail, Phone, MapPin, Plus, Unlink } from "lucide-react"
+import {
+  ArrowLeft,
+  Save,
+  Trash2,
+  Building2,
+  Search,
+  UserPlus,
+  Users,
+  Loader2,
+  X,
+  Mail,
+  Phone,
+  MapPin,
+  Plus,
+  Unlink,
+} from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { SelectSegmento } from "@/components/crm/select-segmento"
@@ -108,7 +123,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
         const err = await res.json().catch(() => null)
         throw new Error(err?.error || "Erro ao criar contato")
       }
-      const novo = await res.json() as Contato
+      const novo = (await res.json()) as Contato
       setContatos((prev) => [...prev, novo])
       toast.success("Contato adicionado e vinculado ao cliente")
     } catch (err) {
@@ -129,7 +144,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
         const err = await res.json().catch(() => null)
         throw new Error(err?.error || "Erro ao vincular")
       }
-      const atualizado = await res.json() as Contato
+      const atualizado = (await res.json()) as Contato
       setContatos((prev) => [...prev, atualizado])
       setOrfaos((prev) => prev.filter((c) => c.id !== contatoId))
       setContatoSelecionado("")
@@ -150,7 +165,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
         const err = await res.json().catch(() => null)
         throw new Error(err?.error || "Erro ao desvincular")
       }
-      const atualizado = await res.json() as Contato
+      const atualizado = (await res.json()) as Contato
       setContatos((prev) => prev.filter((c) => c.id !== contatoId))
       setOrfaos((prev) => [...prev, atualizado])
       toast.success("Contato desvinculado do cliente")
@@ -199,7 +214,9 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
 
   async function removeRepresentante(vinculo: VinculoRepresentante) {
     try {
-      await fetch(`/api/clientes/${id}/representantes?vinculoId=${vinculo.id}`, { method: "DELETE" })
+      await fetch(`/api/clientes/${id}/representantes?vinculoId=${vinculo.id}`, {
+        method: "DELETE",
+      })
       queryClient.invalidateQueries({ queryKey: ["cliente-representantes", id] })
       toast.success("Representante removido do cliente")
     } catch {
@@ -235,11 +252,11 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
   }
 
   const handleChange = (field: keyof Cliente, value: string) => {
-    setCliente((prev) => prev ? { ...prev, [field]: value } : null)
+    setCliente((prev) => (prev ? { ...prev, [field]: value } : null))
   }
 
   const handleCheckboxChange = (field: keyof Cliente, checked: boolean) => {
-    setCliente((prev) => prev ? { ...prev, [field]: checked } : null)
+    setCliente((prev) => (prev ? { ...prev, [field]: checked } : null))
   }
 
   async function handleDelete() {
@@ -288,7 +305,9 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
             <Building2 className="w-5 h-5 text-blue-600 dark:text-blue-400" />
           </div>
           <div>
-            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Editar Cliente{info && <InfoButton content={info} />}</h1>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+              Editar Cliente{info && <InfoButton content={info} />}
+            </h1>
             <p className="text-sm text-slate-500">{cliente.nome}</p>
           </div>
         </div>
@@ -337,7 +356,10 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
               <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
                 Segmento
               </label>
-              <SelectSegmento value={cliente.segmento || ""} onChange={v => handleChange("segmento", v)} />
+              <SelectSegmento
+                value={cliente.segmento || ""}
+                onChange={(v) => handleChange("segmento", v)}
+              />
             </div>
 
             <div className="space-y-2">
@@ -413,9 +435,7 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                UF
-              </label>
+              <label className="text-sm font-medium text-slate-700 dark:text-slate-300">UF</label>
               <input
                 type="text"
                 value={cliente.uf || ""}
@@ -486,9 +506,15 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
                     className="flex items-center justify-between w-full px-4 py-2.5 text-sm hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left"
                   >
                     <div>
-                      <span className="font-medium text-slate-900 dark:text-slate-100">{r.nome}</span>
+                      <span className="font-medium text-slate-900 dark:text-slate-100">
+                        {r.nome}
+                      </span>
                       <span className="text-slate-400 ml-2">{r.cnpj}</span>
-                      {r.cidade && <span className="text-slate-400 ml-2">{r.cidade}/{r.uf}</span>}
+                      {r.cidade && (
+                        <span className="text-slate-400 ml-2">
+                          {r.cidade}/{r.uf}
+                        </span>
+                      )}
                     </div>
                     <UserPlus size={14} className="text-blue-500 shrink-0" />
                   </button>
@@ -504,33 +530,64 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
               <div className="flex flex-col items-center justify-center py-6 text-center">
                 <Users className="w-8 h-8 text-slate-300 dark:text-slate-700 mb-2" />
                 <p className="text-sm text-slate-500">Nenhum representante vinculado</p>
-                <p className="text-xs text-slate-400 mt-1">Busque acima para vincular representantes</p>
+                <p className="text-xs text-slate-400 mt-1">
+                  Busque acima para vincular representantes
+                </p>
               </div>
             ) : (
               <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
                 <table className="w-full">
                   <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                     <tr>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Nome</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">CNPJ</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Contato</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Cidade/UF</th>
-                      <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Ações</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">
+                        Nome
+                      </th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">
+                        CNPJ
+                      </th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">
+                        Contato
+                      </th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">
+                        Cidade/UF
+                      </th>
+                      <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-3">
+                        Ações
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {vinculos.map((v) => (
                       <tr key={v.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                        <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-200">{v.nome}</td>
+                        <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-200">
+                          {v.nome}
+                        </td>
                         <td className="p-3 text-sm text-slate-500 font-mono">{v.cnpj || "—"}</td>
                         <td className="p-3 text-sm text-slate-500">
                           <div className="flex flex-col gap-0.5">
-                            {v.email && <span className="flex items-center gap-1"><Mail size={12} />{v.email}</span>}
-                            {v.telefone && <span className="flex items-center gap-1"><Phone size={12} />{v.telefone}</span>}
+                            {v.email && (
+                              <span className="flex items-center gap-1">
+                                <Mail size={12} />
+                                {v.email}
+                              </span>
+                            )}
+                            {v.telefone && (
+                              <span className="flex items-center gap-1">
+                                <Phone size={12} />
+                                {v.telefone}
+                              </span>
+                            )}
                           </div>
                         </td>
                         <td className="p-3 text-sm text-slate-500">
-                          {v.cidade ? <span className="flex items-center gap-1"><MapPin size={12} />{v.cidade}/{v.uf}</span> : "—"}
+                          {v.cidade ? (
+                            <span className="flex items-center gap-1">
+                              <MapPin size={12} />
+                              {v.cidade}/{v.uf}
+                            </span>
+                          ) : (
+                            "—"
+                          )}
                         </td>
                         <td className="p-3 text-right">
                           <button
@@ -598,29 +655,44 @@ export default function EditarClientePage({ params }: { params: Promise<{ id: st
               <div className="flex flex-col items-center justify-center py-6 text-center">
                 <Users className="w-8 h-8 text-slate-300 dark:text-slate-700 mb-2" />
                 <p className="text-sm text-slate-500">Nenhum contato vinculado</p>
-                <p className="text-xs text-slate-400 mt-1">Vincule um contato existente ou adicione um novo</p>
+                <p className="text-xs text-slate-400 mt-1">
+                  Vincule um contato existente ou adicione um novo
+                </p>
               </div>
             ) : (
               <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
                 <table className="w-full">
                   <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                     <tr>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Nome</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Email</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Telefone</th>
-                      <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Ações</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">
+                        Nome
+                      </th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">
+                        Email
+                      </th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">
+                        Telefone
+                      </th>
+                      <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-3">
+                        Ações
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                     {contatos.map((c) => (
                       <tr key={c.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                         <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-200">
-                          <Link href={`/comercial/crm/contatos/${c.id}`} className="hover:underline">
+                          <Link
+                            href={`/comercial/crm/contatos/${c.id}`}
+                            className="hover:underline"
+                          >
                             {c.nome}
                           </Link>
                         </td>
                         <td className="p-3 text-sm text-slate-500">{c.email || "—"}</td>
-                        <td className="p-3 text-sm text-slate-500">{c.telefone || c.celular || "—"}</td>
+                        <td className="p-3 text-sm text-slate-500">
+                          {c.telefone || c.celular || "—"}
+                        </td>
                         <td className="p-3 text-right">
                           <button
                             onClick={() => removerContato(c.id)}

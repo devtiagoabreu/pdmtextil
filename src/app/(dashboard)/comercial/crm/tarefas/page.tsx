@@ -4,8 +4,18 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { usePathname, useSearchParams } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import {Suspense, useState} from "react"
-import { PlusCircle, ListChecks, CheckCircle2, Circle, Loader2, Table, Columns, Users, User } from "lucide-react"
+import { Suspense, useState } from "react"
+import {
+  PlusCircle,
+  ListChecks,
+  CheckCircle2,
+  Circle,
+  Loader2,
+  Table,
+  Columns,
+  Users,
+  User,
+} from "lucide-react"
 import CriarTarefaDialog from "./criar-dialog"
 import TarefasKanban from "@/components/crm/tarefas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
@@ -60,7 +70,9 @@ function TarefasPageContent() {
   const info = getInfoContent(pathname)
   const [filtro, setFiltro] = useState("pendentes")
   const [dialogOpen, setDialogOpen] = useState(false)
-  const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
+  const [modo, setModo] = useState<"tabela" | "kanban">(
+    searchParams.get("view") === "kanban" ? "kanban" : "tabela"
+  )
 
   const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("minhas")
 
@@ -104,7 +116,9 @@ function TarefasPageContent() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Tarefas{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Tarefas{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {isLoading ? "Carregando..." : `${tarefas?.length || 0} tarefa(s)`}
           </p>
@@ -169,93 +183,104 @@ function TarefasPageContent() {
       </div>
 
       {modo === "tabela" && (
-      <>
-      <div className="flex gap-2 flex-wrap">
-        {FILTROS.map((f) => (
-          <button
-            key={f.key}
-            onClick={() => setFiltro(f.key)}
-            className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${filtro === f.key ? "bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"}`}
-          >
-            {f.label}
-          </button>
-        ))}
-      </div>
+        <>
+          <div className="flex gap-2 flex-wrap">
+            {FILTROS.map((f) => (
+              <button
+                key={f.key}
+                onClick={() => setFiltro(f.key)}
+                className={`px-3 py-1.5 text-sm rounded-lg font-medium transition-colors ${filtro === f.key ? "bg-blue-600 text-white" : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 hover:bg-slate-200 dark:hover:bg-slate-700"}`}
+              >
+                {f.label}
+              </button>
+            ))}
+          </div>
 
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
-        {isLoading ? (
-          <div className="flex justify-center py-20">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
-          </div>
-        ) : !tarefas?.length ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <ListChecks className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma tarefa encontrada</p>
-          </div>
-        ) : (
-          <div className="divide-y divide-slate-100 dark:divide-slate-800">
-            {tarefas.map((t) => {
-              const isConcluida = t.status === "CONCLUIDO"
-              return (
-                <div
-                  key={t.id}
-                  className={`flex items-start gap-3 px-4 py-3.5 ${isConcluida ? "opacity-60" : ""}`}
-                >
-                  <button
-                    onClick={() => isConcluida ? reabrirMutation.mutate(t.id) : concluirMutation.mutate(t.id)}
-                    className="mt-0.5 shrink-0"
-                    title={isConcluida ? "Reabrir" : "Concluir"}
-                  >
-                    {isConcluida ? (
-                      <CheckCircle2 className="w-5 h-5 text-green-500" />
-                    ) : (
-                      <Circle className="w-5 h-5 text-slate-300 dark:text-slate-600 hover:text-blue-500 transition-colors" />
-                    )}
-                  </button>
-                  <div className="flex-1 min-w-0">
-                    <p className={`text-sm font-medium ${isConcluida ? "line-through text-slate-400" : "text-slate-900 dark:text-slate-200"}`}>
-                      {t.titulo}
-                    </p>
-                    {t.descricao && (
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">{t.descricao}</p>
-                    )}
-                    <div className="flex flex-wrap gap-2 mt-1.5">
-                      <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${TIPO_CORES[t.tipo] || ""}`}>
-                        {TIPO_LABELS[t.tipo] || t.tipo}
-                      </span>
-                      {t.dataPrevista && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">
-                          {new Date(t.dataPrevista + "T12:00:00").toLocaleDateString("pt-BR")}
-                        </span>
-                      )}
-                      {t.empresaNome && (
-                        <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">
-                          {t.empresaNome}
-                        </span>
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+            {isLoading ? (
+              <div className="flex justify-center py-20">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+              </div>
+            ) : !tarefas?.length ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <ListChecks className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                  Nenhuma tarefa encontrada
+                </p>
+              </div>
+            ) : (
+              <div className="divide-y divide-slate-100 dark:divide-slate-800">
+                {tarefas.map((t) => {
+                  const isConcluida = t.status === "CONCLUIDO"
+                  return (
+                    <div
+                      key={t.id}
+                      className={`flex items-start gap-3 px-4 py-3.5 ${isConcluida ? "opacity-60" : ""}`}
+                    >
+                      <button
+                        onClick={() =>
+                          isConcluida ? reabrirMutation.mutate(t.id) : concluirMutation.mutate(t.id)
+                        }
+                        className="mt-0.5 shrink-0"
+                        title={isConcluida ? "Reabrir" : "Concluir"}
+                      >
+                        {isConcluida ? (
+                          <CheckCircle2 className="w-5 h-5 text-green-500" />
+                        ) : (
+                          <Circle className="w-5 h-5 text-slate-300 dark:text-slate-600 hover:text-blue-500 transition-colors" />
+                        )}
+                      </button>
+                      <div className="flex-1 min-w-0">
+                        <p
+                          className={`text-sm font-medium ${isConcluida ? "line-through text-slate-400" : "text-slate-900 dark:text-slate-200"}`}
+                        >
+                          {t.titulo}
+                        </p>
+                        {t.descricao && (
+                          <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 line-clamp-2">
+                            {t.descricao}
+                          </p>
+                        )}
+                        <div className="flex flex-wrap gap-2 mt-1.5">
+                          <span
+                            className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${TIPO_CORES[t.tipo] || ""}`}
+                          >
+                            {TIPO_LABELS[t.tipo] || t.tipo}
+                          </span>
+                          {t.dataPrevista && (
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500">
+                              {new Date(t.dataPrevista + "T12:00:00").toLocaleDateString("pt-BR")}
+                            </span>
+                          )}
+                          {t.empresaNome && (
+                            <span className="text-[10px] px-2 py-0.5 rounded-full bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400">
+                              {t.empresaNome}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                      {concluirMutation.isPending && (
+                        <Loader2 className="w-4 h-4 animate-spin text-slate-400 shrink-0" />
                       )}
                     </div>
-                  </div>
-                  {concluirMutation.isPending && (
-                    <Loader2 className="w-4 h-4 animate-spin text-slate-400 shrink-0" />
-                  )}
-                </div>
-              )
-            })}
+                  )
+                })}
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      </>
+        </>
       )}
 
-      {modo === "kanban" && (
-        isLoading ? (
+      {modo === "kanban" &&
+        (isLoading ? (
           <div className="flex justify-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
         ) : (
-          <FloatableKanban tipo="TAREFA"><TarefasKanban tarefas={tarefas || []} /></FloatableKanban>
-        )
-      )}
+          <FloatableKanban tipo="TAREFA">
+            <TarefasKanban tarefas={tarefas || []} />
+          </FloatableKanban>
+        ))}
 
       <CriarTarefaDialog open={dialogOpen} onClose={() => setDialogOpen(false)} />
     </div>

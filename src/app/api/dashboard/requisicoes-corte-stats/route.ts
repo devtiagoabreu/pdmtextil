@@ -19,22 +19,25 @@ export async function GET() {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const [
-      statusRaw,
-      itensRaw,
-      trendRaw,
-    ] = await Promise.all([
-      q(sql`
+    const [statusRaw, itensRaw, trendRaw] = await Promise.all([
+      q(
+        sql`
         SELECT status, COUNT(*)::int AS total
         FROM requisicoes_corte GROUP BY status
-      `, []),
-      q(sql`
+      `,
+        []
+      ),
+      q(
+        sql`
         SELECT
           COUNT(*)::int AS total_cortes,
           COALESCE(SUM(NULLIF(REGEXP_REPLACE(COALESCE(quantidade,'0'), '[^0-9\\.]', '', 'g'), '')::numeric), 0) AS total_itens
         FROM requisicoes_corte_itens
-      `, []),
-      q(sql`
+      `,
+        []
+      ),
+      q(
+        sql`
         SELECT
           to_char(created_at, 'YYYY-MM') AS mes,
           COUNT(*)::int AS total
@@ -42,7 +45,9 @@ export async function GET() {
         WHERE created_at >= date_trunc('month', now()) - INTERVAL '5 months'
         GROUP BY to_char(created_at, 'YYYY-MM')
         ORDER BY mes
-      `, []),
+      `,
+        []
+      ),
     ])
 
     const statusRows = Array.isArray(statusRaw) ? statusRaw : []
@@ -75,14 +80,20 @@ export async function GET() {
       totalItens: itensRows ? Number(itensRows.total_itens) : 0,
       totalCortes: itensRows ? Number(itensRows.total_cortes) : 0,
       totalEsteMes,
-      statusDistribution: statusRows.map((r: any) => ({ status: r.status, total: Number(r.total) })),
+      statusDistribution: statusRows.map((r: any) => ({
+        status: r.status,
+        total: Number(r.total),
+      })),
       monthlyTrend: trendData,
     })
   } catch (error) {
     console.error("[GET /api/dashboard/requisicoes-corte-stats]", error)
-    return NextResponse.json({
-      error: "Erro interno",
-      detail: error instanceof Error ? error.message : String(error),
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Erro interno",
+        detail: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 }
+    )
   }
 }

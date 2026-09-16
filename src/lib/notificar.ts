@@ -7,8 +7,11 @@ import { and } from "drizzle-orm"
 import { sendEmail } from "./email"
 import { registrarLog } from "./log"
 
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL
-  || (process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://pdmprotextil.vercel.app")
+const SITE_URL =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  (process.env.NODE_ENV === "development"
+    ? "http://localhost:3000"
+    : "https://pdmprotextil.vercel.app")
 
 export async function notificar(
   tipo: string,
@@ -57,7 +60,9 @@ export async function notificar(
 
   await db.insert(notificacoes).values(notificacoesData)
 
-  const emailsValidos = usuariosFiltrados.map((u: any) => u.email).filter((e: any): e is string => !!e && e.includes("@"))
+  const emailsValidos = usuariosFiltrados
+    .map((u: any) => u.email)
+    .filter((e: any): e is string => !!e && e.includes("@"))
   if (emailsValidos.length > 0) {
     const result = await sendEmail({
       to: emailsValidos,
@@ -71,7 +76,9 @@ ${link ? `<p><a href="${SITE_URL}${link}" style="background:#1e3a5f;color:#fff;p
 </div>`,
     })
     if (result.error) {
-      console.error(`[NOTIFICAR] Email enviado para ${result.sent} de ${emailsValidos.length} usuários. Erro: ${result.error}`)
+      console.error(
+        `[NOTIFICAR] Email enviado para ${result.sent} de ${emailsValidos.length} usuários. Erro: ${result.error}`
+      )
     } else {
       console.log(`[NOTIFICAR] Email enviado com sucesso para ${result.sent} usuários`)
     }

@@ -21,7 +21,11 @@ export default function ConversoresPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [valores, setValores] = useState<Record<string, string>>({
-    ne: "", nm: "", tex: "", dtex: "", denier: "",
+    ne: "",
+    nm: "",
+    tex: "",
+    dtex: "",
+    denier: "",
   })
 
   function atualizar(origem: Origem, valor: string) {
@@ -31,7 +35,11 @@ export default function ConversoresPage() {
       return
     }
 
-    let ne = 0, nm = 0, tex = 0, dtex = 0, denier = 0
+    let ne = 0,
+      nm = 0,
+      tex = 0,
+      dtex = 0,
+      denier = 0
 
     switch (origem) {
       case "ne":
@@ -72,7 +80,11 @@ export default function ConversoresPage() {
     }
 
     setValores({
-      ne: fmt(ne), nm: fmt(nm), tex: fmt(tex), dtex: fmt(dtex), denier: fmt(denier),
+      ne: fmt(ne),
+      nm: fmt(nm),
+      tex: fmt(tex),
+      dtex: fmt(dtex),
+      denier: fmt(denier),
     })
   }
 
@@ -84,15 +96,22 @@ export default function ConversoresPage() {
   return (
     <div className="max-w-xl mx-auto space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link href="/ferramentas" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link
+          href="/ferramentas"
+          className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={20} />
         </Link>
         <div>
           <div className="flex items-center gap-2">
             <Repeat className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Numeração de Fio{info && <InfoButton content={info} />}</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+              Numeração de Fio{info && <InfoButton content={info} />}
+            </h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">Conversão entre Ne · Nm · Tex · Dtex · Denier</p>
+          <p className="text-sm text-slate-500 mt-1">
+            Conversão entre Ne · Nm · Tex · Dtex · Denier
+          </p>
         </div>
       </div>
 
@@ -108,7 +127,7 @@ export default function ConversoresPage() {
               <input
                 type="number"
                 value={valores[origem]}
-                onChange={e => atualizar(origem, e.target.value)}
+                onChange={(e) => atualizar(origem, e.target.value)}
                 placeholder="0"
                 className="flex-1 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-base font-mono text-right"
               />

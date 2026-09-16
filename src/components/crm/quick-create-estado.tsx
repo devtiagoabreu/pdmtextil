@@ -4,7 +4,12 @@ import { useState } from "react"
 import { Plus, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import {
-  Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
 } from "@/components/ui/dialog"
 
 type Props = {
@@ -63,21 +68,25 @@ export function QuickCreateEstado({ onCreated }: Props) {
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Nome *
+            </label>
             <input
               type="text"
               value={nome}
-              onChange={e => setNome(e.target.value)}
+              onChange={(e) => setNome(e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UF *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              UF *
+            </label>
             <input
               type="text"
               value={uf}
-              onChange={e => setUf(e.target.value.toUpperCase())}
+              onChange={(e) => setUf(e.target.value.toUpperCase())}
               maxLength={2}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 uppercase"
               required

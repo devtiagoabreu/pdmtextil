@@ -45,24 +45,34 @@ describe("POST /api/admin/email-massa/listas/[id]/importar", () => {
 
   it("retorna 401 sem sessão de admin", async () => {
     vi.mocked(getServerSession).mockResolvedValue(null as any)
-    const res = await POST(makeRequest(csv("nome;email", ["Ana;a@x.com"])), { params: Promise.resolve({ id: "7" }) })
+    const res = await POST(makeRequest(csv("nome;email", ["Ana;a@x.com"])), {
+      params: Promise.resolve({ id: "7" }),
+    })
     expect(res.status).toBe(401)
   })
 
   it("separa contato com múltiplos emails por ponto e vírgula em uma linha por email", async () => {
-    const { data, values } = await inserir(csv("nome;email", [
-      "TIAGO ABREU;devtiagoabreu@gmail.com;faturamento@promodatextil.com.br",
-    ]))
+    const { data, values } = await inserir(
+      csv("nome;email", ["TIAGO ABREU;devtiagoabreu@gmail.com;faturamento@promodatextil.com.br"])
+    )
     expect(data.importados).toBe(2)
     expect(values).toHaveLength(2)
-    expect(values[0]).toMatchObject({ listaId: 7, nome: "TIAGO ABREU", email: "devtiagoabreu@gmail.com" })
-    expect(values[1]).toMatchObject({ listaId: 7, nome: "TIAGO ABREU", email: "faturamento@promodatextil.com.br" })
+    expect(values[0]).toMatchObject({
+      listaId: 7,
+      nome: "TIAGO ABREU",
+      email: "devtiagoabreu@gmail.com",
+    })
+    expect(values[1]).toMatchObject({
+      listaId: 7,
+      nome: "TIAGO ABREU",
+      email: "faturamento@promodatextil.com.br",
+    })
   })
 
   it("separa emails separados por vírgula dentro da célula do email", async () => {
-    const { data, values } = await inserir(csv("nome;email", [
-      "TIAGO ABREU;devtiagoabreu@gmail.com,faturamento@promodatextil.com.br",
-    ]))
+    const { data, values } = await inserir(
+      csv("nome;email", ["TIAGO ABREU;devtiagoabreu@gmail.com,faturamento@promodatextil.com.br"])
+    )
     expect(data.importados).toBe(2)
     expect(values.map((v: any) => v.email)).toEqual([
       "devtiagoabreu@gmail.com",

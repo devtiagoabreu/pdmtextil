@@ -29,7 +29,10 @@ export async function GET() {
       })
       .from(requisicoesCorte)
       .leftJoin(usuarios, eq(requisicoesCorte.requisitanteId, usuarios.id))
-      .leftJoin(requisicoesCorteItens, eq(requisicoesCorteItens.requisicaoCorteId, requisicoesCorte.id))
+      .leftJoin(
+        requisicoesCorteItens,
+        eq(requisicoesCorteItens.requisicaoCorteId, requisicoesCorte.id)
+      )
       .groupBy(requisicoesCorte.id, usuarios.name)
       .orderBy(desc(requisicoesCorte.createdAt))
 
@@ -50,7 +53,19 @@ export async function POST(req: NextRequest) {
     const body = await req.json()
     const parsed = validateRequest(requisicaoCorteSchema, body)
     if ("error" in parsed) return parsed.error
-    const { itens, observacoes, entreguePor, dataSolicitacao, dataEntrega, clienteId, clienteNome, fornecedorId, fornecedorNome, representanteId, representanteNome } = parsed.data
+    const {
+      itens,
+      observacoes,
+      entreguePor,
+      dataSolicitacao,
+      dataEntrega,
+      clienteId,
+      clienteNome,
+      fornecedorId,
+      fornecedorNome,
+      representanteId,
+      representanteNome,
+    } = parsed.data
 
     const [novaRequisicao] = await db
       .insert(requisicoesCorte)
@@ -97,7 +112,14 @@ export async function POST(req: NextRequest) {
       session.user.name
     )
 
-    await registrarLog({ tipo: "CADASTRO", acao: "criar", descricao: `Requisição de corte #${novaRequisicao.id} criada com ${itens.length} itens`, entidade: "RequisicaoCorte", entidadeId: novaRequisicao.id, usuarioNome: session.user.name })
+    await registrarLog({
+      tipo: "CADASTRO",
+      acao: "criar",
+      descricao: `Requisição de corte #${novaRequisicao.id} criada com ${itens.length} itens`,
+      entidade: "RequisicaoCorte",
+      entidadeId: novaRequisicao.id,
+      usuarioNome: session.user.name,
+    })
 
     return NextResponse.json(novaRequisicao, { status: 201 })
   } catch (error) {

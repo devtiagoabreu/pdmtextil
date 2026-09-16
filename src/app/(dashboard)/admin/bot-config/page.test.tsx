@@ -8,9 +8,30 @@ const config = {
   pj: [1],
   pf: [],
   usuarios: [
-    { id: 1, name: "Ana", email: "ana@empresa.com", role: "COMERCIAL", ativo: true, celWhatsapp: "5519999999999" },
-    { id: 2, name: "Beto", email: "beto@empresa.com", role: "COMERCIAL", ativo: true, celWhatsapp: null },
-    { id: 3, name: "Carla", email: "carla@empresa.com", role: "ADMIN", ativo: false, celWhatsapp: null },
+    {
+      id: 1,
+      name: "Ana",
+      email: "ana@empresa.com",
+      role: "COMERCIAL",
+      ativo: true,
+      celWhatsapp: "5519999999999",
+    },
+    {
+      id: 2,
+      name: "Beto",
+      email: "beto@empresa.com",
+      role: "COMERCIAL",
+      ativo: true,
+      celWhatsapp: null,
+    },
+    {
+      id: 3,
+      name: "Carla",
+      email: "carla@empresa.com",
+      role: "ADMIN",
+      ativo: false,
+      celWhatsapp: null,
+    },
   ],
   monitoramento: {
     ativo: true,
@@ -38,7 +59,9 @@ function setup() {
     if (method === "GET" && url === "/api/admin/bot-config") return { json: config }
     if (method === "PUT" && url === "/api/admin/bot-config") return { json: { ok: true } }
     if (method === "POST" && url === "/api/crm/whatsapp/monitorar-bot")
-      return { json: { verificado: true, online: true, instanciaStatus: "open", alertaEnviado: false } }
+      return {
+        json: { verificado: true, online: true, instanciaStatus: "open", alertaEnviado: false },
+      }
     return { status: 404, json: { error: "Rota não mockada" } }
   })
   vi.stubGlobal("fetch", fetchMock.fn)
@@ -50,7 +73,9 @@ describe("BotConfigAdminPage", () => {
     setup()
     renderPage(<BotConfigAdminPage />)
 
-    expect(await screen.findByRole("heading", { name: "Config Bot WhatsApp" }, { timeout: 5000 })).toBeInTheDocument()
+    expect(
+      await screen.findByRole("heading", { name: "Config Bot WhatsApp" }, { timeout: 5000 })
+    ).toBeInTheDocument()
     expect(screen.getByText("Pessoa Jurídica (PJ)")).toBeInTheDocument()
     expect(screen.getByText("Pessoa Física (PF)")).toBeInTheDocument()
     expect(screen.getAllByText("Ana")).toHaveLength(2)
@@ -63,7 +88,7 @@ describe("BotConfigAdminPage", () => {
     await screen.findByText("Pessoa Física (PF)", {}, { timeout: 5000 })
 
     const anas = screen.getAllByText("Ana")
-    const anaPf = anas.find(el => el.closest("section")?.textContent?.includes("Pessoa Física"))
+    const anaPf = anas.find((el) => el.closest("section")?.textContent?.includes("Pessoa Física"))
     const checkboxPf = anaPf!.closest("label")!.querySelector("input")!
     fireEvent.click(checkboxPf)
     fireEvent.click(screen.getByRole("button", { name: "Salvar Configuração" }))
@@ -73,16 +98,24 @@ describe("BotConfigAdminPage", () => {
       expect(call).toBeDefined()
       expect(call?.body?.pj).toEqual([1])
       expect(call?.body?.pf).toEqual([1])
-      expect(call?.body?.monitoramento).toEqual({ ativo: true, emailAlerta: true, notificacaoPdm: true })
+      expect(call?.body?.monitoramento).toEqual({
+        ativo: true,
+        emailAlerta: true,
+        notificacaoPdm: true,
+      })
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Configuração do bot salva!"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Configuração do bot salva!")
+    )
   })
 
   it("renderiza o card de monitoramento com badge, toggles e logs", async () => {
     setup()
     renderPage(<BotConfigAdminPage />)
 
-    expect(await screen.findByText("Monitoramento do Bot", {}, { timeout: 5000 })).toBeInTheDocument()
+    expect(
+      await screen.findByText("Monitoramento do Bot", {}, { timeout: 5000 })
+    ).toBeInTheDocument()
     expect(screen.getByText("Sem verificação ainda")).toBeInTheDocument()
     expect(screen.getByText("Monitoramento ativo (verificação diária no cron)")).toBeInTheDocument()
     expect(screen.getByText("Enviar alerta por email para os administradores")).toBeInTheDocument()
@@ -94,9 +127,14 @@ describe("BotConfigAdminPage", () => {
   it("desativa o monitoramento no toggle e envia em PUT", async () => {
     const fetchMock = setup()
     renderPage(<BotConfigAdminPage />)
-    await screen.findByText("Monitoramento ativo (verificação diária no cron)", {}, { timeout: 5000 })
+    await screen.findByText(
+      "Monitoramento ativo (verificação diária no cron)",
+      {},
+      { timeout: 5000 }
+    )
 
-    const label = screen.getByText("Monitoramento ativo (verificação diária no cron)")
+    const label = screen
+      .getByText("Monitoramento ativo (verificação diária no cron)")
       .closest("label")!
     fireEvent.click(label.querySelector("input")!)
     fireEvent.click(screen.getByRole("button", { name: "Salvar Configuração" }))

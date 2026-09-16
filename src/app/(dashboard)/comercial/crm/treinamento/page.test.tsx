@@ -14,7 +14,13 @@ const modulos = [
     ordem: 1,
     ativo: true,
     licoes: [
-      { id: 10, titulo: "Introdução ao CRM", ordem: 1, ativo: true, pathnameRelacionado: "/comercial/crm" },
+      {
+        id: 10,
+        titulo: "Introdução ao CRM",
+        ordem: 1,
+        ativo: true,
+        pathnameRelacionado: "/comercial/crm",
+      },
       { id: 11, titulo: "Lição Inativa", ordem: 2, ativo: false, pathnameRelacionado: null },
     ],
   },

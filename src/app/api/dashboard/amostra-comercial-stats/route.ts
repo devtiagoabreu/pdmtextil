@@ -57,9 +57,12 @@ export async function GET() {
     })
   } catch (error) {
     console.error("[GET /api/dashboard/amostra-comercial-stats]", error)
-    return NextResponse.json({
-      error: "Erro interno",
-      detail: error instanceof Error ? error.message : String(error),
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Erro interno",
+        detail: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 }
+    )
   }
 }

@@ -3,9 +3,7 @@ import type { HistoricoComunicacao } from "../../types"
 export function Historico({ historico }: { historico: HistoricoComunicacao[] | null | undefined }) {
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
-      <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">
-        Histórico
-      </h2>
+      <h2 className="text-lg font-semibold mb-4 flex items-center gap-2">Histórico</h2>
       {historico && historico.length > 0 ? (
         <div className="space-y-4 max-h-96 overflow-y-auto">
           {historico.map((h) => (

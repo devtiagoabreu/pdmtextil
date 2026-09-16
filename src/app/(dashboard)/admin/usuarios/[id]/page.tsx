@@ -34,7 +34,11 @@ export default function EditarUsuarioPage() {
   const [password, setPassword] = useState("")
   const [saving, setSaving] = useState(false)
 
-  const { data: userData, isLoading: loading, isError } = useQuery<any>({
+  const {
+    data: userData,
+    isLoading: loading,
+    isError,
+  } = useQuery<any>({
     queryKey: ["admin-usuario", id],
     queryFn: async () => {
       const res = await fetch(`/api/admin/usuarios/${id}`)
@@ -94,45 +98,77 @@ export default function EditarUsuarioPage() {
   }
 
   if (loading) {
-    return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-400" size={24} /></div>
+    return (
+      <div className="flex justify-center p-8">
+        <Loader2 className="animate-spin text-slate-400" size={24} />
+      </div>
+    )
   }
 
   return (
     <div className="max-w-xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
         <Link href="/admin/usuarios">
-          <Button variant="ghost" size="icon"><ArrowLeft size={20} /></Button>
+          <Button variant="ghost" size="icon">
+            <ArrowLeft size={20} />
+          </Button>
         </Link>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Editar Usuário{info && <InfoButton content={info} />}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+          Editar Usuário{info && <InfoButton content={info} />}
+        </h1>
       </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 bg-white dark:bg-slate-900">
         <div className="space-y-2">
           <Label>Nome</Label>
-          <Input value={name} onChange={e => setName(e.target.value)} />
+          <Input value={name} onChange={(e) => setName(e.target.value)} />
         </div>
         <div className="space-y-2">
           <Label>Email</Label>
-          <Input value={email} onChange={e => setEmail(e.target.value)} />
+          <Input value={email} onChange={(e) => setEmail(e.target.value)} />
         </div>
         <div className="space-y-2">
           <Label>Perfil (Role)</Label>
-          <select value={role} onChange={e => setRole(e.target.value)}
-            className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
-            {(roles ?? []).filter((r: any) => r.ativo).map((r: any) => <option key={r.name} value={r.name}>{r.label}</option>)}
+          <select
+            value={role}
+            onChange={(e) => setRole(e.target.value)}
+            className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+          >
+            {(roles ?? [])
+              .filter((r: any) => r.ativo)
+              .map((r: any) => (
+                <option key={r.name} value={r.name}>
+                  {r.label}
+                </option>
+              ))}
           </select>
         </div>
         <div className="flex items-center gap-2">
-          <input type="checkbox" id="ativo" checked={ativo} onChange={e => setAtivo(e.target.checked)} className="w-4 h-4" />
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={ativo}
+            onChange={(e) => setAtivo(e.target.checked)}
+            className="w-4 h-4"
+          />
           <Label htmlFor="ativo">Usuário Ativo</Label>
         </div>
         <div className="space-y-2">
           <Label>WhatsApp (celular do representante p/ notificações do bot)</Label>
-          <Input value={celWhatsapp} onChange={e => setCelWhatsapp(e.target.value)} placeholder="Ex.: 5519999999999" />
+          <Input
+            value={celWhatsapp}
+            onChange={(e) => setCelWhatsapp(e.target.value)}
+            placeholder="Ex.: 5519999999999"
+          />
         </div>
         <div className="space-y-2">
           <Label>Nova Senha (deixe em branco para manter)</Label>
-          <Input type="password" value={password} onChange={e => setPassword(e.target.value)} placeholder="Mínimo 6 caracteres" />
+          <Input
+            type="password"
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            placeholder="Mínimo 6 caracteres"
+          />
         </div>
 
         <div className="flex gap-2 pt-2">

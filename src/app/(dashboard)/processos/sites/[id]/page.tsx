@@ -127,7 +127,7 @@ export default function ProcessoSiteFormPage() {
   }
 
   const handleChange = (field: keyof Site, value: string | boolean) => {
-    setSite(prev => ({ ...prev, [field]: value }))
+    setSite((prev) => ({ ...prev, [field]: value }))
   }
 
   if (loading) {
@@ -156,16 +156,23 @@ export default function ProcessoSiteFormPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
-          <CampoInfo titulo="Empresa" sobre={siteCampos.empresaId} htmlFor="empresaId" obrigatorio />
+          <CampoInfo
+            titulo="Empresa"
+            sobre={siteCampos.empresaId}
+            htmlFor="empresaId"
+            obrigatorio
+          />
           <select
             id="empresaId"
             value={site.empresaId}
-            onChange={e => handleChange("empresaId", e.target.value)}
+            onChange={(e) => handleChange("empresaId", e.target.value)}
             className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
           >
             <option value="">Selecione a empresa</option>
             {empresas.map((empresa) => (
-              <option key={empresa.id} value={empresa.id}>{empresa.nome}</option>
+              <option key={empresa.id} value={empresa.id}>
+                {empresa.nome}
+              </option>
             ))}
           </select>
         </div>
@@ -176,7 +183,7 @@ export default function ProcessoSiteFormPage() {
             <Input
               id="nome"
               value={site.nome}
-              onChange={e => handleChange("nome", e.target.value)}
+              onChange={(e) => handleChange("nome", e.target.value)}
               placeholder="Unidade PDM Têxtil"
               required
             />
@@ -186,7 +193,7 @@ export default function ProcessoSiteFormPage() {
             <Input
               id="sigla"
               value={site.sigla || ""}
-              onChange={e => handleChange("sigla", e.target.value)}
+              onChange={(e) => handleChange("sigla", e.target.value)}
               placeholder="PDM"
               maxLength={10}
             />
@@ -199,7 +206,7 @@ export default function ProcessoSiteFormPage() {
             <Input
               id="cep"
               value={site.cep || ""}
-              onChange={e => handleChange("cep", e.target.value)}
+              onChange={(e) => handleChange("cep", e.target.value)}
               placeholder="00000-000"
             />
           </div>
@@ -208,7 +215,7 @@ export default function ProcessoSiteFormPage() {
             <Input
               id="endereco"
               value={site.endereco || ""}
-              onChange={e => handleChange("endereco", e.target.value)}
+              onChange={(e) => handleChange("endereco", e.target.value)}
               placeholder="Rua, número, bairro"
             />
           </div>
@@ -220,7 +227,7 @@ export default function ProcessoSiteFormPage() {
             <Input
               id="cidade"
               value={site.cidade || ""}
-              onChange={e => handleChange("cidade", e.target.value)}
+              onChange={(e) => handleChange("cidade", e.target.value)}
               placeholder="São Paulo"
             />
           </div>
@@ -229,7 +236,7 @@ export default function ProcessoSiteFormPage() {
             <Input
               id="uf"
               value={site.uf || ""}
-              onChange={e => handleChange("uf", e.target.value)}
+              onChange={(e) => handleChange("uf", e.target.value)}
               placeholder="SP"
               maxLength={2}
             />
@@ -237,7 +244,13 @@ export default function ProcessoSiteFormPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <input type="checkbox" id="ativo" checked={site.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={site.ativo}
+            onChange={(e) => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
           <Label htmlFor="ativo">Ativo</Label>
           <InfoButton content={siteCampos.ativo} />
         </div>
@@ -248,7 +261,9 @@ export default function ProcessoSiteFormPage() {
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
           <Link href="/processos/sites">
-            <Button variant="outline" type="button">Cancelar</Button>
+            <Button variant="outline" type="button">
+              Cancelar
+            </Button>
           </Link>
         </div>
       </form>

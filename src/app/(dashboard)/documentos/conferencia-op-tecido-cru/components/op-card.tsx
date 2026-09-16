@@ -75,22 +75,47 @@ export function OpCard({ grupo, expanded, onToggleExpand }: OpCardProps) {
             <table className="w-full text-sm">
               <thead className="bg-slate-50 dark:bg-slate-800/50">
                 <tr>
-                  <th className="px-3 py-2.5 text-center text-[11px] font-medium text-slate-500 uppercase w-10">#</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Cód. Rolo</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Situação</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Depósito</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Endereço</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Lote</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Lote Prod.</th>
-                  <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">Metragem</th>
-                  <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">P. Bruto</th>
-                  <th className="px-4 py-2.5 text-center text-[11px] font-medium text-slate-500 uppercase">Ins.</th>
+                  <th className="px-3 py-2.5 text-center text-[11px] font-medium text-slate-500 uppercase w-10">
+                    #
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">
+                    Cód. Rolo
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">
+                    Situação
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">
+                    Depósito
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">
+                    Endereço
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">
+                    Lote
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">
+                    Lote Prod.
+                  </th>
+                  <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">
+                    Metragem
+                  </th>
+                  <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">
+                    P. Bruto
+                  </th>
+                  <th className="px-4 py-2.5 text-center text-[11px] font-medium text-slate-500 uppercase">
+                    Ins.
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {grupo.rolos.map((rolo, idx) => (
-                  <tr key={`${rolo.codigoRolo}-${idx}`} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                    <td className="px-3 py-2 text-sm text-slate-500 text-center font-mono text-[12px]">{idx + 1}</td>
+                  <tr
+                    key={`${rolo.codigoRolo}-${idx}`}
+                    className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
+                  >
+                    <td className="px-3 py-2 text-sm text-slate-500 text-center font-mono text-[12px]">
+                      {idx + 1}
+                    </td>
                     <td className="px-4 py-2 text-sm font-medium text-slate-900 dark:text-slate-200 font-mono">
                       {rolo.codigoRolo || "—"}
                     </td>
@@ -126,7 +151,10 @@ export function OpCard({ grupo, expanded, onToggleExpand }: OpCardProps) {
                   <td className="px-3 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-200 text-center">
                     {grupo.totalRolos}
                   </td>
-                  <td colSpan={6} className="px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-200">
+                  <td
+                    colSpan={6}
+                    className="px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-200"
+                  >
                     Total da OP {grupo.op}
                   </td>
                   <td className="px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-200 text-right font-mono">

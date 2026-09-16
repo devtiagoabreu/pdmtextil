@@ -29,7 +29,7 @@ export async function GET(req: NextRequest) {
         or(
           ilike(crmViagens.titulo, `%${q}%`),
           ilike(crmViagens.destinoCidade, `%${q}%`),
-          ilike(crmViagens.descricao, `%${q}%`),
+          ilike(crmViagens.descricao, `%${q}%`)
         )!
       )
     }
@@ -62,10 +62,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.json(lista)
     }
 
-    const [{ total }] = await db
-      .select({ total: count() })
-      .from(crmViagens)
-      .where(where)
+    const [{ total }] = await db.select({ total: count() }).from(crmViagens).where(where)
 
     const lista = await baseQuery
       .orderBy(desc(crmViagens.dataInicio), desc(crmViagens.id))
@@ -124,9 +121,9 @@ export async function POST(req: NextRequest) {
         .returning()
 
       if (investimentos.length > 0) {
-        await tx.insert(crmViagensInvestimentos).values(
-          investimentos.map((inv: any) => ({ ...inv, viagemId: created.id }))
-        )
+        await tx
+          .insert(crmViagensInvestimentos)
+          .values(investimentos.map((inv: any) => ({ ...inv, viagemId: created.id })))
       }
 
       return [created]

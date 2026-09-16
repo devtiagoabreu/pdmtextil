@@ -29,7 +29,14 @@ import {
 } from "@/components/ui/select"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 
-const STATUS_FILTROS = ["Todos", "PENDENTE", "EM_ANDAMENTO", "CONCLUIDA", "NAO_CONFORME", "CANCELADA"] as const
+const STATUS_FILTROS = [
+  "Todos",
+  "PENDENTE",
+  "EM_ANDAMENTO",
+  "CONCLUIDA",
+  "NAO_CONFORME",
+  "CANCELADA",
+] as const
 
 const STATUS_BADGE: Record<string, string> = {
   PENDENTE: "bg-yellow-100 text-yellow-800 dark:bg-yellow-900/30 dark:text-yellow-400",
@@ -102,7 +109,11 @@ export default function AtivosVistoriasPage() {
   const [resultado, setResultado] = useState("CONFORME")
   const [salvando, setSalvando] = useState(false)
 
-  const { data: vistorias = [], isLoading, refetch } = useQuery<Vistoria[]>({
+  const {
+    data: vistorias = [],
+    isLoading,
+    refetch,
+  } = useQuery<Vistoria[]>({
     queryKey: ["ativos-vistorias"],
     queryFn: async () => {
       const res = await fetch("/api/ativos/vistorias")
@@ -155,7 +166,7 @@ export default function AtivosVistoriasPage() {
         tipo: item.tipo,
         conforme: null,
         observacao: "",
-      })),
+      }))
     )
   }, [tipoChecklist])
 
@@ -200,7 +211,7 @@ export default function AtivosVistoriasPage() {
           .filter((c) => c.conforme !== null)
           .map((c, idx) => ({
             ordem: idx,
-            valor: c.tipo === "VALOR" || c.tipo === "TEXTO" ? (c.observacao || null) : null,
+            valor: c.tipo === "VALOR" || c.tipo === "TEXTO" ? c.observacao || null : null,
             observacao: c.observacao || undefined,
             conforme: c.conforme === true,
           })),
@@ -282,12 +293,24 @@ export default function AtivosVistoriasPage() {
             <table className="w-full">
               <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                 <tr>
-                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Data Programada</th>
-                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ativo</th>
-                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Tipo de Vistoria</th>
-                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Resultado</th>
-                  <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                    Data Programada
+                  </th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                    Ativo
+                  </th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                    Tipo de Vistoria
+                  </th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                    Status
+                  </th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                    Resultado
+                  </th>
+                  <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                    Ações
+                  </th>
                 </tr>
               </thead>
               <tbody>
@@ -295,17 +318,25 @@ export default function AtivosVistoriasPage() {
                   <tr
                     key={v.id}
                     className={`border-b border-slate-100 dark:border-slate-800 ${
-                      isAtrasada(v) ? "bg-red-50 dark:bg-red-950/20" : "hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                      isAtrasada(v)
+                        ? "bg-red-50 dark:bg-red-950/20"
+                        : "hover:bg-slate-50 dark:hover:bg-slate-800/50"
                     }`}
                   >
-                    <td className="p-4 text-sm text-slate-600 dark:text-slate-300">{formatarData(v.dataProgramada)}</td>
+                    <td className="p-4 text-sm text-slate-600 dark:text-slate-300">
+                      {formatarData(v.dataProgramada)}
+                    </td>
                     <td className="p-4 text-sm font-medium text-slate-900 dark:text-slate-50">
                       {v.ativoNome}
-                      {v.ativoCodigo && <span className="text-slate-400 ml-2">{v.ativoCodigo}</span>}
+                      {v.ativoCodigo && (
+                        <span className="text-slate-400 ml-2">{v.ativoCodigo}</span>
+                      )}
                     </td>
                     <td className="p-4 text-sm text-slate-500">{v.tipoVistoriaNome}</td>
                     <td className="p-4">
-                      <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[v.status] || "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}>
+                      <span
+                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[v.status] || "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}
+                      >
                         {v.status}
                       </span>
                     </td>
@@ -326,7 +357,12 @@ export default function AtivosVistoriasPage() {
         )}
       </div>
 
-      <Dialog open={!!executando} onOpenChange={(next) => { if (!next) setExecutando(null) }}>
+      <Dialog
+        open={!!executando}
+        onOpenChange={(next) => {
+          if (!next) setExecutando(null)
+        }}
+      >
         <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Executar Vistoria — {executando?.ativoNome || ""}</DialogTitle>
@@ -345,14 +381,20 @@ export default function AtivosVistoriasPage() {
                   </SelectTrigger>
                   <SelectContent>
                     {usuarios.map((u) => (
-                      <SelectItem key={u.id} value={u.id.toString()}>{u.name}</SelectItem>
+                      <SelectItem key={u.id} value={u.id.toString()}>
+                        {u.name}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
               </div>
               <div className="space-y-1.5">
                 <Label>Data realizada</Label>
-                <Input type="date" value={dataRealizada} onChange={(e) => setDataRealizada(e.target.value)} />
+                <Input
+                  type="date"
+                  value={dataRealizada}
+                  onChange={(e) => setDataRealizada(e.target.value)}
+                />
               </div>
             </div>
 
@@ -363,16 +405,27 @@ export default function AtivosVistoriasPage() {
                   <Loader2 className="animate-spin text-slate-400" size={20} />
                 </div>
               ) : tipoChecklist && tipoChecklist.length === 0 ? (
-                <p className="text-sm text-slate-500">Este tipo de vistoria não possui checklist.</p>
+                <p className="text-sm text-slate-500">
+                  Este tipo de vistoria não possui checklist.
+                </p>
               ) : (
                 tipoChecklist?.map((item, idx) => {
                   const resposta = checklistResposta[idx]
                   return (
-                    <div key={item.ordem} className="rounded-lg border border-slate-200 dark:border-slate-800 p-4 space-y-3">
-                      <p className="text-sm font-medium text-slate-900 dark:text-slate-50">{item.pergunta}</p>
+                    <div
+                      key={item.ordem}
+                      className="rounded-lg border border-slate-200 dark:border-slate-800 p-4 space-y-3"
+                    >
+                      <p className="text-sm font-medium text-slate-900 dark:text-slate-50">
+                        {item.pergunta}
+                      </p>
                       <RadioGroup
-                        value={resposta?.conforme === null || !resposta ? "" : String(resposta.conforme)}
-                        onValueChange={(v) => atualizarChecklist(idx, { conforme: v === "" ? null : v === "true" })}
+                        value={
+                          resposta?.conforme === null || !resposta ? "" : String(resposta.conforme)
+                        }
+                        onValueChange={(v) =>
+                          atualizarChecklist(idx, { conforme: v === "" ? null : v === "true" })
+                        }
                       >
                         <div className="flex items-center gap-2">
                           <RadioGroupItem value="true" />
@@ -385,11 +438,16 @@ export default function AtivosVistoriasPage() {
                       </RadioGroup>
                       {(item.tipo === "OK_OBS" || item.tipo === "VALOR") && (
                         <div className="space-y-1.5">
-                          <Label>Observação{item.tipo === "VALOR" && item.unidade ? ` (${item.unidade})` : ""}</Label>
+                          <Label>
+                            Observação
+                            {item.tipo === "VALOR" && item.unidade ? ` (${item.unidade})` : ""}
+                          </Label>
                           <Textarea
                             rows={2}
                             value={resposta?.observacao || ""}
-                            onChange={(e) => atualizarChecklist(idx, { observacao: e.target.value })}
+                            onChange={(e) =>
+                              atualizarChecklist(idx, { observacao: e.target.value })
+                            }
                             placeholder={item.tipo === "VALOR" ? "Valor medido" : "Observações"}
                           />
                         </div>
@@ -400,7 +458,9 @@ export default function AtivosVistoriasPage() {
                           <Textarea
                             rows={2}
                             value={resposta?.observacao || ""}
-                            onChange={(e) => atualizarChecklist(idx, { observacao: e.target.value })}
+                            onChange={(e) =>
+                              atualizarChecklist(idx, { observacao: e.target.value })
+                            }
                             placeholder="Resposta da pergunta"
                           />
                         </div>
@@ -437,7 +497,9 @@ export default function AtivosVistoriasPage() {
           </div>
 
           <DialogFooter>
-            <Button variant="outline" type="button" onClick={() => setExecutando(null)}>Cancelar</Button>
+            <Button variant="outline" type="button" onClick={() => setExecutando(null)}>
+              Cancelar
+            </Button>
             <Button onClick={handleConcluir} disabled={salvando} className="gap-2">
               {salvando && <Loader2 size={14} className="animate-spin" />}
               Concluir

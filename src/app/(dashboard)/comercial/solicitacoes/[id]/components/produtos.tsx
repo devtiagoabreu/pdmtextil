@@ -55,9 +55,7 @@ export function Produtos({
   }, [catalogo, vinculadosIds, busca])
 
   const toggleSelecao = (id: number) => {
-    setSelecionados((prev) =>
-      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]
-    )
+    setSelecionados((prev) => (prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id]))
   }
 
   const vincular = async () => {
@@ -117,18 +115,23 @@ export function Produtos({
               key={p.id}
               className="flex items-center justify-between gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
             >
-              <Link
-                href={`/cadastros/produto-cru/${p.id}`}
-                className="min-w-0 flex-1"
-              >
-                <p className="font-medium text-sm">{p.codigoPdm} — {p.descricao}</p>
+              <Link href={`/cadastros/produto-cru/${p.id}`} className="min-w-0 flex-1">
+                <p className="font-medium text-sm">
+                  {p.codigoPdm} — {p.descricao}
+                </p>
                 <p className="text-xs text-slate-500 mt-0.5">
                   Status:{" "}
-                  <span className={`font-medium ${
-                    p.status === "APROVADO" ? "text-green-600" :
-                    p.status === "EM_PRODUCAO" ? "text-blue-600" :
-                    "text-slate-600"
-                  }`}>{p.status}</span>
+                  <span
+                    className={`font-medium ${
+                      p.status === "APROVADO"
+                        ? "text-green-600"
+                        : p.status === "EM_PRODUCAO"
+                          ? "text-blue-600"
+                          : "text-slate-600"
+                    }`}
+                  >
+                    {p.status}
+                  </span>
                 </p>
               </Link>
               <div className="flex items-center gap-2 shrink-0">
@@ -180,7 +183,9 @@ export function Produtos({
           </div>
         ) : disponiveis.length === 0 ? (
           <p className="text-sm text-slate-500 py-3">
-            {busca ? "Nenhum produto disponível encontrado." : "Todos os produtos já estão vinculados a esta solicitação."}
+            {busca
+              ? "Nenhum produto disponível encontrado."
+              : "Todos os produtos já estão vinculados a esta solicitação."}
           </p>
         ) : (
           <div className="space-y-1 max-h-56 overflow-y-auto pr-1">
@@ -196,7 +201,9 @@ export function Produtos({
                   className="h-4 w-4 rounded border-slate-300 text-blue-600 focus:ring-blue-500/40"
                 />
                 <span className="text-sm font-mono text-slate-500 shrink-0">{p.codigoPdm}</span>
-                <span className="text-sm text-slate-700 dark:text-slate-300 truncate">{p.descricao}</span>
+                <span className="text-sm text-slate-700 dark:text-slate-300 truncate">
+                  {p.descricao}
+                </span>
               </label>
             ))}
           </div>

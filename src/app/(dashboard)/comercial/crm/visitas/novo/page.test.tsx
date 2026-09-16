@@ -75,7 +75,9 @@ describe("NovaVisitaPage", () => {
 
     fireEvent.submit(container.querySelector("form")!)
 
-    await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Nome é obrigatório para visita avulsa"))
+    await waitFor(() =>
+      expect(toastMock.error).toHaveBeenCalledWith("Nome é obrigatório para visita avulsa")
+    )
   })
 
   it("valida pessoa obrigatória", async () => {
@@ -178,10 +180,14 @@ describe("NovaVisitaPage", () => {
         clienteId: 5,
       })
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Contato criado com sucesso"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Contato criado com sucesso")
+    )
 
     await waitFor(() =>
-      expect(screen.getAllByRole("combobox").some(c => (c as HTMLSelectElement).value === "9")).toBe(true)
+      expect(
+        screen.getAllByRole("combobox").some((c) => (c as HTMLSelectElement).value === "9")
+      ).toBe(true)
     )
     const visitaCall = findCall(fetchMock.calls, "/api/crm/visitas", "POST")
     expect(visitaCall).toBeUndefined()
@@ -221,7 +227,9 @@ describe("NovaVisitaPage", () => {
   }
 
   it("carrega as propostas pelo título no dropdown de proposta vinculada", async () => {
-    const mock = createFetchMock(novoHandler([{ id: 10, titulo: "Orçamento Tecido", oportunidadeId: 3 }]))
+    const mock = createFetchMock(
+      novoHandler([{ id: 10, titulo: "Orçamento Tecido", oportunidadeId: 3 }])
+    )
     vi.stubGlobal("fetch", mock.fn)
     renderPage(<NovaVisitaPage />)
 
@@ -229,13 +237,17 @@ describe("NovaVisitaPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Pessoa/ }))
     await screen.findByText("Visitando Pessoa (Negócio)")
 
-    fireEvent.change(screen.getByPlaceholderText("Buscar proposta..."), { target: { value: "orç" } })
+    fireEvent.change(screen.getByPlaceholderText("Buscar proposta..."), {
+      target: { value: "orç" },
+    })
 
     expect(await screen.findByRole("option", { name: "Orçamento Tecido" })).toBeInTheDocument()
   })
 
   it("ao selecionar uma proposta preenche a oportunidade da proposta na visita", async () => {
-    const mock = createFetchMock(novoHandler([{ id: 10, titulo: "Orçamento Tecido", oportunidadeId: 3 }]))
+    const mock = createFetchMock(
+      novoHandler([{ id: 10, titulo: "Orçamento Tecido", oportunidadeId: 3 }])
+    )
     vi.stubGlobal("fetch", mock.fn)
     renderPage(<NovaVisitaPage />)
 
@@ -243,18 +255,24 @@ describe("NovaVisitaPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Pessoa/ }))
     await screen.findByText("Visitando Pessoa (Negócio)")
 
-    fireEvent.change(screen.getByPlaceholderText("Buscar proposta..."), { target: { value: "orç" } })
+    fireEvent.change(screen.getByPlaceholderText("Buscar proposta..."), {
+      target: { value: "orç" },
+    })
     fireEvent.click(await screen.findByRole("option", { name: "Orçamento Tecido" }))
 
     await waitFor(() =>
       expect(
-        screen.getAllByRole("combobox").some(c => c.tagName === "SELECT" && (c as HTMLSelectElement).value === "3")
+        screen
+          .getAllByRole("combobox")
+          .some((c) => c.tagName === "SELECT" && (c as HTMLSelectElement).value === "3")
       ).toBe(true)
     )
   })
 
   it("ao selecionar uma oportunidade filtra as propostas daquela oportunidade", async () => {
-    const mock = createFetchMock(novoHandler([{ id: 10, titulo: "Orçamento Tecido", oportunidadeId: 3 }]))
+    const mock = createFetchMock(
+      novoHandler([{ id: 10, titulo: "Orçamento Tecido", oportunidadeId: 3 }])
+    )
     vi.stubGlobal("fetch", mock.fn)
     renderPage(<NovaVisitaPage />)
 
@@ -262,15 +280,27 @@ describe("NovaVisitaPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /^Pessoa/ }))
     await screen.findByText("Visitando Pessoa (Negócio)")
 
-    const opSelect = screen.getAllByRole("combobox").find(
-      (c) => c.tagName === "SELECT" && Array.from((c as HTMLSelectElement).options).some(o => o.textContent === "Oportunidade Expansão")
-    ) as HTMLSelectElement
+    const opSelect = screen
+      .getAllByRole("combobox")
+      .find(
+        (c) =>
+          c.tagName === "SELECT" &&
+          Array.from((c as HTMLSelectElement).options).some(
+            (o) => o.textContent === "Oportunidade Expansão"
+          )
+      ) as HTMLSelectElement
     fireEvent.change(opSelect, { target: { value: "3" } })
 
-    fireEvent.change(screen.getByPlaceholderText("Buscar proposta..."), { target: { value: "orç" } })
+    fireEvent.change(screen.getByPlaceholderText("Buscar proposta..."), {
+      target: { value: "orç" },
+    })
 
     await waitFor(() => {
-      const call = findCall(mock.calls, "/api/crm/propostas?oportunidadeId=3&q=or%C3%A7&limit=20", "GET")
+      const call = findCall(
+        mock.calls,
+        "/api/crm/propostas?oportunidadeId=3&q=or%C3%A7&limit=20",
+        "GET"
+      )
       expect(call).toBeDefined()
     })
   })
@@ -286,13 +316,16 @@ describe("NovaVisitaPage", () => {
 
     fireEvent.change(screen.getAllByRole("combobox")[0], { target: { value: "5" } })
 
-    expect(await screen.findByRole("option", { name: "Oportunidade Confecções" })).toBeInTheDocument()
+    expect(
+      await screen.findByRole("option", { name: "Oportunidade Confecções" })
+    ).toBeInTheDocument()
     expect(screen.queryByRole("option", { name: "Oportunidade Expansão" })).not.toBeInTheDocument()
   })
 
   it("cria uma proposta via quick create (PESSOA) e vincula na visita sem salvar", async () => {
     const handler = ({ method, url }: { method: string; url: string }) => {
-      if (method === "GET" && url === "/api/crm/pessoas") return { json: [{ id: 1, razaoSocial: "Tecelagem Alpha" }] }
+      if (method === "GET" && url === "/api/crm/pessoas")
+        return { json: [{ id: 1, razaoSocial: "Tecelagem Alpha" }] }
       if (method === "GET" && url === "/api/crm/oportunidades") return { json: [] }
       if (method === "GET" && url === "/api/crm/viagens?all=true") return { json: [] }
       if (method === "GET" && url === "/api/crm/estados") return { json: [] }
@@ -334,7 +367,9 @@ describe("NovaVisitaPage", () => {
         descricao: null,
       })
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Proposta criada com sucesso"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Proposta criada com sucesso")
+    )
 
     const visitaCall = findCall(mock.calls, "/api/crm/visitas", "POST")
     expect(visitaCall).toBeUndefined()
@@ -342,7 +377,8 @@ describe("NovaVisitaPage", () => {
 
   it("cria uma proposta via quick create (CLIENTE) vinculando ao cliente", async () => {
     const handler = ({ method, url }: { method: string; url: string }) => {
-      if (method === "GET" && url === "/api/clientes") return { json: [{ id: 5, nome: "Confecções Lima" }] }
+      if (method === "GET" && url === "/api/clientes")
+        return { json: [{ id: 5, nome: "Confecções Lima" }] }
       if (method === "GET" && url === "/api/crm/oportunidades") return { json: [] }
       if (method === "GET" && url === "/api/crm/viagens?all=true") return { json: [] }
       if (method === "GET" && url === "/api/crm/estados") return { json: [] }

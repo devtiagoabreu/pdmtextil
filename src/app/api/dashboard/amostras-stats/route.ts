@@ -63,7 +63,8 @@ export async function GET() {
              SELECT id FROM produto_cru_acabamento_amostra WHERE created_at >= date_trunc('month', now())
            ) sub) AS total_mes
       `),
-      q(sql`
+      q(
+        sql`
         (SELECT
           am.id, am.descricao, am.status, am.motivo_aprovacao as "motivoAprovacao",
           am.data, am.created_at as "createdAt",
@@ -94,10 +95,12 @@ export async function GET() {
         LEFT JOIN solicitacoes s ON s.id = p.solicitacao_desenvolvimento_id)
         ORDER BY "createdAt" DESC
         LIMIT 10
-      `, []),
+      `,
+        []
+      ),
     ])
 
-    const agg = Array.isArray(aggRaw) ? aggRaw[0] : aggRaw ?? {}
+    const agg = Array.isArray(aggRaw) ? aggRaw[0] : (aggRaw ?? {})
     const cruStatusRaw = parseJson(agg?.status_counts)
     const trendRows = parseJson(agg?.trend)
     const totalMes = agg?.total_mes ?? 0
@@ -157,9 +160,12 @@ export async function GET() {
     })
   } catch (error) {
     console.error("[GET /api/dashboard/amostras-stats]", error)
-    return NextResponse.json({
-      error: "Erro interno",
-      detail: error instanceof Error ? error.message : String(error),
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Erro interno",
+        detail: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 }
+    )
   }
 }

@@ -11,7 +11,8 @@ export async function GET() {
   const session = await getServerSession(authOptions)
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-  const config = await db.select()
+  const config = await db
+    .select()
     .from(userEmailConfig)
     .where(eq(userEmailConfig.usuarioId, Number(session.user.id)))
     .limit(1)
@@ -50,18 +51,23 @@ export async function PUT(req: NextRequest) {
 
   const limiteDiario = Number(body.limite_diario)
   if (!Number.isInteger(limiteDiario) || limiteDiario < 100 || limiteDiario > 50000) {
-    return NextResponse.json({ error: "Limite diário deve ser um número entre 100 e 50000" }, { status: 400 })
+    return NextResponse.json(
+      { error: "Limite diário deve ser um número entre 100 e 50000" },
+      { status: 400 }
+    )
   }
 
   const senhaCriptografada = encrypt(senha_app)
 
-  const existing = await db.select()
+  const existing = await db
+    .select()
     .from(userEmailConfig)
     .where(eq(userEmailConfig.usuarioId, Number(session.user.id)))
     .limit(1)
 
   if (existing.length > 0) {
-    await db.update(userEmailConfig)
+    await db
+      .update(userEmailConfig)
       .set({
         email,
         senhaApp: senhaCriptografada,
@@ -119,8 +125,7 @@ export async function DELETE() {
   const session = await getServerSession(authOptions)
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-  await db.delete(userEmailConfig)
-    .where(eq(userEmailConfig.usuarioId, Number(session.user.id)))
+  await db.delete(userEmailConfig).where(eq(userEmailConfig.usuarioId, Number(session.user.id)))
 
   return NextResponse.json({ success: true })
 }

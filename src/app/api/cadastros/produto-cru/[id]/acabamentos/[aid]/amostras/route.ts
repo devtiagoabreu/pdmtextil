@@ -21,10 +21,16 @@ export async function GET(
       .where(eq(produtoCruAcabamento.id, parseInt(aid)))
       .limit(1)
     if (!acabamento || acabamento.produtoCruId !== parseInt(id)) {
-      return NextResponse.json({ error: "Acabamento não encontrado neste produto" }, { status: 404 })
+      return NextResponse.json(
+        { error: "Acabamento não encontrado neste produto" },
+        { status: 404 }
+      )
     }
 
-    const lista = await db.select().from(produtoCruAcabamentoAmostra).where(eq(produtoCruAcabamentoAmostra.acabamentoId, parseInt(aid)))
+    const lista = await db
+      .select()
+      .from(produtoCruAcabamentoAmostra)
+      .where(eq(produtoCruAcabamentoAmostra.acabamentoId, parseInt(aid)))
 
     return NextResponse.json(lista)
   } catch (error) {
@@ -51,7 +57,10 @@ export async function POST(
       .where(eq(produtoCruAcabamento.id, parseInt(aid)))
       .limit(1)
     if (!acabamento || acabamento.produtoCruId !== parseInt(id)) {
-      return NextResponse.json({ error: "Acabamento não encontrado neste produto" }, { status: 404 })
+      return NextResponse.json(
+        { error: "Acabamento não encontrado neste produto" },
+        { status: 404 }
+      )
     }
 
     const body = await req.json()
@@ -64,13 +73,15 @@ export async function POST(
         status: body.status || "PENDENTE",
         observacoes: body.observacoes || null,
         quantidadeProduzida: body.quantidadeProduzida || null,
-        historico: [{
-          data: new Date().toISOString(),
-          usuario: session.user.name,
-          usuarioId: userIdResult,
-          acao: "CRIACAO",
-          status: body.status || "PENDENTE",
-        }],
+        historico: [
+          {
+            data: new Date().toISOString(),
+            usuario: session.user.name,
+            usuarioId: userIdResult,
+            acao: "CRIACAO",
+            status: body.status || "PENDENTE",
+          },
+        ],
       })
       .returning()
 
@@ -81,7 +92,14 @@ export async function POST(
       session.user.name
     )
 
-    await registrarLog({ tipo: "CADASTRO", acao: "criar", descricao: `Amostra de acabamento #${novo[0].id} criada`, entidade: "AmostraAcabamento", entidadeId: novo[0].id, usuarioNome: session.user.name })
+    await registrarLog({
+      tipo: "CADASTRO",
+      acao: "criar",
+      descricao: `Amostra de acabamento #${novo[0].id} criada`,
+      entidade: "AmostraAcabamento",
+      entidadeId: novo[0].id,
+      usuarioNome: session.user.name,
+    })
 
     return NextResponse.json(novo[0])
   } catch (error) {

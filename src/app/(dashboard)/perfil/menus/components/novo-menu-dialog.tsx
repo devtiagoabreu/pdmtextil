@@ -31,9 +31,7 @@ export function NovoMenuDialog({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Novo Menu</DialogTitle>
-          <DialogDescription>
-            Dê um nome para o novo menu de navegação.
-          </DialogDescription>
+          <DialogDescription>Dê um nome para o novo menu de navegação.</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-2">

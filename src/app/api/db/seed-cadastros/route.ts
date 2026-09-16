@@ -36,26 +36,47 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    await db.insert(basesUrdume).values({
-      codigoCompleto: "4.UR001.CRU.000001",
-      codigoBase: "UR001",
-      nome: "Base Algodão 30/1",
-      descricao: "Base de urdume 100% algodão",
-      densidade: "30",
-      ativo: true,
-    }).onConflictDoNothing()
+    await db
+      .insert(basesUrdume)
+      .values({
+        codigoCompleto: "4.UR001.CRU.000001",
+        codigoBase: "UR001",
+        nome: "Base Algodão 30/1",
+        descricao: "Base de urdume 100% algodão",
+        densidade: "30",
+        ativo: true,
+      })
+      .onConflictDoNothing()
 
-    await db.insert(coresSolidas).values([
-      { codigo: "0001A1", nome: "Azul Marinho", pantone: "2955C", familia: "AZUL", ativo: true },
-      { codigo: "0002R1", nome: "Vermelho", pantone: "186C", familia: "VERMELHO", ativo: true },
-      { codigo: "0003B1", nome: "Branco", pantone: "WHITE", familia: "BRANCO", ativo: true },
-    ]).onConflictDoNothing()
+    await db
+      .insert(coresSolidas)
+      .values([
+        { codigo: "0001A1", nome: "Azul Marinho", pantone: "2955C", familia: "AZUL", ativo: true },
+        { codigo: "0002R1", nome: "Vermelho", pantone: "186C", familia: "VERMELHO", ativo: true },
+        { codigo: "0003B1", nome: "Branco", pantone: "WHITE", familia: "BRANCO", ativo: true },
+      ])
+      .onConflictDoNothing()
 
-    await db.insert(estampas).values([
-      { codigoDesenho: "5001", variante: "01", nome: "Floral Botânico", tipo: "FLORAL", ativo: true },
-      { codigoDesenho: "6001", variante: "01", nome: "Lista Grosso", tipo: "LISTRADO", ativo: true },
-      { codigoDesenho: "7001", variante: "01", nome: "Poa Pequeno", tipo: "POA", ativo: true },
-    ]).onConflictDoNothing()
+    await db
+      .insert(estampas)
+      .values([
+        {
+          codigoDesenho: "5001",
+          variante: "01",
+          nome: "Floral Botânico",
+          tipo: "FLORAL",
+          ativo: true,
+        },
+        {
+          codigoDesenho: "6001",
+          variante: "01",
+          nome: "Lista Grosso",
+          tipo: "LISTRADO",
+          ativo: true,
+        },
+        { codigoDesenho: "7001", variante: "01", nome: "Poa Pequeno", tipo: "POA", ativo: true },
+      ])
+      .onConflictDoNothing()
 
     return NextResponse.json({ success: true, message: "Dados inseridos com sucesso!" })
   } catch (error) {

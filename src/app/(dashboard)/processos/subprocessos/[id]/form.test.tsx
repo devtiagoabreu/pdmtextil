@@ -25,16 +25,24 @@ describe("ProcessoSubprocessoFormPage", () => {
       fireEvent.submit(form)
       await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Nome é obrigatório"))
 
-      fireEvent.change(screen.getByPlaceholderText("Preparação dos fios"), { target: { value: "Preparação" } })
+      fireEvent.change(screen.getByPlaceholderText("Preparação dos fios"), {
+        target: { value: "Preparação" },
+      })
       fireEvent.submit(form)
       await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Selecione o processo"))
       expect(findCall(fetchMock.calls, "/api/processos/subprocessos", "POST")).toBeUndefined()
 
       await screen.findByRole("option", { name: "Processo de Tecelagem" })
-      fireEvent.change(screen.getByRole("combobox", { name: "Processo *" }), { target: { value: "1" } })
+      fireEvent.change(screen.getByRole("combobox", { name: "Processo *" }), {
+        target: { value: "1" },
+      })
       fireEvent.change(screen.getByPlaceholderText("1"), { target: { value: "2" } })
-      fireEvent.change(screen.getByPlaceholderText("https://..."), { target: { value: "https://sistema.com.br/etapa" } })
-      fireEvent.change(screen.getByPlaceholderText("Foto, laudo..."), { target: { value: "Documento da etapa" } })
+      fireEvent.change(screen.getByPlaceholderText("https://..."), {
+        target: { value: "https://sistema.com.br/etapa" },
+      })
+      fireEvent.change(screen.getByPlaceholderText("Foto, laudo..."), {
+        target: { value: "Documento da etapa" },
+      })
       fireEvent.click(screen.getByRole("button", { name: "Adicionar link" }))
       fireEvent.submit(form)
 
@@ -44,7 +52,9 @@ describe("ProcessoSubprocessoFormPage", () => {
         expect(call?.body?.processoId).toBe(1)
         expect(call?.body?.nome).toBe("Preparação")
         expect(call?.body?.ordem).toBe(2)
-        expect(call?.body?.links).toEqual([{ url: "https://sistema.com.br/etapa", descricao: "Documento da etapa" }])
+        expect(call?.body?.links).toEqual([
+          { url: "https://sistema.com.br/etapa", descricao: "Documento da etapa" },
+        ])
       })
       expect(navMock.router.push).toHaveBeenCalledWith("/processos/processos/1")
     })
@@ -64,7 +74,9 @@ describe("ProcessoSubprocessoFormPage", () => {
       renderPage(<ProcessoSubprocessoFormPage />)
 
       await screen.findByRole("option", { name: "Processo X" })
-      expect((screen.getByRole("combobox", { name: "Processo *" }) as HTMLSelectElement).value).toBe("3")
+      expect(
+        (screen.getByRole("combobox", { name: "Processo *" }) as HTMLSelectElement).value
+      ).toBe("3")
     })
   })
 
@@ -99,16 +111,22 @@ describe("ProcessoSubprocessoFormPage", () => {
       renderPage(<ProcessoSubprocessoFormPage />)
 
       expect(await screen.findByDisplayValue("Preparação")).toBeDefined()
-      expect((screen.getByRole("combobox", { name: "Processo *" }) as HTMLSelectElement).value).toBe("1")
+      expect(
+        (screen.getByRole("combobox", { name: "Processo *" }) as HTMLSelectElement).value
+      ).toBe("1")
 
-      fireEvent.change(screen.getByDisplayValue("Preparação dos fios"), { target: { value: "Preparação avançada" } })
+      fireEvent.change(screen.getByDisplayValue("Preparação dos fios"), {
+        target: { value: "Preparação avançada" },
+      })
       fireEvent.click(screen.getByRole("button", { name: /Atualizar/ }))
 
       await waitFor(() => {
         const call = findCall(fetchMock.calls, "/api/processos/subprocessos/3", "PUT")
         expect(call).toBeDefined()
         expect(call?.body?.descricao).toBe("Preparação avançada")
-        expect(call?.body?.links).toEqual([{ url: "https://example.com/pop", descricao: "POP da etapa" }])
+        expect(call?.body?.links).toEqual([
+          { url: "https://example.com/pop", descricao: "POP da etapa" },
+        ])
       })
       expect(navMock.router.push).toHaveBeenCalledWith("/processos/processos/1")
     })

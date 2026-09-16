@@ -1,7 +1,17 @@
 "use client"
 
 import { useState, useEffect, useCallback } from "react"
-import { Folder, File, ChevronRight, Home, ArrowLeft, Search, Loader2, X, ExternalLink } from "lucide-react"
+import {
+  Folder,
+  File,
+  ChevronRight,
+  Home,
+  ArrowLeft,
+  Search,
+  Loader2,
+  X,
+  ExternalLink,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
@@ -70,7 +80,7 @@ export function GoogleDrivePicker({ open, onClose, onSelect }: GoogleDrivePicker
 
   async function openFolder(item: DriveItem) {
     setCurrentFolder(item.id)
-    setBreadcrumb(prev => [...prev, { id: item.id, name: item.name }])
+    setBreadcrumb((prev) => [...prev, { id: item.id, name: item.name }])
     if (item.mimeType === "application/vnd.google-apps.folder") {
       loadFolder(item.id, false)
     }
@@ -78,7 +88,7 @@ export function GoogleDrivePicker({ open, onClose, onSelect }: GoogleDrivePicker
 
   async function navigateToBreadcrumb(index: number) {
     const target = breadcrumb[index]
-    setBreadcrumb(prev => prev.slice(0, index + 1))
+    setBreadcrumb((prev) => prev.slice(0, index + 1))
     setCurrentFolder(target.id || null)
     if (!target.id) {
       loadFolder(null, true)
@@ -91,7 +101,9 @@ export function GoogleDrivePicker({ open, onClose, onSelect }: GoogleDrivePicker
     if (!searchQuery.trim()) return
     setSearching(true)
     try {
-      const res = await fetch(`/api/google-drive/list?action=search&q=${encodeURIComponent(searchQuery)}`)
+      const res = await fetch(
+        `/api/google-drive/list?action=search&q=${encodeURIComponent(searchQuery)}`
+      )
       if (!res.ok) throw new Error("Erro na busca")
       const data = await res.json()
       setItems(Array.isArray(data) ? data : [])
@@ -117,86 +129,108 @@ export function GoogleDrivePicker({ open, onClose, onSelect }: GoogleDrivePicker
   if (!open) return null
 
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={(next) => { if (!next) onClose() }}>
+    <DialogPrimitive.Root
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) onClose()
+      }}
+    >
       <DialogPrimitive.Portal>
         <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/50" />
         <DialogPrimitive.Popup className="fixed top-1/2 left-1/2 z-50 w-full max-w-2xl -translate-x-1/2 -translate-y-1/2 max-h-[80vh] flex flex-col rounded-xl bg-white dark:bg-slate-900 shadow-2xl border border-slate-200 dark:border-slate-800 outline-none">
           <div className="flex items-center justify-between px-5 py-4 border-b border-slate-200 dark:border-slate-800">
-            <DialogPrimitive.Title className="text-lg font-semibold text-slate-900 dark:text-slate-50">Selecionar do Google Drive</DialogPrimitive.Title>
-            <DialogPrimitive.Close aria-label="Fechar" className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+            <DialogPrimitive.Title className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+              Selecionar do Google Drive
+            </DialogPrimitive.Title>
+            <DialogPrimitive.Close
+              aria-label="Fechar"
+              className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
               <X size={18} className="text-slate-400" />
             </DialogPrimitive.Close>
           </div>
 
-        <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-800 flex gap-2 items-center">
-          <div className="flex-1 flex gap-2">
-            <Input
-              placeholder="Buscar arquivos..."
-              value={searchQuery}
-              onChange={e => setSearchQuery(e.target.value)}
-              onKeyDown={e => e.key === "Enter" && handleSearch()}
-            />
-            <Button variant="secondary" size="sm" onClick={handleSearch} disabled={searching}>
-              {searching ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
-            </Button>
+          <div className="px-5 py-3 border-b border-slate-200 dark:border-slate-800 flex gap-2 items-center">
+            <div className="flex-1 flex gap-2">
+              <Input
+                placeholder="Buscar arquivos..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleSearch()}
+              />
+              <Button variant="secondary" size="sm" onClick={handleSearch} disabled={searching}>
+                {searching ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+              </Button>
+            </div>
           </div>
-        </div>
 
-        <div className="px-5 py-2 flex items-center gap-1 text-sm text-slate-500 border-b border-slate-100 dark:border-slate-800">
-          <button onClick={() => navigateToBreadcrumb(0)} className="hover:text-slate-700 dark:hover:text-slate-300">
-            <Home size={14} />
-          </button>
-          {breadcrumb.map((crumb: any, i: any) => (
-            <span key={crumb.id || "root"} className="flex items-center gap-1">
-              <ChevronRight size={12} />
-              {i === breadcrumb.length - 1 ? (
-                <span className="text-slate-900 dark:text-slate-200 font-medium truncate max-w-[200px]">{crumb.name}</span>
-              ) : (
-                <button onClick={() => navigateToBreadcrumb(i)} className="hover:text-slate-700 dark:hover:text-slate-300 truncate max-w-[150px]">
-                  {crumb.name}
-                </button>
-              )}
-            </span>
-          ))}
-        </div>
+          <div className="px-5 py-2 flex items-center gap-1 text-sm text-slate-500 border-b border-slate-100 dark:border-slate-800">
+            <button
+              onClick={() => navigateToBreadcrumb(0)}
+              className="hover:text-slate-700 dark:hover:text-slate-300"
+            >
+              <Home size={14} />
+            </button>
+            {breadcrumb.map((crumb: any, i: any) => (
+              <span key={crumb.id || "root"} className="flex items-center gap-1">
+                <ChevronRight size={12} />
+                {i === breadcrumb.length - 1 ? (
+                  <span className="text-slate-900 dark:text-slate-200 font-medium truncate max-w-[200px]">
+                    {crumb.name}
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => navigateToBreadcrumb(i)}
+                    className="hover:text-slate-700 dark:hover:text-slate-300 truncate max-w-[150px]"
+                  >
+                    {crumb.name}
+                  </button>
+                )}
+              </span>
+            ))}
+          </div>
 
-        <div className="flex-1 overflow-y-auto p-3">
-          {loading || searching ? (
-            <div className="flex justify-center py-16">
-              <Loader2 size={24} className="animate-spin text-slate-400" />
-            </div>
-          ) : items.length === 0 ? (
-            <div className="text-center py-16 text-slate-400">
-              <Folder size={40} className="mx-auto mb-2 opacity-50" />
-              <p>Nenhum arquivo ou pasta encontrado</p>
-            </div>
-          ) : (
-            <div className="grid grid-cols-2 gap-2">
-              {items.map((item: any) => (
-                <button
-                  key={item.id}
-                  onClick={() => isFolder(item) ? openFolder(item) : onSelect(item as DriveFile)}
-                  className={`flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-left transition-colors ${isFolder(item) ? "" : "cursor-pointer"}`}
-                >
-                  {isFolder(item) ? (
-                    <Folder size={20} className="text-amber-500 shrink-0" />
-                  ) : (
-                    <File size={20} className="text-blue-500 shrink-0" />
-                  )}
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium truncate text-slate-900 dark:text-slate-200">{item.name}</p>
-                    <p className="text-xs text-slate-400 truncate">
-                      {isFolder(item) ? "Pasta" : formatSize(item.size)}
-                    </p>
-                  </div>
-                  {!isFolder(item) && (
-                    <ExternalLink size={14} className="text-slate-300 shrink-0" />
-                  )}
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
+          <div className="flex-1 overflow-y-auto p-3">
+            {loading || searching ? (
+              <div className="flex justify-center py-16">
+                <Loader2 size={24} className="animate-spin text-slate-400" />
+              </div>
+            ) : items.length === 0 ? (
+              <div className="text-center py-16 text-slate-400">
+                <Folder size={40} className="mx-auto mb-2 opacity-50" />
+                <p>Nenhum arquivo ou pasta encontrado</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                {items.map((item: any) => (
+                  <button
+                    key={item.id}
+                    onClick={() =>
+                      isFolder(item) ? openFolder(item) : onSelect(item as DriveFile)
+                    }
+                    className={`flex items-center gap-3 p-3 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-800 text-left transition-colors ${isFolder(item) ? "" : "cursor-pointer"}`}
+                  >
+                    {isFolder(item) ? (
+                      <Folder size={20} className="text-amber-500 shrink-0" />
+                    ) : (
+                      <File size={20} className="text-blue-500 shrink-0" />
+                    )}
+                    <div className="min-w-0 flex-1">
+                      <p className="text-sm font-medium truncate text-slate-900 dark:text-slate-200">
+                        {item.name}
+                      </p>
+                      <p className="text-xs text-slate-400 truncate">
+                        {isFolder(item) ? "Pasta" : formatSize(item.size)}
+                      </p>
+                    </div>
+                    {!isFolder(item) && (
+                      <ExternalLink size={14} className="text-slate-300 shrink-0" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </DialogPrimitive.Popup>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>

@@ -11,11 +11,16 @@ interface CheckCardProps {
 export function CheckCard({ visita, checkLoading, onCheck, onUndo }: CheckCardProps) {
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 md:col-span-2">
-      <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Check-in / Check-out</h2>
+      <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">
+        Check-in / Check-out
+      </h2>
       <div className="flex flex-col sm:flex-row gap-4">
         <div className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
           <div className="flex items-center gap-2 mb-2">
-            <LogIn size={16} className={visita.checkInTime ? "text-emerald-500" : "text-slate-400"} />
+            <LogIn
+              size={16}
+              className={visita.checkInTime ? "text-emerald-500" : "text-slate-400"}
+            />
             <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Check-in</span>
           </div>
           {visita.checkInTime ? (
@@ -47,7 +52,11 @@ export function CheckCard({ visita, checkLoading, onCheck, onUndo }: CheckCardPr
               disabled={checkLoading === "in" || !!visita.checkOutTime}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-emerald-600 text-white text-sm font-medium hover:bg-emerald-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {checkLoading === "in" ? <Loader2 size={14} className="animate-spin" /> : <LogIn size={14} />}
+              {checkLoading === "in" ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <LogIn size={14} />
+              )}
               {checkLoading === "in" ? "Registrando..." : "Fazer Check-in"}
             </button>
           )}
@@ -55,8 +64,13 @@ export function CheckCard({ visita, checkLoading, onCheck, onUndo }: CheckCardPr
 
         <div className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 p-4">
           <div className="flex items-center gap-2 mb-2">
-            <LogOut size={16} className={visita.checkOutTime ? "text-emerald-500" : "text-slate-400"} />
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Check-out</span>
+            <LogOut
+              size={16}
+              className={visita.checkOutTime ? "text-emerald-500" : "text-slate-400"}
+            />
+            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Check-out
+            </span>
           </div>
           {visita.checkOutTime ? (
             <div className="space-y-2">
@@ -87,7 +101,11 @@ export function CheckCard({ visita, checkLoading, onCheck, onUndo }: CheckCardPr
               disabled={checkLoading === "out" || !visita.checkInTime}
               className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-amber-600 text-white text-sm font-medium hover:bg-amber-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {checkLoading === "out" ? <Loader2 size={14} className="animate-spin" /> : <LogOut size={14} />}
+              {checkLoading === "out" ? (
+                <Loader2 size={14} className="animate-spin" />
+              ) : (
+                <LogOut size={14} />
+              )}
               {checkLoading === "out" ? "Registrando..." : "Fazer Check-out"}
             </button>
           )}

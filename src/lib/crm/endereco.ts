@@ -8,12 +8,26 @@ export type EnderecoCampos = {
 }
 
 export function montarEnderecoTexto(campos: EnderecoCampos): string {
-  return [campos.endereco, campos.numero, campos.complemento, campos.bairro, campos.cidade, campos.uf]
+  return [
+    campos.endereco,
+    campos.numero,
+    campos.complemento,
+    campos.bairro,
+    campos.cidade,
+    campos.uf,
+  ]
     .filter(Boolean)
     .map((v) => String(v).trim())
     .join(", ")
 }
 
 export function temEndereco(campos: EnderecoCampos): boolean {
-  return Boolean(campos.endereco || campos.numero || campos.complemento || campos.bairro || campos.cidade || campos.uf)
+  return Boolean(
+    campos.endereco ||
+    campos.numero ||
+    campos.complemento ||
+    campos.bairro ||
+    campos.cidade ||
+    campos.uf
+  )
 }

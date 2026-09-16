@@ -52,7 +52,7 @@ const RESPOSTA_OPEN = {
 function mockSelectSequencia(itens: any[]) {
   const fila = [...itens]
   db.select.mockImplementation(() => {
-    const r = fila.length ? fila.shift() : itens[itens.length - 1] ?? []
+    const r = fila.length ? fila.shift() : (itens[itens.length - 1] ?? [])
     return createQueryBuilder(r)
   })
 }
@@ -68,7 +68,7 @@ function mockInsertRegistros() {
 }
 
 function valoresDo(chamadas: { table: any; builder: any }[], table: any): any[] {
-  const c = chamadas.find(x => x.table === table)
+  const c = chamadas.find((x) => x.table === table)
   return c?.builder.values.mock.calls.map((call: any) => call[0]) ?? []
 }
 
@@ -177,7 +177,14 @@ describe("lerConfigMonitoramento", () => {
   })
 
   it("parseia a configuração salva", async () => {
-    mockSelectSequencia([[{ chave: "bot_monitoramento", valor: CONFIG_JSON({ ativo: false, ultimoStatus: "falha", ultimoErro: "x" }) }]])
+    mockSelectSequencia([
+      [
+        {
+          chave: "bot_monitoramento",
+          valor: CONFIG_JSON({ ativo: false, ultimoStatus: "falha", ultimoErro: "x" }),
+        },
+      ],
+    ])
     const cfg = await lerConfigMonitoramento()
     expect(cfg.ativo).toBe(false)
     expect(cfg.ultimoStatus).toBe("falha")
@@ -255,7 +262,9 @@ describe("executarMonitoramento", () => {
     expect(r.online).toBe(true)
     expect(r.alertaEnviado).toBe(false)
 
-    expect(registrarLogBot).toHaveBeenCalledWith(expect.objectContaining({ tipo: "OK", status: "ok" }))
+    expect(registrarLogBot).toHaveBeenCalledWith(
+      expect.objectContaining({ tipo: "OK", status: "ok" })
+    )
     expect(registrarLogBot).not.toHaveBeenCalledWith(expect.objectContaining({ tipo: "ALERTA" }))
 
     const cfgSalvo = JSON.parse(valoresDo(chamadas, configGeral)[0].valor) as any
@@ -285,8 +294,12 @@ describe("executarMonitoramento", () => {
     expect(r.online).toBe(false)
     expect(r.alertaEnviado).toBe(true)
 
-    expect(registrarLogBot).toHaveBeenCalledWith(expect.objectContaining({ tipo: "FALHA", status: "falha" }))
-    expect(registrarLogBot).toHaveBeenCalledWith(expect.objectContaining({ tipo: "ALERTA", status: "alerta" }))
+    expect(registrarLogBot).toHaveBeenCalledWith(
+      expect.objectContaining({ tipo: "FALHA", status: "falha" })
+    )
+    expect(registrarLogBot).toHaveBeenCalledWith(
+      expect.objectContaining({ tipo: "ALERTA", status: "alerta" })
+    )
 
     expect(vi.mocked(sendEmail)).toHaveBeenCalledTimes(1)
     expect(vi.mocked(sendEmail).mock.calls[0][0].to).toEqual(["ana@teste.com", "bia@teste.com"])
@@ -295,7 +308,12 @@ describe("executarMonitoramento", () => {
 
     const notif = valoresDo(chamadas, notificacoes)[0] as any[]
     expect(notif).toHaveLength(2)
-    expect(notif[0]).toMatchObject({ tipo: "WHATSAPP_BOT_MONITOR", usuarioId: 1, lida: false, link: "/admin/bot-config" })
+    expect(notif[0]).toMatchObject({
+      tipo: "WHATSAPP_BOT_MONITOR",
+      usuarioId: 1,
+      lida: false,
+      link: "/admin/bot-config",
+    })
 
     const cfgSalvo = JSON.parse(valoresDo(chamadas, configGeral)[0].valor) as any
     expect(cfgSalvo.ultimoStatus).toBe("falha")
@@ -332,7 +350,10 @@ describe("executarMonitoramento", () => {
     expect(r.online).toBe(true)
     expect(r.alertaEnviado).toBe(false)
     expect(registrarLogBot).toHaveBeenCalledWith(
-      expect.objectContaining({ tipo: "OK", detalhe: expect.objectContaining({ recuperado: true }) })
+      expect.objectContaining({
+        tipo: "OK",
+        detalhe: expect.objectContaining({ recuperado: true }),
+      })
     )
   })
 })

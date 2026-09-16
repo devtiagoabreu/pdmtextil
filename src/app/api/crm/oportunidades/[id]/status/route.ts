@@ -9,11 +9,7 @@ import { registrarLog, notificar } from "@/lib/notificar"
 import { inserirTimelineEvento } from "@/lib/crm-timeline"
 
 async function sincronizarEmpresaCliente(empresaId: number) {
-  const [empresa] = await db
-    .select()
-    .from(crmPessoas)
-    .where(eq(crmPessoas.id, empresaId))
-    .limit(1)
+  const [empresa] = await db.select().from(crmPessoas).where(eq(crmPessoas.id, empresaId)).limit(1)
 
   if (!empresa || !empresa.cnpj) return
   if (empresa.clienteId) return // já vinculada
@@ -47,10 +43,7 @@ async function sincronizarEmpresaCliente(empresaId: number) {
     .where(eq(crmPessoas.id, empresaId))
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -96,7 +89,12 @@ export async function PATCH(
         empresaId: existente.empresaId,
         tipo: "OPORTUNIDADE",
         descricao: `Oportunidade "${existente.titulo}" ${status === "FECHADO_GANHO" ? "GANHA" : status === "FECHADO_PERDIDO" ? "PERDIDA" : `movida para ${status}`}`,
-        metadados: { oportunidadeId: atualizada.id, statusAnterior: existente.status, statusNovo: status, motivoPerda },
+        metadados: {
+          oportunidadeId: atualizada.id,
+          statusAnterior: existente.status,
+          statusNovo: status,
+          motivoPerda,
+        },
       })
 
       if (status === "FECHADO_GANHO") {
@@ -111,7 +109,12 @@ export async function PATCH(
       }
     }
 
-    await notificar("OPORTUNIDADE_STATUS", `Oportunidade "${existente.titulo}" movida para ${status}`, `/comercial/crm/oportunidades/${atualizada.id}`, session.user.name)
+    await notificar(
+      "OPORTUNIDADE_STATUS",
+      `Oportunidade "${existente.titulo}" movida para ${status}`,
+      `/comercial/crm/oportunidades/${atualizada.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(atualizada)
   } catch (error) {

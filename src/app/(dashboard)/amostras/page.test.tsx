@@ -33,13 +33,30 @@ const acabamento = [
 ]
 
 const statuses = [
-  { id: 1, nome: "EM_DESENVOLVIMENTO", rotulo: "Em Desenvolvimento", tipo: "AMOSTRA", cor: "#f59e0b", ordem: 1, ativo: true },
-  { id: 2, nome: "APROVADA", rotulo: "Aprovada", tipo: "AMOSTRA", cor: "#22c55e", ordem: 2, ativo: true },
+  {
+    id: 1,
+    nome: "EM_DESENVOLVIMENTO",
+    rotulo: "Em Desenvolvimento",
+    tipo: "AMOSTRA",
+    cor: "#f59e0b",
+    ordem: 1,
+    ativo: true,
+  },
+  {
+    id: 2,
+    nome: "APROVADA",
+    rotulo: "Aprovada",
+    tipo: "AMOSTRA",
+    cor: "#22c55e",
+    ordem: 2,
+    ativo: true,
+  },
 ]
 
 function handler(tecido = tecidoCru, acab = acabamento) {
   return ({ method, url }: { method: string; url: string }) => {
-    if (method === "GET" && url === "/api/amostras") return { json: { tecidoCru: tecido, acabamento: acab } }
+    if (method === "GET" && url === "/api/amostras")
+      return { json: { tecidoCru: tecido, acabamento: acab } }
     if (method === "GET" && url === "/api/admin/status?tipo=AMOSTRA") return { json: statuses }
     return { json: null }
   }

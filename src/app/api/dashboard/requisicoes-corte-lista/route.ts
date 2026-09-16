@@ -36,16 +36,18 @@ export async function GET(req: NextRequest) {
       ORDER BY r.created_at DESC
     `)
 
-    const lista = Array.isArray(rows) ? rows.map((r: any) => ({
-      id: r.id,
-      status: r.status,
-      observacoes: r.observacoes,
-      entreguePor: r.entregue_por,
-      requisitanteNome: r.requisitante_nome,
-      totalCortes: Number(r.total_cortes ?? 0),
-      quantidadeTotal: Number(r.quantidade_total ?? 0),
-      createdAt: r.created_at,
-    })) : []
+    const lista = Array.isArray(rows)
+      ? rows.map((r: any) => ({
+          id: r.id,
+          status: r.status,
+          observacoes: r.observacoes,
+          entreguePor: r.entregue_por,
+          requisitanteNome: r.requisitante_nome,
+          totalCortes: Number(r.total_cortes ?? 0),
+          quantidadeTotal: Number(r.quantidade_total ?? 0),
+          createdAt: r.created_at,
+        }))
+      : []
 
     return NextResponse.json(lista)
   } catch (error) {

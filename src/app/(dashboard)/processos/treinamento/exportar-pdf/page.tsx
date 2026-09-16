@@ -3,9 +3,7 @@
 import { useQuery } from "@tanstack/react-query"
 import { useRouter } from "next/navigation"
 import { useState } from "react"
-import {
-  ArrowLeft, Loader2, GraduationCap, BookOpen, Download,
-} from "lucide-react"
+import { ArrowLeft, Loader2, GraduationCap, BookOpen, Download } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
 
@@ -42,7 +40,8 @@ export default function ExportarPdfPage() {
     if (!modulos || modulos.length === 0) return
     setExportando(true)
     try {
-      const { exportTreinamentoCompletoPdf } = await import("@/lib/export-treinamento-processos-pdf")
+      const { exportTreinamentoCompletoPdf } =
+        await import("@/lib/export-treinamento-processos-pdf")
       await exportTreinamentoCompletoPdf(modulos)
     } finally {
       setExportando(false)
@@ -79,8 +78,8 @@ export default function ExportarPdfPage() {
           <div className="flex-1">
             <h1 className="text-2xl font-bold text-slate-900">Exportar Treinamento Completo</h1>
             <p className="text-sm text-slate-500 mt-1">
-              Esta página contém todos os módulos e lições da Engenharia de Processos.
-              Clique em {'\u201C'}Exportar PDF{'\u201D'} para gerar o arquivo completo.
+              Esta página contém todos os módulos e lições da Engenharia de Processos. Clique em{" "}
+              {"\u201C"}Exportar PDF{"\u201D"} para gerar o arquivo completo.
             </p>
           </div>
           <button
@@ -106,7 +105,8 @@ export default function ExportarPdfPage() {
             <div className="no-print mb-8 p-4 bg-sky-50 border border-sky-200 rounded-xl">
               <h2 className="font-semibold text-sky-800 mb-2">📄 Resumo do Documento</h2>
               <p className="text-sm text-sky-700">
-                {modulos.length} módulos • {modulos.reduce((acc, m) => acc + m.licoes.filter((l) => l.ativo).length, 0)} lições
+                {modulos.length} módulos •{" "}
+                {modulos.reduce((acc, m) => acc + m.licoes.filter((l) => l.ativo).length, 0)} lições
                 • Gerado em {new Date().toLocaleDateString("pt-BR")}
               </p>
             </div>
@@ -114,7 +114,9 @@ export default function ExportarPdfPage() {
             {/* Capa */}
             <div className="text-center py-16 mb-8 border-b border-slate-200">
               <GraduationCap size={48} className="text-sky-600 mx-auto mb-4" />
-              <h1 className="text-3xl font-bold text-slate-900 mb-2">Treinamento Engenharia de Processos</h1>
+              <h1 className="text-3xl font-bold text-slate-900 mb-2">
+                Treinamento Engenharia de Processos
+              </h1>
               <p className="text-lg text-slate-500">PDM Têxtil</p>
               <p className="text-sm text-slate-400 mt-4">
                 Documento completo com todos os módulos e lições
@@ -128,61 +130,75 @@ export default function ExportarPdfPage() {
             <div className="mb-8">
               <h2 className="text-xl font-bold text-slate-900 mb-4">Índice</h2>
               <ol className="list-decimal list-inside space-y-2 text-sm text-slate-700">
-                {modulos.filter((m) => m.ativo).map((modulo) => (
-                  <li key={modulo.id} className="font-medium">
-                    {modulo.titulo}
-                    <span className="text-slate-400 font-normal">
-                      {' '}({modulo.licoes.filter((l) => l.ativo).length} lição{modulo.licoes.filter((l) => l.ativo).length !== 1 ? "ões" : ""})
-                    </span>
-                  </li>
-                ))}
+                {modulos
+                  .filter((m) => m.ativo)
+                  .map((modulo) => (
+                    <li key={modulo.id} className="font-medium">
+                      {modulo.titulo}
+                      <span className="text-slate-400 font-normal">
+                        {" "}
+                        ({modulo.licoes.filter((l) => l.ativo).length} lição
+                        {modulo.licoes.filter((l) => l.ativo).length !== 1 ? "ões" : ""})
+                      </span>
+                    </li>
+                  ))}
               </ol>
             </div>
 
             {/* Módulos */}
-            {modulos.filter((m) => m.ativo).map((modulo) => (
-              <div key={modulo.id} className="modulo-section mb-12">
-                <div
-                  className="flex items-center gap-3 mb-4 p-4 rounded-lg"
-                  style={{ backgroundColor: (modulo.cor || "#0ea5e9") + "15" }}
-                >
+            {modulos
+              .filter((m) => m.ativo)
+              .map((modulo) => (
+                <div key={modulo.id} className="modulo-section mb-12">
                   <div
-                    className="w-10 h-10 rounded-lg flex items-center justify-center text-white shrink-0"
-                    style={{ backgroundColor: modulo.cor || "#0ea5e9" }}
+                    className="flex items-center gap-3 mb-4 p-4 rounded-lg"
+                    style={{ backgroundColor: (modulo.cor || "#0ea5e9") + "15" }}
                   >
-                    <BookOpen size={20} />
-                  </div>
-                  <div>
-                    <h2 className="text-xl font-bold text-slate-900" style={{ color: modulo.cor || "#0ea5e9" }}>
-                      {modulo.titulo}
-                    </h2>
-                    {modulo.descricao && (
-                      <p className="text-sm text-slate-500 mt-0.5">{modulo.descricao}</p>
-                    )}
-                  </div>
-                </div>
-
-                {modulo.licoes.filter((l) => l.ativo).map((licao, idx) => (
-                  <div key={licao.id} className="licao-section mb-8 pl-4 border-l-2 border-slate-200">
-                    <h3 className="text-lg font-bold text-slate-800 mb-1">
-                      {idx + 1}. {licao.titulo}
-                    </h3>
-
-                    {licao.preRequisitos && (
-                      <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded text-sm text-amber-800">
-                        <strong>Pré-cadastros Necessários:</strong> {licao.preRequisitos}
-                      </div>
-                    )}
-
-                    <div className="prose prose-slate max-w-none">
-                      <ReactMarkdown remarkPlugins={[remarkGfm]}>
-                        {licao.conteudoMd}
-                      </ReactMarkdown>
+                    <div
+                      className="w-10 h-10 rounded-lg flex items-center justify-center text-white shrink-0"
+                      style={{ backgroundColor: modulo.cor || "#0ea5e9" }}
+                    >
+                      <BookOpen size={20} />
+                    </div>
+                    <div>
+                      <h2
+                        className="text-xl font-bold text-slate-900"
+                        style={{ color: modulo.cor || "#0ea5e9" }}
+                      >
+                        {modulo.titulo}
+                      </h2>
+                      {modulo.descricao && (
+                        <p className="text-sm text-slate-500 mt-0.5">{modulo.descricao}</p>
+                      )}
                     </div>
                   </div>
-                ))}
-              </div>
-            ))}
+
+                  {modulo.licoes
+                    .filter((l) => l.ativo)
+                    .map((licao, idx) => (
+                      <div
+                        key={licao.id}
+                        className="licao-section mb-8 pl-4 border-l-2 border-slate-200"
+                      >
+                        <h3 className="text-lg font-bold text-slate-800 mb-1">
+                          {idx + 1}. {licao.titulo}
+                        </h3>
+
+                        {licao.preRequisitos && (
+                          <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded text-sm text-amber-800">
+                            <strong>Pré-cadastros Necessários:</strong> {licao.preRequisitos}
+                          </div>
+                        )}
+
+                        <div className="prose prose-slate max-w-none">
+                          <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                            {licao.conteudoMd}
+                          </ReactMarkdown>
+                        </div>
+                      </div>
+                    ))}
+                </div>
+              ))}
           </div>
         )}
       </div>

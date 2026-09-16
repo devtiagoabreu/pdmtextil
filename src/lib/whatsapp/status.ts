@@ -58,7 +58,14 @@ export const RANK_STATUS: Record<string, number> = {
   ERRO: 4,
 }
 
-export async function processarStatusUpdate(rawText: string): Promise<{ tratado: boolean; status?: string; mensagemId?: number; downgradeBloqueado?: boolean }> {
+export async function processarStatusUpdate(
+  rawText: string
+): Promise<{
+  tratado: boolean
+  status?: string
+  mensagemId?: number
+  downgradeBloqueado?: boolean
+}> {
   const info = extrairStatusUpdate(rawText)
   if (!info) return { tratado: false }
 
@@ -86,24 +93,37 @@ export async function processarStatusUpdate(rawText: string): Promise<{ tratado:
 
   const rankAtual = RANK_STATUS[alvo.status] ?? 0
   const rankNovo = RANK_STATUS[status] ?? 0
-  if (rankNovo < rankAtual) return { tratado: true, status: alvo.status, mensagemId: alvo.id, downgradeBloqueado: true }
+  if (rankNovo < rankAtual)
+    return { tratado: true, status: alvo.status, mensagemId: alvo.id, downgradeBloqueado: true }
 
   await db.update(crmWhatsappMensagens).set({ status }).where(eq(crmWhatsappMensagens.id, alvo.id))
   return { tratado: true, status, mensagemId: alvo.id }
 }
 
-export async function registrarExternalIdEnviada(remoteJid: string, externalId?: string | null): Promise<void> {
+export async function registrarExternalIdEnviada(
+  remoteJid: string,
+  externalId?: string | null
+): Promise<void> {
   if (!remoteJid || !externalId) return
 
   const alvo = await db
     .select({ id: crmWhatsappMensagens.id })
     .from(crmWhatsappMensagens)
-    .where(and(eq(crmWhatsappMensagens.remoteJid, remoteJid), eq(crmWhatsappMensagens.tipo, "ENVIADA"), sql`${crmWhatsappMensagens.externalId} IS NULL`))
+    .where(
+      and(
+        eq(crmWhatsappMensagens.remoteJid, remoteJid),
+        eq(crmWhatsappMensagens.tipo, "ENVIADA"),
+        sql`${crmWhatsappMensagens.externalId} IS NULL`
+      )
+    )
     .orderBy(desc(crmWhatsappMensagens.id))
     .limit(1)
     .then((r: any) => r[0] || null)
 
   if (alvo) {
-    await db.update(crmWhatsappMensagens).set({ externalId }).where(eq(crmWhatsappMensagens.id, alvo.id))
+    await db
+      .update(crmWhatsappMensagens)
+      .set({ externalId })
+      .where(eq(crmWhatsappMensagens.id, alvo.id))
   }
 }

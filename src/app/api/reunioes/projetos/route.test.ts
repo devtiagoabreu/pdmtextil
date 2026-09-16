@@ -19,7 +19,10 @@ vi.mock("@/lib/db", () => ({
 }))
 
 const sessionAdmin = { session: { user: { id: "1", role: "ADMIN", name: "Tiago" } }, userId: 1 }
-const sessionQualidade = { session: { user: { id: "2", role: "QUALIDADE", name: "Ana" } }, userId: 2 }
+const sessionQualidade = {
+  session: { user: { id: "2", role: "QUALIDADE", name: "Ana" } },
+  userId: 2,
+}
 
 const projetoRow = {
   id: 2,

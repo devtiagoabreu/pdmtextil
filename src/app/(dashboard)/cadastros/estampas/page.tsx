@@ -41,8 +41,12 @@ export default function EstampasPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
   const [showApiImport, setShowApiImport] = useState(false)
-  
-  const { data: estampas = [], isLoading, refetch } = useQuery({
+
+  const {
+    data: estampas = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["estampas"],
     queryFn: fetchEstampas,
   })
@@ -87,11 +91,25 @@ export default function EstampasPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <ImportarEntidade config={{ titulo: "Estampas", apiBase: "cadastros/estampas", arquivoPrefixo: "estampas" }} onImportado={() => refetch()} />
-          <ExportarDados data={filteredEstampas} columns={[
-            { key: "codigoDesenho", label: "Desenho" }, { key: "variante", label: "Variante" },
-            { key: "nome", label: "Nome" }, { key: "tipo", label: "Tipo" },
-          ]} filename="estampas" title="Estampas" />
+          <ImportarEntidade
+            config={{
+              titulo: "Estampas",
+              apiBase: "cadastros/estampas",
+              arquivoPrefixo: "estampas",
+            }}
+            onImportado={() => refetch()}
+          />
+          <ExportarDados
+            data={filteredEstampas}
+            columns={[
+              { key: "codigoDesenho", label: "Desenho" },
+              { key: "variante", label: "Variante" },
+              { key: "nome", label: "Nome" },
+              { key: "tipo", label: "Tipo" },
+            ]}
+            filename="estampas"
+            title="Estampas"
+          />
           <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
             <Database size={16} />
             Importar via API
@@ -123,20 +141,32 @@ export default function EstampasPage() {
             <Loader2 className="animate-spin text-slate-400" size={24} />
           </div>
         ) : filteredEstampas.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
-            Nenhuma estampa encontrada
-          </div>
+          <div className="p-8 text-center text-slate-500">Nenhuma estampa encontrada</div>
         ) : (
           <table className="w-full">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Desenho</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Variante</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Nome</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Tipo</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID Integração</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Desenho
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Variante
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Nome
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Tipo
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  ID Integração
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Status
+                </th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -145,30 +175,39 @@ export default function EstampasPage() {
                   key={estampa.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 >
-                  <td className="p-4 text-sm font-mono"><Link href={`/cadastros/estampas/${estampa.id}`}>{estampa.codigoDesenho}</Link></td>
+                  <td className="p-4 text-sm font-mono">
+                    <Link href={`/cadastros/estampas/${estampa.id}`}>{estampa.codigoDesenho}</Link>
+                  </td>
                   <td className="p-4 text-sm font-mono">{estampa.variante}</td>
                   <td className="p-4 text-sm">{estampa.nome}</td>
                   <td className="p-4 text-sm text-slate-500">{estampa.tipo || "—"}</td>
-                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{estampa.idIntegracao || "—"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">
+                    {estampa.idIntegracao || "—"}
+                  </td>
                   <td className="p-4">
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                      estampa.ativo 
-                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" 
-                        : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                    }`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                        estampa.ativo
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                          : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                      }`}
+                    >
                       {estampa.ativo ? "Ativo" : "Inativo"}
                     </span>
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/cadastros/estampas/${estampa.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Link
+                        href={`/cadastros/estampas/${estampa.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
                       </Link>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="h-8 w-8 text-red-500 hover:text-red-600"
                         onClick={(e: MouseEvent<HTMLButtonElement>) => {
                           e.stopPropagation()
@@ -190,12 +229,16 @@ export default function EstampasPage() {
       <ConfirmModal
         open={deleteTarget !== null}
         title={deleteBlocked ? "Exclusão não permitida" : "Excluir estampa?"}
-        message={deleteBlocked
-          ? "Esta estampa possui cadastros vinculados e não pode ser excluída."
-          : `Tem certeza que deseja excluir?`}
-        subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
-          : undefined}
+        message={
+          deleteBlocked
+            ? "Esta estampa possui cadastros vinculados e não pode ser excluída."
+            : `Tem certeza que deseja excluir?`
+        }
+        subMessage={
+          deleteBlocked
+            ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+            : undefined
+        }
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}
         loading={deleteLoading}

@@ -31,17 +31,24 @@ export function PilotagemDialog({
   onClose,
 }: PilotagemDialogProps) {
   return (
-    <Dialog open={!!target} onOpenChange={(open: boolean) => { if (!open) onClose() }}>
+    <Dialog
+      open={!!target}
+      onOpenChange={(open: boolean) => {
+        if (!open) onClose()
+      }}
+    >
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
-          <DialogTitle>Iniciar Pilotagem — #{target?.id} {target?.cliente}</DialogTitle>
-          <DialogDescription>
-            Selecione as amostras que entrarão em produção
-          </DialogDescription>
+          <DialogTitle>
+            Iniciar Pilotagem — #{target?.id} {target?.cliente}
+          </DialogTitle>
+          <DialogDescription>Selecione as amostras que entrarão em produção</DialogDescription>
         </DialogHeader>
         <div className="max-h-72 overflow-y-auto space-y-2">
           {loading ? (
-            <div className="flex justify-center py-4"><Loader2 size={16} className="animate-spin text-slate-400" /></div>
+            <div className="flex justify-center py-4">
+              <Loader2 size={16} className="animate-spin text-slate-400" />
+            </div>
           ) : amostras.length === 0 ? (
             <p className="text-sm text-slate-400 text-center py-4">Nenhuma amostra disponível</p>
           ) : (
@@ -65,10 +72,14 @@ export function PilotagemDialog({
                   />
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-medium text-slate-700 dark:text-slate-300">{a.rotulo}</span>
+                      <span className="text-xs font-medium text-slate-700 dark:text-slate-300">
+                        {a.rotulo}
+                      </span>
                       <span className="text-[10px] uppercase text-slate-400">{a.status}</span>
                     </div>
-                    <p className="text-sm text-slate-600 dark:text-slate-400 truncate">{a.descricao || "Sem descrição"}</p>
+                    <p className="text-sm text-slate-600 dark:text-slate-400 truncate">
+                      {a.descricao || "Sem descrição"}
+                    </p>
                   </div>
                 </label>
               )

@@ -17,10 +17,7 @@ import { notificar, notificarDelecao, registrarLog } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 export const dynamic = "force-dynamic"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -32,18 +29,36 @@ export async function GET(
       return NextResponse.json({ error: "Produto não encontrado" }, { status: 404 })
     }
 
-    const composicao = await db.select().from(produtoCruComposicao).where(eq(produtoCruComposicao.produtoCruId, id))
-    const estrutura = await db.select().from(produtoCruEstrutura).where(eq(produtoCruEstrutura.produtoCruId, id))
-    const amostras = await db.select().from(produtoCruAmostra).where(eq(produtoCruAmostra.produtoCruId, id))
-    const acabamentos = await db.select().from(produtoCruAcabamento).where(eq(produtoCruAcabamento.produtoCruId, id))
+    const composicao = await db
+      .select()
+      .from(produtoCruComposicao)
+      .where(eq(produtoCruComposicao.produtoCruId, id))
+    const estrutura = await db
+      .select()
+      .from(produtoCruEstrutura)
+      .where(eq(produtoCruEstrutura.produtoCruId, id))
+    const amostras = await db
+      .select()
+      .from(produtoCruAmostra)
+      .where(eq(produtoCruAmostra.produtoCruId, id))
+    const acabamentos = await db
+      .select()
+      .from(produtoCruAcabamento)
+      .where(eq(produtoCruAcabamento.produtoCruId, id))
 
     const acabamentoIds = acabamentos.map((a: any) => a.id)
     const [todasAmostrasAcab, todasReceitas] = await Promise.all([
       acabamentoIds.length
-        ? db.select().from(produtoCruAcabamentoAmostra).where(inArray(produtoCruAcabamentoAmostra.acabamentoId, acabamentoIds))
+        ? db
+            .select()
+            .from(produtoCruAcabamentoAmostra)
+            .where(inArray(produtoCruAcabamentoAmostra.acabamentoId, acabamentoIds))
         : Promise.resolve([]),
       acabamentoIds.length
-        ? db.select().from(produtoCruAcabamentoReceita).where(inArray(produtoCruAcabamentoReceita.acabamentoId, acabamentoIds))
+        ? db
+            .select()
+            .from(produtoCruAcabamentoReceita)
+            .where(inArray(produtoCruAcabamentoReceita.acabamentoId, acabamentoIds))
         : Promise.resolve([]),
     ])
     type AcabAmostra = (typeof todasAmostrasAcab)[number]
@@ -78,10 +93,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -92,7 +104,10 @@ export async function PUT(
     // Apenas COMERCIAL e ADMIN podem aprovar/reprovar produto
     if (body.status === "APROVADO" || body.status === "REPROVADO") {
       if (!["COMERCIAL", "ADMIN", "SUDO"].includes(session.user?.role ?? "")) {
-        return NextResponse.json({ error: "Apenas COMERCIAL, ADMIN e SUDO podem aprovar/reprovar produtos" }, { status: 403 })
+        return NextResponse.json(
+          { error: "Apenas COMERCIAL, ADMIN e SUDO podem aprovar/reprovar produtos" },
+          { status: 403 }
+        )
       }
     }
 
@@ -104,7 +119,10 @@ export async function PUT(
         .limit(1)
 
       if (existente[0] && existente[0].id !== id) {
-        return NextResponse.json({ error: "ID Integração já cadastrado em outro produto" }, { status: 409 })
+        return NextResponse.json(
+          { error: "ID Integração já cadastrado em outro produto" },
+          { status: 409 }
+        )
       }
     }
 
@@ -136,7 +154,10 @@ export async function PUT(
         const solId = Number(body.solicitacaoDesenvolvimentoId)
         if (!isNaN(solId)) {
           const [sol] = await tx
-            .select({ status: solicitacoes.status, historicoComunicacao: solicitacoes.historicoComunicacao })
+            .select({
+              status: solicitacoes.status,
+              historicoComunicacao: solicitacoes.historicoComunicacao,
+            })
             .from(solicitacoes)
             .where(eq(solicitacoes.id, solId))
             .limit(1)
@@ -152,7 +173,11 @@ export async function PUT(
             })
             await tx
               .update(solicitacoes)
-              .set({ status: "EM_DESENVOLVIMENTO", historicoComunicacao: historico, updatedAt: new Date() })
+              .set({
+                status: "EM_DESENVOLVIMENTO",
+                historicoComunicacao: historico,
+                updatedAt: new Date(),
+              })
               .where(eq(solicitacoes.id, solId))
           }
         }
@@ -172,7 +197,14 @@ export async function PUT(
       session.user.name
     )
 
-    await registrarLog({ tipo: "ATUALIZACAO", acao: "atualizar", descricao: `Produto cru #${id} atualizado - status: ${body.status}`, entidade: "ProdutoCru", entidadeId: id, usuarioNome: session.user.name })
+    await registrarLog({
+      tipo: "ATUALIZACAO",
+      acao: "atualizar",
+      descricao: `Produto cru #${id} atualizado - status: ${body.status}`,
+      entidade: "ProdutoCru",
+      entidadeId: id,
+      usuarioNome: session.user.name,
+    })
 
     return NextResponse.json(atualizado)
   } catch (error) {
@@ -181,15 +213,15 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     if (session.user.role !== "ADMIN" && session.user.role !== "SUDO") {
-      return NextResponse.json({ error: "Apenas administradores podem excluir produtos" }, { status: 403 })
+      return NextResponse.json(
+        { error: "Apenas administradores podem excluir produtos" },
+        { status: 403 }
+      )
     }
 
     const id = parseInt((await params).id)

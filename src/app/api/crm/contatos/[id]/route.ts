@@ -9,10 +9,7 @@ import { eq } from "drizzle-orm"
 import { notificar } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -55,7 +52,12 @@ export async function PUT(
       .where(eq(crmContatos.id, parseInt(id)))
       .returning()
 
-    await notificar("CONTATO_ATUALIZADO", `Contato #${id} atualizado`, `/comercial/crm/contatos/${id}`, session.user.name)
+    await notificar(
+      "CONTATO_ATUALIZADO",
+      `Contato #${id} atualizado`,
+      `/comercial/crm/contatos/${id}`,
+      session.user.name
+    )
 
     return NextResponse.json(atualizado)
   } catch (error) {
@@ -63,10 +65,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -77,9 +76,18 @@ export async function DELETE(
     const { id } = await params
     const contatoId = parseInt(id)
     await db.transaction(async (tx: any) => {
-      await tx.update(crmOportunidades).set({ contatoId: null }).where(eq(crmOportunidades.contatoId, contatoId))
-      await tx.update(crmVisitas).set({ contatoId: null }).where(eq(crmVisitas.contatoId, contatoId))
-      await tx.update(crmWhatsappMensagens).set({ contatoId: null }).where(eq(crmWhatsappMensagens.contatoId, contatoId))
+      await tx
+        .update(crmOportunidades)
+        .set({ contatoId: null })
+        .where(eq(crmOportunidades.contatoId, contatoId))
+      await tx
+        .update(crmVisitas)
+        .set({ contatoId: null })
+        .where(eq(crmVisitas.contatoId, contatoId))
+      await tx
+        .update(crmWhatsappMensagens)
+        .set({ contatoId: null })
+        .where(eq(crmWhatsappMensagens.contatoId, contatoId))
       await tx.delete(crmContatos).where(eq(crmContatos.id, contatoId))
     })
 

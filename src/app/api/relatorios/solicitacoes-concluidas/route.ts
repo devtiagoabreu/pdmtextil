@@ -33,13 +33,15 @@ export async function GET(req: NextRequest) {
 
     const f = filtro()
 
-    const statsRaw = (await rows(sql`
+    const statsRaw = (
+      await rows(sql`
       SELECT
         COUNT(*)::int AS total,
         COUNT(*) FILTER (WHERE tipo = 'DESENVOLVIMENTO_TECELAGEM')::int AS tecelagem,
         COUNT(*) FILTER (WHERE tipo = 'DESENVOLVIMENTO_BENEFICIAMENTO')::int AS beneficiamento
       FROM solicitacoes WHERE status = 'CONCLUIDO_DEV' AND ${f}
-    `))[0] || { total: 0, tecelagem: 0, beneficiamento: 0 }
+    `)
+    )[0] || { total: 0, tecelagem: 0, beneficiamento: 0 }
 
     const porMes = await rows(sql`
       SELECT TO_CHAR(data_conclusao, 'YYYY-MM') AS mes, COUNT(*)::int AS concluidas
@@ -77,16 +79,22 @@ export async function GET(req: NextRequest) {
         createdAt: r.created_at,
         dataConclusao: r.data_conclusao,
         prazoDesejado: r.prazo_desejado,
-        diasEmDev: r.created_at && r.data_conclusao
-          ? Math.round((new Date(r.data_conclusao).getTime() - new Date(r.created_at).getTime()) / 86400000)
-          : null,
+        diasEmDev:
+          r.created_at && r.data_conclusao
+            ? Math.round(
+                (new Date(r.data_conclusao).getTime() - new Date(r.created_at).getTime()) / 86400000
+              )
+            : null,
       })),
     })
   } catch (error) {
     console.error("[GET /api/relatorios/solicitacoes-concluidas]", error)
-    return NextResponse.json({
-      error: "Erro interno",
-      detail: "Erro interno",
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Erro interno",
+        detail: "Erro interno",
+      },
+      { status: 500 }
+    )
   }
 }

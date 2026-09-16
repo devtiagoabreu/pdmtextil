@@ -10,10 +10,7 @@ import { handleApiError } from "@/lib/api-error"
 import { excluirOportunidadeCascade } from "@/lib/crm-cascade"
 import { crmOportunidades } from "@/lib/db/schema/crm-oportunidades"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -35,10 +32,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -92,7 +86,11 @@ export async function PUT(
         empresaId: atualizado.empresaId,
         tipo: "LEAD",
         descricao: `Lead "${atualizado.nome}" mudou para "${body.status}"`,
-        metadados: { leadId: atualizado.id, statusAnterior: existente.status, statusNovo: body.status },
+        metadados: {
+          leadId: atualizado.id,
+          statusAnterior: existente.status,
+          statusNovo: body.status,
+        },
       })
     }
 
@@ -120,7 +118,10 @@ export async function PUT(
       const [pessoa] = await db.insert(crmPessoas).values(pessoaData).returning()
 
       // Vincular a pessoa criada ao lead
-      await db.update(crmLeads).set({ pessoaId: pessoa.id, updatedAt: new Date() }).where(eq(crmLeads.id, atualizado.id))
+      await db
+        .update(crmLeads)
+        .set({ pessoaId: pessoa.id, updatedAt: new Date() })
+        .where(eq(crmLeads.id, atualizado.id))
 
       await inserirTimelineEvento({
         empresaId: atualizado.empresaId!,
@@ -130,7 +131,12 @@ export async function PUT(
       })
     }
 
-    await notificar("LEAD_ATUALIZADO", `Lead atualizado: ${atualizado.nome}`, `/comercial/crm/leads/${atualizado.id}`, session.user.name)
+    await notificar(
+      "LEAD_ATUALIZADO",
+      `Lead atualizado: ${atualizado.nome}`,
+      `/comercial/crm/leads/${atualizado.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(atualizado)
   } catch (error) {
@@ -138,10 +144,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth

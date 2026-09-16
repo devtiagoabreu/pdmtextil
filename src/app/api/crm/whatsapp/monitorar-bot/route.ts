@@ -13,7 +13,8 @@ export async function POST(req: NextRequest) {
     const session = await getServerSession(authOptions).catch(() => null)
     const isCron = Boolean(cronSecret && authHeader === `Bearer ${cronSecret}`)
     const isAdmin =
-      session && (session.user.role === "ADMIN" || session.user.role === "SUDO" || session.user.role === "CRM")
+      session &&
+      (session.user.role === "ADMIN" || session.user.role === "SUDO" || session.user.role === "CRM")
     if (!isCron && !isAdmin) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }

@@ -31,7 +31,11 @@ export default function ProcessoSubprocessosPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
 
-  const { data: subprocessos = [], isLoading, refetch } = useQuery({
+  const {
+    data: subprocessos = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["proc-subprocessos"],
     queryFn: async () => {
       const res = await fetch("/api/processos/subprocessos")
@@ -47,7 +51,9 @@ export default function ProcessoSubprocessosPage() {
     setDeleteLoading(true)
     setDeleteBlocked(false)
     try {
-      const res = await fetch(`/api/processos/subprocessos/${deleteTarget.id}`, { method: "DELETE" })
+      const res = await fetch(`/api/processos/subprocessos/${deleteTarget.id}`, {
+        method: "DELETE",
+      })
       const data = await res.json()
       if (!res.ok) {
         if (data.fkError) {
@@ -105,18 +111,26 @@ export default function ProcessoSubprocessosPage() {
             <Loader2 className="animate-spin text-slate-400" size={24} />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
-            Nenhum subprocesso encontrado
-          </div>
+          <div className="p-8 text-center text-slate-500">Nenhum subprocesso encontrado</div>
         ) : (
           <table className="w-full">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Nome</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Processo</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ordem</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Nome
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Processo
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Ordem
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Status
+                </th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -126,7 +140,10 @@ export default function ProcessoSubprocessosPage() {
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 >
                   <td className="p-4 text-sm font-medium">
-                    <Link href={`/processos/subprocessos/${sub.id}`} className="flex items-center gap-2">
+                    <Link
+                      href={`/processos/subprocessos/${sub.id}`}
+                      className="flex items-center gap-2"
+                    >
                       <GitBranch size={14} className="text-slate-400" />
                       {sub.nome}
                     </Link>
@@ -134,17 +151,22 @@ export default function ProcessoSubprocessosPage() {
                   <td className="p-4 text-sm text-slate-500">{sub.processoNome || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{sub.ordem}</td>
                   <td className="p-4">
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                      sub.ativo
-                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                        : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                    }`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                        sub.ativo
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                          : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                      }`}
+                    >
                       {sub.ativo ? "Ativo" : "Inativo"}
                     </span>
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/processos/subprocessos/${sub.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Link
+                        href={`/processos/subprocessos/${sub.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
@@ -173,12 +195,16 @@ export default function ProcessoSubprocessosPage() {
       <ConfirmModal
         open={deleteTarget !== null}
         title={deleteBlocked ? "Exclusão não permitida" : "Excluir subprocesso?"}
-        message={deleteBlocked
-          ? "Este subprocesso possui atividades vinculadas e não pode ser excluído."
-          : "Tem certeza que deseja excluir?"}
-        subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir."
-          : undefined}
+        message={
+          deleteBlocked
+            ? "Este subprocesso possui atividades vinculadas e não pode ser excluído."
+            : "Tem certeza que deseja excluir?"
+        }
+        subMessage={
+          deleteBlocked
+            ? "Remova ou desvincule os registros associados antes de excluir."
+            : undefined
+        }
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}
         loading={deleteLoading}

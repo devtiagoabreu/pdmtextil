@@ -4,7 +4,12 @@ import { useState } from "react"
 import { Plus, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import {
-  Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
 } from "@/components/ui/dialog"
 
 type Props = {
@@ -14,12 +19,7 @@ type Props = {
   onCreated: (id: number, titulo: string) => void
 }
 
-export function QuickCreateProposta({
-  empresaId,
-  clienteId,
-  oportunidadeId,
-  onCreated,
-}: Props) {
+export function QuickCreateProposta({ empresaId, clienteId, oportunidadeId, onCreated }: Props) {
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [titulo, setTitulo] = useState("")
@@ -83,11 +83,13 @@ export function QuickCreateProposta({
         </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Título *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Título *
+            </label>
             <input
               type="text"
               value={titulo}
-              onChange={e => setTitulo(e.target.value)}
+              onChange={(e) => setTitulo(e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Ex: Proposta Comercial - Tecido X"
               required
@@ -95,32 +97,38 @@ export function QuickCreateProposta({
           </div>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Valor (R$)</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Valor (R$)
+              </label>
               <input
                 type="number"
                 step="0.01"
                 value={valor}
-                onChange={e => setValor(e.target.value)}
+                onChange={(e) => setValor(e.target.value)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="0,00"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Prazo de Entrega</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Prazo de Entrega
+              </label>
               <input
                 type="text"
                 value={prazoEntrega}
-                onChange={e => setPrazoEntrega(e.target.value)}
+                onChange={(e) => setPrazoEntrega(e.target.value)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 placeholder="Ex: 30 dias"
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Descrição</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Descrição
+            </label>
             <textarea
               value={descricao}
-              onChange={e => setDescricao(e.target.value)}
+              onChange={(e) => setDescricao(e.target.value)}
               rows={3}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               placeholder="Detalhes da proposta..."

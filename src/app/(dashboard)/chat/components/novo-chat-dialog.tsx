@@ -59,8 +59,14 @@ export function NovoChatDialog({ onClose }: { onClose: () => void }) {
       : usuarios.find((u: any) => u.id.toString() === destinatarios)?.name || "Selecione..."
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={onClose}>
-      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md mx-4 p-6" onClick={(e) => e.stopPropagation()}>
+    <div
+      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+      onClick={onClose}
+    >
+      <div
+        className="bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md mx-4 p-6"
+        onClick={(e) => e.stopPropagation()}
+      >
         <h3 className="text-lg font-semibold mb-4 text-slate-900 dark:text-slate-50">Novo Chat</h3>
 
         <div className="space-y-3">
@@ -82,24 +88,46 @@ export function NovoChatDialog({ onClose }: { onClose: () => void }) {
               className="w-full mt-1 h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-transparent px-3 text-sm text-left flex items-center justify-between text-slate-900 dark:text-slate-200"
             >
               <span className={destinatarios ? "" : "text-slate-400"}>{destLabel}</span>
-              <svg className={`w-4 h-4 transition-transform ${destOpen ? "rotate-180" : ""}`} fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg>
+              <svg
+                className={`w-4 h-4 transition-transform ${destOpen ? "rotate-180" : ""}`}
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M19 9l-7 7-7-7"
+                />
+              </svg>
             </button>
             {destOpen && (
               <div className="absolute z-10 mt-1 w-full bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-xl max-h-[200px] overflow-y-auto">
                 <button
                   type="button"
-                  onClick={() => { setDestinatarios("todos"); setDestOpen(false) }}
+                  onClick={() => {
+                    setDestinatarios("todos")
+                    setDestOpen(false)
+                  }}
                   className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700 ${destinatarios === "todos" ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300" : "text-slate-900 dark:text-slate-200"}`}
-                >Todos os usuários</button>
+                >
+                  Todos os usuários
+                </button>
                 {usuarios
                   .filter((u: any) => u.id !== parseInt(session?.user?.id || "0"))
                   .map((u: any) => (
                     <button
                       key={u.id}
                       type="button"
-                      onClick={() => { setDestinatarios(u.id.toString()); setDestOpen(false) }}
+                      onClick={() => {
+                        setDestinatarios(u.id.toString())
+                        setDestOpen(false)
+                      }}
                       className={`w-full text-left px-3 py-2 text-sm hover:bg-slate-100 dark:hover:bg-slate-700 ${destinatarios === u.id.toString() ? "bg-blue-50 dark:bg-blue-900/20 text-blue-700 dark:text-blue-300" : "text-slate-900 dark:text-slate-200"}`}
-                    >{u.name}</button>
+                    >
+                      {u.name}
+                    </button>
                   ))}
               </div>
             )}
@@ -117,7 +145,9 @@ export function NovoChatDialog({ onClose }: { onClose: () => void }) {
         </div>
 
         <div className="flex gap-3 mt-6">
-          <Button variant="outline" className="flex-1" onClick={onClose}>Cancelar</Button>
+          <Button variant="outline" className="flex-1" onClick={onClose}>
+            Cancelar
+          </Button>
           <Button
             className="flex-1"
             onClick={() => criarChat.mutate()}

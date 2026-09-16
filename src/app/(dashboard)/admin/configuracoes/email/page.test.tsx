@@ -7,15 +7,50 @@ import { createFetchMock, renderPage, toastMock } from "@/test/harness"
 function setup() {
   const fetchMock = createFetchMock(({ method, url }) => {
     if (method === "GET" && url === "/api/admin/config/smtp")
-      return { json: { id: 1, host: "smtp.gmail.com", port: 587, user: "sistema@gmail.com", pass: "x", fromName: "PDM Têxtil", ativo: true } }
+      return {
+        json: {
+          id: 1,
+          host: "smtp.gmail.com",
+          port: 587,
+          user: "sistema@gmail.com",
+          pass: "x",
+          fromName: "PDM Têxtil",
+          ativo: true,
+        },
+      }
     if (method === "GET" && url === "/api/crm/config/email")
-      return { json: { id: 1, host: "smtp.gmail.com", port: 587, user: "crm@gmail.com", pass: "x", fromName: "PDM CRM", replyTo: "comercial@pdm.com", ativo: true } }
+      return {
+        json: {
+          id: 1,
+          host: "smtp.gmail.com",
+          port: 587,
+          user: "crm@gmail.com",
+          pass: "x",
+          fromName: "PDM CRM",
+          replyTo: "comercial@pdm.com",
+          ativo: true,
+        },
+      }
     if (method === "GET" && url === "/api/admin/config/user-email")
-      return { json: [{ id: 1, usuarioId: 2, email: "ana@gmail.com", ativo: true, limiteDiario: 1500, usuarioNome: "Ana Comercial", usuarioEmail: "ana@pdm.com" }] }
+      return {
+        json: [
+          {
+            id: 1,
+            usuarioId: 2,
+            email: "ana@gmail.com",
+            ativo: true,
+            limiteDiario: 1500,
+            usuarioNome: "Ana Comercial",
+            usuarioEmail: "ana@pdm.com",
+          },
+        ],
+      }
     if (method === "GET" && url === "/api/admin/usuarios")
       return { json: [{ id: 2, name: "Ana Comercial", email: "ana@pdm.com", role: "COMERCIAL" }] }
-    if (method === "PUT" && url === "/api/admin/config/user-email") return { json: { success: true } }
-    if (method === "DELETE" && url.startsWith("/api/admin/config/user-email")) return { json: { success: true } }
+    if (method === "PUT" && url === "/api/admin/config/user-email")
+      return { json: { success: true } }
+    if (method === "DELETE" && url.startsWith("/api/admin/config/user-email"))
+      return { json: { success: true } }
     return { status: 404, json: { error: "Rota não mockada" } }
   })
   vi.stubGlobal("fetch", fetchMock.fn)
@@ -30,7 +65,9 @@ describe("EmailConfigPage", () => {
   it("renderiza o heading e as 3 abas", async () => {
     setup()
     renderPage(<EmailConfigPage />)
-    expect(await screen.findByRole("heading", { name: "Configuração de Email" })).toBeInTheDocument()
+    expect(
+      await screen.findByRole("heading", { name: "Configuração de Email" })
+    ).toBeInTheDocument()
     expect(screen.getByRole("tab", { name: "SMTP Sistema" })).toBeInTheDocument()
     expect(screen.getByRole("tab", { name: "Email por Usuário" })).toBeInTheDocument()
     expect(screen.getByRole("tab", { name: "SMTP CRM" })).toBeInTheDocument()

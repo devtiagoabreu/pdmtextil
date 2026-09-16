@@ -5,7 +5,16 @@ import IntegracoesPage from "./page"
 import { createFetchMock, renderPage } from "@/test/harness"
 
 const integracoes = [
-  { id: 1, nome: "ERP TOTVS", baseUrl: "https://erp.totvs.com/api", tipoAuth: "bearer", authConfig: {}, telas: ["produtos"], mapping: {}, ativo: true },
+  {
+    id: 1,
+    nome: "ERP TOTVS",
+    baseUrl: "https://erp.totvs.com/api",
+    tipoAuth: "bearer",
+    authConfig: {},
+    telas: ["produtos"],
+    mapping: {},
+    ativo: true,
+  },
 ]
 
 function setup() {

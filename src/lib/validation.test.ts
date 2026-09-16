@@ -364,7 +364,14 @@ describe("procProcessoSchema", () => {
       entradas: ["Tecido cru", "Corante"],
       saidas: ["Tecido tingido"],
       indicadores: [{ nome: "Tempo de ciclo", unidade: "h", meta: "< 4h", frequencia: "diária" }],
-      riscos: [{ descricao: "Variação de cor", probabilidade: "média", impacto: "alto", controle: "Checklist" }],
+      riscos: [
+        {
+          descricao: "Variação de cor",
+          probabilidade: "média",
+          impacto: "alto",
+          controle: "Checklist",
+        },
+      ],
       controles: [{ descricao: "Calibração", responsavel: "Manutenção", frequencia: "mensal" }],
     })
     expect(result.success).toBe(true)

@@ -47,7 +47,11 @@ export default function AtivosAtivosPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
 
-  const { data: ativos = [], isLoading, refetch } = useQuery({
+  const {
+    data: ativos = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["ativos-ativos"],
     queryFn: async () => {
       const res = await fetch("/api/ativos/ativos")
@@ -121,20 +125,32 @@ export default function AtivosAtivosPage() {
             <Loader2 className="animate-spin text-slate-400" size={24} />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
-            Nenhum ativo encontrado
-          </div>
+          <div className="p-8 text-center text-slate-500">Nenhum ativo encontrado</div>
         ) : (
           <table className="w-full">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Código</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Nome</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Categoria</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Localização</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Responsável</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Código
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Nome
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Categoria
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Localização
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Status
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Responsável
+                </th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -145,21 +161,24 @@ export default function AtivosAtivosPage() {
                 >
                   <td className="p-4 text-sm font-medium text-slate-500">{ativo.codigo}</td>
                   <td className="p-4 text-sm font-medium">
-                    <Link href={`/ativos/ativos/${ativo.id}`}>
-                      {ativo.nome}
-                    </Link>
+                    <Link href={`/ativos/ativos/${ativo.id}`}>{ativo.nome}</Link>
                   </td>
                   <td className="p-4 text-sm text-slate-500">{ativo.categoriaNome || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{ativo.localizacao || "—"}</td>
                   <td className="p-4">
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[ativo.status] || STATUS_STYLES.INATIVO}`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[ativo.status] || STATUS_STYLES.INATIVO}`}
+                    >
                       {STATUS_LABELS[ativo.status] || ativo.status}
                     </span>
                   </td>
                   <td className="p-4 text-sm text-slate-500">{ativo.responsavelNome || "—"}</td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/ativos/ativos/${ativo.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Link
+                        href={`/ativos/ativos/${ativo.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
@@ -188,12 +207,16 @@ export default function AtivosAtivosPage() {
       <ConfirmModal
         open={deleteTarget !== null}
         title={deleteBlocked ? "Exclusão não permitida" : "Excluir ativo?"}
-        message={deleteBlocked
-          ? "Este ativo possui vistorias ou planos vinculados e não pode ser excluído."
-          : "Tem certeza que deseja excluir?"}
-        subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir."
-          : undefined}
+        message={
+          deleteBlocked
+            ? "Este ativo possui vistorias ou planos vinculados e não pode ser excluído."
+            : "Tem certeza que deseja excluir?"
+        }
+        subMessage={
+          deleteBlocked
+            ? "Remova ou desvincule os registros associados antes de excluir."
+            : undefined
+        }
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}
         loading={deleteLoading}

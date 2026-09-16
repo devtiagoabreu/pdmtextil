@@ -34,7 +34,10 @@ export default function ListaRequisicoesAmostraComercialPage() {
   useEffect(() => {
     if (!mounted) return
     fetch("/api/requisicoes-amostra-comercial")
-      .then((res: Response) => { if (!res.ok) throw new Error(); return res.json() })
+      .then((res: Response) => {
+        if (!res.ok) throw new Error()
+        return res.json()
+      })
       .then((d: RequisicaoAmostraLista[]) => {
         const arr = Array.isArray(d) ? d : []
         setData(arr)
@@ -58,7 +61,9 @@ export default function ListaRequisicoesAmostraComercialPage() {
     if (!deleteTarget) return
     setDeleteLoading(true)
     try {
-      const res = await fetch(`/api/requisicoes-amostra-comercial/${deleteTarget.id}`, { method: "DELETE" })
+      const res = await fetch(`/api/requisicoes-amostra-comercial/${deleteTarget.id}`, {
+        method: "DELETE",
+      })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
         throw new Error(err.error || "Erro ao excluir")
@@ -110,7 +115,7 @@ export default function ListaRequisicoesAmostraComercialPage() {
           type="text"
           placeholder="Buscar por ID, título, cliente ou produto..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           className="flex-1 bg-transparent text-sm text-slate-900 dark:text-slate-100 placeholder-slate-400 outline-none"
         />
       </div>
@@ -119,8 +124,13 @@ export default function ListaRequisicoesAmostraComercialPage() {
         {filtered.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <FlaskConical className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma requisição encontrada</p>
-            <Link href="/comercial/requisicoes-amostra-comercial/novo" className="text-sm text-blue-600 hover:underline mt-2">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Nenhuma requisição encontrada
+            </p>
+            <Link
+              href="/comercial/requisicoes-amostra-comercial/novo"
+              className="text-sm text-blue-600 hover:underline mt-2"
+            >
               Criar primeira requisição
             </Link>
           </div>
@@ -129,48 +139,71 @@ export default function ListaRequisicoesAmostraComercialPage() {
             <table className="w-full">
               <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">ID</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Título</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Cliente</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Produto</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ações</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    ID
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Título
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Cliente
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Produto
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Data
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Ações
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {filtered.map((item) => (
-                  <tr
-                    key={item.id}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                  >
+                  <tr key={item.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                     <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">
-                      <Link href={`/comercial/requisicoes-amostra-comercial/${item.id}`} className="hover:text-blue-600 dark:hover:text-blue-400">
+                      <Link
+                        href={`/comercial/requisicoes-amostra-comercial/${item.id}`}
+                        className="hover:text-blue-600 dark:hover:text-blue-400"
+                      >
                         #{item.id}
                       </Link>
                     </td>
-                    <td className="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">{item.titulo || "—"}</td>
-                    <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.cliente || "—"}</td>
+                    <td className="px-4 py-3 text-sm text-slate-700 dark:text-slate-300">
+                      {item.titulo || "—"}
+                    </td>
+                    <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
+                      {item.cliente || "—"}
+                    </td>
                     <td className="px-4 py-3 text-sm">
                       <span className="text-xs font-mono text-slate-700 dark:text-slate-300">
                         {item.produtoCodigo || "—"}
                       </span>
                       {item.produtoDescricao && (
-                        <p className="text-xs text-slate-400 line-clamp-1">{item.produtoDescricao}</p>
+                        <p className="text-xs text-slate-400 line-clamp-1">
+                          {item.produtoDescricao}
+                        </p>
                       )}
                     </td>
                     <td className="px-4 py-3">
-                      <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{
-                        backgroundColor: hexToRgba(getColor(item.status), 0.15),
-                        color: getColor(item.status),
-                      }}>
+                      <span
+                        className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                        style={{
+                          backgroundColor: hexToRgba(getColor(item.status), 0.15),
+                          color: getColor(item.status),
+                        }}
+                      >
                         {getLabel(item.status)}
                       </span>
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
                       {item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : "—"}
                     </td>
-                    <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
+                    <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
                       <div className="flex items-center gap-2">
                         <Link
                           href={`/comercial/requisicoes-amostra-comercial/${item.id}`}
@@ -183,7 +216,11 @@ export default function ListaRequisicoesAmostraComercialPage() {
                           disabled={gerandoPdf === item.id}
                           className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium inline-flex items-center gap-1 disabled:opacity-50"
                         >
-                          {gerandoPdf === item.id ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />}
+                          {gerandoPdf === item.id ? (
+                            <Loader2 size={12} className="animate-spin" />
+                          ) : (
+                            <FileText size={12} />
+                          )}
                           {gerandoPdf === item.id ? "..." : "PDF"}
                         </button>
                         <button

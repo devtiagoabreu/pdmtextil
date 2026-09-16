@@ -25,7 +25,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (isNaN(menuId)) return NextResponse.json({ error: "Menu inválido" }, { status: 400 })
 
     const body = await req.json()
-    if (!body.titulo || !body.url) return NextResponse.json({ error: "Título e URL são obrigatórios" }, { status: 400 })
+    if (!body.titulo || !body.url)
+      return NextResponse.json({ error: "Título e URL são obrigatórios" }, { status: 400 })
 
     const [menu] = await db.select().from(userMenus).where(eq(userMenus.id, menuId))
     if (!menu) return NextResponse.json({ error: "Menu não encontrado" }, { status: 404 })

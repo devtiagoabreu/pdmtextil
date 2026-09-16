@@ -5,14 +5,34 @@ import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { ArrowLeft, Pencil, Check, X, Trash2, MessageSquare, Send, Loader2, Check as CheckIcon, CheckCheck } from "lucide-react"
+import {
+  ArrowLeft,
+  Pencil,
+  Check,
+  X,
+  Trash2,
+  MessageSquare,
+  Send,
+  Loader2,
+  Check as CheckIcon,
+  CheckCheck,
+} from "lucide-react"
 import { toast } from "sonner"
 import { useSession } from "next-auth/react"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import type { Lead, MensagemWhatsapp } from "../types"
 
 const STATUS_OPTIONS = ["NOVO", "CONTATADO", "QUALIFICADO", "CONVERTIDO", "PERDIDO"] as const
-const ORIGEM_OPTIONS = ["SITE", "INDICACAO", "EVENTO", "PROSPECCAO", "LIGACAO", "WHATSAPP", "EMAIL", "OUTRO"] as const
+const ORIGEM_OPTIONS = [
+  "SITE",
+  "INDICACAO",
+  "EVENTO",
+  "PROSPECCAO",
+  "LIGACAO",
+  "WHATSAPP",
+  "EMAIL",
+  "OUTRO",
+] as const
 
 type LeadForm = {
   nome: string
@@ -131,7 +151,7 @@ export default function LeadDetailPage() {
       })
       if (!res.ok) throw new Error()
       const nova = (await res.json()) as MensagemWhatsapp
-      setMensagens(prev => [...prev, nova])
+      setMensagens((prev) => [...prev, nova])
       setTextoMsg("")
     } catch {
       toast.error("Erro ao enviar mensagem")
@@ -162,7 +182,12 @@ export default function LeadDetailPage() {
     return (
       <div className="text-center py-20">
         <p className="text-slate-500">Lead não encontrado</p>
-        <Link href="/comercial/crm/leads" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
+        <Link
+          href="/comercial/crm/leads"
+          className="text-blue-600 hover:underline mt-2 inline-block"
+        >
+          Voltar
+        </Link>
       </div>
     )
   }
@@ -170,22 +195,32 @@ export default function LeadDetailPage() {
   return (
     <div className="space-y-6 animate-fade-in max-w-4xl">
       <div className="flex items-center gap-3">
-        <button onClick={() => router.back()} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <button
+          onClick={() => router.back()}
+          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={18} className="text-slate-500" />
         </button>
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">{lead.nome}{info && <InfoButton content={info} />}</h1>
+            <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+              {lead.nome}
+              {info && <InfoButton content={info} />}
+            </h1>
             {lead.tipoPessoa && (
-              <span className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                lead.tipoPessoa === "PF"
-                  ? "text-purple-600 bg-purple-50 dark:bg-purple-950/50 dark:text-purple-400"
-                  : "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50 dark:text-cyan-400"
-              }`}>
+              <span
+                className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                  lead.tipoPessoa === "PF"
+                    ? "text-purple-600 bg-purple-50 dark:bg-purple-950/50 dark:text-purple-400"
+                    : "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50 dark:text-cyan-400"
+                }`}
+              >
                 {lead.tipoPessoa === "PF" ? "PF" : "PJ"}
               </span>
             )}
-            <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[lead.status] || ""}`}>
+            <span
+              className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[lead.status] || ""}`}
+            >
               {lead.status}
             </span>
           </div>
@@ -193,27 +228,46 @@ export default function LeadDetailPage() {
             <p className="text-sm text-slate-500">
               {lead.empresaNome}
               {lead.tipoPessoa && (lead.empresaNome ? " — " : "")}
-              {lead.tipoPessoa === "PF" ? "Pessoa Física" : lead.tipoPessoa === "PJ" ? "Pessoa Jurídica" : ""}
+              {lead.tipoPessoa === "PF"
+                ? "Pessoa Física"
+                : lead.tipoPessoa === "PJ"
+                  ? "Pessoa Jurídica"
+                  : ""}
             </p>
           )}
         </div>
         <div className="flex gap-2">
           {editing ? (
             <>
-              <button onClick={handleSave} className="flex items-center gap-1 text-xs font-medium text-emerald-600 hover:underline">
+              <button
+                onClick={handleSave}
+                className="flex items-center gap-1 text-xs font-medium text-emerald-600 hover:underline"
+              >
                 <Check size={14} /> Salvar
               </button>
-              <button onClick={() => { setEditing(false); setForm(lead) }} className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:underline">
+              <button
+                onClick={() => {
+                  setEditing(false)
+                  setForm(lead)
+                }}
+                className="flex items-center gap-1 text-xs font-medium text-slate-500 hover:underline"
+              >
                 <X size={14} /> Cancelar
               </button>
             </>
           ) : (
             <>
-              <button onClick={() => setEditing(true)} className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline">
+              <button
+                onClick={() => setEditing(true)}
+                className="flex items-center gap-1 text-xs font-medium text-blue-600 hover:underline"
+              >
                 <Pencil size={14} /> Editar
               </button>
               {isAdmin && (
-                <button onClick={() => setShowDelete(true)} className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline">
+                <button
+                  onClick={() => setShowDelete(true)}
+                  className="flex items-center gap-1 text-xs font-medium text-red-600 hover:underline"
+                >
                   <Trash2 size={14} /> Excluir
                 </button>
               )}
@@ -224,62 +278,134 @@ export default function LeadDetailPage() {
 
       <div className="grid gap-6 md:grid-cols-2">
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Dados do Lead</h2>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">
+            Dados do Lead
+          </h2>
           {editing ? (
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-medium text-slate-500 mb-1">Nome</label>
-                <input type="text" value={form.nome || ""} onChange={e => setForm((prev) => ({ ...prev, nome: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                <input
+                  type="text"
+                  value={form.nome || ""}
+                  onChange={(e) => setForm((prev) => ({ ...prev, nome: e.target.value }))}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Tipo</label>
-                  <select value={form.tipoPessoa || ""} onChange={e => { setForm((prev) => ({ ...prev, tipoPessoa: e.target.value, documento: "" })) }} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
+                  <select
+                    value={form.tipoPessoa || ""}
+                    onChange={(e) => {
+                      setForm((prev) => ({ ...prev, tipoPessoa: e.target.value, documento: "" }))
+                    }}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  >
                     <option value="">—</option>
                     <option value="PF">PF</option>
                     <option value="PJ">PJ</option>
                   </select>
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">{form.tipoPessoa === "PF" ? "CPF" : form.tipoPessoa === "PJ" ? "CNPJ" : "Documento"}</label>
-                  <input type="text" value={form.documento || ""} onChange={e => setForm((prev) => ({ ...prev, documento: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <label className="block text-xs font-medium text-slate-500 mb-1">
+                    {form.tipoPessoa === "PF"
+                      ? "CPF"
+                      : form.tipoPessoa === "PJ"
+                        ? "CNPJ"
+                        : "Documento"}
+                  </label>
+                  <input
+                    type="text"
+                    value={form.documento || ""}
+                    onChange={(e) => setForm((prev) => ({ ...prev, documento: e.target.value }))}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Email</label>
-                  <input type="email" value={form.email || ""} onChange={e => setForm((prev) => ({ ...prev, email: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <input
+                    type="email"
+                    value={form.email || ""}
+                    onChange={(e) => setForm((prev) => ({ ...prev, email: e.target.value }))}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Celular</label>
-                  <input type="text" value={form.celular || ""} onChange={e => setForm((prev) => ({ ...prev, celular: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <input
+                    type="text"
+                    value={form.celular || ""}
+                    onChange={(e) => setForm((prev) => ({ ...prev, celular: e.target.value }))}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Telefone</label>
-                  <input type="text" value={form.telefone || ""} onChange={e => setForm((prev) => ({ ...prev, telefone: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <input
+                    type="text"
+                    value={form.telefone || ""}
+                    onChange={(e) => setForm((prev) => ({ ...prev, telefone: e.target.value }))}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Pessoa (Negócio)</label>
-                  <input type="text" value={form.empresaNome || ""} onChange={e => setForm((prev) => ({ ...prev, empresaNome: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <label className="block text-xs font-medium text-slate-500 mb-1">
+                    Pessoa (Negócio)
+                  </label>
+                  <input
+                    type="text"
+                    value={form.empresaNome || ""}
+                    onChange={(e) => setForm((prev) => ({ ...prev, empresaNome: e.target.value }))}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Cargo</label>
-                  <input type="text" value={form.cargo || ""} onChange={e => setForm((prev) => ({ ...prev, cargo: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <input
+                    type="text"
+                    value={form.cargo || ""}
+                    onChange={(e) => setForm((prev) => ({ ...prev, cargo: e.target.value }))}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Origem</label>
-                  <select value={form.origem || "OUTRO"} onChange={e => setForm((prev) => ({ ...prev, origem: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
-                    {ORIGEM_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                  <select
+                    value={form.origem || "OUTRO"}
+                    onChange={(e) => setForm((prev) => ({ ...prev, origem: e.target.value }))}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  >
+                    {ORIGEM_OPTIONS.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
                   </select>
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">Status</label>
-                  <select value={form.status || "NOVO"} onChange={e => setForm((prev) => ({ ...prev, status: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
-                    {STATUS_OPTIONS.map((s) => <option key={s} value={s}>{s}</option>)}
+                  <select
+                    value={form.status || "NOVO"}
+                    onChange={(e) => setForm((prev) => ({ ...prev, status: e.target.value }))}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  >
+                    {STATUS_OPTIONS.map((s) => (
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
+                    ))}
                   </select>
                 </div>
               </div>
               <div>
                 <label className="block text-xs font-medium text-slate-500 mb-1">Descrição</label>
-                <textarea value={form.descricao || ""} onChange={e => setForm((prev) => ({ ...prev, descricao: e.target.value }))} rows={4} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                <textarea
+                  value={form.descricao || ""}
+                  onChange={(e) => setForm((prev) => ({ ...prev, descricao: e.target.value }))}
+                  rows={4}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                />
               </div>
             </div>
           ) : (
@@ -290,10 +416,18 @@ export default function LeadDetailPage() {
               </div>
               <div>
                 <p className="text-xs text-slate-500 mb-0.5">Tipo</p>
-                <p className="text-slate-900 dark:text-slate-200">{lead.tipoPessoa === "PF" ? "PF" : lead.tipoPessoa === "PJ" ? "PJ" : "—"}</p>
+                <p className="text-slate-900 dark:text-slate-200">
+                  {lead.tipoPessoa === "PF" ? "PF" : lead.tipoPessoa === "PJ" ? "PJ" : "—"}
+                </p>
               </div>
               <div>
-                <p className="text-xs text-slate-500 mb-0.5">{lead.tipoPessoa === "PF" ? "CPF" : lead.tipoPessoa === "PJ" ? "CNPJ" : "Documento"}</p>
+                <p className="text-xs text-slate-500 mb-0.5">
+                  {lead.tipoPessoa === "PF"
+                    ? "CPF"
+                    : lead.tipoPessoa === "PJ"
+                      ? "CNPJ"
+                      : "Documento"}
+                </p>
                 <p className="text-slate-900 dark:text-slate-200">{lead.documento || "—"}</p>
               </div>
               <div>
@@ -327,7 +461,9 @@ export default function LeadDetailPage() {
               {lead.descricao && (
                 <div className="col-span-2">
                   <p className="text-xs text-slate-500 mb-0.5">Descrição</p>
-                  <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{lead.descricao}</p>
+                  <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+                    {lead.descricao}
+                  </p>
                 </div>
               )}
               {lead.segmentoIa && (
@@ -345,7 +481,10 @@ export default function LeadDetailPage() {
               {lead.pessoaId && (
                 <div className="col-span-2 pt-3 border-t border-slate-100 dark:border-slate-800">
                   <p className="text-xs text-slate-500 mb-0.5">Pessoa vinculada</p>
-                  <Link href={`/comercial/crm/pessoas/${lead.pessoaId}`} className="text-sm text-blue-600 hover:underline font-medium">
+                  <Link
+                    href={`/comercial/crm/pessoas/${lead.pessoaId}`}
+                    className="text-sm text-blue-600 hover:underline font-medium"
+                  >
                     Ver pessoa #{lead.pessoaId} — 
                   </Link>
                 </div>
@@ -366,18 +505,28 @@ export default function LeadDetailPage() {
                 <p className="text-sm text-slate-400 text-center py-8">Nenhuma mensagem</p>
               ) : (
                 mensagens.map((msg) => (
-                  <div key={msg.id} className={`flex ${msg.tipo === "ENVIADA" ? "justify-end" : "justify-start"}`}>
-                    <div className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
-                      msg.tipo === "ENVIADA"
-                        ? "bg-blue-600 text-white rounded-br-sm"
-                        : "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-bl-sm"
-                    }`}>
+                  <div
+                    key={msg.id}
+                    className={`flex ${msg.tipo === "ENVIADA" ? "justify-end" : "justify-start"}`}
+                  >
+                    <div
+                      className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
+                        msg.tipo === "ENVIADA"
+                          ? "bg-blue-600 text-white rounded-br-sm"
+                          : "bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 rounded-bl-sm"
+                      }`}
+                    >
                       <p className="whitespace-pre-wrap break-words">{msg.mensagem}</p>
-                      <div className={`flex items-center gap-1 mt-1 ${msg.tipo === "ENVIADA" ? "text-blue-200" : "text-slate-400"}`}>
+                      <div
+                        className={`flex items-center gap-1 mt-1 ${msg.tipo === "ENVIADA" ? "text-blue-200" : "text-slate-400"}`}
+                      >
                         <span className="text-[10px]">{formatTime(msg.createdAt)}</span>
-                        {msg.tipo === "ENVIADA" && (
-                          msg.status === "ENVIADA" ? <CheckIcon size={12} /> : <CheckCheck size={12} />
-                        )}
+                        {msg.tipo === "ENVIADA" &&
+                          (msg.status === "ENVIADA" ? (
+                            <CheckIcon size={12} />
+                          ) : (
+                            <CheckCheck size={12} />
+                          ))}
                       </div>
                     </div>
                   </div>
@@ -391,7 +540,12 @@ export default function LeadDetailPage() {
                   type="text"
                   value={textoMsg}
                   onChange={(e) => setTextoMsg(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviarMensagem() } }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault()
+                      enviarMensagem()
+                    }
+                  }}
                   placeholder="Digite uma mensagem..."
                   className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500/50"
                 />
@@ -400,7 +554,11 @@ export default function LeadDetailPage() {
                   disabled={enviandoMsg || !textoMsg.trim()}
                   className="rounded-lg bg-blue-600 p-2 text-white hover:bg-blue-700 disabled:opacity-50"
                 >
-                  {enviandoMsg ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                  {enviandoMsg ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <Send size={16} />
+                  )}
                 </button>
               </div>
             </div>

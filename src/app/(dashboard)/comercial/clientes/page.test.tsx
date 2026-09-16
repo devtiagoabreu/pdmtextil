@@ -87,7 +87,8 @@ describe("ClientesComercialPage - excluir", () => {
   it("mostra toast de erro quando a exclusão falha", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
       if (method === "GET" && url === "/api/clientes") return { json: dados }
-      if (method === "DELETE" && url === "/api/clientes/1") return { status: 500, json: { error: "Erro interno do servidor" } }
+      if (method === "DELETE" && url === "/api/clientes/1")
+        return { status: 500, json: { error: "Erro interno do servidor" } }
       return { status: 404, json: { error: "Rota não mockada" } }
     })
     vi.stubGlobal("fetch", fetchMock.fn)

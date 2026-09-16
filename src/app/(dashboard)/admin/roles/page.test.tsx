@@ -5,7 +5,14 @@ import RolesPage from "./page"
 import { createFetchMock, findCall, renderPage, toastMock } from "@/test/harness"
 
 const roles = [
-  { id: 1, name: "SUPERVISOR", label: "Supervisor", description: "Supervisiona equipes", permissions: {}, ativo: true },
+  {
+    id: 1,
+    name: "SUPERVISOR",
+    label: "Supervisor",
+    description: "Supervisiona equipes",
+    permissions: {},
+    ativo: true,
+  },
   { id: 2, name: "REVISOR", label: "Revisor", description: null, permissions: {}, ativo: false },
 ]
 
@@ -51,7 +58,9 @@ describe("RolesPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Nova Role" }))
     fireEvent.click(screen.getByRole("button", { name: "Criar" }))
 
-    await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Nome e label são obrigatórios"))
+    await waitFor(() =>
+      expect(toastMock.error).toHaveBeenCalledWith("Nome e label são obrigatórios")
+    )
     expect(findCall(fetchMock.calls, "/api/admin/roles", "POST")).toBeUndefined()
   })
 
@@ -61,9 +70,15 @@ describe("RolesPage", () => {
     await screen.findByText("SUPERVISOR")
 
     fireEvent.click(screen.getByRole("button", { name: "Nova Role" }))
-    fireEvent.change(screen.getByPlaceholderText("EX: SUPERVISOR"), { target: { value: "FINANCEIRO" } })
-    fireEvent.change(screen.getByPlaceholderText("Ex: Supervisor"), { target: { value: "Financeiro" } })
-    fireEvent.change(screen.getByPlaceholderText("O que este perfil pode fazer?"), { target: { value: "Acesso financeiro" } })
+    fireEvent.change(screen.getByPlaceholderText("EX: SUPERVISOR"), {
+      target: { value: "FINANCEIRO" },
+    })
+    fireEvent.change(screen.getByPlaceholderText("Ex: Supervisor"), {
+      target: { value: "Financeiro" },
+    })
+    fireEvent.change(screen.getByPlaceholderText("O que este perfil pode fazer?"), {
+      target: { value: "Acesso financeiro" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Criar" }))
 
     await waitFor(() => {
@@ -86,7 +101,9 @@ describe("RolesPage", () => {
     fireEvent.click(within(row).getByRole("button", { name: "Editar" }))
 
     expect(screen.getByRole("heading", { name: "Editar Role" })).toBeInTheDocument()
-    fireEvent.change(screen.getByPlaceholderText("Ex: Supervisor"), { target: { value: "Supervisor Regional" } })
+    fireEvent.change(screen.getByPlaceholderText("Ex: Supervisor"), {
+      target: { value: "Supervisor Regional" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
 
     await waitFor(() => {

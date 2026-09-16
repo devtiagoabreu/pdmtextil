@@ -1,5 +1,14 @@
 import type { ReactNode } from "react"
-import { ChevronDown, ChevronUp, FileText, Hash, MapPin, Package, Scissors, User } from "lucide-react"
+import {
+  ChevronDown,
+  ChevronUp,
+  FileText,
+  Hash,
+  MapPin,
+  Package,
+  Scissors,
+  User,
+} from "lucide-react"
 import { Button } from "@/components/ui/button"
 import type { GrupoRomaneio, Rolo } from "./types"
 import { formatarMetragem } from "./utils"
@@ -61,11 +70,7 @@ export function RomaneioCard({
               <FileText size={14} />
               PDF
             </Button>
-            <Button
-              size="sm"
-              onClick={onAbrirDialog}
-              className="gap-1.5 text-xs"
-            >
+            <Button size="sm" onClick={onAbrirDialog} className="gap-1.5 text-xs">
               <Scissors size={14} />
               Requisição de Corte
             </Button>
@@ -73,11 +78,7 @@ export function RomaneioCard({
               onClick={onToggleExpand}
               className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800"
             >
-              {expanded ? (
-                <ChevronUp size={18} />
-              ) : (
-                <ChevronDown size={18} />
-              )}
+              {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
             </button>
           </div>
         </div>
@@ -109,7 +110,10 @@ export function RomaneioCard({
               key={prod.nome}
               className="rounded-lg border border-slate-100 dark:border-slate-700 bg-slate-50 dark:bg-slate-800/50 p-3"
             >
-              <p className="text-xs font-semibold text-slate-900 dark:text-slate-200 truncate" title={prod.nome}>
+              <p
+                className="text-xs font-semibold text-slate-900 dark:text-slate-200 truncate"
+                title={prod.nome}
+              >
                 {prod.nome}
               </p>
               <p className="text-[11px] text-slate-500 mt-0.5">
@@ -131,14 +135,30 @@ export function RomaneioCard({
             <table className="w-full text-sm">
               <thead className="bg-slate-50 dark:bg-slate-800/50">
                 <tr>
-                  <th className="px-3 py-2.5 text-center text-[11px] font-medium text-slate-500 uppercase w-10">#</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Cód. Rolo</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Produto</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Narrativa</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Lote</th>
-                  <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">Metragem</th>
-                  <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">P. Bruto</th>
-                  <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">P. Líquido</th>
+                  <th className="px-3 py-2.5 text-center text-[11px] font-medium text-slate-500 uppercase w-10">
+                    #
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">
+                    Cód. Rolo
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">
+                    Produto
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">
+                    Narrativa
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">
+                    Lote
+                  </th>
+                  <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">
+                    Metragem
+                  </th>
+                  <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">
+                    P. Bruto
+                  </th>
+                  <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">
+                    P. Líquido
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -152,34 +172,65 @@ export function RomaneioCard({
                     if (!lm.has(l)) lm.set(l, [])
                     lm.get(l)!.push(r)
                   }
-                  const prodsSorted = Array.from(prodsMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+                  const prodsSorted = Array.from(prodsMap.entries()).sort((a, b) =>
+                    a[0].localeCompare(b[0])
+                  )
                   const trs: ReactNode[] = []
                   for (const [prodNome, lotesMap] of prodsSorted) {
-                    const lotsSorted = Array.from(lotesMap.entries()).sort((a, b) => a[0].localeCompare(b[0]))
+                    const lotsSorted = Array.from(lotesMap.entries()).sort((a, b) =>
+                      a[0].localeCompare(b[0])
+                    )
                     trs.push(
                       <tr key={`prod-${prodNome}`} className="bg-purple-50 dark:bg-purple-950/20">
-                        <td colSpan={7} className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400">
+                        <td
+                          colSpan={7}
+                          className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400"
+                        >
                           PRODUTO: {prodNome}
                         </td>
                       </tr>
                     )
                     for (const [loteNome, rolos] of lotsSorted) {
                       trs.push(
-                        <tr key={`lote-${prodNome}-${loteNome}`} className="bg-blue-50 dark:bg-blue-950/30">
-                          <td colSpan={7} className="px-4 py-1.5 text-xs font-bold text-blue-600 dark:text-blue-400">
+                        <tr
+                          key={`lote-${prodNome}-${loteNome}`}
+                          className="bg-blue-50 dark:bg-blue-950/30"
+                        >
+                          <td
+                            colSpan={7}
+                            className="px-4 py-1.5 text-xs font-bold text-blue-600 dark:text-blue-400"
+                          >
                             LOTE {loteNome}
                           </td>
                         </tr>
                       )
                       rolos.forEach((rolo, idx) => {
                         trs.push(
-                          <tr key={rolo.codigo_rolo} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                            <td className="px-3 py-2 text-sm text-slate-500 text-center font-mono text-[12px]">{idx + 1}</td>
-                            <td className="px-4 py-2 text-sm font-medium text-slate-900 dark:text-slate-200 font-mono">{rolo.codigo_rolo}</td>
-                            <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 font-mono text-[12px]">{rolo.produto}</td>
-                            <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 max-w-[200px] truncate" title={rolo.narrativa}>{rolo.narrativa}</td>
-                            <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 font-mono">{rolo.lote_produto}</td>
-                            <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 text-right font-mono">{formatarMetragem(rolo.quantidade)}</td>
+                          <tr
+                            key={rolo.codigo_rolo}
+                            className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
+                          >
+                            <td className="px-3 py-2 text-sm text-slate-500 text-center font-mono text-[12px]">
+                              {idx + 1}
+                            </td>
+                            <td className="px-4 py-2 text-sm font-medium text-slate-900 dark:text-slate-200 font-mono">
+                              {rolo.codigo_rolo}
+                            </td>
+                            <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 font-mono text-[12px]">
+                              {rolo.produto}
+                            </td>
+                            <td
+                              className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 max-w-[200px] truncate"
+                              title={rolo.narrativa}
+                            >
+                              {rolo.narrativa}
+                            </td>
+                            <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 font-mono">
+                              {rolo.lote_produto}
+                            </td>
+                            <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 text-right font-mono">
+                              {formatarMetragem(rolo.quantidade)}
+                            </td>
                             <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 text-right font-mono">{`${Number(rolo.peso_bruto || 0).toFixed(4)} kg`}</td>
                           </tr>
                         )

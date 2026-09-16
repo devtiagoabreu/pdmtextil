@@ -4,7 +4,12 @@ import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { anexos } from "@/lib/db/schema/anexos"
 import { chats } from "@/lib/db/schema/chats"
-import { produtosCru, produtoCruAmostra, produtoCruAcabamento, produtoCruAcabamentoAmostra } from "@/lib/db/schema/produto-cru"
+import {
+  produtosCru,
+  produtoCruAmostra,
+  produtoCruAcabamento,
+  produtoCruAcabamentoAmostra,
+} from "@/lib/db/schema/produto-cru"
 import { usuarios } from "@/lib/db/schema/usuarios"
 import { eq, desc, and, sql } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
@@ -41,10 +46,18 @@ export async function GET(req: NextRequest) {
         solicitanteId: solicitacoes.solicitanteId,
         solicitanteNome: usuarios.name,
         anexosCount: sql<number>`(SELECT count(*) FROM ${anexos} WHERE ${anexos.solicitacaoId} = ${solicitacoes.id})`,
-        produtoId: sql<number | null>`(SELECT pc.id FROM ${produtosCru} pc WHERE pc.solicitacao_desenvolvimento_id = ${solicitacoes.id} LIMIT 1)`,
-        produtoCodigoPdm: sql<string | null>`(SELECT pc.codigo_pdm FROM ${produtosCru} pc WHERE pc.solicitacao_desenvolvimento_id = ${solicitacoes.id} LIMIT 1)`,
-        produtoIdIntegracao: sql<string | null>`(SELECT pc.id_integracao FROM ${produtosCru} pc WHERE pc.solicitacao_desenvolvimento_id = ${solicitacoes.id} LIMIT 1)`,
-        produtoIdIntegracaoErpCru: sql<string | null>`(SELECT pc.id_integracao_erp_cru FROM ${produtosCru} pc WHERE pc.solicitacao_desenvolvimento_id = ${solicitacoes.id} LIMIT 1)`,
+        produtoId: sql<
+          number | null
+        >`(SELECT pc.id FROM ${produtosCru} pc WHERE pc.solicitacao_desenvolvimento_id = ${solicitacoes.id} LIMIT 1)`,
+        produtoCodigoPdm: sql<
+          string | null
+        >`(SELECT pc.codigo_pdm FROM ${produtosCru} pc WHERE pc.solicitacao_desenvolvimento_id = ${solicitacoes.id} LIMIT 1)`,
+        produtoIdIntegracao: sql<
+          string | null
+        >`(SELECT pc.id_integracao FROM ${produtosCru} pc WHERE pc.solicitacao_desenvolvimento_id = ${solicitacoes.id} LIMIT 1)`,
+        produtoIdIntegracaoErpCru: sql<
+          string | null
+        >`(SELECT pc.id_integracao_erp_cru FROM ${produtosCru} pc WHERE pc.solicitacao_desenvolvimento_id = ${solicitacoes.id} LIMIT 1)`,
         produtoAmostrasCount: sql<number>`COALESCE((
           SELECT COUNT(*) FROM ${produtoCruAmostra} pca
           WHERE pca.produto_cru_id = (SELECT pc2.id FROM ${produtosCru} pc2 WHERE pc2.solicitacao_desenvolvimento_id = ${solicitacoes.id} LIMIT 1)
@@ -133,7 +146,14 @@ export async function POST(req: NextRequest) {
       session.user.name
     )
 
-    await registrarLog({ tipo: "CADASTRO", acao: "criar", descricao: `Solicitação #${novaSolicitacao.id} criada - ${data.cliente}`, entidade: "Solicitacao", entidadeId: novaSolicitacao.id, usuarioNome: session.user.name })
+    await registrarLog({
+      tipo: "CADASTRO",
+      acao: "criar",
+      descricao: `Solicitação #${novaSolicitacao.id} criada - ${data.cliente}`,
+      entidade: "Solicitacao",
+      entidadeId: novaSolicitacao.id,
+      usuarioNome: session.user.name,
+    })
 
     return NextResponse.json(novaSolicitacao, { status: 201 })
   } catch (error) {

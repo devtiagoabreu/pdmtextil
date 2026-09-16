@@ -36,7 +36,17 @@ const API_ENDPOINTS: Record<string, string> = {
 }
 
 export default function CRMKanbanStandalonePage() {
-  return <Suspense fallback={<div className="flex items-center justify-center min-h-screen"><Loader2 size={24} className="animate-spin text-slate-400" /></div>}><CRMKanbanStandaloneContent /></Suspense>
+  return (
+    <Suspense
+      fallback={
+        <div className="flex items-center justify-center min-h-screen">
+          <Loader2 size={24} className="animate-spin text-slate-400" />
+        </div>
+      }
+    >
+      <CRMKanbanStandaloneContent />
+    </Suspense>
+  )
 }
 
 function CRMKanbanStandaloneContent() {
@@ -61,10 +71,15 @@ function CRMKanbanStandaloneContent() {
   useEffect(() => {
     setLoading(true)
     const endpoint = API_ENDPOINTS[tipo]
-    if (!endpoint) { setLoading(false); return }
+    if (!endpoint) {
+      setLoading(false)
+      return
+    }
     fetch(`${endpoint}?all=true`)
       .then((r: any) => r.json())
-      .then((d: any) => { if (Array.isArray(d)) setData(d) })
+      .then((d: any) => {
+        if (Array.isArray(d)) setData(d)
+      })
       .catch(console.error)
       .finally(() => setLoading(false))
   }, [tipo])
@@ -75,16 +90,29 @@ function CRMKanbanStandaloneContent() {
   }
 
   function renderKanban() {
-    if (loading) return <div className="flex items-center justify-center min-h-[400px]"><Loader2 size={24} className="animate-spin text-slate-400" /></div>
+    if (loading)
+      return (
+        <div className="flex items-center justify-center min-h-[400px]">
+          <Loader2 size={24} className="animate-spin text-slate-400" />
+        </div>
+      )
     switch (tipo) {
-      case "LEAD": return <LeadsKanban leads={data} />
-      case "OPORTUNIDADE": return <OportunidadesKanban oportunidades={data} />
-      case "PESSOA": return <PessoasKanban pessoas={data} />
-      case "PROPOSTA": return <PropostasKanban propostas={data} />
-      case "TAREFA": return <TarefasKanban tarefas={data} />
-      case "VISITA": return <VisitasKanban visitas={data} />
-      case "CAMPANHA": return <CampanhasKanban campanhas={data} />
-      default: return <p className="text-slate-400 text-center py-10">Tipo inválido</p>
+      case "LEAD":
+        return <LeadsKanban leads={data} />
+      case "OPORTUNIDADE":
+        return <OportunidadesKanban oportunidades={data} />
+      case "PESSOA":
+        return <PessoasKanban pessoas={data} />
+      case "PROPOSTA":
+        return <PropostasKanban propostas={data} />
+      case "TAREFA":
+        return <TarefasKanban tarefas={data} />
+      case "VISITA":
+        return <VisitasKanban visitas={data} />
+      case "CAMPANHA":
+        return <CampanhasKanban campanhas={data} />
+      default:
+        return <p className="text-slate-400 text-center py-10">Tipo inválido</p>
     }
   }
 
@@ -107,9 +135,7 @@ function CRMKanbanStandaloneContent() {
           </button>
         </div>
       </div>
-      <div className="flex-1 min-h-0 flex flex-col px-6 pb-4">
-        {renderKanban()}
-      </div>
+      <div className="flex-1 min-h-0 flex flex-col px-6 pb-4">{renderKanban()}</div>
     </div>
   )
 }

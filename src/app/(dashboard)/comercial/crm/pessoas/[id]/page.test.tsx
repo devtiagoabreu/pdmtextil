@@ -47,7 +47,15 @@ const representantes = [
 ]
 
 const leads = [
-  { id: 10, nome: "Pedro Souza", celular: "(11) 97777-0001", cargo: "Gerente", origem: "OUTRO", status: "NOVO", empresaId: 1 },
+  {
+    id: 10,
+    nome: "Pedro Souza",
+    celular: "(11) 97777-0001",
+    cargo: "Gerente",
+    origem: "OUTRO",
+    status: "NOVO",
+    empresaId: 1,
+  },
 ]
 
 const oportunidades = [
@@ -58,9 +66,7 @@ const propostas = [
   { id: 30, titulo: "Proposta Tecido", valor: 1200, status: "ENVIADA", empresaId: 1 },
 ]
 
-const orfaos = [
-  { id: 9, nome: "Contato Órfão", email: "orfao@x.com" },
-]
+const orfaos = [{ id: 9, nome: "Contato Órfão", email: "orfao@x.com" }]
 
 describe("PessoaDetailPage", () => {
   let fetchMock: ReturnType<typeof createFetchMock>
@@ -68,9 +74,11 @@ describe("PessoaDetailPage", () => {
   beforeEach(() => {
     const handler = ({ method, url }: { method: string; url: string }) => {
       if (method === "GET" && url === "/api/crm/pessoas/1") return { json: pessoa }
-      if (method === "GET" && url === "/api/crm/pessoas/1/representantes") return { json: representantes }
+      if (method === "GET" && url === "/api/crm/pessoas/1/representantes")
+        return { json: representantes }
       if (method === "GET" && url === "/api/crm/leads?empresaId=1") return { json: leads }
-      if (method === "GET" && url === "/api/crm/oportunidades?empresaId=1") return { json: oportunidades }
+      if (method === "GET" && url === "/api/crm/oportunidades?empresaId=1")
+        return { json: oportunidades }
       if (method === "GET" && url === "/api/crm/propostas?empresaId=1") return { json: propostas }
       if (method === "POST" && url === "/api/crm/leads") {
         return { json: { id: 99, nome: "Novo Lead Teste", empresaId: 1 } }
@@ -86,8 +94,26 @@ describe("PessoaDetailPage", () => {
       if (method === "PUT" && url === "/api/crm/pessoas/1") return { json: { ...pessoa } }
       if (method === "DELETE" && url === "/api/crm/pessoas/1") return { json: { ok: true } }
       if (method === "GET" && url === "/api/crm/contatos?orfao=true") return { json: orfaos }
-      if (method === "PUT" && url === "/api/crm/contatos/9") return { json: { id: 9, nome: "Contato Órfão", email: "orfao@x.com", empresaId: 1, clienteId: null } }
-      if (method === "PUT" && url === "/api/crm/contatos/3") return { json: { id: 3, nome: "Carlos Silva", email: "carlos@alpha.com", empresaId: null, clienteId: null } }
+      if (method === "PUT" && url === "/api/crm/contatos/9")
+        return {
+          json: {
+            id: 9,
+            nome: "Contato Órfão",
+            email: "orfao@x.com",
+            empresaId: 1,
+            clienteId: null,
+          },
+        }
+      if (method === "PUT" && url === "/api/crm/contatos/3")
+        return {
+          json: {
+            id: 3,
+            nome: "Carlos Silva",
+            email: "carlos@alpha.com",
+            empresaId: null,
+            clienteId: null,
+          },
+        }
       return { json: null }
     }
     fetchMock = createFetchMock(handler)
@@ -124,7 +150,9 @@ describe("PessoaDetailPage", () => {
     fireEvent.click(await screen.findByTitle("Cadastrar novo lead"))
 
     const dialog = screen.getByRole("dialog", { name: "Novo Lead" })
-    fireEvent.change(within(dialog).getAllByRole("textbox")[0], { target: { value: "Novo Lead Teste" } })
+    fireEvent.change(within(dialog).getAllByRole("textbox")[0], {
+      target: { value: "Novo Lead Teste" },
+    })
     fireEvent.click(within(dialog).getByRole("button", { name: "Criar" }))
 
     await waitFor(() => {
@@ -150,7 +178,9 @@ describe("PessoaDetailPage", () => {
     await waitFor(() => {
       const call = findCall(fetchMock.calls, "/api/crm/pessoas/1", "PUT")
       expect(call).toBeDefined()
-      expect(call!.body).toEqual(expect.objectContaining({ razaoSocial: "Tecelagem Alpha Atualizada" }))
+      expect(call!.body).toEqual(
+        expect.objectContaining({ razaoSocial: "Tecelagem Alpha Atualizada" })
+      )
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Pessoa atualizada"))
   })
@@ -213,6 +243,9 @@ describe("PessoaDetailPage", () => {
     renderPage(<PessoaDetailPage />)
 
     expect(await screen.findByText("Pessoa não encontrada")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Voltar" })).toHaveAttribute("href", "/comercial/crm/pessoas")
+    expect(screen.getByRole("link", { name: "Voltar" })).toHaveAttribute(
+      "href",
+      "/comercial/crm/pessoas"
+    )
   })
 })

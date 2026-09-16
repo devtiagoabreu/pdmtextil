@@ -3,7 +3,8 @@ import type { InfoContent } from "./types"
 export const outrosContent: Record<string, InfoContent> = {
   "/amostras": {
     title: "Amostras de Desenvolvimento",
-    description: "Lista central de todas as amostras de desenvolvimento (tecido cru e acabamento) registradas no sistema.",
+    description:
+      "Lista central de todas as amostras de desenvolvimento (tecido cru e acabamento) registradas no sistema.",
     rules: [
       "Amostras são vinculadas a um produto ou a um acabamento específico.",
       "Cada amostra passa por um fluxo de aprovação com status configuráveis.",

@@ -45,10 +45,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
     const menuId = parseInt(id)
     if (isNaN(menuId)) return NextResponse.json({ error: "Parâmetros inválidos" }, { status: 400 })
 
-    const [deleted] = await db
-      .delete(userMenus)
-      .where(eq(userMenus.id, menuId))
-      .returning()
+    const [deleted] = await db.delete(userMenus).where(eq(userMenus.id, menuId)).returning()
 
     if (!deleted) return NextResponse.json({ error: "Menu não encontrado" }, { status: 404 })
     return NextResponse.json({ success: true })

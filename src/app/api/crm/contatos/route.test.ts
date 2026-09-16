@@ -43,7 +43,9 @@ describe("GET /api/crm/contatos", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await get("http://localhost/api/crm/contatos")
     expect(res.status).toBe(401)
   })
@@ -66,12 +68,16 @@ describe("POST /api/crm/contatos", () => {
     vi.mocked(requireAuth).mockReset()
     resetDb(db)
     vi.mocked(requireAuth).mockResolvedValue(sessionAdmin as any)
-    const insertBuilder = createQueryBuilder([{ id: 1, nome: "Ana", empresaId: null, clienteId: null }])
+    const insertBuilder = createQueryBuilder([
+      { id: 1, nome: "Ana", empresaId: null, clienteId: null },
+    ])
     db.insert = vi.fn(() => insertBuilder)
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await post({ nome: "Ana" })
     expect(res.status).toBe(401)
   })
@@ -87,7 +93,12 @@ describe("POST /api/crm/contatos", () => {
     expect(res.status).toBe(201)
     const builder = (db.insert as ReturnType<typeof vi.fn>).mock.results[0].value
     const values = builder.values.mock.calls[0][0]
-    expect(values).toMatchObject({ nome: "Ana", email: "ana@x.com", empresaId: null, clienteId: null })
+    expect(values).toMatchObject({
+      nome: "Ana",
+      email: "ana@x.com",
+      empresaId: null,
+      clienteId: null,
+    })
   })
 
   it("cria contato vinculado a um cliente", async () => {

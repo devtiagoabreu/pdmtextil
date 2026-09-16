@@ -5,7 +5,16 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Megaphone, Calendar, Users, DollarSign, TrendingUp, Edit3, Loader2 } from "lucide-react"
+import {
+  ArrowLeft,
+  Megaphone,
+  Calendar,
+  Users,
+  DollarSign,
+  TrendingUp,
+  Edit3,
+  Loader2,
+} from "lucide-react"
 import { toast } from "sonner"
 import type { Campanha, CampanhaForm } from "../types"
 
@@ -77,7 +86,12 @@ export default function CampanhaDetailPage() {
     return (
       <div className="text-center py-20">
         <p className="text-slate-500">Campanha não encontrada</p>
-        <Link href="/comercial/crm/campanhas" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
+        <Link
+          href="/comercial/crm/campanhas"
+          className="text-blue-600 hover:underline mt-2 inline-block"
+        >
+          Voltar
+        </Link>
       </div>
     )
   }
@@ -85,11 +99,17 @@ export default function CampanhaDetailPage() {
   return (
     <div className="max-w-3xl animate-fade-in">
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => router.back()} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <button
+          onClick={() => router.back()}
+          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={18} className="text-slate-500" />
         </button>
         <div className="flex-1">
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">{campanha.nome}{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+            {campanha.nome}
+            {info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500">{TIPO_LABELS[campanha.tipo] || campanha.tipo}</p>
         </div>
         <button
@@ -113,35 +133,48 @@ export default function CampanhaDetailPage() {
                   className="rounded border border-slate-200 dark:border-slate-700 px-2 py-1 text-xs bg-white dark:bg-slate-900"
                 >
                   {STATUS_OPTIONS.map((s) => (
-                    <option key={s} value={s}>{s}</option>
+                    <option key={s} value={s}>
+                      {s}
+                    </option>
                   ))}
                 </select>
               ) : (
-                <span className="font-medium text-slate-900 dark:text-slate-200">{campanha.status}</span>
+                <span className="font-medium text-slate-900 dark:text-slate-200">
+                  {campanha.status}
+                </span>
               )}
             </div>
             <div>
               <span className="text-slate-500">Tipo: </span>
-              <span className="font-medium text-slate-900 dark:text-slate-200">{TIPO_LABELS[campanha.tipo] || campanha.tipo}</span>
+              <span className="font-medium text-slate-900 dark:text-slate-200">
+                {TIPO_LABELS[campanha.tipo] || campanha.tipo}
+              </span>
             </div>
             {(campanha.leadsGerados ?? 0) > 0 && (
               <div className="flex items-center gap-2">
                 <Users size={14} className="text-slate-400" />
                 <span className="text-slate-500">Leads gerados:</span>
-                <span className="font-medium text-slate-900 dark:text-slate-200">{campanha.leadsGerados}</span>
+                <span className="font-medium text-slate-900 dark:text-slate-200">
+                  {campanha.leadsGerados}
+                </span>
               </div>
             )}
           </div>
         </div>
 
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Financeiro</h2>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">
+            Financeiro
+          </h2>
           <div className="space-y-3 text-sm">
             {campanha.orcamento && (
               <div>
                 <span className="text-slate-500">Orçamento: </span>
                 <span className="font-semibold text-slate-900 dark:text-slate-200">
-                  {Number(campanha.orcamento).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                  {Number(campanha.orcamento).toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
                 </span>
               </div>
             )}
@@ -149,7 +182,10 @@ export default function CampanhaDetailPage() {
               <div>
                 <span className="text-slate-500">Custo de Aquisição: </span>
                 <span className="font-semibold text-slate-900 dark:text-slate-200">
-                  {Number(campanha.custoAquisicao).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                  {Number(campanha.custoAquisicao).toLocaleString("pt-BR", {
+                    style: "currency",
+                    currency: "BRL",
+                  })}
                 </span>
               </div>
             )}
@@ -159,7 +195,8 @@ export default function CampanhaDetailPage() {
                 <span className="text-slate-500">Período:</span>
                 <span className="text-slate-900 dark:text-slate-200">
                   {new Date(campanha.dataInicio).toLocaleDateString("pt-BR")}
-                  {campanha.dataFim && ` — ${new Date(campanha.dataFim).toLocaleDateString("pt-BR")}`}
+                  {campanha.dataFim &&
+                    ` — ${new Date(campanha.dataFim).toLocaleDateString("pt-BR")}`}
                 </span>
               </div>
             )}
@@ -169,17 +206,25 @@ export default function CampanhaDetailPage() {
 
       {campanha.descricao && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 mb-6">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">Descrição</h2>
-          <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{campanha.descricao}</p>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">
+            Descrição
+          </h2>
+          <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+            {campanha.descricao}
+          </p>
         </div>
       )}
 
       {editing && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 mb-6">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Editar Campanha</h2>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">
+            Editar Campanha
+          </h2>
           <div className="space-y-4">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Nome
+              </label>
               <input
                 type="text"
                 value={form.nome || ""}
@@ -188,7 +233,9 @@ export default function CampanhaDetailPage() {
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Leads Gerados</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Leads Gerados
+              </label>
               <input
                 type="number"
                 value={form.leadsGerados || 0}

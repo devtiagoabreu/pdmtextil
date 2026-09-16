@@ -103,7 +103,9 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
   const [ativo, setAtivo] = useState(diagrama.ativo)
   const [modelo, setModelo] = useState<ModeloCompleto>(() => normalizarModelo(diagrama.modelo))
   const [mermaidOverride, setMermaidOverride] = useState<string | null>(null)
-  const [bpmnXml, setBpmnXml] = useState<string>(() => diagrama.bpmnXml ?? modeloParaBpmn(normalizarModelo(diagrama.modelo)))
+  const [bpmnXml, setBpmnXml] = useState<string>(
+    () => diagrama.bpmnXml ?? modeloParaBpmn(normalizarModelo(diagrama.modelo))
+  )
   const [canvas, setCanvas] = useState<CanvasExcalidraw | null>(
     () => (diagrama.canvas as CanvasExcalidraw | null) ?? null
   )
@@ -193,7 +195,11 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
     }))
   }
 
-  function atualizarAtividade(id: string, campo: "nome" | "responsavel" | "sistema", valor: string) {
+  function atualizarAtividade(
+    id: string,
+    campo: "nome" | "responsavel" | "sistema",
+    valor: string
+  ) {
     setModelo((m) => ({
       ...m,
       atividades: m.atividades.map((a) => (a.id === id ? { ...a, [campo]: valor } : a)),
@@ -238,7 +244,10 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
     const destino = modelo.atividades.find((a) => a.id !== origem)?.id ?? "fim"
     setModelo((m) => ({
       ...m,
-      fluxos: [...m.fluxos, { id: `F${m.fluxos.length + 1}`, de: origem, para: destino, rotulo: "" }],
+      fluxos: [
+        ...m.fluxos,
+        { id: `F${m.fluxos.length + 1}`, de: origem, para: destino, rotulo: "" },
+      ],
     }))
   }
 
@@ -261,7 +270,12 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">
           <div className="space-y-2">
             <Label htmlFor="ed-nome">Nome *</Label>
-            <Input id="ed-nome" value={nome} onChange={(e) => setNome(e.target.value)} placeholder="Fluxograma de recebimento" />
+            <Input
+              id="ed-nome"
+              value={nome}
+              onChange={(e) => setNome(e.target.value)}
+              placeholder="Fluxograma de recebimento"
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="ed-tipo">Tipo de diagrama</Label>
@@ -272,18 +286,29 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
               className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
             >
               {Object.entries(DIAGRAMA_TIPO_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+                <option key={value} value={value}>
+                  {label}
+                </option>
               ))}
             </select>
           </div>
           <div className="space-y-2">
             <Label htmlFor="ed-descricao">Descrição</Label>
-            <Input id="ed-descricao" value={descricao} onChange={(e) => setDescricao(e.target.value)} />
+            <Input
+              id="ed-descricao"
+              value={descricao}
+              onChange={(e) => setDescricao(e.target.value)}
+            />
           </div>
         </div>
         <div className="flex items-center gap-4">
           <label className="flex items-center gap-2 text-sm">
-            <input type="checkbox" checked={ativo} onChange={(e) => setAtivo(e.target.checked)} className="h-4 w-4" />
+            <input
+              type="checkbox"
+              checked={ativo}
+              onChange={(e) => setAtivo(e.target.checked)}
+              className="h-4 w-4"
+            />
             Ativo
           </label>
           <span className="text-xs text-slate-400">Um conhecimento, múltiplas representações.</span>
@@ -311,10 +336,10 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
           <p className="flex items-start gap-2 text-sm text-slate-500">
             <Braces size={16} className="mt-0.5 shrink-0" />
             <span>
-              <strong>Modelo semântico</strong> é a representação estruturada do processo — a fonte da verdade. Aqui você
-              descreve o objetivo, as <strong>atividades</strong>, as <strong>decisões</strong> e os{" "}
-              <strong>fluxos</strong> entre eles. Mermaid, BPMN e Canvas são gerados a partir deste modelo sempre que
-              possível.
+              <strong>Modelo semântico</strong> é a representação estruturada do processo — a fonte
+              da verdade. Aqui você descreve o objetivo, as <strong>atividades</strong>, as{" "}
+              <strong>decisões</strong> e os <strong>fluxos</strong> entre eles. Mermaid, BPMN e
+              Canvas são gerados a partir deste modelo sempre que possível.
             </span>
           </p>
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
@@ -338,17 +363,30 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
 
           <section className="space-y-3">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Atividades</h3>
-              <Button type="button" variant="outline" size="sm" className="gap-1" onClick={adicionarAtividade}>
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                Atividades
+              </h3>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-1"
+                onClick={adicionarAtividade}
+              >
                 <Plus size={14} /> Atividade
               </Button>
             </div>
             {modelo.atividades.length === 0 && (
-              <p className="text-sm text-slate-400">Nenhuma atividade ainda. Use o botão acima para adicionar.</p>
+              <p className="text-sm text-slate-400">
+                Nenhuma atividade ainda. Use o botão acima para adicionar.
+              </p>
             )}
             <div className="space-y-2">
               {modelo.atividades.map((a) => (
-                <div key={a.id} className="flex flex-wrap items-end gap-2 rounded-lg border border-slate-200 dark:border-slate-800 p-2">
+                <div
+                  key={a.id}
+                  className="flex flex-wrap items-end gap-2 rounded-lg border border-slate-200 dark:border-slate-800 p-2"
+                >
                   <div className="w-10 pt-4 text-xs font-mono text-slate-400">{a.id}</div>
                   <div className="flex-1 min-w-[180px]">
                     <Input
@@ -392,7 +430,13 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
           <section className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Decisões</h3>
-              <Button type="button" variant="outline" size="sm" className="gap-1" onClick={adicionarDecisao}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-1"
+                onClick={adicionarDecisao}
+              >
                 <Plus size={14} /> Decisão
               </Button>
             </div>
@@ -401,7 +445,10 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
             )}
             <div className="space-y-2">
               {modelo.decisoes.map((d) => (
-                <div key={d.id} className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-800 p-2">
+                <div
+                  key={d.id}
+                  className="flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-800 p-2"
+                >
                   <div className="w-10 text-xs font-mono text-slate-400">{d.id}</div>
                   <Input
                     aria-label={`Pergunta da decisão ${d.id}`}
@@ -427,16 +474,27 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
           <section className="space-y-3">
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Fluxos</h3>
-              <Button type="button" variant="outline" size="sm" className="gap-1" onClick={adicionarFluxo}>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="gap-1"
+                onClick={adicionarFluxo}
+              >
                 <Plus size={14} /> Fluxo
               </Button>
             </div>
             {modelo.fluxos.length === 0 && (
-              <p className="text-sm text-slate-400">Nenhum fluxo ainda. Ligue atividades, decisões, Início e Fim.</p>
+              <p className="text-sm text-slate-400">
+                Nenhum fluxo ainda. Ligue atividades, decisões, Início e Fim.
+              </p>
             )}
             <div className="space-y-2">
               {modelo.fluxos.map((f) => (
-                <div key={f.id} className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-800 p-2">
+                <div
+                  key={f.id}
+                  className="flex flex-wrap items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-800 p-2"
+                >
                   <div className="w-10 text-xs font-mono text-slate-400">{f.id}</div>
                   <select
                     aria-label={`Origem do fluxo ${f.id}`}
@@ -445,7 +503,9 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
                     className="w-40 p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm"
                   >
                     {opcoesNodos.map((o) => (
-                      <option key={o.id} value={o.id}>{o.nome}</option>
+                      <option key={o.id} value={o.id}>
+                        {o.nome}
+                      </option>
                     ))}
                   </select>
                   <ArrowRight size={14} className="text-slate-400" />
@@ -456,7 +516,9 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
                     className="w-40 p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm"
                   >
                     {opcoesNodos.map((o) => (
-                      <option key={o.id} value={o.id}>{o.nome}</option>
+                      <option key={o.id} value={o.id}>
+                        {o.nome}
+                      </option>
                     ))}
                   </select>
                   <Input
@@ -501,9 +563,10 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
           <p className="flex items-start gap-2 text-sm text-slate-500">
             <FileCode2 size={16} className="mt-0.5 shrink-0" />
             <span>
-              <strong>Texto Mermaid</strong> descreve o fluxograma em sintaxe Mermaid — um texto que vira gráfico. Use{" "}
-              <code>flowchart</code> ou <code>mindmap</code>. Edite o texto e <strong>importe de volta</strong> para
-              reconstruir o modelo semântico, ou gere o texto automaticamente a partir do modelo.
+              <strong>Texto Mermaid</strong> descreve o fluxograma em sintaxe Mermaid — um texto que
+              vira gráfico. Use <code>flowchart</code> ou <code>mindmap</code>. Edite o texto e{" "}
+              <strong>importe de volta</strong> para reconstruir o modelo semântico, ou gere o texto
+              automaticamente a partir do modelo.
             </span>
           </p>
           <Textarea
@@ -552,7 +615,12 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
               Canvas livre (Excalidraw) — desenhe à mão livre. Ótimo para mapas mentais.
             </p>
             <div className="flex gap-2">
-              <Button type="button" variant="outline" className="gap-2" onClick={gerarCanvasDoModelo}>
+              <Button
+                type="button"
+                variant="outline"
+                className="gap-2"
+                onClick={gerarCanvasDoModelo}
+              >
                 <Wand2 size={16} /> Gerar do modelo
               </Button>
               <Button type="button" onClick={salvarCanvas} disabled={saving} className="gap-2">
@@ -571,7 +639,13 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
             <div className="flex items-center justify-between">
               <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Mermaid</h3>
               <div className="flex gap-2">
-                <Button type="button" variant="outline" size="sm" className="gap-1" onClick={() => copiar(mermaidAtual)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-1"
+                  onClick={() => copiar(mermaidAtual)}
+                >
                   <Copy size={14} /> Copiar
                 </Button>
                 <Button
@@ -585,16 +659,27 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
                 </Button>
               </div>
             </div>
-            <pre className="overflow-auto rounded-lg bg-slate-950 p-4 text-xs text-slate-100" data-testid="export-mermaid">
+            <pre
+              className="overflow-auto rounded-lg bg-slate-950 p-4 text-xs text-slate-100"
+              data-testid="export-mermaid"
+            >
               {mermaidAtual}
             </pre>
           </section>
 
           <section className="space-y-2">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Resumo (markdown)</h3>
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                Resumo (markdown)
+              </h3>
               <div className="flex gap-2">
-                <Button type="button" variant="outline" size="sm" className="gap-1" onClick={() => copiar(markdownAtual)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-1"
+                  onClick={() => copiar(markdownAtual)}
+                >
                   <Copy size={14} /> Copiar
                 </Button>
                 <Button
@@ -608,16 +693,27 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
                 </Button>
               </div>
             </div>
-            <pre className="overflow-auto whitespace-pre-wrap rounded-lg bg-slate-950 p-4 text-xs text-slate-100" data-testid="export-markdown">
+            <pre
+              className="overflow-auto whitespace-pre-wrap rounded-lg bg-slate-950 p-4 text-xs text-slate-100"
+              data-testid="export-markdown"
+            >
               {markdownAtual}
             </pre>
           </section>
 
           <section className="space-y-2">
             <div className="flex items-center justify-between">
-              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">Modelo semântico (JSON)</h3>
+              <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-200">
+                Modelo semântico (JSON)
+              </h3>
               <div className="flex gap-2">
-                <Button type="button" variant="outline" size="sm" className="gap-1" onClick={() => copiar(jsonModelo)}>
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  className="gap-1"
+                  onClick={() => copiar(jsonModelo)}
+                >
                   <Copy size={14} /> Copiar
                 </Button>
                 <Button
@@ -631,19 +727,24 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
                 </Button>
               </div>
             </div>
-            <pre className="overflow-auto rounded-lg bg-slate-950 p-4 text-xs text-slate-100" data-testid="export-json">
+            <pre
+              className="overflow-auto rounded-lg bg-slate-950 p-4 text-xs text-slate-100"
+              data-testid="export-json"
+            >
               {jsonModelo}
             </pre>
           </section>
 
           <p className="flex items-center gap-2 text-sm text-slate-500">
-            <FileCode2 size={16} /> BPMN 2.0 editável pronto na aba BPMN (XML exportável pelo próprio editor).
+            <FileCode2 size={16} /> BPMN 2.0 editável pronto na aba BPMN (XML exportável pelo
+            próprio editor).
           </p>
         </div>
       )}
 
       <p className="flex items-center gap-2 text-xs text-slate-400">
-        <Braces size={14} /> As representações são derivadas do modelo semântico sempre que possível — edite uma e reflita nas demais.
+        <Braces size={14} /> As representações são derivadas do modelo semântico sempre que possível
+        — edite uma e reflita nas demais.
       </p>
     </div>
   )

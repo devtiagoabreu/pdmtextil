@@ -7,7 +7,17 @@ import { getInfoContent } from "@/lib/info-content"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
 import { toast } from "sonner"
-import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, useSensor, useSensors, type DragStartEvent, type DragEndEvent } from "@dnd-kit/core"
+import {
+  DndContext,
+  DragOverlay,
+  useDraggable,
+  useDroppable,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  type DragStartEvent,
+  type DragEndEvent,
+} from "@dnd-kit/core"
 import { Loader2, Plus, X } from "lucide-react"
 import { useStatuses } from "@/hooks/use-statuses"
 import type { Oportunidade } from "../types"
@@ -21,7 +31,19 @@ interface OportunidadeCard {
   status: string
 }
 
-function DroppableColumn({ id, children, rotulo, cor, count }: { id: string; children: React.ReactNode; rotulo: string; cor: string | null; count: number }) {
+function DroppableColumn({
+  id,
+  children,
+  rotulo,
+  cor,
+  count,
+}: {
+  id: string
+  children: React.ReactNode
+  rotulo: string
+  cor: string | null
+  count: number
+}) {
   const { setNodeRef, isOver } = useDroppable({ id })
 
   return (
@@ -41,9 +63,7 @@ function DroppableColumn({ id, children, rotulo, cor, count }: { id: string; chi
           {count}
         </span>
       </div>
-      <div className="flex-1 min-h-0 p-2 space-y-2 overflow-y-auto">
-        {children}
-      </div>
+      <div className="flex-1 min-h-0 p-2 space-y-2 overflow-y-auto">{children}</div>
     </div>
   )
 }
@@ -55,10 +75,12 @@ function DraggableCard({ oportunidade }: { oportunidade: OportunidadeCard }) {
     data: { oportunidade },
   })
 
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    zIndex: 50,
-  } : undefined
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        zIndex: 50,
+      }
+    : undefined
 
   const handleClick = () => {
     router.push(`/comercial/crm/oportunidades/${oportunidade.id}`)
@@ -66,7 +88,9 @@ function DraggableCard({ oportunidade }: { oportunidade: OportunidadeCard }) {
 
   function formatar(valor: string | null | undefined) {
     if (!valor) return null
-    return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(valor))
+    return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(
+      Number(valor)
+    )
   }
 
   return (
@@ -110,11 +134,13 @@ export default function KanbanOportunidadesPage() {
 
   const [showMotivoPerda, setShowMotivoPerda] = useState(false)
   const [motivoPerda, setMotivoPerda] = useState("")
-  const [pendingMove, setPendingMove] = useState<{ id: number; status: string; statusAntigo: string } | null>(null)
+  const [pendingMove, setPendingMove] = useState<{
+    id: number
+    status: string
+    statusAntigo: string
+  } | null>(null)
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  )
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   const { data: dadosCarregados, isLoading: loading } = useQuery({
     queryKey: ["crm-oportunidades-kanban"],
@@ -167,14 +193,14 @@ export default function KanbanOportunidadesPage() {
       setPendingMove({ id: oportunidade.id, status: novoStatus, statusAntigo })
       setMotivoPerda("")
       setShowMotivoPerda(true)
-      setOportunidades(prev =>
-        prev.map((o) => o.id === oportunidade.id ? { ...o, status: novoStatus } : o)
+      setOportunidades((prev) =>
+        prev.map((o) => (o.id === oportunidade.id ? { ...o, status: novoStatus } : o))
       )
       return
     }
 
-    setOportunidades(prev =>
-      prev.map((o) => o.id === oportunidade.id ? { ...o, status: novoStatus } : o)
+    setOportunidades((prev) =>
+      prev.map((o) => (o.id === oportunidade.id ? { ...o, status: novoStatus } : o))
     )
 
     try {
@@ -189,8 +215,8 @@ export default function KanbanOportunidadesPage() {
       }
       toast.success(`Oportunidade movida para ${getLabel(novoStatus)}`)
     } catch (err: unknown) {
-      setOportunidades(prev =>
-        prev.map((o) => o.id === oportunidade.id ? { ...o, status: statusAntigo } : o)
+      setOportunidades((prev) =>
+        prev.map((o) => (o.id === oportunidade.id ? { ...o, status: statusAntigo } : o))
       )
       toast.error(err instanceof Error ? err.message : "Erro ao alterar status")
     }
@@ -208,8 +234,8 @@ export default function KanbanOportunidadesPage() {
       if (!res.ok) throw new Error((await res.json()).error || "Erro ao confirmar perda")
       toast.success("Oportunidade marcada como Perdida")
     } catch (err: unknown) {
-      setOportunidades(prev =>
-        prev.map((o) => o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o)
+      setOportunidades((prev) =>
+        prev.map((o) => (o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o))
       )
       toast.error(err instanceof Error ? err.message : "Erro ao confirmar perda")
     }
@@ -220,8 +246,8 @@ export default function KanbanOportunidadesPage() {
 
   function cancelarPerda() {
     if (pendingMove) {
-      setOportunidades(prev =>
-        prev.map((o) => o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o)
+      setOportunidades((prev) =>
+        prev.map((o) => (o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o))
       )
     }
     setShowMotivoPerda(false)
@@ -241,18 +267,26 @@ export default function KanbanOportunidadesPage() {
     <div className="flex flex-col h-screen animate-fade-in">
       <div className="flex items-center justify-between shrink-0 px-4 md:px-6 pt-4 md:pt-6 pb-2">
         <div className="flex items-center gap-2 min-w-0">
-          <h1 className="text-lg md:text-2xl font-bold text-slate-900 dark:text-slate-50 truncate">Kanban — Oportunidades CRM{info && <InfoButton content={info} />}</h1>
-          <span className="text-[10px] md:text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 md:px-2 py-0.5 rounded-full whitespace-nowrap hidden sm:inline">Arraste os cards para mover</span>
+          <h1 className="text-lg md:text-2xl font-bold text-slate-900 dark:text-slate-50 truncate">
+            Kanban — Oportunidades CRM{info && <InfoButton content={info} />}
+          </h1>
+          <span className="text-[10px] md:text-xs text-slate-400 bg-slate-100 dark:bg-slate-800 px-1.5 md:px-2 py-0.5 rounded-full whitespace-nowrap hidden sm:inline">
+            Arraste os cards para mover
+          </span>
         </div>
         <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
-          <Link href="/comercial/crm/oportunidades" className="text-xs md:text-sm text-blue-600 hover:underline">
+          <Link
+            href="/comercial/crm/oportunidades"
+            className="text-xs md:text-sm text-blue-600 hover:underline"
+          >
             Lista
           </Link>
           <Link
             href="/comercial/crm/oportunidades/novo"
             className="inline-flex items-center gap-1 text-xs md:text-sm bg-blue-600 text-white px-2 md:px-3 py-1 md:py-1.5 rounded-lg hover:bg-blue-700"
           >
-            <Plus size={14} /> <span className="hidden sm:inline">Nova Oportunidade</span><span className="sm:hidden">Nova</span>
+            <Plus size={14} /> <span className="hidden sm:inline">Nova Oportunidade</span>
+            <span className="sm:hidden">Nova</span>
           </Link>
         </div>
       </div>
@@ -261,7 +295,13 @@ export default function KanbanOportunidadesPage() {
         <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
           <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto">
             {colunas.map((col) => (
-              <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo || col.nome} cor={col.cor} count={col.cards.length}>
+              <DroppableColumn
+                key={col.nome}
+                id={col.nome}
+                rotulo={col.rotulo || col.nome}
+                cor={col.cor}
+                count={col.cards.length}
+              >
                 {col.cards.map((card) => (
                   <DraggableCard key={`op-${card.id}`} oportunidade={card} />
                 ))}
@@ -273,7 +313,9 @@ export default function KanbanOportunidadesPage() {
             <DragOverlay>
               <div className="bg-white dark:bg-slate-800 rounded-lg border border-blue-400 shadow-xl p-3 w-72 opacity-90">
                 <div className="flex items-start justify-between gap-2">
-                  <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">#{activeCard.id}</span>
+                  <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">
+                    #{activeCard.id}
+                  </span>
                 </div>
                 <p className="text-sm font-medium text-slate-900 mt-1">{activeCard.titulo}</p>
                 {activeCard.empresaNome && (
@@ -282,43 +324,57 @@ export default function KanbanOportunidadesPage() {
               </div>
             </DragOverlay>
           )}
-          </DndContext>
-        </div>
+        </DndContext>
+      </div>
 
-        {showMotivoPerda && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={cancelarPerda}>
-            <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 p-6 w-full max-w-md mx-4" onClick={e => e.stopPropagation()}>
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Motivo da Perda</h3>
-                <button onClick={cancelarPerda} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-                  <X size={18} className="text-slate-400" />
-                </button>
-              </div>
-              <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
-                Informe o motivo pelo qual esta oportunidade foi perdida:
-              </p>
-              <textarea
-                value={motivoPerda}
-                onChange={e => setMotivoPerda(e.target.value)}
-                className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 min-h-[100px] resize-none"
-                placeholder="Ex: Cliente optou por concorrente, orçamento acima do esperado..."
-                autoFocus
-              />
-              <div className="flex gap-2 justify-end mt-4">
-                <button onClick={cancelarPerda} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
-                  Cancelar
-                </button>
-                <button
-                  onClick={confirmarPerda}
-                  disabled={!motivoPerda.trim()}
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-lg transition-colors"
-                >
-                  Confirmar Perda
-                </button>
-              </div>
+      {showMotivoPerda && (
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={cancelarPerda}
+        >
+          <div
+            className="bg-white dark:bg-slate-900 rounded-xl shadow-xl border border-slate-200 dark:border-slate-800 p-6 w-full max-w-md mx-4"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between mb-4">
+              <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                Motivo da Perda
+              </h3>
+              <button
+                onClick={cancelarPerda}
+                className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <X size={18} className="text-slate-400" />
+              </button>
+            </div>
+            <p className="text-sm text-slate-500 dark:text-slate-400 mb-3">
+              Informe o motivo pelo qual esta oportunidade foi perdida:
+            </p>
+            <textarea
+              value={motivoPerda}
+              onChange={(e) => setMotivoPerda(e.target.value)}
+              className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 min-h-[100px] resize-none"
+              placeholder="Ex: Cliente optou por concorrente, orçamento acima do esperado..."
+              autoFocus
+            />
+            <div className="flex gap-2 justify-end mt-4">
+              <button
+                onClick={cancelarPerda}
+                className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={confirmarPerda}
+                disabled={!motivoPerda.trim()}
+                className="px-4 py-2 text-sm font-medium text-white bg-red-600 hover:bg-red-700 disabled:opacity-50 rounded-lg transition-colors"
+              >
+                Confirmar Perda
+              </button>
             </div>
           </div>
-        )}
+        </div>
+      )}
     </div>
   )
 }

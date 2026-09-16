@@ -43,7 +43,13 @@ const produtoData = {
   ],
 }
 
-function setup(paramsId: string, deleteAmostraResponse: { status?: number; json?: unknown } = { status: 200, json: { success: true } }) {
+function setup(
+  paramsId: string,
+  deleteAmostraResponse: { status?: number; json?: unknown } = {
+    status: 200,
+    json: { success: true },
+  }
+) {
   navMock.setPathname(`/cadastros/produto-cru/${paramsId}`)
   navMock.setParams({ id: paramsId })
   const isEditing = paramsId !== "novo"
@@ -66,10 +72,21 @@ function setup(paramsId: string, deleteAmostraResponse: { status?: number; json?
     if (method === "POST" && url === "/api/cadastros/produto-cru") {
       return { status: 201, json: { id: 8 } }
     }
-    if (method === "DELETE" && isEditing && url === `/api/cadastros/produto-cru/${paramsId}/amostras/15`) {
-      return { status: deleteAmostraResponse.status ?? 200, json: deleteAmostraResponse.json ?? { success: true } }
+    if (
+      method === "DELETE" &&
+      isEditing &&
+      url === `/api/cadastros/produto-cru/${paramsId}/amostras/15`
+    ) {
+      return {
+        status: deleteAmostraResponse.status ?? 200,
+        json: deleteAmostraResponse.json ?? { success: true },
+      }
     }
-    if (method === "POST" && isEditing && url === `/api/cadastros/produto-cru/${paramsId}/acabamentos/1/amostras`) {
+    if (
+      method === "POST" &&
+      isEditing &&
+      url === `/api/cadastros/produto-cru/${paramsId}/acabamentos/1/amostras`
+    ) {
       return {
         status: 201,
         json: {
@@ -103,7 +120,9 @@ describe("ProdutoCruFormPage", () => {
     expect(await screen.findByRole("heading", { name: /Editar Produto/ })).toBeDefined()
     expect(await screen.findByDisplayValue("D28")).toBeDefined()
     expect(screen.getByDisplayValue("Tecido Sarja Algodão 30/1")).toBeDefined()
-    expect((screen.getByRole("combobox", { name: "Status" }) as HTMLSelectElement).value).toBe("DESENVOLVIMENTO")
+    expect((screen.getByRole("combobox", { name: "Status" }) as HTMLSelectElement).value).toBe(
+      "DESENVOLVIMENTO"
+    )
   })
 
   it("valida obrigatórios no submit", async () => {
@@ -130,7 +149,9 @@ describe("ProdutoCruFormPage", () => {
     await userEvent.type(screen.getByPlaceholderText("D28"), "D99")
     await userEvent.type(screen.getByPlaceholderText("Tecido Sarja Algodão 30/1"), "Tecido Novo")
     fireEvent.submit(formDo(ui))
-    await waitFor(() => expect(navMock.router.push).toHaveBeenCalledWith("/cadastros/produto-cru/8"))
+    await waitFor(() =>
+      expect(navMock.router.push).toHaveBeenCalledWith("/cadastros/produto-cru/8")
+    )
     const call = findCall(fetchMock.calls, "/api/cadastros/produto-cru", "POST")
     expect(call?.body?.codigoPdm).toBe("D99")
     expect(call?.body?.descricao).toBe("Tecido Novo")
@@ -139,7 +160,10 @@ describe("ProdutoCruFormPage", () => {
   async function abrirExclusaoAmostra() {
     await userEvent.click(screen.getByRole("button", { name: "Amostras" }))
     await screen.findByText("AMOSTRA - PILOTAGEM 001")
-    const trash = document.getElementById("amostra-15")!.querySelector(".lucide-trash-2")!.closest("button")!
+    const trash = document
+      .getElementById("amostra-15")!
+      .querySelector(".lucide-trash-2")!
+      .closest("button")!
     fireEvent.click(trash)
     await screen.findByText("Confirmar exclusão")
   }
@@ -160,7 +184,9 @@ describe("ProdutoCruFormPage", () => {
     await screen.findByDisplayValue("D28")
     await abrirExclusaoAmostra()
     await userEvent.click(screen.getByRole("button", { name: "Remover" }))
-    await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Apenas administradores podem excluir amostras"))
+    await waitFor(() =>
+      expect(toastMock.error).toHaveBeenCalledWith("Apenas administradores podem excluir amostras")
+    )
     expect(screen.getByText("AMOSTRA - PILOTAGEM 001")).toBeDefined()
   })
 
@@ -176,7 +202,11 @@ describe("ProdutoCruFormPage", () => {
     await userEvent.click(screen.getByRole("button", { name: "Adicionar" }))
 
     await waitFor(() => {
-      const call = findCall(fetchMock.calls, `/api/cadastros/produto-cru/7/acabamentos/1/amostras`, "POST")
+      const call = findCall(
+        fetchMock.calls,
+        `/api/cadastros/produto-cru/7/acabamentos/1/amostras`,
+        "POST"
+      )
       expect(call?.body?.descricao).toBe("AMOSTRA BENEF 001")
     })
     expect(toastMock.success).toHaveBeenCalledWith("Amostra adicionada")

@@ -45,25 +45,26 @@ export async function obterDestinatarios(tipoPessoa: "PJ" | "PF"): Promise<Desti
 
 export async function obterRepresentantes(tipoPessoa: "PJ" | "PF"): Promise<string[]> {
   const configurados = await obterDestinatarios(tipoPessoa)
-  const numeros = configurados
-    .map(r => limparNumero(r.celWhatsapp || ""))
-    .filter(numeroValido)
+  const numeros = configurados.map((r) => limparNumero(r.celWhatsapp || "")).filter(numeroValido)
   if (numeros.length > 0) return numeros
 
   const linhas = (await db
     .select({ celWhatsapp: usuarios.celWhatsapp })
     .from(usuarios)
-    .where(and(eq(usuarios.ativo, true), isNotNull(usuarios.celWhatsapp)))) as { celWhatsapp: string | null }[]
+    .where(and(eq(usuarios.ativo, true), isNotNull(usuarios.celWhatsapp)))) as {
+    celWhatsapp: string | null
+  }[]
 
-  const ativos = linhas
-    .map(r => limparNumero(r.celWhatsapp || ""))
-    .filter(numeroValido)
+  const ativos = linhas.map((r) => limparNumero(r.celWhatsapp || "")).filter(numeroValido)
 
   if (ativos.length > 0) return ativos
   return [tipoPessoa === "PJ" ? FALLBACK_PJ : FALLBACK_PF]
 }
 
-export async function notificarRepresentantes(mensagem: string, tipoPessoa: "PJ" | "PF"): Promise<void> {
+export async function notificarRepresentantes(
+  mensagem: string,
+  tipoPessoa: "PJ" | "PF"
+): Promise<void> {
   if (!evolutionConfigurado()) return
   const numeros = await obterRepresentantes(tipoPessoa)
   for (const numero of numeros) {
@@ -82,9 +83,7 @@ export async function notificarDestinatariosEmail(info: {
   destinatarios?: Destinatario[]
 }): Promise<void> {
   const lista = info.destinatarios ?? (await obterDestinatarios(info.tipoPessoa))
-  const emails = lista
-    .map(d => d.email)
-    .filter((e): e is string => !!e && e.includes("@"))
+  const emails = lista.map((d) => d.email).filter((e): e is string => !!e && e.includes("@"))
   if (emails.length === 0) return
 
   try {

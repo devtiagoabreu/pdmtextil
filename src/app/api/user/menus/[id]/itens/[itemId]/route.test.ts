@@ -21,7 +21,7 @@ function put(body: unknown) {
       body: JSON.stringify(body),
       headers: { "Content-Type": "application/json" },
     }),
-    { params: Promise.resolve({ id: "100", itemId: "99" }) },
+    { params: Promise.resolve({ id: "100", itemId: "99" }) }
   )
 }
 
@@ -33,7 +33,7 @@ describe("PUT /api/user/menus/[id]/itens/[itemId]", () => {
 
   it("retorna 401 quando não autenticado", async () => {
     vi.mocked(requireAuth).mockResolvedValue(
-      NextResponse.json({ error: "Não autorizado" }, { status: 401 }) as any,
+      NextResponse.json({ error: "Não autorizado" }, { status: 401 }) as any
     )
     const res = await put({ titulo: "X", url: "/cadastros/clientes" })
     expect(res.status).toBe(401)
@@ -56,7 +56,9 @@ describe("PUT /api/user/menus/[id]/itens/[itemId]", () => {
   it("edita item válido", async () => {
     vi.mocked(requireAuth).mockResolvedValue(session("CRM") as any)
     db.update = vi.fn(() =>
-      createQueryBuilder([{ id: 99, userMenuId: 100, titulo: "Clientes", url: "/cadastros/clientes" }]),
+      createQueryBuilder([
+        { id: 99, userMenuId: 100, titulo: "Clientes", url: "/cadastros/clientes" },
+      ])
     )
     const res = await put({ titulo: "Clientes", url: "/cadastros/clientes" })
     expect(res.status).toBe(200)

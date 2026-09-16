@@ -31,7 +31,7 @@ describe("GET /api/notificacoes", () => {
 
   it("retorna 401 quando não está autenticado", async () => {
     vi.mocked(requireAuth).mockResolvedValue(
-      NextResponse.json({ error: "Não autorizado" }, { status: 401 }) as any,
+      NextResponse.json({ error: "Não autorizado" }, { status: 401 }) as any
     )
     const res = await GET(new NextRequest("http://localhost/api/notificacoes"))
     expect(res.status).toBe(401)
@@ -47,7 +47,9 @@ describe("GET /api/notificacoes", () => {
 
   it("retorna apenas não lidas com naoLidas=true", async () => {
     db.select = vi.fn(() => createQueryBuilder([notificacoes[0]]))
-    const res = await GET(new NextRequest("http://localhost/api/notificacoes?naoLidas=true&limit=10"))
+    const res = await GET(
+      new NextRequest("http://localhost/api/notificacoes?naoLidas=true&limit=10")
+    )
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data).toHaveLength(1)
@@ -69,7 +71,7 @@ describe("PUT /api/notificacoes", () => {
         method: "PUT",
         body: JSON.stringify({ marcarTodas: true }),
         headers: { "Content-Type": "application/json" },
-      }),
+      })
     )
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ success: true })
@@ -83,7 +85,7 @@ describe("PUT /api/notificacoes", () => {
         method: "PUT",
         body: JSON.stringify({ id: 3 }),
         headers: { "Content-Type": "application/json" },
-      }),
+      })
     )
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ success: true })

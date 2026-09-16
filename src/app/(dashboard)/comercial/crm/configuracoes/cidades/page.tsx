@@ -49,11 +49,16 @@ export default function CidadesConfigPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center gap-3">
-        <Link href="/comercial/crm" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link
+          href="/comercial/crm"
+          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Cidades{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Cidades{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {isLoading ? "Carregando..." : `${filtrados?.length || 0} cidade(s)`}
           </p>
@@ -78,7 +83,9 @@ export default function CidadesConfigPage() {
         >
           <option value="">Todos os estados</option>
           {(estados || []).map((e: Estado) => (
-            <option key={e.id} value={e.uf}>{e.uf} — {e.nome}</option>
+            <option key={e.id} value={e.uf}>
+              {e.uf} — {e.nome}
+            </option>
           ))}
         </select>
       </div>
@@ -100,16 +107,26 @@ export default function CidadesConfigPage() {
             <table className="w-full text-sm">
               <thead className="sticky top-0 bg-white dark:bg-slate-900 z-10">
                 <tr className="border-b border-slate-100 dark:border-slate-800">
-                  <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">Cidade</th>
-                  <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">Estado</th>
-                  <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">UF</th>
+                  <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">
+                    Cidade
+                  </th>
+                  <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">
+                    Estado
+                  </th>
+                  <th className="text-left px-4 py-3 font-medium text-slate-500 text-xs uppercase">
+                    UF
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {filtrados.map((c: Cidade) => (
                   <tr key={c.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                    <td className="px-4 py-2.5 font-medium text-slate-900 dark:text-slate-100">{c.nome}</td>
-                    <td className="px-4 py-2.5 text-slate-700 dark:text-slate-300">{c.estadoNome}</td>
+                    <td className="px-4 py-2.5 font-medium text-slate-900 dark:text-slate-100">
+                      {c.nome}
+                    </td>
+                    <td className="px-4 py-2.5 text-slate-700 dark:text-slate-300">
+                      {c.estadoNome}
+                    </td>
                     <td className="px-4 py-2.5 text-slate-500">{c.uf}</td>
                   </tr>
                 ))}

@@ -6,7 +6,20 @@ import { InfoButton } from "@/components/ui/info-button"
 import { matchesSearch } from "@/components/ui/list-filters"
 import { getInfoContent } from "@/lib/info-content"
 import { useState } from "react"
-import { PlusCircle, Users, Pencil, Trash2, Loader2, Search, X, UserPlus, MapPin, Phone, Mail, ChevronLeft } from "lucide-react"
+import {
+  PlusCircle,
+  Users,
+  Pencil,
+  Trash2,
+  Loader2,
+  Search,
+  X,
+  UserPlus,
+  MapPin,
+  Phone,
+  Mail,
+  ChevronLeft,
+} from "lucide-react"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 
@@ -123,7 +136,11 @@ export default function EquipesPage() {
 
   const saveMutation = useMutation({
     mutationFn: async () => {
-      const payload = { nome, regiaoId: regiaoId ? parseInt(regiaoId) : null, responsavelId: responsavelId ? parseInt(responsavelId) : null }
+      const payload = {
+        nome,
+        regiaoId: regiaoId ? parseInt(regiaoId) : null,
+        responsavelId: responsavelId ? parseInt(responsavelId) : null,
+      }
       if (editingId) {
         const res = await fetch(`/api/crm/equipes/${editingId}`, {
           method: "PUT",
@@ -235,7 +252,9 @@ export default function EquipesPage() {
     if (!selectedEquipe) return
     const equipeId = selectedEquipe.id
     try {
-      await fetch(`/api/crm/equipes/${equipeId}/membros?membroId=${membro.id}`, { method: "DELETE" })
+      await fetch(`/api/crm/equipes/${equipeId}/membros?membroId=${membro.id}`, {
+        method: "DELETE",
+      })
       const data = await fetchMembros(equipeId)
       setMembros(data)
       queryClient.invalidateQueries({ queryKey: ["crm-equipes"] })
@@ -245,9 +264,7 @@ export default function EquipesPage() {
     }
   }
 
-  const filtradas = equipes?.filter((e: Equipe) =>
-    !busca || matchesSearch(e, busca)
-  )
+  const filtradas = equipes?.filter((e: Equipe) => !busca || matchesSearch(e, busca))
 
   if (selectedEquipe) {
     return (
@@ -262,13 +279,19 @@ export default function EquipesPage() {
 
         <div className="flex items-start justify-between">
           <div>
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">{selectedEquipe.nome}</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+              {selectedEquipe.nome}
+            </h1>
             <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-              {selectedEquipe.regiaoNome && `${selectedEquipe.regiaoNome} — `}{selectedEquipe.responsavelNome || "Sem responsável"}
+              {selectedEquipe.regiaoNome && `${selectedEquipe.regiaoNome} — `}
+              {selectedEquipe.responsavelNome || "Sem responsável"}
             </p>
           </div>
           <button
-            onClick={() => { startEdit(selectedEquipe); setSelectedEquipe(null) }}
+            onClick={() => {
+              startEdit(selectedEquipe)
+              setSelectedEquipe(null)
+            }}
             className="inline-flex items-center gap-2 rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
           >
             <Pencil size={14} />
@@ -314,7 +337,11 @@ export default function EquipesPage() {
                   <div>
                     <span className="font-medium text-slate-900 dark:text-slate-100">{r.nome}</span>
                     <span className="text-slate-400 ml-2">{r.cnpj}</span>
-                    {r.cidade && <span className="text-slate-400 ml-2">{r.cidade}/{r.uf}</span>}
+                    {r.cidade && (
+                      <span className="text-slate-400 ml-2">
+                        {r.cidade}/{r.uf}
+                      </span>
+                    )}
                   </div>
                   <UserPlus size={14} className="text-blue-500 shrink-0" />
                 </button>
@@ -330,33 +357,64 @@ export default function EquipesPage() {
             <div className="flex flex-col items-center justify-center py-8 text-center">
               <Users className="w-10 h-10 text-slate-300 dark:text-slate-700 mb-2" />
               <p className="text-sm text-slate-500">Nenhum representante nesta equipe</p>
-              <p className="text-xs text-slate-400 mt-1">Busque acima para adicionar representantes</p>
+              <p className="text-xs text-slate-400 mt-1">
+                Busque acima para adicionar representantes
+              </p>
             </div>
           ) : (
             <div className="rounded-lg border border-slate-200 dark:border-slate-700 overflow-hidden">
               <table className="w-full">
                 <thead className="bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
                   <tr>
-                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Nome</th>
-                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">CNPJ</th>
-                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Contato</th>
-                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Cidade/UF</th>
-                    <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-3">Ações</th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">
+                      Nome
+                    </th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">
+                      CNPJ
+                    </th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">
+                      Contato
+                    </th>
+                    <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-3">
+                      Cidade/UF
+                    </th>
+                    <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-3">
+                      Ações
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                   {membros.map((m: Membro) => (
                     <tr key={m.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                      <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-200">{m.nome}</td>
+                      <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-200">
+                        {m.nome}
+                      </td>
                       <td className="p-3 text-sm text-slate-500 font-mono">{m.cnpj || "—"}</td>
                       <td className="p-3 text-sm text-slate-500">
                         <div className="flex flex-col gap-0.5">
-                          {m.email && <span className="flex items-center gap-1"><Mail size={12} />{m.email}</span>}
-                          {m.telefone && <span className="flex items-center gap-1"><Phone size={12} />{m.telefone}</span>}
+                          {m.email && (
+                            <span className="flex items-center gap-1">
+                              <Mail size={12} />
+                              {m.email}
+                            </span>
+                          )}
+                          {m.telefone && (
+                            <span className="flex items-center gap-1">
+                              <Phone size={12} />
+                              {m.telefone}
+                            </span>
+                          )}
                         </div>
                       </td>
                       <td className="p-3 text-sm text-slate-500">
-                        {m.cidade ? <span className="flex items-center gap-1"><MapPin size={12} />{m.cidade}/{m.uf}</span> : "—"}
+                        {m.cidade ? (
+                          <span className="flex items-center gap-1">
+                            <MapPin size={12} />
+                            {m.cidade}/{m.uf}
+                          </span>
+                        ) : (
+                          "—"
+                        )}
                       </td>
                       <td className="p-3 text-right">
                         <button
@@ -381,7 +439,12 @@ export default function EquipesPage() {
           message={`Deseja remover ${membroToRemove?.nome} desta equipe?`}
           variant="danger"
           confirmLabel="Remover"
-          onConfirm={() => { if (membroToRemove) { removeMembro(membroToRemove); setMembroToRemove(null) } }}
+          onConfirm={() => {
+            if (membroToRemove) {
+              removeMembro(membroToRemove)
+              setMembroToRemove(null)
+            }
+          }}
           onCancel={() => setMembroToRemove(null)}
         />
       </div>
@@ -392,13 +455,18 @@ export default function EquipesPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Equipes{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Equipes{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {isLoading ? "Carregando..." : `${filtradas?.length || 0} equipe(s)`}
           </p>
         </div>
         <button
-          onClick={() => { resetForm(); setShowForm(true) }}
+          onClick={() => {
+            resetForm()
+            setShowForm(true)
+          }}
           className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
         >
           <PlusCircle size={16} />
@@ -424,7 +492,9 @@ export default function EquipesPage() {
           </h3>
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
-              <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Nome *</label>
+              <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                Nome *
+              </label>
               <input
                 type="text"
                 value={nome}
@@ -434,20 +504,29 @@ export default function EquipesPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Região <span className="text-slate-300">(opcional)</span></label>
+              <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                Região <span className="text-slate-300">(opcional)</span>
+              </label>
               <select
                 value={regiaoId}
                 onChange={(e) => setRegiaoId(e.target.value)}
                 className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100"
               >
                 <option value="">Sem região</option>
-                {(regioes || []).filter((r: Regiao) => r.ativo).map((r: Regiao) => (
-                  <option key={r.id} value={r.id}>{r.nome}{r.uf ? ` (${r.uf})` : ""}</option>
-                ))}
+                {(regioes || [])
+                  .filter((r: Regiao) => r.ativo)
+                  .map((r: Regiao) => (
+                    <option key={r.id} value={r.id}>
+                      {r.nome}
+                      {r.uf ? ` (${r.uf})` : ""}
+                    </option>
+                  ))}
               </select>
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Responsável</label>
+              <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                Responsável
+              </label>
               <select
                 value={responsavelId}
                 onChange={(e) => setResponsavelId(e.target.value)}
@@ -455,7 +534,9 @@ export default function EquipesPage() {
               >
                 <option value="">Selecione...</option>
                 {(usuarios || []).map((u: Usuario) => (
-                  <option key={u.id} value={u.id}>{u.name}</option>
+                  <option key={u.id} value={u.id}>
+                    {u.name}
+                  </option>
                 ))}
               </select>
             </div>
@@ -494,15 +575,22 @@ export default function EquipesPage() {
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {filtradas.map((e: Equipe) => (
-              <div key={e.id} className="flex items-center justify-between px-4 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer" onClick={() => openEquipe(e)}>
+              <div
+                key={e.id}
+                className="flex items-center justify-between px-4 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+                onClick={() => openEquipe(e)}
+              >
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div className="w-9 h-9 rounded-lg bg-purple-50 dark:bg-purple-950/50 flex items-center justify-center shrink-0">
                     <Users className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-slate-900 dark:text-slate-200">{e.nome}</p>
+                    <p className="text-sm font-medium text-slate-900 dark:text-slate-200">
+                      {e.nome}
+                    </p>
                     <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
-                      {e.regiaoNome && `${e.regiaoNome} — `}{e.responsavelNome || "Sem responsável"}
+                      {e.regiaoNome && `${e.regiaoNome} — `}
+                      {e.responsavelNome || "Sem responsável"}
                       <span className="ml-2 inline-flex items-center gap-1 text-purple-500">
                         <Users size={11} />
                         {e.membrosCount || 0}
@@ -512,17 +600,25 @@ export default function EquipesPage() {
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
                   {!e.ativo && (
-                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 font-medium">Inativo</span>
+                    <span className="text-[10px] px-2 py-0.5 rounded-full bg-red-50 dark:bg-red-950/50 text-red-600 dark:text-red-400 font-medium">
+                      Inativo
+                    </span>
                   )}
                   <button
-                    onClick={(ev) => { ev.stopPropagation(); startEdit(e) }}
+                    onClick={(ev) => {
+                      ev.stopPropagation()
+                      startEdit(e)
+                    }}
                     aria-label={`Editar ${e.nome}`}
                     className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700 text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
                   >
                     <Pencil size={14} />
                   </button>
                   <button
-                    onClick={(ev) => { ev.stopPropagation(); setEquipeToDelete(e.id) }}
+                    onClick={(ev) => {
+                      ev.stopPropagation()
+                      setEquipeToDelete(e.id)
+                    }}
                     aria-label={`Excluir ${e.nome}`}
                     className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/50 text-slate-400 hover:text-red-600 transition-colors"
                   >
@@ -541,7 +637,12 @@ export default function EquipesPage() {
         message="Todos os vínculos com representantes serão removidos."
         variant="danger"
         confirmLabel="Excluir"
-        onConfirm={() => { if (equipeToDelete) { deleteMutation.mutate(equipeToDelete); setEquipeToDelete(null) } }}
+        onConfirm={() => {
+          if (equipeToDelete) {
+            deleteMutation.mutate(equipeToDelete)
+            setEquipeToDelete(null)
+          }
+        }}
         onCancel={() => setEquipeToDelete(null)}
       />
     </div>

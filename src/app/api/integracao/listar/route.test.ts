@@ -18,8 +18,20 @@ vi.mock("@/lib/db", () => ({
 }))
 
 const integracoes = [
-  { id: 1, nome: "ERP TOTVS", baseUrl: "https://erp.exemplo.com", tipoAuth: "bearer", telas: ["clientes", "fios"] },
-  { id: 2, nome: "WMS", baseUrl: "https://wms.exemplo.com", tipoAuth: "basic", telas: ["produtos"] },
+  {
+    id: 1,
+    nome: "ERP TOTVS",
+    baseUrl: "https://erp.exemplo.com",
+    tipoAuth: "bearer",
+    telas: ["clientes", "fios"],
+  },
+  {
+    id: 2,
+    nome: "WMS",
+    baseUrl: "https://wms.exemplo.com",
+    tipoAuth: "basic",
+    telas: ["produtos"],
+  },
 ]
 
 describe("GET /api/integracao/listar", () => {

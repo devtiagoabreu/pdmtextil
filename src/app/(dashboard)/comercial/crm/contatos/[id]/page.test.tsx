@@ -56,7 +56,8 @@ describe("ContatoDetailPage", () => {
     const fetchMock = createFetchMock(({ method, url }) => {
       if (method === "GET" && url === "/api/crm/contatos/1") return { json: contato }
       if (method === "GET" && url === "/api/crm/pessoas") return { json: empresas }
-      if (method === "PUT" && url === "/api/crm/contatos/1") return { json: { ...contato, nome: "Carlos Silva Jr" } }
+      if (method === "PUT" && url === "/api/crm/contatos/1")
+        return { json: { ...contato, nome: "Carlos Silva Jr" } }
       return { json: null }
     })
     vi.stubGlobal("fetch", fetchMock.fn)
@@ -80,7 +81,8 @@ describe("ContatoDetailPage", () => {
     const fetchMock = createFetchMock(({ method, url }) => {
       if (method === "GET" && url === "/api/crm/contatos/1") return { json: contato }
       if (method === "GET" && url === "/api/crm/pessoas") return { json: empresas }
-      if (method === "PUT" && url === "/api/crm/contatos/1") return { json: { ...contato, empresaId: null } }
+      if (method === "PUT" && url === "/api/crm/contatos/1")
+        return { json: { ...contato, empresaId: null } }
       return { json: null }
     })
     vi.stubGlobal("fetch", fetchMock.fn)
@@ -102,8 +104,10 @@ describe("ContatoDetailPage", () => {
     const fetchMock = createFetchMock(({ method, url }) => {
       if (method === "GET" && url === "/api/crm/contatos/1") return { json: contato }
       if (method === "GET" && url === "/api/crm/pessoas") return { json: empresas }
-      if (method === "GET" && url === "/api/clientes") return { json: [{ id: 9, nome: "Cliente SP" }] }
-      if (method === "PUT" && url === "/api/crm/contatos/1") return { json: { ...contato, empresaId: null, clienteId: 9 } }
+      if (method === "GET" && url === "/api/clientes")
+        return { json: [{ id: 9, nome: "Cliente SP" }] }
+      if (method === "PUT" && url === "/api/crm/contatos/1")
+        return { json: { ...contato, empresaId: null, clienteId: 9 } }
       return { json: null }
     })
     vi.stubGlobal("fetch", fetchMock.fn)
@@ -138,7 +142,9 @@ describe("ContatoDetailPage", () => {
 
     fireEvent.click(within(dialog).getByRole("button", { name: "Excluir" }))
 
-    await waitFor(() => expect(findCall(fetchMock.calls, "/api/crm/contatos/1", "DELETE")).toBeDefined())
+    await waitFor(() =>
+      expect(findCall(fetchMock.calls, "/api/crm/contatos/1", "DELETE")).toBeDefined()
+    )
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Contato excluído"))
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/crm/contatos")
   })

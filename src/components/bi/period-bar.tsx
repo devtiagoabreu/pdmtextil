@@ -92,18 +92,20 @@ export function PeriodBar({ dataInicial, dataFinal, onApplyPeriod }: Props) {
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
       <div className="flex flex-wrap items-center gap-2">
-        <span className="text-sm font-medium text-slate-700 dark:text-slate-300 mr-1">Período:</span>
+        <span className="text-sm font-medium text-slate-700 dark:text-slate-300 mr-1">
+          Período:
+        </span>
         <input
           type="date"
           value={dataInicial}
-          onChange={e => onApplyPeriod(e.target.value || null, dataFinal || null)}
+          onChange={(e) => onApplyPeriod(e.target.value || null, dataFinal || null)}
           className="px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
         <span className="text-sm text-slate-500">até</span>
         <input
           type="date"
           value={dataFinal}
-          onChange={e => onApplyPeriod(dataInicial || null, e.target.value || null)}
+          onChange={(e) => onApplyPeriod(dataInicial || null, e.target.value || null)}
           className="px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
         {(dataInicial || dataFinal) && (
@@ -116,7 +118,7 @@ export function PeriodBar({ dataInicial, dataFinal, onApplyPeriod }: Props) {
         )}
       </div>
       <div className="mt-2 flex flex-wrap items-center gap-2">
-        {PRESETS.map(p => (
+        {PRESETS.map((p) => (
           <button
             key={p.label}
             onClick={() => {

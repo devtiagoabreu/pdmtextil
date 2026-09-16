@@ -24,16 +24,9 @@ export async function GET(req: NextRequest) {
         ilike(clientes.cnpj, `%${q}%`),
         ilike(clientes.razaoSocial, `%${q}%`)
       )
-      rows = await db
-        .select()
-        .from(clientes)
-        .where(searchCond)
-        .orderBy(desc(clientes.createdAt))
+      rows = await db.select().from(clientes).where(searchCond).orderBy(desc(clientes.createdAt))
     } else {
-      rows = await db
-        .select()
-        .from(clientes)
-        .orderBy(desc(clientes.createdAt))
+      rows = await db.select().from(clientes).orderBy(desc(clientes.createdAt))
     }
 
     return NextResponse.json(rows)
@@ -51,13 +44,20 @@ export async function POST(req: NextRequest) {
     const parsed = validateRequest(clienteSchema, body)
     if ("error" in parsed) return parsed.error
 
-    const { nome, cnpj, razaoSocial, email, telefone, contato, endereco, cidade, uf, idIntegracao } = parsed.data
+    const {
+      nome,
+      cnpj,
+      razaoSocial,
+      email,
+      telefone,
+      contato,
+      endereco,
+      cidade,
+      uf,
+      idIntegracao,
+    } = parsed.data
 
-    const existente = await db
-      .select()
-      .from(clientes)
-      .where(eq(clientes.cnpj, cnpj))
-      .limit(1)
+    const existente = await db.select().from(clientes).where(eq(clientes.cnpj, cnpj)).limit(1)
 
     if (existente[0]) {
       return NextResponse.json({ error: "CNPJ já cadastrado" }, { status: 409 })

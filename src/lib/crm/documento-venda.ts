@@ -42,7 +42,7 @@ export const STATUS_PEDIDO_VENDA_CORES: Record<string, string> = {
 }
 
 export function statusOptions(statusList: readonly string[], labels: Record<string, string>) {
-  return statusList.map(value => ({ value, label: labels[value] || value }))
+  return statusList.map((value) => ({ value, label: labels[value] || value }))
 }
 
 export interface ItemVendaLinha {

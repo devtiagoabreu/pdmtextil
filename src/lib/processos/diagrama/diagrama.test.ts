@@ -133,15 +133,20 @@ describe("bpmn", () => {
 describe("excalidraw", () => {
   it("gera elementos de canvas a partir do modelo", () => {
     const canvas = modeloParaCanvasExcalidraw(modeloExemplo())
-    const rotulos = canvas.elements.filter(
-      (el) => (el as { type?: string }).type === "text"
-    )
+    const rotulos = canvas.elements.filter((el) => (el as { type?: string }).type === "text")
     const flechas = canvas.elements.filter((el) => (el as { type?: string }).type === "arrow")
     expect(flechas.length).toBe(5)
     expect(rotulos.length).toBe(5 + 2)
     const textos = (rotulos as Array<{ text?: string }>).map((r) => r.text)
     expect(textos).toEqual(
-      expect.arrayContaining(["Início", "Fim", "Receber matéria-prima", "NF conferida?", "SIM", "NÃO"])
+      expect.arrayContaining([
+        "Início",
+        "Fim",
+        "Receber matéria-prima",
+        "NF conferida?",
+        "SIM",
+        "NÃO",
+      ])
     )
   })
 })

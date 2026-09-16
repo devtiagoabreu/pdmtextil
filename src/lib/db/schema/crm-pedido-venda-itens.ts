@@ -3,7 +3,9 @@ import { crmPedidosVenda } from "./crm-pedidos-venda"
 
 export const crmPedidoVendaItens = pgTable("crm_pedido_venda_itens", {
   id: serial("id").primaryKey(),
-  pedidoVendaId: integer("pedido_venda_id").notNull().references(() => crmPedidosVenda.id, { onDelete: "cascade" }),
+  pedidoVendaId: integer("pedido_venda_id")
+    .notNull()
+    .references(() => crmPedidosVenda.id, { onDelete: "cascade" }),
   produto: varchar("produto", { length: 300 }).notNull(),
   codigo: varchar("codigo", { length: 100 }),
   unidade: varchar("unidade", { length: 20 }).notNull().default("METROS"),

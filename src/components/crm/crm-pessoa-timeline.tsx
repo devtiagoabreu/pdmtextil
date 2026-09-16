@@ -1,7 +1,16 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { Loader2, Zap, Target, CalendarCheck, ListChecks, FileText, MessageSquare, FileCode2 } from "lucide-react"
+import {
+  Loader2,
+  Zap,
+  Target,
+  CalendarCheck,
+  ListChecks,
+  FileText,
+  MessageSquare,
+  FileCode2,
+} from "lucide-react"
 
 const TIPO_ICON: Record<string, { icon: any; cor: string }> = {
   LEAD: { icon: Zap, cor: "text-amber-500 bg-amber-50 dark:bg-amber-950/50" },
@@ -56,11 +65,16 @@ export default function CrmPessoaTimeline({ pessoaId }: { pessoaId: string }) {
     <div className="relative pl-8 space-y-0">
       <div className="absolute left-[15px] top-2 bottom-2 w-0.5 bg-slate-200 dark:bg-slate-700 rounded-full" />
       {eventos.map((evento: any) => {
-        const config = TIPO_ICON[evento.tipo] || { icon: Zap, cor: "text-slate-500 bg-slate-50 dark:bg-slate-800" }
+        const config = TIPO_ICON[evento.tipo] || {
+          icon: Zap,
+          cor: "text-slate-500 bg-slate-50 dark:bg-slate-800",
+        }
         const Icon = config.icon
         return (
           <div key={evento.id} className="relative pb-5 group">
-            <div className={`absolute -left-8 p-1.5 rounded-full ${config.cor} ring-2 ring-white dark:ring-slate-900`}>
+            <div
+              className={`absolute -left-8 p-1.5 rounded-full ${config.cor} ring-2 ring-white dark:ring-slate-900`}
+            >
               <Icon size={14} />
             </div>
             <div className="pl-2">

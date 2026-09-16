@@ -28,7 +28,8 @@ export function precisaGerarResumo(
 }
 
 export function resumoAtual(resumo: ResumoConversa | undefined | null): string | undefined {
-  if (!resumo || typeof resumo.resumo !== "string" || resumo.resumo.trim().length === 0) return undefined
+  if (!resumo || typeof resumo.resumo !== "string" || resumo.resumo.trim().length === 0)
+    return undefined
   return resumo.resumo
 }
 
@@ -36,7 +37,9 @@ export function promptResumo(
   historicoSegmento: Array<{ role: "user" | "assistant"; content: string }>,
   resumoAnterior: string | undefined
 ): string {
-  const texto = historicoSegmento.map((m) => `${m.role === "assistant" ? "BOT" : "CLIENTE"}: ${m.content}`).join("\n")
+  const texto = historicoSegmento
+    .map((m) => `${m.role === "assistant" ? "BOT" : "CLIENTE"}: ${m.content}`)
+    .join("\n")
   const anterior = resumoAnterior ? `Resumo anterior:\n${resumoAnterior}\n` : ""
   return `${anterior}Resuma a conversa de vendas abaixo em portugues, listando apenas os FATOS RELEVANTES que precisam ser lembrados nos proximos turnos (nome, tipo de pessoa, documento, empresa, linhas de interesse, pedidos pendentes de confirmacao), em no maximo 150 palavras, em forma de topicos curtos e objetivos.\n\nCONVERSA:\n${texto}`
 }
@@ -44,7 +47,10 @@ export function promptResumo(
 export function extrairResumoDoConteudo(conteudo: string): string | undefined {
   const limpo = conteudo.trim()
   if (limpo.length === 0) return undefined
-  const semFences = limpo.replace(/^```[\s\S]*?\n/, "").replace(/\n?```$/, "").trim()
+  const semFences = limpo
+    .replace(/^```[\s\S]*?\n/, "")
+    .replace(/\n?```$/, "")
+    .trim()
   if (semFences.length === 0) return undefined
   return semFences.slice(0, 800)
 }
@@ -55,7 +61,10 @@ export async function gerarResumoIA(
 ): Promise<string | undefined> {
   if (segmento.length === 0) return undefined
   try {
-    const res = await chamarIA([{ role: "user", content: promptResumo(segmento, resumoAnterior) }], { temperatura: 0, maxTokens: 220 })
+    const res = await chamarIA(
+      [{ role: "user", content: promptResumo(segmento, resumoAnterior) }],
+      { temperatura: 0, maxTokens: 220 }
+    )
     return extrairResumoDoConteudo(res.conteudo)
   } catch (e) {
     console.error("[Resumo] erro ao gerar resumo:", e)
@@ -80,7 +89,12 @@ export function prepararHistoricoIA(
 
   if (!gerarResumo) {
     if (!anterior) {
-      return { mensagens: historico, segmentoParaResumo: [], resumoAnterior: undefined, gerarResumo: false }
+      return {
+        mensagens: historico,
+        segmentoParaResumo: [],
+        resumoAnterior: undefined,
+        gerarResumo: false,
+      }
     }
     const mensagens = [
       { role: "assistant" as const, content: `[Resumo anterior] ${anterior}` },
@@ -94,5 +108,10 @@ export function prepararHistoricoIA(
     ...(anterior ? [{ role: "assistant" as const, content: `[Resumo anterior] ${anterior}` }] : []),
     ...historico.slice(-JANELA),
   ]
-  return { mensagens, segmentoParaResumo: foraDaJanela, resumoAnterior: anterior, gerarResumo: true }
+  return {
+    mensagens,
+    segmentoParaResumo: foraDaJanela,
+    resumoAnterior: anterior,
+    gerarResumo: true,
+  }
 }

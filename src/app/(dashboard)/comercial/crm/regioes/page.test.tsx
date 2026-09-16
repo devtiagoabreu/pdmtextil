@@ -12,7 +12,8 @@ const regioes = [
 function buildHandler() {
   return ({ method, url }: { method: string; url: string }) => {
     if (method === "GET" && url === "/api/crm/regioes") return { json: regioes }
-    if (method === "GET" && url === "/api/usuarios/ativos") return { json: [{ id: 2, name: "Maria" }] }
+    if (method === "GET" && url === "/api/usuarios/ativos")
+      return { json: [{ id: 2, name: "Maria" }] }
     if (method === "POST" && url === "/api/crm/regioes") return { json: { id: 3 }, status: 201 }
     if (method === "PUT" && url === "/api/crm/regioes/1") return { json: {} }
     if (method === "DELETE" && url === "/api/crm/regioes/1") return { json: { success: true } }
@@ -48,7 +49,9 @@ describe("RegioesPage", () => {
     const { mock } = render()
     await screen.findByText("Sudeste")
 
-    fireEvent.change(screen.getByPlaceholderText("Buscar região..."), { target: { value: "Nordeste" } })
+    fireEvent.change(screen.getByPlaceholderText("Buscar região..."), {
+      target: { value: "Nordeste" },
+    })
 
     expect(screen.getByText("Nordeste")).toBeInTheDocument()
     expect(screen.queryByText("Sudeste")).not.toBeInTheDocument()
@@ -63,7 +66,9 @@ describe("RegioesPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Nova Região" }))
     await screen.findByRole("heading", { name: "Nova Região" })
 
-    fireEvent.change(screen.getByPlaceholderText("Ex: Sudeste"), { target: { value: "Centro-Oeste" } })
+    fireEvent.change(screen.getByPlaceholderText("Ex: Sudeste"), {
+      target: { value: "Centro-Oeste" },
+    })
     fireEvent.change(screen.getAllByRole("combobox")[0], { target: { value: "CO" } })
     fireEvent.change(screen.getAllByRole("combobox")[1], { target: { value: "2" } })
 

@@ -1,5 +1,10 @@
 import { beforeEach, describe, expect, it, vi } from "vitest"
-import { parseEmails, montarLinkDescadastro, injectUnsubscribe, buscarDestinatarios } from "./email-massa"
+import {
+  parseEmails,
+  montarLinkDescadastro,
+  injectUnsubscribe,
+  buscarDestinatarios,
+} from "./email-massa"
 import { db } from "./db"
 import { createQueryBuilder } from "@/test/route-db-mock"
 
@@ -47,7 +52,11 @@ describe("montarLinkDescadastro / injectUnsubscribe", () => {
   })
 
   it("injeta o bloco de descadastro antes de </body>", () => {
-    const html = injectUnsubscribe("<html><body><p>Oi</p></body></html>", "c@x.com", "https://app.com")
+    const html = injectUnsubscribe(
+      "<html><body><p>Oi</p></body></html>",
+      "c@x.com",
+      "https://app.com"
+    )
     expect(html).toContain("/api/email/unsubscribe?email=c%40x.com")
     expect(html).toContain("cancelar inscrição")
     expect(html).toContain("</body>")
@@ -69,7 +78,11 @@ describe("buscarDestinatarios", () => {
   it("filtra emails inválidos e optouts em clientes", async () => {
     vi.mocked(db.select)
       .mockImplementationOnce(() =>
-        createQueryBuilder([{ email: "ok@x.com", nome: "A" }, { email: "ruim", nome: "B" }, { email: "fora@x.com", nome: "C" }]),
+        createQueryBuilder([
+          { email: "ok@x.com", nome: "A" },
+          { email: "ruim", nome: "B" },
+          { email: "fora@x.com", nome: "C" },
+        ])
       )
       .mockImplementationOnce(() => createQueryBuilder([{ email: "FORA@x.com" }]))
     const result = await buscarDestinatarios("clientes")

@@ -21,7 +21,18 @@ interface AreaAtiva {
   nome: string
 }
 
-const PERIODICIDADES = ["DIARIA", "SEMANAL", "MENSAL", "TRIMESTRAL", "SEMESTRAL", "ANUAL", "BIENAL", "TRIENAL", "QUINQUENAL", "OUTRA"] as const
+const PERIODICIDADES = [
+  "DIARIA",
+  "SEMANAL",
+  "MENSAL",
+  "TRIMESTRAL",
+  "SEMESTRAL",
+  "ANUAL",
+  "BIENAL",
+  "TRIENAL",
+  "QUINQUENAL",
+  "OUTRA",
+] as const
 
 const TIPOS_CHECKLIST = ["SIM_NAO", "OK_OBS", "VALOR", "TEXTO"] as const
 
@@ -95,7 +106,7 @@ export default function TipoVistoriaFormPage() {
         diasIntervalo: tipoData.diasIntervalo ? String(tipoData.diasIntervalo) : "",
         baseLegal: tipoData.baseLegal || "",
         checklist: Array.isArray(tipoData.checklist)
-          ? tipoData.checklist.map(item => ({
+          ? tipoData.checklist.map((item) => ({
               pergunta: item.pergunta || "",
               tipo: item.tipo || "SIM_NAO",
               obrigatorio: item.obrigatorio ?? true,
@@ -107,23 +118,25 @@ export default function TipoVistoriaFormPage() {
   }, [tipoData])
 
   const adicionarItem = () => {
-    setTipo(prev => ({
+    setTipo((prev) => ({
       ...prev,
       checklist: [...prev.checklist, { pergunta: "", tipo: "SIM_NAO", obrigatorio: true }],
     }))
   }
 
   const removerItem = (index: number) => {
-    setTipo(prev => ({
+    setTipo((prev) => ({
       ...prev,
       checklist: prev.checklist.filter((_, i) => i !== index),
     }))
   }
 
   const atualizarItem = (index: number, campo: keyof ChecklistItem, valor: string | boolean) => {
-    setTipo(prev => ({
+    setTipo((prev) => ({
       ...prev,
-      checklist: prev.checklist.map((item, i) => (i === index ? { ...item, [campo]: valor } : item)),
+      checklist: prev.checklist.map((item, i) =>
+        i === index ? { ...item, [campo]: valor } : item
+      ),
     }))
   }
 
@@ -137,7 +150,7 @@ export default function TipoVistoriaFormPage() {
       toast.error("Informe o intervalo em dias")
       return
     }
-    if (tipo.checklist.some(item => !item.pergunta.trim())) {
+    if (tipo.checklist.some((item) => !item.pergunta.trim())) {
       toast.error("Toda pergunta do checklist precisa de texto")
       return
     }
@@ -151,9 +164,10 @@ export default function TipoVistoriaFormPage() {
         nome: tipo.nome,
         areaId: tipo.areaId,
         periodicidade: tipo.periodicidade,
-        diasIntervalo: tipo.periodicidade === "OUTRA" && tipo.diasIntervalo
-          ? parseInt(tipo.diasIntervalo)
-          : null,
+        diasIntervalo:
+          tipo.periodicidade === "OUTRA" && tipo.diasIntervalo
+            ? parseInt(tipo.diasIntervalo)
+            : null,
         baseLegal: tipo.baseLegal || null,
         checklist: tipo.checklist,
         ativo: tipo.ativo,
@@ -180,8 +194,11 @@ export default function TipoVistoriaFormPage() {
     }
   }
 
-  const handleChange = (field: keyof TipoVistoria, value: string | boolean | ChecklistItem[] | number | null) => {
-    setTipo(prev => ({ ...prev, [field]: value }))
+  const handleChange = (
+    field: keyof TipoVistoria,
+    value: string | boolean | ChecklistItem[] | number | null
+  ) => {
+    setTipo((prev) => ({ ...prev, [field]: value }))
   }
 
   if (loading) {
@@ -211,26 +228,34 @@ export default function TipoVistoriaFormPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="nome" className="font-medium">Nome</Label>
+            <Label htmlFor="nome" className="font-medium">
+              Nome
+            </Label>
             <Input
               id="nome"
               value={tipo.nome}
-              onChange={e => handleChange("nome", e.target.value)}
+              onChange={(e) => handleChange("nome", e.target.value)}
               placeholder="Extintor de Incêndio (Mensal)"
               required
             />
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="areaId" className="font-medium">Área</Label>
+            <Label htmlFor="areaId" className="font-medium">
+              Área
+            </Label>
             <select
               id="areaId"
               value={tipo.areaId ?? ""}
-              onChange={e => handleChange("areaId", e.target.value ? parseInt(e.target.value) : null)}
+              onChange={(e) =>
+                handleChange("areaId", e.target.value ? parseInt(e.target.value) : null)
+              }
               className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
             >
               {areas.map((area) => (
-                <option key={area.id} value={area.id}>{area.nome}</option>
+                <option key={area.id} value={area.id}>
+                  {area.nome}
+                </option>
               ))}
             </select>
           </div>
@@ -238,28 +263,34 @@ export default function TipoVistoriaFormPage() {
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="periodicidade" className="font-medium">Periodicidade</Label>
+            <Label htmlFor="periodicidade" className="font-medium">
+              Periodicidade
+            </Label>
             <select
               id="periodicidade"
               value={tipo.periodicidade}
-              onChange={e => handleChange("periodicidade", e.target.value)}
+              onChange={(e) => handleChange("periodicidade", e.target.value)}
               className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
             >
               {PERIODICIDADES.map((periodicidade) => (
-                <option key={periodicidade} value={periodicidade}>{periodicidade}</option>
+                <option key={periodicidade} value={periodicidade}>
+                  {periodicidade}
+                </option>
               ))}
             </select>
           </div>
 
           {tipo.periodicidade === "OUTRA" && (
             <div className="space-y-2">
-              <Label htmlFor="diasIntervalo" className="font-medium">Intervalo (dias)</Label>
+              <Label htmlFor="diasIntervalo" className="font-medium">
+                Intervalo (dias)
+              </Label>
               <Input
                 id="diasIntervalo"
                 type="number"
                 min={1}
                 value={tipo.diasIntervalo}
-                onChange={e => handleChange("diasIntervalo", e.target.value)}
+                onChange={(e) => handleChange("diasIntervalo", e.target.value)}
                 placeholder="180"
                 required
               />
@@ -268,11 +299,13 @@ export default function TipoVistoriaFormPage() {
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="baseLegal" className="font-medium">Base Legal</Label>
+          <Label htmlFor="baseLegal" className="font-medium">
+            Base Legal
+          </Label>
           <Textarea
             id="baseLegal"
             value={tipo.baseLegal}
-            onChange={e => handleChange("baseLegal", e.target.value)}
+            onChange={(e) => handleChange("baseLegal", e.target.value)}
             placeholder="NR-23, NBR 12693, etc."
           />
         </div>
@@ -280,7 +313,13 @@ export default function TipoVistoriaFormPage() {
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <Label className="font-medium">Checklist</Label>
-            <Button type="button" variant="outline" size="sm" className="gap-1" onClick={adicionarItem}>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="gap-1"
+              onClick={adicionarItem}
+            >
               <PlusCircle size={14} />
               Adicionar item
             </Button>
@@ -300,7 +339,7 @@ export default function TipoVistoriaFormPage() {
                   <div className="flex items-start justify-between gap-2">
                     <Input
                       value={item.pergunta}
-                      onChange={e => atualizarItem(index, "pergunta", e.target.value)}
+                      onChange={(e) => atualizarItem(index, "pergunta", e.target.value)}
                       placeholder="Pergunta da vistoria"
                     />
                     <Button
@@ -316,18 +355,22 @@ export default function TipoVistoriaFormPage() {
                   <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
                     <select
                       value={item.tipo}
-                      onChange={e => atualizarItem(index, "tipo", e.target.value as ChecklistItem["tipo"])}
+                      onChange={(e) =>
+                        atualizarItem(index, "tipo", e.target.value as ChecklistItem["tipo"])
+                      }
                       className="flex-1 p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
                     >
                       {TIPOS_CHECKLIST.map((tipoChecklist) => (
-                        <option key={tipoChecklist} value={tipoChecklist}>{tipoChecklist}</option>
+                        <option key={tipoChecklist} value={tipoChecklist}>
+                          {tipoChecklist}
+                        </option>
                       ))}
                     </select>
                     <label className="flex items-center gap-2 text-sm">
                       <input
                         type="checkbox"
                         checked={item.obrigatorio}
-                        onChange={e => atualizarItem(index, "obrigatorio", e.target.checked)}
+                        onChange={(e) => atualizarItem(index, "obrigatorio", e.target.checked)}
                         className="w-4 h-4"
                       />
                       Obrigatório
@@ -340,7 +383,13 @@ export default function TipoVistoriaFormPage() {
         </div>
 
         <div className="flex items-center gap-2">
-          <input type="checkbox" id="ativo" checked={tipo.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={tipo.ativo}
+            onChange={(e) => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
           <Label htmlFor="ativo">Ativo</Label>
         </div>
 
@@ -350,7 +399,9 @@ export default function TipoVistoriaFormPage() {
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
           <Link href="/ativos/tipos-vistoria">
-            <Button variant="outline" type="button">Cancelar</Button>
+            <Button variant="outline" type="button">
+              Cancelar
+            </Button>
           </Link>
         </div>
       </form>

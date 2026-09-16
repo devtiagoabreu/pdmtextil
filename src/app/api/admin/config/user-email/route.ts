@@ -76,7 +76,10 @@ export async function PUT(req: NextRequest) {
         .where(eq(userEmailConfig.usuarioId, Number(usuarioId)))
     } else {
       if (!senhaApp) {
-        return NextResponse.json({ error: "Senha de app é obrigatória para novo cadastro" }, { status: 400 })
+        return NextResponse.json(
+          { error: "Senha de app é obrigatória para novo cadastro" },
+          { status: 400 }
+        )
       }
       await db.insert(userEmailConfig).values({
         usuarioId: Number(usuarioId),
@@ -107,9 +110,7 @@ export async function DELETE(req: NextRequest) {
       return NextResponse.json({ error: "usuarioId é obrigatório" }, { status: 400 })
     }
 
-    await db
-      .delete(userEmailConfig)
-      .where(eq(userEmailConfig.usuarioId, Number(usuarioId)))
+    await db.delete(userEmailConfig).where(eq(userEmailConfig.usuarioId, Number(usuarioId)))
 
     return NextResponse.json({ success: true })
   } catch (error) {

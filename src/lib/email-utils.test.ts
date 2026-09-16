@@ -18,10 +18,9 @@ describe("extrairEmails", () => {
   })
 
   it("normaliza maiúsculas, espaços e espaços extras", () => {
-    expect(extrairEmails("  DevTiagoAbreu@gmail.com ;  FATURAMENTO@promodatextil.com.br ")).toEqual([
-      "devtiagoabreu@gmail.com",
-      "faturamento@promodatextil.com.br",
-    ])
+    expect(extrairEmails("  DevTiagoAbreu@gmail.com ;  FATURAMENTO@promodatextil.com.br ")).toEqual(
+      ["devtiagoabreu@gmail.com", "faturamento@promodatextil.com.br"]
+    )
   })
 
   it("ignora valores sem @", () => {

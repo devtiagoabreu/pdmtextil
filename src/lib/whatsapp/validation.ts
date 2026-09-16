@@ -1,4 +1,7 @@
-export function extrairDoc(texto: string, tipoPessoaForcado?: string): { doc: string; tipo: string } | null {
+export function extrairDoc(
+  texto: string,
+  tipoPessoaForcado?: string
+): { doc: string; tipo: string } | null {
   const numeros = texto.match(/\d{8,}/g)
   if (!numeros || numeros.length === 0) return null
 
@@ -49,13 +52,21 @@ export function extrairNomeDaResposta(texto: string): string | null {
   for (const padrao of padroes) {
     const m = texto.match(padrao)
     if (m && m[1]) {
-      let nome = m[1].trim().replace(/[.,!?;:]+$/, "").trim()
+      let nome = m[1]
+        .trim()
+        .replace(/[.,!?;:]+$/, "")
+        .trim()
       if (nome.length > 2 && nome.length < 60 && pareceNome(nome) && !rejeitarNome(nome)) {
         return nome
       }
     }
   }
-  if (pareceNome(texto) && !rejeitarNome(texto) && texto.split(" ").length <= 4 && texto.length < 40) {
+  if (
+    pareceNome(texto) &&
+    !rejeitarNome(texto) &&
+    texto.split(" ").length <= 4 &&
+    texto.length < 40
+  ) {
     return texto.trim()
   }
   return null
@@ -64,12 +75,26 @@ export function extrairNomeDaResposta(texto: string): string | null {
 export function rejeitarNome(texto: string): string | null {
   const t = texto.toLowerCase().trim()
   if (/^\d+$/.test(t)) return "numero_puro"
-  if (/\d/.test(t) && /\b(ano|mes|dia|hora|idade|ano|tel|cel|whatsapp)\b/.test(t)) return "idade_ou_info_pessoal"
-  if (/^(tenho|possuo|sou|meu|minha|meu nome|meu nome e|minha nome)\b/.test(t) && t.split(" ").length <= 3) return "frase_incompleta"
-  if (/^(nao sei|não sei|nao quero|não quero|deixa pra la|deixa pra la|se foda|foda-se|tanto faz|indiferente|whatever|ok|sim|nao|não|s|n)\b/.test(t)) return "resposta_evaziva"
+  if (/\d/.test(t) && /\b(ano|mes|dia|hora|idade|ano|tel|cel|whatsapp)\b/.test(t))
+    return "idade_ou_info_pessoal"
+  if (
+    /^(tenho|possuo|sou|meu|minha|meu nome|meu nome e|minha nome)\b/.test(t) &&
+    t.split(" ").length <= 3
+  )
+    return "frase_incompleta"
+  if (
+    /^(nao sei|não sei|nao quero|não quero|deixa pra la|deixa pra la|se foda|foda-se|tanto faz|indiferente|whatever|ok|sim|nao|não|s|n)\b/.test(
+      t
+    )
+  )
+    return "resposta_evaziva"
   if (/^(cpf|cnpj|documento|doc|registro)\b/.test(t)) return "documento_no_nome"
   if (/^(preco|preço|valor|quanto|custa|frete)\b/.test(t)) return "pergunta_fora_do_fluxo"
-  if (/^(oi|ola|olá|bom dia|boa tarde|boa noite|hello|hi|hey)(?:\s|$)/i.test(t) && t.split(" ").length <= 3) return "saudacao_sem_nome"
+  if (
+    /^(oi|ola|olá|bom dia|boa tarde|boa noite|hello|hi|hey)(?:\s|$)/i.test(t) &&
+    t.split(" ").length <= 3
+  )
+    return "saudacao_sem_nome"
   return null
 }
 
@@ -79,15 +104,21 @@ export function negou(texto: string): boolean {
 
 export function ehSaudacao(texto: string): boolean {
   const t = texto.toLowerCase().trim()
-  return /^(?:oi|olá|ola|opa|eai|e aí|eae|bom dia|boa tarde|boa noite|hello|hi|hey|bem vindo|bem-vindo)[!?.,]*(?:\s+tudo\s+bem\??[!?.,]*)?$/.test(t)
+  return /^(?:oi|olá|ola|opa|eai|e aí|eae|bom dia|boa tarde|boa noite|hello|hi|hey|bem vindo|bem-vindo)[!?.,]*(?:\s+tudo\s+bem\??[!?.,]*)?$/.test(
+    t
+  )
 }
 
 export function pediuAtendente(texto: string): boolean {
   const t = texto.toLowerCase().trim()
-  return /\b(falar com|falar pra|atendente|humano|pessoa|representante|suporte|ajuda humana|atencao|admin|gerente)\b/.test(t)
+  return /\b(falar com|falar pra|atendente|humano|pessoa|representante|suporte|ajuda humana|atencao|admin|gerente)\b/.test(
+    t
+  )
 }
 
 export function pediuReiniciar(texto: string): boolean {
   const t = texto.toLowerCase().trim()
-  return /\b(reiniciar|recomecar|comecar de novo|do zero|comecar do zero|recomecar do zero|resetar|reset|limpar)\b/.test(t)
+  return /\b(reiniciar|recomecar|comecar de novo|do zero|comecar do zero|recomecar do zero|resetar|reset|limpar)\b/.test(
+    t
+  )
 }

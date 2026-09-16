@@ -31,7 +31,14 @@ export async function GET(req: NextRequest) {
       .leftJoin(procProcessos, eq(procSubprocessos.processoId, procProcessos.id))
 
     const lista = processoId
-      ? await base.where(and(eq(procSubprocessos.processoId, parseInt(processoId)), eq(procSubprocessos.ativo, true))).orderBy(procSubprocessos.ordem)
+      ? await base
+          .where(
+            and(
+              eq(procSubprocessos.processoId, parseInt(processoId)),
+              eq(procSubprocessos.ativo, true)
+            )
+          )
+          .orderBy(procSubprocessos.ordem)
       : await base.orderBy(desc(procSubprocessos.createdAt))
 
     return NextResponse.json(lista)
@@ -72,7 +79,12 @@ export async function POST(req: NextRequest) {
       usuarioNome: session.user.name,
     })
 
-    await notificar("PROC_SUBPROCESSO_CRIADO", `Subprocesso cadastrado: ${novo.nome}`, `/processos/subprocessos/${novo.id}`, session.user.name)
+    await notificar(
+      "PROC_SUBPROCESSO_CRIADO",
+      `Subprocesso cadastrado: ${novo.nome}`,
+      `/processos/subprocessos/${novo.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(novo, { status: 201 })
   } catch (error) {

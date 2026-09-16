@@ -45,9 +45,7 @@ interface RoleOption {
   label: string
 }
 
-const ROLES_FIXAS: RoleOption[] = [
-  { name: "DEFAULT", label: "Padrão (novos usuários)" },
-]
+const ROLES_FIXAS: RoleOption[] = [{ name: "DEFAULT", label: "Padrão (novos usuários)" }]
 
 export default function AdminTelasPage() {
   const pathname = usePathname()
@@ -70,7 +68,7 @@ export default function AdminTelasPage() {
       .then((r: any) => r.json())
       .then((data: RoleOption[]) => {
         if (Array.isArray(data)) {
-          setRoles(prev => [...prev, ...data.filter((r: RoleOption) => r.name !== "DEFAULT")])
+          setRoles((prev) => [...prev, ...data.filter((r: RoleOption) => r.name !== "DEFAULT")])
         }
       })
       .catch(console.error)
@@ -90,11 +88,13 @@ export default function AdminTelasPage() {
       fetch(`/api/admin/menus?role=${roleSelecionado}`).then((r: any) => r.json()),
       fetch(`/api/admin/pagina-inicial?role=${roleSelecionado}`).then((r: any) => r.json()),
       fetch("/api/user/menus/todas-telas").then((r: any) => r.json()),
-    ]).then(([menusData, paginaData, telasData]) => {
-      setMenus(Array.isArray(menusData) ? menusData : [])
-      setPaginaInicial(paginaData.paginaInicial || "")
-      setTelas(Array.isArray(telasData) ? telasData : [])
-    }).catch(() => toast.error("Erro ao carregar dados"))
+    ])
+      .then(([menusData, paginaData, telasData]) => {
+        setMenus(Array.isArray(menusData) ? menusData : [])
+        setPaginaInicial(paginaData.paginaInicial || "")
+        setTelas(Array.isArray(telasData) ? telasData : [])
+      })
+      .catch(() => toast.error("Erro ao carregar dados"))
       .finally(() => setLoading(false))
   }, [roleSelecionado])
 
@@ -125,7 +125,7 @@ export default function AdminTelasPage() {
       })
       if (!res.ok) throw new Error()
       const novo = await res.json()
-      setMenus(prev => [...prev, { ...novo, itens: [] }])
+      setMenus((prev) => [...prev, { ...novo, itens: [] }])
       toast.success("Menu criado")
     } catch {
       toast.error("Erro ao criar menu")
@@ -137,7 +137,7 @@ export default function AdminTelasPage() {
     try {
       const res = await fetch(`/api/admin/menus/${id}`, { method: "DELETE" })
       if (!res.ok) throw new Error()
-      setMenus(prev => prev.filter((m: any) => m.id !== id))
+      setMenus((prev) => prev.filter((m: any) => m.id !== id))
       toast.success("Menu excluído")
     } catch {
       toast.error("Erro ao excluir menu")
@@ -155,7 +155,7 @@ export default function AdminTelasPage() {
       })
       if (!res.ok) throw new Error()
       const updated = await res.json()
-      setMenus(prev => prev.map((m: any) => m.id === id ? { ...m, ...updated } : m))
+      setMenus((prev) => prev.map((m: any) => (m.id === id ? { ...m, ...updated } : m)))
       setEditingMenuId(null)
       toast.success("Menu atualizado")
     } catch {
@@ -165,7 +165,10 @@ export default function AdminTelasPage() {
 
   async function criarItem(menuId: number) {
     const telaId = editForm[`novo-item-${menuId}`]
-    if (!telaId) { toast.error("Selecione uma tela"); return }
+    if (!telaId) {
+      toast.error("Selecione uma tela")
+      return
+    }
     const tela = telas.find((t: any) => t.id === telaId)
     if (!tela) return
     try {
@@ -176,8 +179,10 @@ export default function AdminTelasPage() {
       })
       if (!res.ok) throw new Error()
       const item = await res.json()
-      setMenus(prev => prev.map((m: any) => m.id === menuId ? { ...m, itens: [...m.itens, item] } : m))
-      setEditForm(prev => ({ ...prev, [`novo-item-${menuId}`]: "" }))
+      setMenus((prev) =>
+        prev.map((m: any) => (m.id === menuId ? { ...m, itens: [...m.itens, item] } : m))
+      )
+      setEditForm((prev) => ({ ...prev, [`novo-item-${menuId}`]: "" }))
       toast.success("Item adicionado")
     } catch {
       toast.error("Erro ao adicionar item")
@@ -189,7 +194,11 @@ export default function AdminTelasPage() {
     try {
       const res = await fetch(`/api/admin/menus/${menuId}/itens/${itemId}`, { method: "DELETE" })
       if (!res.ok) throw new Error()
-      setMenus(prev => prev.map((m: any) => m.id === menuId ? { ...m, itens: m.itens.filter((i: any) => i.id !== itemId) } : m))
+      setMenus((prev) =>
+        prev.map((m: any) =>
+          m.id === menuId ? { ...m, itens: m.itens.filter((i: any) => i.id !== itemId) } : m
+        )
+      )
       toast.success("Item excluído")
     } catch {
       toast.error("Erro ao excluir item")
@@ -207,7 +216,13 @@ export default function AdminTelasPage() {
       })
       if (!res.ok) throw new Error()
       const updated = await res.json()
-      setMenus(prev => prev.map((m: any) => m.id === menuId ? { ...m, itens: m.itens.map((i: any) => i.id === itemId ? { ...i, ...updated } : i) } : m))
+      setMenus((prev) =>
+        prev.map((m: any) =>
+          m.id === menuId
+            ? { ...m, itens: m.itens.map((i: any) => (i.id === itemId ? { ...i, ...updated } : i)) }
+            : m
+        )
+      )
       setEditingItemId(null)
       toast.success("Item atualizado")
     } catch {
@@ -242,13 +257,23 @@ export default function AdminTelasPage() {
         <div className="flex items-end gap-3">
           <div className="flex-1 space-y-2">
             <Label>Perfil</Label>
-            <Select value={roleSelecionado} onValueChange={(v: string | null) => { if (v) { setRoleSelecionado(v); setLoading(true) } }}>
+            <Select
+              value={roleSelecionado}
+              onValueChange={(v: string | null) => {
+                if (v) {
+                  setRoleSelecionado(v)
+                  setLoading(true)
+                }
+              }}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione um perfil" />
               </SelectTrigger>
               <SelectContent>
                 {roles.map((r: any) => (
-                  <SelectItem key={r.name} value={r.name}>{r.label}</SelectItem>
+                  <SelectItem key={r.name} value={r.name}>
+                    {r.label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -263,21 +288,31 @@ export default function AdminTelasPage() {
 
       {/* Página Inicial do Perfil */}
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-4">Página Inicial do Perfil</h2>
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-4">
+          Página Inicial do Perfil
+        </h2>
         <p className="text-sm text-slate-500 mb-4">
           Define a tela inicial para usuários deste perfil (pode ser sobrescrita por cada usuário)
         </p>
         <div className="flex items-end gap-3">
           <div className="flex-1 space-y-2">
             <Label>Página inicial</Label>
-            <Select value={paginaInicial || "none"} onValueChange={(v: string | null) => { if (v && v !== "none") setPaginaInicial(v); if (v === "none") setPaginaInicial("") }}>
+            <Select
+              value={paginaInicial || "none"}
+              onValueChange={(v: string | null) => {
+                if (v && v !== "none") setPaginaInicial(v)
+                if (v === "none") setPaginaInicial("")
+              }}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Nenhuma (usa hierarquia)" />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="none">Nenhuma (herda configuração anterior)</SelectItem>
                 {telas.map((t: any) => (
-                  <SelectItem key={t.id} value={t.href}>{t.label}</SelectItem>
+                  <SelectItem key={t.id} value={t.href}>
+                    {t.label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -292,7 +327,9 @@ export default function AdminTelasPage() {
       {/* Menus do Perfil */}
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Menus do Perfil</h2>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+            Menus do Perfil
+          </h2>
           <Button onClick={criarMenu} size="sm" className="gap-1">
             <Plus size={14} />
             Novo Menu
@@ -301,12 +338,16 @@ export default function AdminTelasPage() {
 
         {menus.length === 0 ? (
           <p className="text-sm text-slate-400 text-center py-8">
-            Nenhum menu configurado para este perfil. Clique em &ldquo;Novo Menu&rdquo; para começar.
+            Nenhum menu configurado para este perfil. Clique em &ldquo;Novo Menu&rdquo; para
+            começar.
           </p>
         ) : (
           <div className="space-y-3">
             {menus.map((menu: any) => (
-              <div key={menu.id} className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden">
+              <div
+                key={menu.id}
+                className="border border-slate-200 dark:border-slate-700 rounded-lg overflow-hidden"
+              >
                 <div className="flex items-center justify-between px-4 py-3 bg-slate-50 dark:bg-slate-800">
                   <div className="flex items-center gap-3 flex-1 min-w-0">
                     <button
@@ -315,26 +356,44 @@ export default function AdminTelasPage() {
                     >
                       {expandedMenu === menu.id ? <Minus size={16} /> : <Plus size={16} />}
                     </button>
-                    <MenuIcone icone={menu.icone} titulo={menu.titulo} url={menu.itens?.[0]?.url} size={16} className="text-slate-500" />
+                    <MenuIcone
+                      icone={menu.icone}
+                      titulo={menu.titulo}
+                      url={menu.itens?.[0]?.url}
+                      size={16}
+                      className="text-slate-500"
+                    />
                     {editingMenuId === menu.id ? (
                       <div className="flex items-center gap-2 flex-1">
                         <Input
                           value={editForm[`menu-${menu.id}`]?.titulo || ""}
-                          onChange={e => setEditForm(prev => ({ ...prev, [`menu-${menu.id}`]: { ...prev[`menu-${menu.id}`], titulo: e.target.value } }))}
+                          onChange={(e) =>
+                            setEditForm((prev) => ({
+                              ...prev,
+                              [`menu-${menu.id}`]: {
+                                ...prev[`menu-${menu.id}`],
+                                titulo: e.target.value,
+                              },
+                            }))
+                          }
                           className="h-8 text-sm max-w-[180px]"
                           placeholder="Título do menu"
                         />
                         <Select
                           value={editForm[`menu-${menu.id}`]?.icone || ""}
                           onValueChange={(v: string | null) => {
-                            if (v) setEditForm(prev => ({ ...prev, [`menu-${menu.id}`]: { ...prev[`menu-${menu.id}`], icone: v } }))
+                            if (v)
+                              setEditForm((prev) => ({
+                                ...prev,
+                                [`menu-${menu.id}`]: { ...prev[`menu-${menu.id}`], icone: v },
+                              }))
                           }}
                         >
                           <SelectTrigger className="h-8 text-sm w-[200px]">
                             <SelectValue placeholder="Ícone do menu" />
                           </SelectTrigger>
                           <SelectContent>
-                            {ICONE_OPCOES.map(op => (
+                            {ICONE_OPCOES.map((op) => (
                               <SelectItem key={op.valor} value={op.valor}>
                                 <span className="inline-flex items-center gap-2">
                                   <op.Icone size={14} />
@@ -344,16 +403,28 @@ export default function AdminTelasPage() {
                             ))}
                           </SelectContent>
                         </Select>
-                        <Button size="sm" variant="ghost" onClick={() => salvarMenu(menu.id!)} className="h-8">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => salvarMenu(menu.id!)}
+                          className="h-8"
+                        >
                           <Save size={14} />
                         </Button>
-                        <Button size="sm" variant="ghost" onClick={() => setEditingMenuId(null)} className="h-8">
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => setEditingMenuId(null)}
+                          className="h-8"
+                        >
                           Cancelar
                         </Button>
                       </div>
                     ) : (
                       <>
-                        <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{menu.titulo}</span>
+                        <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                          {menu.titulo}
+                        </span>
                         <span className="text-xs text-slate-400">{menu.itens.length} item(ns)</span>
                       </>
                     )}
@@ -363,7 +434,14 @@ export default function AdminTelasPage() {
                       <button
                         onClick={() => {
                           setEditingMenuId(menu.id!)
-                          setEditForm(prev => ({ ...prev, [`menu-${menu.id}`]: { titulo: menu.titulo, icone: menu.icone, ordem: menu.ordem } }))
+                          setEditForm((prev) => ({
+                            ...prev,
+                            [`menu-${menu.id}`]: {
+                              titulo: menu.titulo,
+                              icone: menu.icone,
+                              ordem: menu.ordem,
+                            },
+                          }))
                         }}
                         className="p-1.5 text-slate-400 hover:text-blue-600 rounded"
                       >
@@ -382,39 +460,79 @@ export default function AdminTelasPage() {
                 {expandedMenu === menu.id && (
                   <div className="px-4 py-3 space-y-2">
                     {menu.itens.map((item: any) => (
-                      <div key={item.id} className="flex items-center justify-between gap-3 pl-6 py-1.5">
+                      <div
+                        key={item.id}
+                        className="flex items-center justify-between gap-3 pl-6 py-1.5"
+                      >
                         {editingItemId === `item-${item.id}` ? (
                           <div className="flex items-center gap-2 flex-1">
                             <Input
                               value={editForm[`item-${item.id}`]?.titulo || ""}
-                              onChange={e => setEditForm(prev => ({ ...prev, [`item-${item.id}`]: { ...prev[`item-${item.id}`], titulo: e.target.value } }))}
+                              onChange={(e) =>
+                                setEditForm((prev) => ({
+                                  ...prev,
+                                  [`item-${item.id}`]: {
+                                    ...prev[`item-${item.id}`],
+                                    titulo: e.target.value,
+                                  },
+                                }))
+                              }
                               className="h-8 text-sm max-w-[200px]"
                               placeholder="Título"
                             />
                             <Input
                               value={editForm[`item-${item.id}`]?.url || ""}
-                              onChange={e => setEditForm(prev => ({ ...prev, [`item-${item.id}`]: { ...prev[`item-${item.id}`], url: e.target.value } }))}
+                              onChange={(e) =>
+                                setEditForm((prev) => ({
+                                  ...prev,
+                                  [`item-${item.id}`]: {
+                                    ...prev[`item-${item.id}`],
+                                    url: e.target.value,
+                                  },
+                                }))
+                              }
                               className="h-8 text-sm flex-1 font-mono"
                               placeholder="/url"
                             />
-                            <Button size="sm" variant="ghost" onClick={() => salvarItem(menu.id!, item.id!)} className="h-8">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => salvarItem(menu.id!, item.id!)}
+                              className="h-8"
+                            >
                               <Save size={14} />
                             </Button>
-                            <Button size="sm" variant="ghost" onClick={() => setEditingItemId(null)} className="h-8">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => setEditingItemId(null)}
+                              className="h-8"
+                            >
                               Cancelar
                             </Button>
                           </div>
                         ) : (
                           <>
                             <div className="flex items-center gap-2 flex-1 min-w-0">
-                              <span className="text-sm text-slate-700 dark:text-slate-300">{item.titulo}</span>
-                              <span className="text-xs text-slate-400 font-mono truncate">{item.url}</span>
+                              <span className="text-sm text-slate-700 dark:text-slate-300">
+                                {item.titulo}
+                              </span>
+                              <span className="text-xs text-slate-400 font-mono truncate">
+                                {item.url}
+                              </span>
                             </div>
                             <div className="flex items-center gap-1">
                               <button
                                 onClick={() => {
                                   setEditingItemId(`item-${item.id}`)
-                                  setEditForm(prev => ({ ...prev, [`item-${item.id}`]: { titulo: item.titulo, url: item.url, ordem: item.ordem } }))
+                                  setEditForm((prev) => ({
+                                    ...prev,
+                                    [`item-${item.id}`]: {
+                                      titulo: item.titulo,
+                                      url: item.url,
+                                      ordem: item.ordem,
+                                    },
+                                  }))
                                 }}
                                 className="p-1 text-slate-400 hover:text-blue-600 rounded"
                               >
@@ -437,7 +555,7 @@ export default function AdminTelasPage() {
                         <Select
                           value={editForm[`novo-item-${menu.id}`] || ""}
                           onValueChange={(v: string | null) => {
-                            if (v) setEditForm(prev => ({ ...prev, [`novo-item-${menu.id}`]: v }))
+                            if (v) setEditForm((prev) => ({ ...prev, [`novo-item-${menu.id}`]: v }))
                           }}
                         >
                           <SelectTrigger className="h-8 text-sm">
@@ -445,12 +563,19 @@ export default function AdminTelasPage() {
                           </SelectTrigger>
                           <SelectContent>
                             {telas.map((t: any) => (
-                              <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
+                              <SelectItem key={t.id} value={t.id}>
+                                {t.label}
+                              </SelectItem>
                             ))}
                           </SelectContent>
                         </Select>
                       </div>
-                      <Button size="sm" variant="outline" onClick={() => criarItem(menu.id!)} className="h-8 gap-1">
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={() => criarItem(menu.id!)}
+                        className="h-8 gap-1"
+                      >
                         <Plus size={12} />
                         Adicionar
                       </Button>
@@ -465,10 +590,12 @@ export default function AdminTelasPage() {
 
       <div className="rounded-xl border border-amber-200 dark:border-amber-800 bg-amber-50 dark:bg-amber-950/30 p-4">
         <p className="text-sm text-amber-700 dark:text-amber-300">
-          <strong>Como funciona:</strong> Os menus configurados aqui definem a navegação padrão para os usuários deste perfil.
-          Cada usuário pode personalizar seus próprios menus em{" "}
-          <span className="font-mono text-xs bg-amber-100 dark:bg-amber-900 px-1 rounded">Meu Perfil &rarr; Menu de Navegação</span>.
-          A ordem de precedência é: menu do usuário &rarr; menu do perfil &rarr; menu padrão.
+          <strong>Como funciona:</strong> Os menus configurados aqui definem a navegação padrão para
+          os usuários deste perfil. Cada usuário pode personalizar seus próprios menus em{" "}
+          <span className="font-mono text-xs bg-amber-100 dark:bg-amber-900 px-1 rounded">
+            Meu Perfil &rarr; Menu de Navegação
+          </span>
+          . A ordem de precedência é: menu do usuário &rarr; menu do perfil &rarr; menu padrão.
         </p>
       </div>
     </div>

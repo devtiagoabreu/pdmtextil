@@ -12,7 +12,9 @@ export async function getTransporter() {
 
   const configs = await db.select().from(emailConfig).where(eq(emailConfig.ativo, true)).limit(1)
   if (configs.length === 0) {
-    throw new Error("Nenhuma configuração de email ativa encontrada. Configure o SMTP em Admin > Configurações.")
+    throw new Error(
+      "Nenhuma configuração de email ativa encontrada. Configure o SMTP em Admin > Configurações."
+    )
   }
 
   const cfg = configs[0]
@@ -48,13 +50,16 @@ export async function sendEmail(params: {
   if (configs.length === 0) return { sent: 0, error: "Sem config de email" }
 
   const cfg = configs[0]
-  return enviarComTransporte({
-    host: cfg.host,
-    port: cfg.port,
-    user: cfg.user,
-    pass: decrypt(cfg.pass),
-    fromName: cfg.fromName || "PDM Têxtil",
-  }, params)
+  return enviarComTransporte(
+    {
+      host: cfg.host,
+      port: cfg.port,
+      user: cfg.user,
+      pass: decrypt(cfg.pass),
+      fromName: cfg.fromName || "PDM Têxtil",
+    },
+    params
+  )
 }
 
 export async function sendEmailAsUser(params: {
@@ -70,13 +75,16 @@ export async function sendEmailAsUser(params: {
   }
 }) {
   const { userConfig, ...emailParams } = params
-  return enviarComTransporte({
-    host: userConfig.host,
-    port: userConfig.port,
-    user: userConfig.email,
-    pass: userConfig.senhaApp,
-    fromName: userConfig.email.split("@")[0],
-  }, emailParams)
+  return enviarComTransporte(
+    {
+      host: userConfig.host,
+      port: userConfig.port,
+      user: userConfig.email,
+      pass: userConfig.senhaApp,
+      fromName: userConfig.email.split("@")[0],
+    },
+    emailParams
+  )
 }
 
 export async function sendCrmEmail(params: {
@@ -85,19 +93,26 @@ export async function sendCrmEmail(params: {
   html: string
   bcc?: string | string[]
 }) {
-  const configs = await db.select().from(crmEmailConfig).where(eq(crmEmailConfig.ativo, true)).limit(1)
+  const configs = await db
+    .select()
+    .from(crmEmailConfig)
+    .where(eq(crmEmailConfig.ativo, true))
+    .limit(1)
   if (configs.length === 0) {
     return await sendEmail(params)
   }
 
   const cfg = configs[0]
-  return enviarComTransporte({
-    host: cfg.host,
-    port: cfg.port,
-    user: cfg.user,
-    pass: decrypt(cfg.pass),
-    fromName: cfg.fromName || "PDM PRO TEXTIL - CRM",
-  }, params)
+  return enviarComTransporte(
+    {
+      host: cfg.host,
+      port: cfg.port,
+      user: cfg.user,
+      pass: decrypt(cfg.pass),
+      fromName: cfg.fromName || "PDM PRO TEXTIL - CRM",
+    },
+    params
+  )
 }
 
 interface TransportConfig {
@@ -108,12 +123,15 @@ interface TransportConfig {
   fromName: string
 }
 
-async function enviarComTransporte(tc: TransportConfig, params: {
-  to: string | string[]
-  subject: string
-  html: string
-  bcc?: string | string[]
-}) {
+async function enviarComTransporte(
+  tc: TransportConfig,
+  params: {
+    to: string | string[]
+    subject: string
+    html: string
+    bcc?: string | string[]
+  }
+) {
   const t = nodemailer.createTransport({
     host: tc.host,
     port: tc.port,

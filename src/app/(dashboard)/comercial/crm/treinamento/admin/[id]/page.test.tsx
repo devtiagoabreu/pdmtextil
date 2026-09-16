@@ -25,7 +25,8 @@ describe("EditarLicaoPage", () => {
     navMock.setPathname("/comercial/crm/treinamento/admin/10")
     navMock.setParams({ id: "10" })
     const handler = ({ method, url }: { method: string; url: string }) => {
-      if (method === "GET" && url === "/api/crm/treinamento/modulos") return { json: [{ id: 1, titulo: "Visão Geral" }] }
+      if (method === "GET" && url === "/api/crm/treinamento/modulos")
+        return { json: [{ id: 1, titulo: "Visão Geral" }] }
       if (method === "GET" && url === "/api/crm/treinamento/10") return { json: licao }
       if (method === "PUT" && url === "/api/crm/treinamento/10") return { json: { ok: true } }
       return { json: null }
@@ -51,7 +52,9 @@ describe("EditarLicaoPage", () => {
     fireEvent.change(screen.getByDisplayValue("Introdução ao CRM"), { target: { value: "" } })
     fireEvent.submit(container.querySelector("form")!)
 
-    await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Módulo e título são obrigatórios"))
+    await waitFor(() =>
+      expect(toastMock.error).toHaveBeenCalledWith("Módulo e título são obrigatórios")
+    )
     expect(findCall(fetchMock.calls, "/api/crm/treinamento/10", "PUT")).toBeUndefined()
   })
 

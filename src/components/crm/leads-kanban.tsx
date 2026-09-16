@@ -3,7 +3,14 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
+import {
+  DndContext,
+  DragOverlay,
+  useDraggable,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
 import { useStatuses } from "@/hooks/use-statuses"
 import { DroppableColumn, KanbanSkeleton } from "./kanban-column"
 
@@ -44,10 +51,12 @@ function DraggableCard({ lead }: { lead: LeadCard }) {
     data: { lead },
   })
 
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    zIndex: 50,
-  } : undefined
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        zIndex: 50,
+      }
+    : undefined
 
   const handleClick = () => {
     router.push(`/comercial/crm/leads/${lead.id}`)
@@ -85,10 +94,10 @@ function DraggableCard({ lead }: { lead: LeadCard }) {
         <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{lead.empresaNome}</p>
       )}
       <div className="flex items-center gap-2 mt-1.5">
-        {lead.email && (
-          <p className="text-[10px] text-slate-400 truncate">{lead.email}</p>
-        )}
-        <span className="text-[10px] text-slate-400 ml-auto">{ORIGEM_LABELS[lead.origem] || lead.origem}</span>
+        {lead.email && <p className="text-[10px] text-slate-400 truncate">{lead.email}</p>}
+        <span className="text-[10px] text-slate-400 ml-auto">
+          {ORIGEM_LABELS[lead.origem] || lead.origem}
+        </span>
       </div>
     </div>
   )
@@ -99,11 +108,11 @@ export default function LeadsKanban({ leads }: { leads: LeadCard[] }) {
   const [activeCard, setActiveCard] = useState<LeadCard | null>(null)
   const [cards, setCards] = useState<LeadCard[]>(leads || [])
 
-  useEffect(() => { setCards(leads || []) }, [leads])
+  useEffect(() => {
+    setCards(leads || [])
+  }, [leads])
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  )
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   const hasStatuses = statuses.length > 0
   const effectiveStatuses = hasStatuses ? statuses : DEFAULT_STATUSES
@@ -151,9 +160,7 @@ export default function LeadsKanban({ leads }: { leads: LeadCard[] }) {
 
     const statusAntigo = lead.status
 
-    setCards(prev =>
-      prev.map((l: any) => l.id === lead.id ? { ...l, status: novoStatus } : l)
-    )
+    setCards((prev) => prev.map((l: any) => (l.id === lead.id ? { ...l, status: novoStatus } : l)))
 
     try {
       const res = await fetch(`/api/crm/leads/${lead.id}`, {
@@ -167,8 +174,8 @@ export default function LeadsKanban({ leads }: { leads: LeadCard[] }) {
       }
       toast.success(`Lead movido para ${getLabel(novoStatus)}`)
     } catch (err: any) {
-      setCards(prev =>
-        prev.map((l: any) => l.id === lead.id ? { ...l, status: statusAntigo } : l)
+      setCards((prev) =>
+        prev.map((l: any) => (l.id === lead.id ? { ...l, status: statusAntigo } : l))
       )
       toast.error(err.message)
     }
@@ -183,7 +190,13 @@ export default function LeadsKanban({ leads }: { leads: LeadCard[] }) {
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto pb-2">
           {colunas.map((col: any) => (
-            <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo || col.nome} cor={col.cor} count={col.cards.length}>
+            <DroppableColumn
+              key={col.nome}
+              id={col.nome}
+              rotulo={col.rotulo || col.nome}
+              cor={col.cor}
+              count={col.cards.length}
+            >
               {col.cards.map((card: any) => (
                 <DraggableCard key={`lead-${card.id}`} lead={card} />
               ))}
@@ -195,7 +208,9 @@ export default function LeadsKanban({ leads }: { leads: LeadCard[] }) {
           <DragOverlay>
             <div className="bg-white dark:bg-slate-800 rounded-lg border border-blue-400 shadow-xl p-3 w-72 opacity-90">
               <p className="text-sm font-medium text-slate-900">{activeCard.nome}</p>
-              {activeCard.empresaNome && <p className="text-xs text-slate-500 mt-0.5">{activeCard.empresaNome}</p>}
+              {activeCard.empresaNome && (
+                <p className="text-xs text-slate-500 mt-0.5">{activeCard.empresaNome}</p>
+              )}
             </div>
           </DragOverlay>
         )}

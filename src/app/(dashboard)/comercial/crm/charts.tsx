@@ -1,8 +1,18 @@
 "use client"
 
 import {
-  LineChart, Line, BarChart, Bar, PieChart as RPieChart, Pie, Cell,
-  XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart as RPieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
 } from "recharts"
 import { BarChart3, TrendingUp, PieChart, Handshake } from "lucide-react"
 import { ChartTooltip } from "@/components/ui/chart-tooltip"
@@ -12,7 +22,8 @@ type CrmDashboardData = {
   leads: { total: number; esteMes: number }
   pessoas: { total: number }
   oportunidades: {
-    total: number; esteMes: number
+    total: number
+    esteMes: number
     byStatus: { status: string; total: number }[]
   }
   propostas: {
@@ -25,7 +36,12 @@ type CrmDashboardData = {
   forecast: number
   conversao: { oportunidadesConvertidas: number; totalOportunidades: number }
   recentes: { id: number; tipo: string; descricao: string; dataEvento: string }[]
-  previsaoVendas: { periodo: string; valorPrevisto: number; valorReal: number | null; dados: unknown }[]
+  previsaoVendas: {
+    periodo: string
+    valorPrevisto: number
+    valorReal: number | null
+    dados: unknown
+  }[]
   campanhas: { total: number; ativas: number; orcamentoTotal: number }
   emailMassa: { enviados: number; lidos: number; clicados: number }
 }
@@ -46,7 +62,9 @@ export function CrmCharts({ data }: { data: CrmDashboardData | undefined }) {
   ]
 
   const taxaConversao = data?.conversao.totalOportunidades
-    ? ((data.conversao.oportunidadesConvertidas / data.conversao.totalOportunidades) * 100).toFixed(1)
+    ? ((data.conversao.oportunidadesConvertidas / data.conversao.totalOportunidades) * 100).toFixed(
+        1
+      )
     : "0.0"
 
   return (
@@ -55,15 +73,32 @@ export function CrmCharts({ data }: { data: CrmDashboardData | undefined }) {
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
         <div className="flex items-center gap-2 mb-4">
           <BarChart3 size={16} className="text-slate-400" />
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Pipeline (Funil)</h2>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+            Pipeline (Funil)
+          </h2>
         </div>
         <ResponsiveContainer width="100%" height={220}>
           <BarChart data={pipelineData} layout="vertical" margin={{ left: 10, right: 10 }}>
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" horizontal={false} />
             <XAxis type="number" tick={{ fontSize: 11 }} stroke="#94a3b8" />
-            <YAxis type="category" dataKey="name" tick={{ fontSize: 10 }} stroke="#94a3b8" width={80} interval={0} angle={0} tickFormatter={(v: string) => v.length > 12 ? v.slice(0, 11) + '⬦' : v} />
+            <YAxis
+              type="category"
+              dataKey="name"
+              tick={{ fontSize: 10 }}
+              stroke="#94a3b8"
+              width={80}
+              interval={0}
+              angle={0}
+              tickFormatter={(v: string) => (v.length > 12 ? v.slice(0, 11) + "⬦" : v)}
+            />
             <Tooltip content={<ChartTooltip formatter={(v) => `${v} registros`} />} />
-            <Bar dataKey="value" radius={[0, 4, 4, 0]} animationDuration={1800} animationEasing="ease-in-out" animationBegin={800}>
+            <Bar
+              dataKey="value"
+              radius={[0, 4, 4, 0]}
+              animationDuration={1800}
+              animationEasing="ease-in-out"
+              animationBegin={800}
+            >
               {pipelineData.map((_, i) => (
                 <Cell key={i} fill={PIPELINE_COLORS[i % PIPELINE_COLORS.length]} />
               ))}
@@ -76,11 +111,15 @@ export function CrmCharts({ data }: { data: CrmDashboardData | undefined }) {
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
         <div className="flex items-center gap-2 mb-4">
           <TrendingUp size={16} className="text-slate-400" />
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Previsão & Conversão</h2>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+            Previsão & Conversão
+          </h2>
         </div>
         <div className="space-y-4">
           <div className="rounded-lg bg-indigo-50 dark:bg-indigo-950/30 p-4">
-            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">Previsão de Receita (Pipeline)</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 mb-1">
+              Previsão de Receita (Pipeline)
+            </p>
             <p className="text-2xl font-bold text-indigo-600 dark:text-indigo-400">
               {formatCurrency(data?.forecast ?? 0)}
             </p>
@@ -96,21 +135,47 @@ export function CrmCharts({ data }: { data: CrmDashboardData | undefined }) {
             <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 p-3">
               <PieChart size={16} className="text-amber-600 dark:text-amber-400 mb-1" />
               <p className="text-xs text-slate-500 dark:text-slate-400">Taxa Conversão</p>
-              <p className="text-xl font-bold text-amber-600 dark:text-amber-400">{taxaConversao}%</p>
+              <p className="text-xl font-bold text-amber-600 dark:text-amber-400">
+                {taxaConversao}%
+              </p>
             </div>
           </div>
         </div>
         {data?.previsaoVendas && data.previsaoVendas.length > 0 && (
           <div className="mt-4 pt-4 border-t border-slate-100 dark:border-slate-800">
-            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-2">Histórico de Previsão (últimos meses)</p>
+            <p className="text-[11px] font-medium text-slate-500 dark:text-slate-400 mb-2">
+              Histórico de Previsão (últimos meses)
+            </p>
             <ResponsiveContainer width="100%" height={140}>
               <LineChart data={[...data.previsaoVendas].reverse()}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis dataKey="periodo" tick={{ fontSize: 10 }} stroke="#94a3b8" />
-                <YAxis tick={{ fontSize: 10 }} stroke="#94a3b8" tickFormatter={(v) => `R$${(v/1000).toFixed(0)}k`} />
+                <YAxis
+                  tick={{ fontSize: 10 }}
+                  stroke="#94a3b8"
+                  tickFormatter={(v) => `R$${(v / 1000).toFixed(0)}k`}
+                />
                 <Tooltip content={<ChartTooltip formatter={(v) => formatCurrency(v)} />} />
-                <AnimatedLine type="monotone" dataKey="valorPrevisto" stroke="#6366f1" strokeWidth={2} dot={false} name="Previsto" drawDuration={2000} drawDelay={1000} />
-                <AnimatedLine type="monotone" dataKey="valorReal" stroke="#22c55e" strokeWidth={2} dot={false} name="Real" drawDuration={2000} drawDelay={1200} />
+                <AnimatedLine
+                  type="monotone"
+                  dataKey="valorPrevisto"
+                  stroke="#6366f1"
+                  strokeWidth={2}
+                  dot={false}
+                  name="Previsto"
+                  drawDuration={2000}
+                  drawDelay={1000}
+                />
+                <AnimatedLine
+                  type="monotone"
+                  dataKey="valorReal"
+                  stroke="#22c55e"
+                  strokeWidth={2}
+                  dot={false}
+                  name="Real"
+                  drawDuration={2000}
+                  drawDelay={1200}
+                />
               </LineChart>
             </ResponsiveContainer>
           </div>
@@ -121,7 +186,9 @@ export function CrmCharts({ data }: { data: CrmDashboardData | undefined }) {
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
         <div className="flex items-center gap-2 mb-4">
           <PieChart size={16} className="text-slate-400" />
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Oportunidades por Status</h2>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+            Oportunidades por Status
+          </h2>
         </div>
         {data?.oportunidades.byStatus && data.oportunidades.byStatus.length > 0 ? (
           <>
@@ -133,7 +200,10 @@ export function CrmCharts({ data }: { data: CrmDashboardData | undefined }) {
                     value: s.total,
                     fill: CHART_COLORS[i % CHART_COLORS.length],
                   }))}
-                  cx="50%" cy="50%" innerRadius={40} outerRadius={70}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40}
+                  outerRadius={70}
                   dataKey="value"
                   startAngle={90}
                   endAngle={-270}

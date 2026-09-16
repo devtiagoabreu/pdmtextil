@@ -7,10 +7,7 @@ import { clientes } from "@/lib/db/schema/clientes"
 import { eq } from "drizzle-orm"
 import { excluirRepresentanteCascade } from "@/lib/representante-cascade"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const { id } = await params
 
@@ -38,17 +35,27 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
     const { id } = await params
     const body = await req.json()
 
-    const { nome, cnpj, razaoSocial, email, telefone, contato, endereco, cidade, uf, gerenteId, idIntegracao, clientesIds } = body
+    const {
+      nome,
+      cnpj,
+      razaoSocial,
+      email,
+      telefone,
+      contato,
+      endereco,
+      cidade,
+      uf,
+      gerenteId,
+      idIntegracao,
+      clientesIds,
+    } = body
 
     if (!nome?.trim()) {
       return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 })
@@ -65,7 +72,10 @@ export async function PUT(
       .limit(1)
 
     if (existenteCNPJ[0] && existenteCNPJ[0].id !== parseInt(id)) {
-      return NextResponse.json({ error: "CNPJ já cadastrado em outro representante" }, { status: 409 })
+      return NextResponse.json(
+        { error: "CNPJ já cadastrado em outro representante" },
+        { status: 409 }
+      )
     }
 
     if (idIntegracao) {
@@ -76,7 +86,10 @@ export async function PUT(
         .limit(1)
 
       if (existenteIdInt[0] && existenteIdInt[0].id !== parseInt(id)) {
-        return NextResponse.json({ error: "ID Integração já cadastrado em outro representante" }, { status: 409 })
+        return NextResponse.json(
+          { error: "ID Integração já cadastrado em outro representante" },
+          { status: 409 }
+        )
       }
     }
 
@@ -105,7 +118,9 @@ export async function PUT(
         .where(eq(representantes.id, repId))
         .returning()
 
-      await tx.delete(clientesRepresentantes).where(eq(clientesRepresentantes.representanteId, repId))
+      await tx
+        .delete(clientesRepresentantes)
+        .where(eq(clientesRepresentantes.representanteId, repId))
 
       if (idsClientes.length > 0) {
         await tx.insert(clientesRepresentantes).values(
@@ -129,10 +144,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth

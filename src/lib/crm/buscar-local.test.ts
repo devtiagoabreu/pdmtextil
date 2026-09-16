@@ -17,15 +17,15 @@ describe("buscarLocal", () => {
   })
 
   it("consulta o Nominatim com q livre e trata os resultados", async () => {
-    const fn = vi
-      .fn()
-      .mockResolvedValue({
-        ok: true,
-        json: async () => [{ lat: "-16.681", lon: "-49.253", display_name: "Goiânia, GO, Brasil" }],
-      })
+    const fn = vi.fn().mockResolvedValue({
+      ok: true,
+      json: async () => [{ lat: "-16.681", lon: "-49.253", display_name: "Goiânia, GO, Brasil" }],
+    })
     vi.stubGlobal("fetch", fn)
     const resultados = await buscarLocal("Goiânia")
-    expect(resultados).toEqual([{ latitude: -16.681, longitude: -49.253, rotulo: "Goiânia, GO, Brasil" }])
+    expect(resultados).toEqual([
+      { latitude: -16.681, longitude: -49.253, rotulo: "Goiânia, GO, Brasil" },
+    ])
     const url = new URL(String(fn.mock.calls[0][0]))
     expect(url.origin).toBe("https://nominatim.openstreetmap.org")
     expect(url.searchParams.get("q")).toBe("Goiânia")

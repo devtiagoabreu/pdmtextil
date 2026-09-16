@@ -12,10 +12,7 @@ export async function GET() {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const lista = await db
-      .select()
-      .from(estampas)
-      .orderBy(estampas.nome)
+    const lista = await db.select().from(estampas).orderBy(estampas.nome)
 
     return NextResponse.json(lista)
   } catch (error) {

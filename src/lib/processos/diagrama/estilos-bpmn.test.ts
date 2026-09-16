@@ -74,7 +74,9 @@ describe("limparEstilosTexto", () => {
       $attrs: { "pdm:textFill": "#fff", "pdm:fontSize": 14, "bpmndi:labeled": "true" },
     }
     limparEstilosTexto(di)
-    expect((di as { $attrs?: Record<string, unknown> }).$attrs).toEqual({ "bpmndi:labeled": "true" })
+    expect((di as { $attrs?: Record<string, unknown> }).$attrs).toEqual({
+      "bpmndi:labeled": "true",
+    })
   })
 
   it("nada a fazer sem $attrs", () => {
@@ -85,7 +87,13 @@ describe("limparEstilosTexto", () => {
 describe("estilosTextoParaCss", () => {
   it("converte estilos em valores CSS", () => {
     expect(
-      estilosTextoParaCss({ textFill: "#123", fontFamily: "Arial", fontSize: 14, fontWeight: "bold", fontStyle: "italic" })
+      estilosTextoParaCss({
+        textFill: "#123",
+        fontFamily: "Arial",
+        fontSize: 14,
+        fontWeight: "bold",
+        fontStyle: "italic",
+      })
     ).toEqual({
       fill: "#123",
       fontFamily: "Arial",

@@ -18,7 +18,10 @@ export async function GET(req: NextRequest) {
     let connectionString: string
 
     if (connId) {
-      const [conn] = await db.select().from(bancosDados).where(eq(bancosDados.id, Number(connId)))
+      const [conn] = await db
+        .select()
+        .from(bancosDados)
+        .where(eq(bancosDados.id, Number(connId)))
       if (!conn) return NextResponse.json({ error: "Conexão não encontrada" }, { status: 404 })
       connectionString = conn.connectionString
     } else {

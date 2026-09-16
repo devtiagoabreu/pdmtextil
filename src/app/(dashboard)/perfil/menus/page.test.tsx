@@ -108,8 +108,12 @@ describe("ConfigurarMenusPage", () => {
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Item excluído"))
     await waitFor(() => {
-      expect(screen.queryByRole("button", { name: "Excluir item Clientes" })).not.toBeInTheDocument()
-      expect(screen.getByRole("button", { name: "Excluir item Representantes" })).toBeInTheDocument()
+      expect(
+        screen.queryByRole("button", { name: "Excluir item Clientes" })
+      ).not.toBeInTheDocument()
+      expect(
+        screen.getByRole("button", { name: "Excluir item Representantes" })
+      ).toBeInTheDocument()
     })
     expect(screen.getByText("1 item(ns)")).toBeInTheDocument()
   })

@@ -15,7 +15,12 @@ function calcularDias(ms: number): string {
   return `${h}h`
 }
 
-function processarTimeline(historico: any[], statusAtual: string, dataConclusao: string | null, labelsMap: Map<string, string>) {
+function processarTimeline(
+  historico: any[],
+  statusAtual: string,
+  dataConclusao: string | null,
+  labelsMap: Map<string, string>
+) {
   const entries = [...(historico || [])].sort(
     (a, b) => new Date(a.data).getTime() - new Date(b.data).getTime()
   )
@@ -58,10 +63,11 @@ function processarTimeline(historico: any[], statusAtual: string, dataConclusao:
 
   // Último status (atual)
   if (currentStart) {
-    const finalizado = statusAtual === "CONCLUIDO" || statusAtual === "CONCLUIDO_DEV" || statusAtual === "APROVADO_CLI"
-    const fim = finalizado && dataConclusao
-      ? dataConclusao
-      : new Date().toISOString()
+    const finalizado =
+      statusAtual === "CONCLUIDO" ||
+      statusAtual === "CONCLUIDO_DEV" ||
+      statusAtual === "APROVADO_CLI"
+    const fim = finalizado && dataConclusao ? dataConclusao : new Date().toISOString()
     const duracao = new Date(fim).getTime() - new Date(currentStart).getTime()
     timeline.push({
       status: statusAtual,
@@ -131,7 +137,7 @@ export async function GET(req: NextRequest) {
         criadoEm: r.createdAt?.toISOString() || null,
         concluidoEm: r.dataConclusao?.toISOString() || null,
         tempoTotalLabel: calcularDias(tempoTotalMs),
-        tempoTotalHoras: Math.round(tempoTotalMs / (1000 * 60 * 60) * 100) / 100,
+        tempoTotalHoras: Math.round((tempoTotalMs / (1000 * 60 * 60)) * 100) / 100,
         trocasStatus,
         timeline,
       }
@@ -140,21 +146,38 @@ export async function GET(req: NextRequest) {
     // Agregados
     const stats = {
       totalSolicitacoes: resultados.length,
-      concluidas: resultados.filter((r: any) => r.statusAtual === "CONCLUIDO" || r.statusAtual === "CONCLUIDO_DEV" || r.statusAtual === "APROVADO_CLI").length,
-      tempoMedioHoras: resultados.length > 0
-        ? Math.round(resultados.reduce((a: any, r: any) => a + r.tempoTotalHoras, 0) / resultados.length * 100) / 100
-        : 0,
-      mediaTrocasStatus: resultados.length > 0
-        ? Math.round(resultados.reduce((a: any, r: any) => a + r.trocasStatus, 0) / resultados.length * 100) / 100
-        : 0,
+      concluidas: resultados.filter(
+        (r: any) =>
+          r.statusAtual === "CONCLUIDO" ||
+          r.statusAtual === "CONCLUIDO_DEV" ||
+          r.statusAtual === "APROVADO_CLI"
+      ).length,
+      tempoMedioHoras:
+        resultados.length > 0
+          ? Math.round(
+              (resultados.reduce((a: any, r: any) => a + r.tempoTotalHoras, 0) /
+                resultados.length) *
+                100
+            ) / 100
+          : 0,
+      mediaTrocasStatus:
+        resultados.length > 0
+          ? Math.round(
+              (resultados.reduce((a: any, r: any) => a + r.trocasStatus, 0) / resultados.length) *
+                100
+            ) / 100
+          : 0,
     }
 
     return NextResponse.json({ resultados, stats })
   } catch (error) {
     console.error("[GET /api/relatorios/tempo-status]", error)
-    return NextResponse.json({
-      error: "Erro interno",
-      detail: "Erro interno",
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Erro interno",
+        detail: "Erro interno",
+      },
+      { status: 500 }
+    )
   }
 }

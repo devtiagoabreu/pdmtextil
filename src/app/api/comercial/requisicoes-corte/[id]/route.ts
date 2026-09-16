@@ -8,10 +8,7 @@ import { notificar, notificarDelecao, registrarLog } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 export const dynamic = "force-dynamic"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -59,10 +56,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -130,7 +124,14 @@ export async function PUT(
       }
     }
 
-    await registrarLog({ tipo: "ATUALIZACAO", acao: "atualizar", descricao: `Requisição de corte #${id} atualizada`, entidade: "RequisicaoCorte", entidadeId: parseInt(id), usuarioNome: session.user.name })
+    await registrarLog({
+      tipo: "ATUALIZACAO",
+      acao: "atualizar",
+      descricao: `Requisição de corte #${id} atualizada`,
+      entidade: "RequisicaoCorte",
+      entidadeId: parseInt(id),
+      usuarioNome: session.user.name,
+    })
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
@@ -139,10 +140,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -166,16 +164,17 @@ export async function DELETE(
       session.user.role !== "SUDO" &&
       existente.requisitanteId !== parseInt(session.user.id || "0")
     ) {
-      return NextResponse.json({ error: "Sem permissão para excluir esta requisição" }, { status: 403 })
+      return NextResponse.json(
+        { error: "Sem permissão para excluir esta requisição" },
+        { status: 403 }
+      )
     }
 
     await db
       .delete(requisicoesCorteItens)
       .where(eq(requisicoesCorteItens.requisicaoCorteId, requisicaoId))
 
-    await db
-      .delete(requisicoesCorte)
-      .where(eq(requisicoesCorte.id, requisicaoId))
+    await db.delete(requisicoesCorte).where(eq(requisicoesCorte.id, requisicaoId))
 
     await notificarDelecao("Requisição de corte", id, session?.user?.name)
 

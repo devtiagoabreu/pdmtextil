@@ -63,7 +63,10 @@ export default function ConversasPage() {
         <div className="w-80 shrink-0 border-r border-slate-200 dark:border-slate-800 flex flex-col min-h-0">
           <div className="p-3 border-b border-slate-100 dark:border-slate-800 shrink-0">
             <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              />
               <input
                 type="text"
                 value={search}
@@ -116,8 +119,11 @@ export default function ConversasPage() {
                   </div>
                   {conv.link && (
                     <div className="mt-1">
-                      <Link href={conv.link!} className="text-[10px] text-blue-500 hover:text-blue-700 inline-flex items-center gap-0.5"
-                        onClick={(e) => e.stopPropagation()}>
+                      <Link
+                        href={conv.link!}
+                        className="text-[10px] text-blue-500 hover:text-blue-700 inline-flex items-center gap-0.5"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <ExternalLink size={10} /> Abrir no CRM
                       </Link>
                     </div>
@@ -133,7 +139,9 @@ export default function ConversasPage() {
           {selectedRemoteJid ? (
             <>
               <div className="px-4 py-3 border-b border-slate-100 dark:border-slate-800 bg-slate-50 dark:bg-slate-900 shrink-0">
-                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">{selectedNome}</h3>
+                <h3 className="text-sm font-semibold text-slate-900 dark:text-slate-100">
+                  {selectedNome}
+                </h3>
                 <p className="text-[10px] text-slate-400">{selectedRemoteJid}</p>
               </div>
               <div className="flex-1 min-h-0">

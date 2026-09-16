@@ -48,7 +48,9 @@ describe("PropostaDetailPage", () => {
   it("exibe os dados da proposta com status e link do arquivo", async () => {
     renderPage(<PropostaDetailPage />)
 
-    expect(await screen.findByRole("heading", { name: /Proposta Comercial - Tecido X/ })).toBeInTheDocument()
+    expect(
+      await screen.findByRole("heading", { name: /Proposta Comercial - Tecido X/ })
+    ).toBeInTheDocument()
     expect(screen.getByText("Proposta #1")).toBeInTheDocument()
     expect(screen.getByText("R$ 5.000,00")).toBeInTheDocument()
     expect(screen.getByText("30/60/90 dias")).toBeInTheDocument()
@@ -110,7 +112,9 @@ describe("PropostaDetailPage", () => {
         arquivoUrl: "https://exemplo.com/proposta.pdf",
       })
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Proposta atualizada com sucesso!"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Proposta atualizada com sucesso!")
+    )
   })
 
   it("não mostra editar/excluir para usuário que não é admin nem criador", async () => {

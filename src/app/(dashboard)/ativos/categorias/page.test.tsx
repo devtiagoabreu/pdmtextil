@@ -5,8 +5,26 @@ import AtivosCategoriasPage from "./page"
 import { createFetchMock, renderPage, findCall, toastMock, navMock } from "@/test/harness"
 
 const AREAS_MOCK = [
-  { id: 26, siteId: 6, siteNome: "Ativos e Vistorias", nome: "Segurança", descricao: null, ativo: true, createdAt: "", updatedAt: "" },
-  { id: 29, siteId: 6, siteNome: "Ativos e Vistorias", nome: "Mecânica", descricao: null, ativo: true, createdAt: "", updatedAt: "" },
+  {
+    id: 26,
+    siteId: 6,
+    siteNome: "Ativos e Vistorias",
+    nome: "Segurança",
+    descricao: null,
+    ativo: true,
+    createdAt: "",
+    updatedAt: "",
+  },
+  {
+    id: 29,
+    siteId: 6,
+    siteNome: "Ativos e Vistorias",
+    nome: "Mecânica",
+    descricao: null,
+    ativo: true,
+    createdAt: "",
+    updatedAt: "",
+  },
 ]
 
 const CATEGORIAS_MOCK = [
@@ -91,16 +109,20 @@ describe("AtivosCategoriasPage", () => {
     await screen.findByText("Segurança Contra Incêndio")
 
     const row = screen.getByText("Segurança Contra Incêndio").closest("tr")!
-    const trash = within(row).getAllByRole("button").find((b) => !b.closest("a"))!
+    const trash = within(row)
+      .getAllByRole("button")
+      .find((b) => !b.closest("a"))!
     fireEvent.click(trash)
 
     const dialog = screen.getByRole("dialog", { name: "Excluir categoria?" })
     fireEvent.click(within(dialog).getByRole("button", { name: "Excluir" }))
 
     await waitFor(() =>
-      expect(findCall(fetchMock.calls, "/api/ativos/categorias/1", "DELETE")).toBeDefined(),
+      expect(findCall(fetchMock.calls, "/api/ativos/categorias/1", "DELETE")).toBeDefined()
     )
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Categoria excluída com sucesso"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Categoria excluída com sucesso")
+    )
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
   })
 
@@ -110,12 +132,14 @@ describe("AtivosCategoriasPage", () => {
     await screen.findByText("Compressores")
 
     const row = screen.getByText("Compressores").closest("tr")!
-    const trash = within(row).getAllByRole("button").find((b) => !b.closest("a"))!
+    const trash = within(row)
+      .getAllByRole("button")
+      .find((b) => !b.closest("a"))!
     fireEvent.click(trash)
 
     fireEvent.click(screen.getByRole("button", { name: "Excluir" }))
     await waitFor(() =>
-      expect(findCall(fetchMock.calls, "/api/ativos/categorias/2", "DELETE")).toBeDefined(),
+      expect(findCall(fetchMock.calls, "/api/ativos/categorias/2", "DELETE")).toBeDefined()
     )
     const blockedDialog = await screen.findByRole("dialog", { name: "Exclusão não permitida" })
     expect(blockedDialog).toHaveTextContent(/não pode ser exclu/)
@@ -129,7 +153,13 @@ describe("AtivosCategoriasPage", () => {
     renderPage(<AtivosCategoriasPage />)
     await screen.findByText("Segurança Contra Incêndio")
 
-    expect(screen.getByRole("link", { name: "Nova Categoria" })).toHaveAttribute("href", "/ativos/categorias/novo")
-    expect(screen.getByText("Segurança Contra Incêndio").closest("a")).toHaveAttribute("href", "/ativos/categorias/1")
+    expect(screen.getByRole("link", { name: "Nova Categoria" })).toHaveAttribute(
+      "href",
+      "/ativos/categorias/novo"
+    )
+    expect(screen.getByText("Segurança Contra Incêndio").closest("a")).toHaveAttribute(
+      "href",
+      "/ativos/categorias/1"
+    )
   })
 })

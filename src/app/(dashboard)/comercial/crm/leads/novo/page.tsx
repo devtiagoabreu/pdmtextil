@@ -38,7 +38,7 @@ export default function NovoLeadPage() {
   const [saving, setSaving] = useState(false)
 
   function setField(field: string, value: string) {
-    setForm(prev => ({ ...prev, [field]: value }))
+    setForm((prev) => ({ ...prev, [field]: value }))
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -72,32 +72,47 @@ export default function NovoLeadPage() {
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
       <div className="flex items-center gap-3">
-        <Link href="/comercial/crm/leads" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link
+          href="/comercial/crm/leads"
+          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Novo Lead{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+            Novo Lead{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500">Cadastrar novo lead no CRM</p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
+      <form
+        onSubmit={handleSubmit}
+        className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5"
+      >
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Nome *
+            </label>
             <input
               type="text"
               value={form.nome}
-              onChange={e => setField("nome", e.target.value)}
+              onChange={(e) => setField("nome", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Tipo</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Tipo
+            </label>
             <select
               value={form.tipoPessoa}
-              onChange={e => { setField("tipoPessoa", e.target.value); setField("documento", "") }}
+              onChange={(e) => {
+                setField("tipoPessoa", e.target.value)
+                setField("documento", "")
+              }}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Sem classificação</option>
@@ -112,73 +127,95 @@ export default function NovoLeadPage() {
             <input
               type="text"
               value={form.documento}
-              onChange={e => setField("documento", e.target.value)}
-              placeholder={form.tipoPessoa === "PF" ? "000.000.000-00" : form.tipoPessoa === "PJ" ? "00.000.000/0000-00" : ""}
+              onChange={(e) => setField("documento", e.target.value)}
+              placeholder={
+                form.tipoPessoa === "PF"
+                  ? "000.000.000-00"
+                  : form.tipoPessoa === "PJ"
+                    ? "00.000.000/0000-00"
+                    : ""
+              }
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">E-mail</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              E-mail
+            </label>
             <input
               type="email"
               value={form.email}
-              onChange={e => setField("email", e.target.value)}
+              onChange={(e) => setField("email", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Telefone</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Telefone
+            </label>
             <input
               type="text"
               value={form.telefone}
-              onChange={e => setField("telefone", e.target.value)}
+              onChange={(e) => setField("telefone", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Celular</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Celular
+            </label>
             <input
               type="text"
               value={form.celular}
-              onChange={e => setField("celular", e.target.value)}
+              onChange={(e) => setField("celular", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pessoa (Negócio)</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Pessoa (Negócio)
+            </label>
             <input
               type="text"
               value={form.empresaNome}
-              onChange={e => setField("empresaNome", e.target.value)}
+              onChange={(e) => setField("empresaNome", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cargo</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Cargo
+            </label>
             <input
               type="text"
               value={form.cargo}
-              onChange={e => setField("cargo", e.target.value)}
+              onChange={(e) => setField("cargo", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Origem</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Origem
+            </label>
             <select
               value={form.origem}
-              onChange={e => setField("origem", e.target.value)}
+              onChange={(e) => setField("origem", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               {ORIGEM_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
               ))}
             </select>
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Descrição</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Descrição
+            </label>
             <textarea
               value={form.descricao}
-              onChange={e => setField("descricao", e.target.value)}
+              onChange={(e) => setField("descricao", e.target.value)}
               rows={3}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />

@@ -22,8 +22,10 @@ describe("DetalheRequisicaoAmostraComercialPage", () => {
 
   it("renderiza o detalhe da requisição", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
-      if (method === "GET" && url === "/api/admin/status?tipo=AMOSTRA_COMERCIAL") return { json: [] }
-      if (method === "GET" && url.startsWith("/api/requisicoes-amostra-comercial/10?t=")) return { json: dados }
+      if (method === "GET" && url === "/api/admin/status?tipo=AMOSTRA_COMERCIAL")
+        return { json: [] }
+      if (method === "GET" && url.startsWith("/api/requisicoes-amostra-comercial/10?t="))
+        return { json: dados }
       return { status: 404, json: { error: "Rota não mockada" } }
     })
     vi.stubGlobal("fetch", fetchMock.fn)
@@ -44,6 +46,9 @@ describe("DetalheRequisicaoAmostraComercialPage", () => {
 
     await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Erro ao carregar requisição"))
     expect(await screen.findByText("Erro ao carregar requisição")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: /Voltar à lista/ })).toHaveAttribute("href", "/comercial/requisicoes-amostra-comercial")
+    expect(screen.getByRole("link", { name: /Voltar à lista/ })).toHaveAttribute(
+      "href",
+      "/comercial/requisicoes-amostra-comercial"
+    )
   })
 })

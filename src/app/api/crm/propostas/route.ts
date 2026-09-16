@@ -28,7 +28,11 @@ export async function GET(req: NextRequest) {
     if (clienteId) conditions.push(eq(crmPropostas.clienteId, parseInt(clienteId)))
     if (status) conditions.push(eq(crmPropostas.status, status))
     if (oportunidadeId) conditions.push(eq(crmPropostas.oportunidadeId, parseInt(oportunidadeId)))
-    if (mine === "true" && (auth.session.user?.role ?? "") !== "ADMIN" && (auth.session.user?.role ?? "") !== "SUDO") {
+    if (
+      mine === "true" &&
+      (auth.session.user?.role ?? "") !== "ADMIN" &&
+      (auth.session.user?.role ?? "") !== "SUDO"
+    ) {
       conditions.push(eq(crmPropostas.criadoPor, auth.userId))
     }
     if (q) {
@@ -36,7 +40,10 @@ export async function GET(req: NextRequest) {
       conditions.push(like(crmPropostas.titulo, searchPattern))
     }
 
-    const where = conditions.length > 0 ? sql`${conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`)}` : undefined
+    const where =
+      conditions.length > 0
+        ? sql`${conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`)}`
+        : undefined
 
     const lista = await db
       .select({
@@ -121,7 +128,12 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    await notificar("PROPOSTA_CRIADA", `Proposta criada: ${nova.titulo}`, `/comercial/crm/propostas/${nova.id}`, session.user.name)
+    await notificar(
+      "PROPOSTA_CRIADA",
+      `Proposta criada: ${nova.titulo}`,
+      `/comercial/crm/propostas/${nova.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {

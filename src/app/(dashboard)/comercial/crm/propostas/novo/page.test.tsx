@@ -50,19 +50,29 @@ describe("NovaPropostaPage", () => {
       target: { value: "Proposta Comercial - Tecido X" },
     })
 
-    await waitFor(() => expect(screen.getByRole("option", { name: "Tecelagem Alpha" })).toBeInTheDocument())
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Tecelagem Alpha" })).toBeInTheDocument()
+    )
     const selects = screen.getAllByRole("combobox")
     fireEvent.change(selects[0], { target: { value: "1" } })
 
-    await waitFor(() => expect(screen.getByRole("option", { name: "Oportunidade Expansão" })).toBeInTheDocument())
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Oportunidade Expansão" })).toBeInTheDocument()
+    )
     const selectsApos = screen.getAllByRole("combobox")
     fireEvent.change(selectsApos[1], { target: { value: "3" } })
 
     fireEvent.change(screen.getByPlaceholderText("0,00"), { target: { value: "5000" } })
     fireEvent.change(screen.getByPlaceholderText("Ex: 30 dias"), { target: { value: "30 dias" } })
-    fireEvent.change(screen.getByPlaceholderText("Ex: 30/60/90 dias"), { target: { value: "30/60/90 dias" } })
-    fireEvent.change(screen.getByPlaceholderText("Detalhes da proposta..."), { target: { value: "Tecido com elastano" } })
-    fireEvent.change(screen.getByPlaceholderText("https://..."), { target: { value: "https://exemplo.com/proposta.pdf" } })
+    fireEvent.change(screen.getByPlaceholderText("Ex: 30/60/90 dias"), {
+      target: { value: "30/60/90 dias" },
+    })
+    fireEvent.change(screen.getByPlaceholderText("Detalhes da proposta..."), {
+      target: { value: "Tecido com elastano" },
+    })
+    fireEvent.change(screen.getByPlaceholderText("https://..."), {
+      target: { value: "https://exemplo.com/proposta.pdf" },
+    })
 
     expect(screen.getByRole("button", { name: "Criar Proposta" })).toBeEnabled()
     fireEvent.click(screen.getByRole("button", { name: "Criar Proposta" }))
@@ -102,7 +112,9 @@ describe("NovaPropostaPage", () => {
     expect(await screen.findByRole("heading", { name: "Nova Proposta" })).toBeInTheDocument()
     expect(await screen.findByText("Proposta para Pessoa (Negócio)")).toBeInTheDocument()
 
-    await waitFor(() => expect(screen.getByDisplayValue("Oportunidade Expansão")).toBeInTheDocument())
+    await waitFor(() =>
+      expect(screen.getByDisplayValue("Oportunidade Expansão")).toBeInTheDocument()
+    )
   })
 
   it("cria proposta vinculada a Cliente", async () => {
@@ -110,7 +122,9 @@ describe("NovaPropostaPage", () => {
     await screen.findByRole("heading", { name: "Nova Proposta" })
 
     fireEvent.click(screen.getByRole("button", { name: /Cliente/i }))
-    await waitFor(() => expect(screen.getByRole("option", { name: "Confeitaria Beta" })).toBeInTheDocument())
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Confeitaria Beta" })).toBeInTheDocument()
+    )
 
     fireEvent.change(screen.getByPlaceholderText("Ex: Proposta Comercial - Tecido X"), {
       target: { value: "Proposta Cliente Beta" },

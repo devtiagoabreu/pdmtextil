@@ -45,8 +45,24 @@ const visitas = [
 ]
 
 const statusesVisita = [
-  { id: 1, nome: "AGENDADA", rotulo: "Agendada", tipo: "VISITA", cor: "#3b82f6", ordem: 1, ativo: true },
-  { id: 2, nome: "REALIZADA", rotulo: "Realizada", tipo: "VISITA", cor: "#10b981", ordem: 3, ativo: true },
+  {
+    id: 1,
+    nome: "AGENDADA",
+    rotulo: "Agendada",
+    tipo: "VISITA",
+    cor: "#3b82f6",
+    ordem: 1,
+    ativo: true,
+  },
+  {
+    id: 2,
+    nome: "REALIZADA",
+    rotulo: "Realizada",
+    tipo: "VISITA",
+    cor: "#10b981",
+    ordem: 3,
+    ativo: true,
+  },
 ]
 
 function buildHandler() {
@@ -94,7 +110,10 @@ describe("VisitasPage", () => {
     expect(screen.getByText("01/07/2026 10:00")).toBeInTheDocument()
     expect(screen.getAllByText("AGENDADA").length).toBeGreaterThan(0)
     expect(screen.getByText("1-2 de 2 visita(s)")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Nova Visita" })).toHaveAttribute("href", "/comercial/crm/visitas/novo")
+    expect(screen.getByRole("link", { name: "Nova Visita" })).toHaveAttribute(
+      "href",
+      "/comercial/crm/visitas/novo"
+    )
   })
 
   it("carrega por padrao apenas as minhas visitas (mine=true)", async () => {
@@ -102,7 +121,9 @@ describe("VisitasPage", () => {
 
     await screen.findByText("Tecelagem Alpha")
     await waitFor(() =>
-      expect(findCall(fetchMock.calls, "/api/crm/visitas?page=1&limit=50&mine=true", "GET")).toBeDefined()
+      expect(
+        findCall(fetchMock.calls, "/api/crm/visitas?page=1&limit=50&mine=true", "GET")
+      ).toBeDefined()
     )
     expect(screen.getByRole("button", { name: /Minhas Visitas/ })).toHaveClass("bg-blue-600")
   })
@@ -110,7 +131,8 @@ describe("VisitasPage", () => {
   it("alterna para o kanban", async () => {
     const handler = buildHandler()
     const withStatus = ({ method, url }: { method: string; url: string }) => {
-      if (method === "GET" && url === "/api/admin/status?tipo=VISITA") return { json: statusesVisita }
+      if (method === "GET" && url === "/api/admin/status?tipo=VISITA")
+        return { json: statusesVisita }
       return handler({ method, url })
     }
     const kanbanMock = createFetchMock(withStatus)
@@ -142,7 +164,9 @@ describe("VisitasPage", () => {
       expect(call).toBeDefined()
       expect(call!.body).toEqual({ ids: [1, 2], status: "REALIZADA" })
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Status atualizado com sucesso"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Status atualizado com sucesso")
+    )
   })
 
   it("exclui visitas selecionadas em massa", async () => {
@@ -160,7 +184,9 @@ describe("VisitasPage", () => {
       expect(call).toBeDefined()
       expect(call!.body).toEqual({ ids: [1, 2] })
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Visitas excluidas com sucesso"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Visitas excluidas com sucesso")
+    )
   })
 
   it("busca com debounce e filtra no servidor", async () => {
@@ -172,7 +198,10 @@ describe("VisitasPage", () => {
     })
 
     await waitFor(
-      () => expect(findCall(fetchMock.calls, "/api/crm/visitas?page=1&limit=50&mine=true&q=Tecelagem", "GET")).toBeDefined(),
+      () =>
+        expect(
+          findCall(fetchMock.calls, "/api/crm/visitas?page=1&limit=50&mine=true&q=Tecelagem", "GET")
+        ).toBeDefined(),
       { timeout: 2000 }
     )
     await waitFor(() => expect(screen.queryByText("Confecções Lima")).not.toBeInTheDocument())

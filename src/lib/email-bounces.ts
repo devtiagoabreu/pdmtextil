@@ -88,7 +88,12 @@ export async function sincronizarBounces(usuarioId: number) {
     .limit(1)
 
   if (cfgs.length === 0) {
-    return { processados: 0, marcados: 0, disparos: [], erro: "Nenhuma configuração de email ativa encontrada para o usuário" }
+    return {
+      processados: 0,
+      marcados: 0,
+      disparos: [],
+      erro: "Nenhuma configuração de email ativa encontrada para o usuário",
+    }
   }
 
   const cfg = cfgs[0]
@@ -112,7 +117,11 @@ export async function sincronizarBounces(usuarioId: number) {
       try {
         const desde = new Date()
         desde.setDate(desde.getDate() - JANELA_DIAS)
-        const uids = (await client.search({ from: "mailer-daemon@googlemail.com", since: desde }, { uid: true })) || []
+        const uids =
+          (await client.search(
+            { from: "mailer-daemon@googlemail.com", since: desde },
+            { uid: true }
+          )) || []
         for (const uid of uids.slice(-MAX_UIDS_POR_PASTA)) {
           const msg = await client.fetchOne(uid, { headers: true }, { uid: true })
           if (!msg) continue
@@ -120,7 +129,10 @@ export async function sincronizarBounces(usuarioId: number) {
           let recips = parseFailedRecipients(headerText)
           if (recips.length === 0 && !/^X-Failed-Recipients:/im.test(headerText)) {
             const full = await client.fetchOne(uid, { source: true }, { uid: true })
-            if (full) recips = parseFailedRecipients(Buffer.from(full.source as Uint8Array).toString("utf8"))
+            if (full)
+              recips = parseFailedRecipients(
+                Buffer.from(full.source as Uint8Array).toString("utf8")
+              )
           }
           for (const r of recips) recipients.add(r.toLowerCase())
           processados++
@@ -139,22 +151,22 @@ export async function sincronizarBounces(usuarioId: number) {
 
   const recipientsArray = [...recipients]
 
-const recipientsParam = sql.join(
-  recipientsArray.map((r) => sql`${r}`),
-  sql`, `
-)
-
-const envios = await db
-  .select({ id: emailEnviados.id, disparoId: emailEnviados.disparoId })
-  .from(emailEnviados)
-  .innerJoin(emailDisparos, eq(emailEnviados.disparoId, emailDisparos.id))
-  .where(
-    and(
-      sql`lower(${emailEnviados.email}) = any(ARRAY[${recipientsParam}])`,
-      eq(emailEnviados.status, "enviado"),
-      eq(emailDisparos.criadoPor, usuarioId),
-    )
+  const recipientsParam = sql.join(
+    recipientsArray.map((r) => sql`${r}`),
+    sql`, `
   )
+
+  const envios = await db
+    .select({ id: emailEnviados.id, disparoId: emailEnviados.disparoId })
+    .from(emailEnviados)
+    .innerJoin(emailDisparos, eq(emailEnviados.disparoId, emailDisparos.id))
+    .where(
+      and(
+        sql`lower(${emailEnviados.email}) = any(ARRAY[${recipientsParam}])`,
+        eq(emailEnviados.status, "enviado"),
+        eq(emailDisparos.criadoPor, usuarioId)
+      )
+    )
 
   const porDisparo = new Map<number, number[]>()
   for (const e of envios) {

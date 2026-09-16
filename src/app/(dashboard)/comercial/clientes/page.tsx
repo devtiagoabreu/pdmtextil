@@ -2,7 +2,22 @@
 
 import { useState, useEffect } from "react"
 import Link from "next/link"
-import { PlusCircle, Building2, Phone, Mail, MapPin, Pencil, Users, Database, FileText, FlaskConical, Loader2, X, ExternalLink, Trash2 } from "lucide-react"
+import {
+  PlusCircle,
+  Building2,
+  Phone,
+  Mail,
+  MapPin,
+  Pencil,
+  Users,
+  Database,
+  FileText,
+  FlaskConical,
+  Loader2,
+  X,
+  ExternalLink,
+  Trash2,
+} from "lucide-react"
 import { toast } from "sonner"
 import { usePathname } from "next/navigation"
 import { useSession } from "next-auth/react"
@@ -25,16 +40,29 @@ const AMOSTRA_STATUS_BADGE: Record<string, string> = {
 export default function ClientesPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
-  const { getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
+  const { getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses(
+    "SOLICITACAO_DESENVOLVIMENTO"
+  )
   const [clientes, setClientes] = useState<Cliente[]>([])
   const [loading, setLoading] = useState(true)
 
-  const filterState = useListFilters({ searchFields: ["nome", "razaoSocial", "cnpj", "contato", "email", "telefone", "cidade"] }, clientes)
+  const filterState = useListFilters(
+    { searchFields: ["nome", "razaoSocial", "cnpj", "contato", "email", "telefone", "cidade"] },
+    clientes
+  )
   const filteredData = filterState.filtered
   const [showApiImport, setShowApiImport] = useState(false)
 
-  const [solicModal, setSolicModal] = useState<{ cliente: Cliente; data: SolicitacaoResumo[]; loading: boolean } | null>(null)
-  const [amostraModal, setAmostraModal] = useState<{ cliente: Cliente; data: AmostraResumo[]; loading: boolean } | null>(null)
+  const [solicModal, setSolicModal] = useState<{
+    cliente: Cliente
+    data: SolicitacaoResumo[]
+    loading: boolean
+  } | null>(null)
+  const [amostraModal, setAmostraModal] = useState<{
+    cliente: Cliente
+    data: AmostraResumo[]
+    loading: boolean
+  } | null>(null)
   const [deleteTarget, setDeleteTarget] = useState<Cliente | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
@@ -81,10 +109,7 @@ export default function ClientesPage() {
       const res = await fetch(`/api/clientes/${cliente.id}/amostras`)
       if (res.ok) {
         const json = await res.json()
-        const todas: AmostraResumo[] = [
-          ...(json.tecidoCru || []),
-          ...(json.acabamento || []),
-        ]
+        const todas: AmostraResumo[] = [...(json.tecidoCru || []), ...(json.acabamento || [])]
         setAmostraModal({ cliente, data: todas, loading: false })
       } else {
         setAmostraModal(null)
@@ -95,8 +120,6 @@ export default function ClientesPage() {
       toast.error("Erro ao carregar amostras")
     }
   }
-
-
 
   async function handleExcluirCliente() {
     if (!deleteTarget) return
@@ -127,27 +150,38 @@ export default function ClientesPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Clientes{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Clientes{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {loading ? "Carregando..." : `${filteredData.length} de ${clientes.length} total`}
           </p>
         </div>
         <div className="flex gap-2">
-          <ExportarDados data={filteredData} columns={[
-            { key: "nome", label: "Nome" }, { key: "cnpj", label: "CNPJ" }, { key: "email", label: "Email" },
-            { key: "telefone", label: "Telefone" }, { key: "cidade", label: "Cidade" }, { key: "uf", label: "UF" },
-          ]} filename="clientes-comercial" title="Clientes" />
+          <ExportarDados
+            data={filteredData}
+            columns={[
+              { key: "nome", label: "Nome" },
+              { key: "cnpj", label: "CNPJ" },
+              { key: "email", label: "Email" },
+              { key: "telefone", label: "Telefone" },
+              { key: "cidade", label: "Cidade" },
+              { key: "uf", label: "UF" },
+            ]}
+            filename="clientes-comercial"
+            title="Clientes"
+          />
           <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
             <Database size={16} />
             Importar via API
           </Button>
           <Link
-          href="/comercial/clientes/novo"
-          className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
-        >
-          <PlusCircle size={16} />
-          Novo Cliente
-        </Link>
+            href="/comercial/clientes/novo"
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
+          >
+            <PlusCircle size={16} />
+            Novo Cliente
+          </Link>
         </div>
       </div>
 
@@ -169,7 +203,9 @@ export default function ClientesPage() {
         ) : filteredData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Building2 className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhum cliente encontrado</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Nenhum cliente encontrado
+            </p>
           </div>
         ) : (
           <div className="grid gap-4 p-4 md:grid-cols-2 lg:grid-cols-3">
@@ -180,8 +216,12 @@ export default function ClientesPage() {
               >
                 <div className="flex items-start justify-between mb-3">
                   <div className="min-w-0 flex-1">
-                    <h3 className="font-semibold text-slate-900 dark:text-slate-100 truncate">{cliente.nome}</h3>
-                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{cliente.razaoSocial}</p>
+                    <h3 className="font-semibold text-slate-900 dark:text-slate-100 truncate">
+                      {cliente.nome}
+                    </h3>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 truncate">
+                      {cliente.razaoSocial}
+                    </p>
                   </div>
                   <span className="text-xs font-mono text-slate-500 bg-slate-100 dark:bg-slate-800 px-2 py-1 rounded shrink-0 ml-2">
                     {cliente.cnpj}
@@ -210,7 +250,10 @@ export default function ClientesPage() {
                   {cliente.cidade && (
                     <div className="flex items-center gap-2 text-slate-600 dark:text-slate-400">
                       <MapPin size={14} className="text-slate-400 shrink-0" />
-                      <span className="truncate">{cliente.cidade}{cliente.uf ? `, ${cliente.uf}` : ""}</span>
+                      <span className="truncate">
+                        {cliente.cidade}
+                        {cliente.uf ? `, ${cliente.uf}` : ""}
+                      </span>
                     </div>
                   )}
                 </div>
@@ -257,14 +300,23 @@ export default function ClientesPage() {
       </div>
 
       {solicModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setSolicModal(null)}>
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xl w-[90vw] max-w-2xl max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => setSolicModal(null)}
+        >
+          <div
+            className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xl w-[90vw] max-w-2xl max-h-[80vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
               <h2 className="text-lg font-semibold flex items-center gap-2">
                 <FileText size={18} className="text-emerald-500" />
                 Solicitações — {solicModal.cliente.nome}
               </h2>
-              <button onClick={() => setSolicModal(null)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+              <button
+                onClick={() => setSolicModal(null)}
+                className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
                 <X size={18} />
               </button>
             </div>
@@ -274,7 +326,9 @@ export default function ClientesPage() {
                   <Loader2 className="animate-spin text-slate-400" size={24} />
                 </div>
               ) : solicModal.data.length === 0 ? (
-                <p className="text-center text-sm text-slate-500 py-12">Nenhuma solicitação encontrada</p>
+                <p className="text-center text-sm text-slate-500 py-12">
+                  Nenhuma solicitação encontrada
+                </p>
               ) : (
                 <div className="space-y-2">
                   {solicModal.data.map((s) => (
@@ -285,15 +339,22 @@ export default function ClientesPage() {
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium text-slate-900 dark:text-slate-100">#{s.id}</span>
-                          <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium" style={{
-                            backgroundColor: hexToRgba(getStatusColor(s.status), 0.15),
-                            color: getStatusColor(s.status),
-                          }}>
+                          <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                            #{s.id}
+                          </span>
+                          <span
+                            className="text-[10px] px-1.5 py-0.5 rounded-full font-medium"
+                            style={{
+                              backgroundColor: hexToRgba(getStatusColor(s.status), 0.15),
+                              color: getStatusColor(s.status),
+                            }}
+                          >
                             {getStatusLabel(s.status)}
                           </span>
                           <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 uppercase">
-                            {s.tipo === "DESENVOLVIMENTO_TECELAGEM" ? "TECELAGEM" : "BENEFICIAMENTO"}
+                            {s.tipo === "DESENVOLVIMENTO_TECELAGEM"
+                              ? "TECELAGEM"
+                              : "BENEFICIAMENTO"}
                           </span>
                         </div>
                         {s.projeto && (
@@ -304,7 +365,10 @@ export default function ClientesPage() {
                           {s.solicitanteNome ? ` ⬢ ${s.solicitanteNome}` : ""}
                         </p>
                       </div>
-                      <ExternalLink size={14} className="text-slate-300 group-hover:text-slate-500 shrink-0 ml-2" />
+                      <ExternalLink
+                        size={14}
+                        className="text-slate-300 group-hover:text-slate-500 shrink-0 ml-2"
+                      />
                     </Link>
                   ))}
                 </div>
@@ -315,14 +379,23 @@ export default function ClientesPage() {
       )}
 
       {amostraModal && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setAmostraModal(null)}>
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xl w-[90vw] max-w-2xl max-h-[80vh] flex flex-col" onClick={e => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => setAmostraModal(null)}
+        >
+          <div
+            className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xl w-[90vw] max-w-2xl max-h-[80vh] flex flex-col"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
               <h2 className="text-lg font-semibold flex items-center gap-2">
                 <FlaskConical size={18} className="text-purple-500" />
                 Amostras — {amostraModal.cliente.nome}
               </h2>
-              <button onClick={() => setAmostraModal(null)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+              <button
+                onClick={() => setAmostraModal(null)}
+                className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
                 <X size={18} />
               </button>
             </div>
@@ -332,7 +405,9 @@ export default function ClientesPage() {
                   <Loader2 className="animate-spin text-slate-400" size={24} />
                 </div>
               ) : amostraModal.data.length === 0 ? (
-                <p className="text-center text-sm text-slate-500 py-12">Nenhuma amostra encontrada</p>
+                <p className="text-center text-sm text-slate-500 py-12">
+                  Nenhuma amostra encontrada
+                </p>
               ) : (
                 <div className="space-y-2">
                   {amostraModal.data.map((a) => (
@@ -343,20 +418,31 @@ export default function ClientesPage() {
                     >
                       <div className="min-w-0 flex-1">
                         <div className="flex items-center gap-2">
-                          <span className="text-xs font-mono text-slate-400">{a.produtoCodigo}</span>
-                          <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${AMOSTRA_STATUS_BADGE[a.status] || "bg-slate-100 text-slate-600"}`}>
+                          <span className="text-xs font-mono text-slate-400">
+                            {a.produtoCodigo}
+                          </span>
+                          <span
+                            className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${AMOSTRA_STATUS_BADGE[a.status] || "bg-slate-100 text-slate-600"}`}
+                          >
                             {a.status}
                           </span>
                           <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-purple-100 dark:bg-purple-950/50 text-purple-600 dark:text-purple-400 uppercase">
                             {a.tipoAmostra === "TECIDO_CRU" ? "CRU" : "ACABAMENTO"}
                           </span>
                         </div>
-                        <p className="text-xs text-slate-500 mt-1">{a.descricao || a.produtoDescricao}</p>
+                        <p className="text-xs text-slate-500 mt-1">
+                          {a.descricao || a.produtoDescricao}
+                        </p>
                         {a.acabamentoDescricao && (
-                          <p className="text-xs text-slate-400 mt-0.5">Acabamento: {a.acabamentoDescricao}</p>
+                          <p className="text-xs text-slate-400 mt-0.5">
+                            Acabamento: {a.acabamentoDescricao}
+                          </p>
                         )}
                       </div>
-                      <ExternalLink size={14} className="text-slate-300 group-hover:text-slate-500 shrink-0 ml-2" />
+                      <ExternalLink
+                        size={14}
+                        className="text-slate-300 group-hover:text-slate-500 shrink-0 ml-2"
+                      />
                     </Link>
                   ))}
                 </div>
@@ -379,12 +465,16 @@ export default function ClientesPage() {
       <ConfirmModal
         open={deleteTarget !== null}
         title={deleteBlocked ? "Exclusão não permitida" : "Excluir cliente?"}
-        message={deleteBlocked
-          ? "Este cliente possui cadastros vinculados e não pode ser excluído."
-          : `Tem certeza que deseja excluir "${deleteTarget?.nome}"? Esta ação não pode ser desfeita.`}
-        subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
-          : undefined}
+        message={
+          deleteBlocked
+            ? "Este cliente possui cadastros vinculados e não pode ser excluído."
+            : `Tem certeza que deseja excluir "${deleteTarget?.nome}"? Esta ação não pode ser desfeita.`
+        }
+        subMessage={
+          deleteBlocked
+            ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+            : undefined
+        }
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}
         loading={deleteLoading}

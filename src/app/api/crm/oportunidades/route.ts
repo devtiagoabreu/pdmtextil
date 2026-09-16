@@ -26,7 +26,11 @@ export async function GET(req: NextRequest) {
     if (status) conditions.push(eq(crmOportunidades.status, status))
     if (empresaId) conditions.push(eq(crmOportunidades.empresaId, parseInt(empresaId)))
     if (clienteId) conditions.push(eq(crmOportunidades.clienteId, parseInt(clienteId)))
-    if (mine === "true" && (auth.session.user?.role ?? "") !== "ADMIN" && (auth.session.user?.role ?? "") !== "SUDO") {
+    if (
+      mine === "true" &&
+      (auth.session.user?.role ?? "") !== "ADMIN" &&
+      (auth.session.user?.role ?? "") !== "SUDO"
+    ) {
       conditions.push(eq(crmOportunidades.responsavelId, auth.userId))
     }
     if (search) {
@@ -34,12 +38,15 @@ export async function GET(req: NextRequest) {
         or(
           like(crmOportunidades.titulo, `%${search}%`),
           like(crmPessoas.razaoSocial, `%${search}%`),
-          like(crmPessoas.nomeFantasia, `%${search}%`),
+          like(crmPessoas.nomeFantasia, `%${search}%`)
         )
       )
     }
 
-    const where = conditions.length > 0 ? sql`${conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`)}` : undefined
+    const where =
+      conditions.length > 0
+        ? sql`${conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`)}`
+        : undefined
 
     const lista = await db
       .select({
@@ -120,7 +127,12 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    await notificar("OPORTUNIDADE_CRIADA", `Oportunidade criada: ${nova.titulo}`, `/comercial/crm/oportunidades/${nova.id}`, session.user.name)
+    await notificar(
+      "OPORTUNIDADE_CRIADA",
+      `Oportunidade criada: ${nova.titulo}`,
+      `/comercial/crm/oportunidades/${nova.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {

@@ -13,7 +13,9 @@ export interface Investimento {
   createdAt: Date | string | null
 }
 
-export function normalizarInvestimentos(body: any): Omit<Investimento, "id" | "viagemId" | "createdAt">[] {
+export function normalizarInvestimentos(
+  body: any
+): Omit<Investimento, "id" | "viagemId" | "createdAt">[] {
   if (!Array.isArray(body.investimentos)) return []
   return body.investimentos
     .filter((i: any) => i?.tipo)

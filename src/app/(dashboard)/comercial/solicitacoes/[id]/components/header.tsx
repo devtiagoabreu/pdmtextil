@@ -56,10 +56,7 @@ export function Header({
           <ArrowLeft size={18} />
           Voltar
         </Link>
-        <button
-          onClick={onRefetch}
-          className="text-sm text-blue-600 hover:underline"
-        >
+        <button onClick={onRefetch} className="text-sm text-blue-600 hover:underline">
           Atualizar
         </button>
       </div>
@@ -73,14 +70,22 @@ export function Header({
           <p className="text-slate-500 dark:text-slate-400 mt-1">{sol.projeto || "Sem projeto"}</p>
         </div>
         <div className="flex items-center gap-2">
-          <span className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium" style={{
-            backgroundColor: statusRgba,
-            color: statusColor,
-          }}>
+          <span
+            className="inline-flex items-center rounded-full px-3 py-1 text-sm font-medium"
+            style={{
+              backgroundColor: statusRgba,
+              color: statusColor,
+            }}
+          >
             {statusLabel}
           </span>
           <div className="flex items-center gap-1">
-            <Select value={novoStatus} onValueChange={(v: string | null) => { if (v) setNovoStatus(v) }}>
+            <Select
+              value={novoStatus}
+              onValueChange={(v: string | null) => {
+                if (v) setNovoStatus(v)
+              }}
+            >
               <SelectTrigger className="h-8 text-xs w-44">
                 <SelectValue placeholder="Alterar status..." />
               </SelectTrigger>
@@ -88,7 +93,9 @@ export function Header({
                 {statusOptions
                   .filter((s) => s.value !== sol.status)
                   .map((s) => (
-                    <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                    <SelectItem key={s.value} value={s.value}>
+                      {s.label}
+                    </SelectItem>
                   ))}
               </SelectContent>
             </Select>

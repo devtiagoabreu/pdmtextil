@@ -13,9 +13,7 @@ export function haversineKm(
   const dLng = ((b.longitude - a.longitude) * Math.PI) / 180
   const latA = (a.latitude * Math.PI) / 180
   const latB = (b.latitude * Math.PI) / 180
-  const h =
-    Math.sin(dLat / 2) ** 2 +
-    Math.cos(latA) * Math.cos(latB) * Math.sin(dLng / 2) ** 2
+  const h = Math.sin(dLat / 2) ** 2 + Math.cos(latA) * Math.cos(latB) * Math.sin(dLng / 2) ** 2
   return 2 * raio * Math.asin(Math.sqrt(h))
 }
 

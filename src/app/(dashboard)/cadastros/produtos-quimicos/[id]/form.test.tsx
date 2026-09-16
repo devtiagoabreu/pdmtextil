@@ -20,7 +20,9 @@ describe("ProdutoQuimicoFormPage", () => {
 
       fireEvent.click(screen.getByRole("button", { name: /Salvar/ }))
 
-      await waitFor(() => expect(navMock.router.push).toHaveBeenCalledWith("/cadastros/produtos-quimicos"))
+      await waitFor(() =>
+        expect(navMock.router.push).toHaveBeenCalledWith("/cadastros/produtos-quimicos")
+      )
       const call = findCall(fetchMock.calls, "/api/cadastros/produtos-quimicos", "POST")
       expect(call).toBeDefined()
       expect(call?.body?.codigo).toBe("PQ01")
@@ -68,10 +70,14 @@ describe("ProdutoQuimicoFormPage", () => {
       expect(screen.getByDisplayValue("PQ03")).toBeDefined()
       expect(screen.getByDisplayValue("1.53")).toBeDefined()
 
-      fireEvent.change(screen.getByDisplayValue("Descrição antiga"), { target: { value: "Descrição nova" } })
+      fireEvent.change(screen.getByDisplayValue("Descrição antiga"), {
+        target: { value: "Descrição nova" },
+      })
       fireEvent.click(screen.getByRole("button", { name: /Salvar/ }))
 
-      await waitFor(() => expect(navMock.router.push).toHaveBeenCalledWith("/cadastros/produtos-quimicos"))
+      await waitFor(() =>
+        expect(navMock.router.push).toHaveBeenCalledWith("/cadastros/produtos-quimicos")
+      )
       const call = findCall(fetchMock.calls, "/api/cadastros/produtos-quimicos/3", "PUT")
       expect(call).toBeDefined()
       expect(call?.body?.descricao).toBe("Descrição nova")
@@ -100,8 +106,12 @@ describe("ProdutoQuimicoFormPage", () => {
       fireEvent.click(screen.getByRole("button", { name: /Excluir/ }))
 
       expect(confirmSpy).toHaveBeenCalledWith("Excluir este produto químico?")
-      await waitFor(() => expect(navMock.router.push).toHaveBeenCalledWith("/cadastros/produtos-quimicos"))
-      expect(findCall(fetchMock.calls, "/api/cadastros/produtos-quimicos/3", "DELETE")).toBeDefined()
+      await waitFor(() =>
+        expect(navMock.router.push).toHaveBeenCalledWith("/cadastros/produtos-quimicos")
+      )
+      expect(
+        findCall(fetchMock.calls, "/api/cadastros/produtos-quimicos/3", "DELETE")
+      ).toBeDefined()
     })
   })
 })

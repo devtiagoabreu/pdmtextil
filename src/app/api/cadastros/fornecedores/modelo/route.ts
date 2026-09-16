@@ -15,7 +15,11 @@ export async function GET(req: NextRequest) {
       { nome: "nome", descricao: "Nome / Fantasia do fornecedor", exemplo: "Fornecedor XYZ" },
       { nome: "cnpj", descricao: "CNPJ do fornecedor", exemplo: "12.345.678/0001-90" },
       { nome: "razaoSocial", descricao: "Razão Social (opcional)", exemplo: "Fornecedor XYZ Ltda" },
-      { nome: "email", descricao: "Email de contato (opcional)", exemplo: "contato@fornecedor.com" },
+      {
+        nome: "email",
+        descricao: "Email de contato (opcional)",
+        exemplo: "contato@fornecedor.com",
+      },
       { nome: "telefone", descricao: "Telefone (opcional)", exemplo: "(11) 99999-9999" },
       { nome: "contato", descricao: "Pessoa de contato (opcional)", exemplo: "João Silva" },
       { nome: "endereco", descricao: "Endereço completo (opcional)", exemplo: "Rua exemplo, 100" },

@@ -92,14 +92,19 @@ describe("PropostasPage exclusão", () => {
     const dialog = screen.getByRole("dialog", { name: "Excluir proposta?" })
     fireEvent.click(within(dialog).getByRole("button", { name: "Excluir" }))
 
-    await waitFor(() => expect(findCall(fetchMock.calls, "/api/crm/propostas/1", "DELETE")).toBeDefined())
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Proposta excluída com sucesso"))
+    await waitFor(() =>
+      expect(findCall(fetchMock.calls, "/api/crm/propostas/1", "DELETE")).toBeDefined()
+    )
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Proposta excluída com sucesso")
+    )
   })
 
   it("mostra erro ao excluir sem permissão de administrador", async () => {
     const handler = ({ method, url }: { method: string; url: string }) => {
       if (method === "GET" && url === "/api/crm/propostas?mine=true") return { json: propostas }
-      if (method === "DELETE" && url === "/api/crm/propostas/1") return { status: 403, json: { error: "Apenas administradores podem excluir" } }
+      if (method === "DELETE" && url === "/api/crm/propostas/1")
+        return { status: 403, json: { error: "Apenas administradores podem excluir" } }
       return { status: 404, json: { error: "Rota não mockada" } }
     }
     const noPermMock = createFetchMock(handler)
@@ -112,7 +117,9 @@ describe("PropostasPage exclusão", () => {
     fireEvent.click(within(row).getByRole("button", { name: "Excluir proposta" }))
     fireEvent.click(screen.getByRole("button", { name: "Excluir" }))
 
-    await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Apenas administradores podem excluir"))
+    await waitFor(() =>
+      expect(toastMock.error).toHaveBeenCalledWith("Apenas administradores podem excluir")
+    )
   })
 
   it("link de edição aponta para o detalhe", async () => {

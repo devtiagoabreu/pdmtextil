@@ -5,10 +5,7 @@ import { crmPesquisasRespostas } from "@/lib/db/schema/crm-pesquisas-respostas"
 import { crmVisitas } from "@/lib/db/schema/crm-visitas"
 import { eq } from "drizzle-orm"
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ token: string }> }
-) {
+export async function GET(_request: Request, { params }: { params: Promise<{ token: string }> }) {
   try {
     const { token } = await params
 
@@ -57,10 +54,7 @@ export async function GET(
   }
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ token: string }> }
-) {
+export async function POST(request: Request, { params }: { params: Promise<{ token: string }> }) {
   try {
     const { token } = await params
     const body = await request.json()
@@ -86,7 +80,10 @@ export async function POST(
 
     for (const resposta of respostas) {
       if (!resposta.pergunta || !resposta.resposta) {
-        return NextResponse.json({ error: "Todas as perguntas devem ser respondidas" }, { status: 400 })
+        return NextResponse.json(
+          { error: "Todas as perguntas devem ser respondidas" },
+          { status: 400 }
+        )
       }
     }
 

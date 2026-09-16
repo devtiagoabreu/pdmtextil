@@ -46,7 +46,11 @@ const CONFIG_DEFAULT: ConfigMonitoramento = {
 }
 
 export function evolutionConfigurada(): boolean {
-  return !!(process.env.EVOLUTION_API_URL && process.env.EVOLUTION_API_KEY && process.env.EVOLUTION_INSTANCE_NAME)
+  return !!(
+    process.env.EVOLUTION_API_URL &&
+    process.env.EVOLUTION_API_KEY &&
+    process.env.EVOLUTION_INSTANCE_NAME
+  )
 }
 
 export function verificarSaudeEvolution(): Promise<SaudeEvolution> {
@@ -57,7 +61,8 @@ export function verificarSaudeEvolution(): Promise<SaudeEvolution> {
     return Promise.resolve({
       online: false,
       instanciaStatus: "NAO_CONFIGURADO",
-      detalhe: "Variáveis EVOLUTION_API_URL, EVOLUTION_API_KEY e EVOLUTION_INSTANCE_NAME não configuradas",
+      detalhe:
+        "Variáveis EVOLUTION_API_URL, EVOLUTION_API_KEY e EVOLUTION_INSTANCE_NAME não configuradas",
       apiUrl,
       instancia,
     })
@@ -73,7 +78,8 @@ export function verificarSaudeEvolution(): Promise<SaudeEvolution> {
       if (res.ok) {
         try {
           const data = JSON.parse(texto)
-          status = data?.instance?.state || data?.instance?.status || data?.state || data?.status || ""
+          status =
+            data?.instance?.state || data?.instance?.status || data?.state || data?.status || ""
         } catch {
           status = ""
         }
@@ -103,13 +109,21 @@ export function verificarSaudeEvolution(): Promise<SaudeEvolution> {
 
 export async function lerConfigMonitoramento(): Promise<ConfigMonitoramento> {
   try {
-    const [cfg] = await db.select().from(configGeral).where(eq(configGeral.chave, CONFIG_CHAVE)).limit(1)
+    const [cfg] = await db
+      .select()
+      .from(configGeral)
+      .where(eq(configGeral.chave, CONFIG_CHAVE))
+      .limit(1)
     if (!cfg?.valor) return { ...CONFIG_DEFAULT }
     const parsed = JSON.parse(cfg.valor) as Partial<ConfigMonitoramento>
     return {
       ativo: typeof parsed.ativo === "boolean" ? parsed.ativo : CONFIG_DEFAULT.ativo,
-      emailAlerta: typeof parsed.emailAlerta === "boolean" ? parsed.emailAlerta : CONFIG_DEFAULT.emailAlerta,
-      notificacaoPdm: typeof parsed.notificacaoPdm === "boolean" ? parsed.notificacaoPdm : CONFIG_DEFAULT.notificacaoPdm,
+      emailAlerta:
+        typeof parsed.emailAlerta === "boolean" ? parsed.emailAlerta : CONFIG_DEFAULT.emailAlerta,
+      notificacaoPdm:
+        typeof parsed.notificacaoPdm === "boolean"
+          ? parsed.notificacaoPdm
+          : CONFIG_DEFAULT.notificacaoPdm,
       ultimoCheck: parsed.ultimoCheck ?? null,
       ultimoStatus: parsed.ultimoStatus ?? null,
       ultimoErro: parsed.ultimoErro ?? null,
@@ -195,7 +209,7 @@ export async function enviarAlertaMonitoramento(
 }> {
   const cfg = config ?? (await lerConfigMonitoramento())
   const admins = await buscarAdmins()
-  const emails = admins.map(a => a.email).filter((e): e is string => !!e && e.includes("@"))
+  const emails = admins.map((a) => a.email).filter((e): e is string => !!e && e.includes("@"))
 
   let emailEnviado = false
   if (cfg.emailAlerta && emails.length > 0) {
@@ -210,7 +224,7 @@ export async function enviarAlertaMonitoramento(
   let notificacoesCriadas = 0
   if (cfg.notificacaoPdm && admins.length > 0) {
     await db.insert(notificacoes).values(
-      admins.map(a => ({
+      admins.map((a) => ({
         tipo: "WHATSAPP_BOT_MONITOR",
         mensagem: montarTextoAlerta(saude),
         usuarioId: a.id,
@@ -274,7 +288,12 @@ export async function executarMonitoramento(): Promise<ResultadoMonitoramento> {
     })
   }
 
-  config = { ...config, ultimoCheck: new Date().toISOString(), ultimoStatus: statusAtual, ultimoErro: saude.online ? null : saude.detalhe }
+  config = {
+    ...config,
+    ultimoCheck: new Date().toISOString(),
+    ultimoStatus: statusAtual,
+    ultimoErro: saude.online ? null : saude.detalhe,
+  }
   await salvarConfigMonitoramento(config)
 
   return {

@@ -88,24 +88,30 @@ export default function PaisesConfigPage() {
     setShowForm(true)
   }
 
-  const filtrados = (paises || []).filter((p: Pais) =>
-    !busca || matchesSearch(p, busca)
-  )
+  const filtrados = (paises || []).filter((p: Pais) => !busca || matchesSearch(p, busca))
 
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center gap-3">
-        <Link href="/comercial/crm" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link
+          href="/comercial/crm"
+          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Países{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Países{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {isLoading ? "Carregando..." : `${filtrados?.length || 0} país(es)`}
           </p>
         </div>
         <button
-          onClick={() => { resetForm(); setShowForm(true) }}
+          onClick={() => {
+            resetForm()
+            setShowForm(true)
+          }}
           className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 transition-colors shadow-sm"
         >
           <PlusCircle size={16} />
@@ -131,7 +137,9 @@ export default function PaisesConfigPage() {
           </h3>
           <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Nome *</label>
+              <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                Nome *
+              </label>
               <input
                 type="text"
                 value={formNome}
@@ -141,7 +149,9 @@ export default function PaisesConfigPage() {
               />
             </div>
             <div>
-              <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">Código *</label>
+              <label className="block text-xs font-medium text-slate-500 dark:text-slate-400 mb-1">
+                Código *
+              </label>
               <input
                 type="text"
                 value={formCodigo}
@@ -185,16 +195,19 @@ export default function PaisesConfigPage() {
         ) : (
           <div className="divide-y divide-slate-100 dark:divide-slate-800">
             {filtrados.map((p: Pais) => (
-              <div key={p.id} className="flex items-center justify-between px-4 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+              <div
+                key={p.id}
+                className="flex items-center justify-between px-4 py-3.5 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+              >
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   <div className="w-9 h-9 rounded-lg bg-emerald-50 dark:bg-emerald-950/50 flex items-center justify-center shrink-0">
                     <Globe className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   </div>
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-slate-900 dark:text-slate-200">{p.nome}</p>
-                    <p className="text-xs text-slate-500 dark:text-slate-400">
-                      Código: {p.codigo}
+                    <p className="text-sm font-medium text-slate-900 dark:text-slate-200">
+                      {p.nome}
                     </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400">Código: {p.codigo}</p>
                   </div>
                 </div>
                 <div className="flex items-center gap-2 shrink-0">
@@ -205,7 +218,9 @@ export default function PaisesConfigPage() {
                     <Pencil size={14} />
                   </button>
                   <button
-                    onClick={() => { if (confirm(`Excluir ${p.nome}?`)) deleteMutation.mutate(p.id) }}
+                    onClick={() => {
+                      if (confirm(`Excluir ${p.nome}?`)) deleteMutation.mutate(p.id)
+                    }}
                     className="p-1.5 rounded-lg hover:bg-red-50 dark:hover:bg-red-950/50 text-slate-400 hover:text-red-600 transition-colors"
                   >
                     <Trash2 size={14} />

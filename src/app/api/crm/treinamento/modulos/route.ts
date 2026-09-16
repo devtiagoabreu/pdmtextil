@@ -10,10 +10,7 @@ export async function GET() {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
-    const modulos = await db
-      .select()
-      .from(crmTreinoModulos)
-      .orderBy(asc(crmTreinoModulos.ordem))
+    const modulos = await db.select().from(crmTreinoModulos).orderBy(asc(crmTreinoModulos.ordem))
 
     return NextResponse.json(modulos)
   } catch (error) {

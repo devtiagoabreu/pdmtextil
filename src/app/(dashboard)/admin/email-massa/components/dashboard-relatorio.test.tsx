@@ -39,7 +39,8 @@ const remessas = [
 
 function setup() {
   const fetchMock = createFetchMock(({ method, url }) => {
-    if (method === "GET" && url === "/api/admin/email-massa/relatorio") return { json: { remessas } }
+    if (method === "GET" && url === "/api/admin/email-massa/relatorio")
+      return { json: { remessas } }
     return { json: null }
   })
   vi.stubGlobal("fetch", fetchMock.fn)
@@ -85,7 +86,15 @@ describe("DashboardRelatorio", () => {
     await waitFor(() => expect(exportPDFRelatorio).toHaveBeenCalled())
     const args = vi.mocked(exportPDFRelatorio).mock.calls.at(-1)![0] as any
     expect(args.title).toContain("Dashboard de Email em Massa")
-    expect(args.stats).toEqual({ "Total de envios": 150, Enviados: 143, Lidos: 60, "Não abertos": 90, Cliques: 10, "Cliques no total": 15, Falhas: 7 })
+    expect(args.stats).toEqual({
+      "Total de envios": 150,
+      Enviados: 143,
+      Lidos: 60,
+      "Não abertos": 90,
+      Cliques: 10,
+      "Cliques no total": 15,
+      Falhas: 7,
+    })
     expect(args.tables[0].title).toBe("Resumo por remessa")
     expect(args.tables[0].rows).toHaveLength(2)
     expect(args.tables[0].rows[0][0]).toBe("Remessa #2")
@@ -103,7 +112,15 @@ describe("DashboardRelatorio", () => {
     await waitFor(() => expect(exportPDFRelatorio).toHaveBeenCalled())
     const args = vi.mocked(exportPDFRelatorio).mock.calls.at(-1)![0] as any
     expect(args.title).toContain("Promo Julho")
-    expect(args.stats).toEqual({ Total: 100, Enviados: 95, Lidos: 40, "Não abertos": 60, Cliques: 10, "Cliques no total": 15, Falhas: 5 })
+    expect(args.stats).toEqual({
+      Total: 100,
+      Enviados: 95,
+      Lidos: 40,
+      "Não abertos": 60,
+      Cliques: 10,
+      "Cliques no total": 15,
+      Falhas: 5,
+    })
     expect(args.tables[0].title).toBe("Links mais clicados (2)")
     expect(args.filename).toContain("relatorio-remessa-r1-")
   })
@@ -124,7 +141,8 @@ describe("DashboardRelatorio", () => {
 
   it("mostra estado vazio quando não há remessas", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
-      if (method === "GET" && url === "/api/admin/email-massa/relatorio") return { json: { remessas: [] } }
+      if (method === "GET" && url === "/api/admin/email-massa/relatorio")
+        return { json: { remessas: [] } }
       return { json: null }
     })
     vi.stubGlobal("fetch", fetchMock.fn)

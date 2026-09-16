@@ -9,7 +9,10 @@ export const dynamic = "force-dynamic"
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
+    if (
+      !session ||
+      (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")
+    ) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -20,7 +23,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: "Lista não encontrada" }, { status: 404 })
     }
 
-    const contatos = await db.select().from(emailListaContatos).where(eq(emailListaContatos.listaId, idNum))
+    const contatos = await db
+      .select()
+      .from(emailListaContatos)
+      .where(eq(emailListaContatos.listaId, idNum))
     return NextResponse.json({ ...lista, contatos })
   } catch (error) {
     console.error("[GET /api/admin/email-massa/listas]", error)
@@ -31,7 +37,10 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
+    if (
+      !session ||
+      (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")
+    ) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -42,7 +51,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 })
     }
 
-    const [atualizada] = await db.update(emailListas)
+    const [atualizada] = await db
+      .update(emailListas)
       .set({ nome: body.nome, descricao: body.descricao || null, updatedAt: new Date() })
       .where(eq(emailListas.id, idNum))
       .returning()
@@ -61,7 +71,10 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
+    if (
+      !session ||
+      (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")
+    ) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 

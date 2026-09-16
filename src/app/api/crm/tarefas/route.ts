@@ -25,11 +25,18 @@ export async function GET(req: NextRequest) {
     if (responsavelId) conditions.push(eq(crmTarefas.responsavelId, parseInt(responsavelId)))
     if (empresaId) conditions.push(eq(crmTarefas.empresaId, parseInt(empresaId)))
     if (hoje === "true") conditions.push(eq(crmTarefas.dataPrevista, sql`CURRENT_DATE`))
-    if (mine === "true" && (auth.session.user?.role ?? "") !== "ADMIN" && (auth.session.user?.role ?? "") !== "SUDO") {
+    if (
+      mine === "true" &&
+      (auth.session.user?.role ?? "") !== "ADMIN" &&
+      (auth.session.user?.role ?? "") !== "SUDO"
+    ) {
       conditions.push(eq(crmTarefas.criadoPor, auth.userId))
     }
 
-    const where = conditions.length > 0 ? sql`${conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`)}` : undefined
+    const where =
+      conditions.length > 0
+        ? sql`${conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`)}`
+        : undefined
 
     const lista = await db
       .select({
@@ -105,7 +112,12 @@ export async function POST(req: NextRequest) {
       })
     }
 
-    await notificar("TAREFA_CRIADA", `Tarefa criada: ${nova.titulo}`, `/comercial/crm/tarefas/${nova.id}`, session.user.name)
+    await notificar(
+      "TAREFA_CRIADA",
+      `Tarefa criada: ${nova.titulo}`,
+      `/comercial/crm/tarefas/${nova.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {

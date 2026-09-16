@@ -2,36 +2,46 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { produtoCruReceita as receitas, produtoCruReceitaItem as receitaItens, produtosQuimicos } from "@/lib/db/schema"
+import {
+  produtoCruReceita as receitas,
+  produtoCruReceitaItem as receitaItens,
+  produtosQuimicos,
+} from "@/lib/db/schema"
 import { eq, asc, max } from "drizzle-orm"
 import { validateReceitaChain } from "@/lib/validate-ownership"
 export const dynamic = "force-dynamic"
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string, aid: string, asid: string, rid: string }> }
+  { params }: { params: Promise<{ id: string; aid: string; asid: string; rid: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
     const { id, aid, asid, rid } = await params
-    const err = await validateReceitaChain(parseInt(id), parseInt(aid), parseInt(asid), parseInt(rid))
+    const err = await validateReceitaChain(
+      parseInt(id),
+      parseInt(aid),
+      parseInt(asid),
+      parseInt(rid)
+    )
     if (err) return err
 
-    const itens = await db.select({
-      id: receitaItens.id,
-      receitaId: receitaItens.receitaId,
-      quimicoId: receitaItens.quimicoId,
-      descricao: receitaItens.descricao,
-      unidade: receitaItens.unidade,
-      quantidadeMetro: receitaItens.quantidadeMetro,
-      estagio: receitaItens.estagio,
-      ordem: receitaItens.ordem,
-      createdAt: receitaItens.createdAt,
-      quimicoNome: produtosQuimicos.nome,
-      quimicoCodigo: produtosQuimicos.codigo,
-    })
+    const itens = await db
+      .select({
+        id: receitaItens.id,
+        receitaId: receitaItens.receitaId,
+        quimicoId: receitaItens.quimicoId,
+        descricao: receitaItens.descricao,
+        unidade: receitaItens.unidade,
+        quantidadeMetro: receitaItens.quantidadeMetro,
+        estagio: receitaItens.estagio,
+        ordem: receitaItens.ordem,
+        createdAt: receitaItens.createdAt,
+        quimicoNome: produtosQuimicos.nome,
+        quimicoCodigo: produtosQuimicos.codigo,
+      })
       .from(receitaItens)
       .leftJoin(produtosQuimicos, eq(receitaItens.quimicoId, produtosQuimicos.id))
       .where(eq(receitaItens.receitaId, parseInt(rid)))
@@ -46,31 +56,40 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string, aid: string, asid: string, rid: string }> }
+  { params }: { params: Promise<{ id: string; aid: string; asid: string; rid: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
     const { id, aid, asid, rid } = await params
-    const err = await validateReceitaChain(parseInt(id), parseInt(aid), parseInt(asid), parseInt(rid))
+    const err = await validateReceitaChain(
+      parseInt(id),
+      parseInt(aid),
+      parseInt(asid),
+      parseInt(rid)
+    )
     if (err) return err
 
     const body = await req.json()
 
-    const maxOrdem = await db.select({ max: max(receitaItens.ordem) })
+    const maxOrdem = await db
+      .select({ max: max(receitaItens.ordem) })
       .from(receitaItens)
       .where(eq(receitaItens.receitaId, parseInt(rid)))
 
-    const [novo] = await db.insert(receitaItens).values({
-      receitaId: parseInt(rid),
-      quimicoId: body.quimicoId || null,
-      descricao: body.descricao || null,
-      unidade: body.unidade || "g/L",
-      quantidadeMetro: body.quantidadeMetro,
-      estagio: body.estagio || "A",
-      ordem: (maxOrdem[0]?.max || 0) + 1,
-    }).returning()
+    const [novo] = await db
+      .insert(receitaItens)
+      .values({
+        receitaId: parseInt(rid),
+        quimicoId: body.quimicoId || null,
+        descricao: body.descricao || null,
+        unidade: body.unidade || "g/L",
+        quantidadeMetro: body.quantidadeMetro,
+        estagio: body.estagio || "A",
+        ordem: (maxOrdem[0]?.max || 0) + 1,
+      })
+      .returning()
 
     return NextResponse.json(novo)
   } catch (error) {

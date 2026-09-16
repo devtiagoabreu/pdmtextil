@@ -6,14 +6,38 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import { toast } from "sonner"
 import { SanitizedHtml } from "@/components/ui/sanitized-html"
 import {
-  Bold, Italic, Underline, AlignLeft, AlignCenter, AlignRight,
-  Link, List, Copy, X, Eye, ImageIcon, Type, Strikethrough, ListOrdered, Palette, Code,
-  Loader2, ChevronUp, ChevronDown, Move3D, FileText,
+  Bold,
+  Italic,
+  Underline,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  Link,
+  List,
+  Copy,
+  X,
+  Eye,
+  ImageIcon,
+  Type,
+  Strikethrough,
+  ListOrdered,
+  Palette,
+  Code,
+  Loader2,
+  ChevronUp,
+  ChevronDown,
+  Move3D,
+  FileText,
 } from "lucide-react"
 import { exportPDF } from "@/lib/export-utils"
 import { FONT_SIZES, FONT_FAMILIES } from "../types"
@@ -28,7 +52,10 @@ interface EditorEmailProps {
   assunto?: string
 }
 
-export const EditorEmail = forwardRef<EditorEmailHandle, EditorEmailProps>(function EditorEmail({ assunto }, ref) {
+export const EditorEmail = forwardRef<EditorEmailHandle, EditorEmailProps>(function EditorEmail(
+  { assunto },
+  ref
+) {
   const editorRef = useRef<HTMLDivElement>(null)
   const savedRange = useRef<Range | null>(null)
 
@@ -72,10 +99,13 @@ export const EditorEmail = forwardRef<EditorEmailHandle, EditorEmailProps>(funct
     savedRange.current = null
   }, [])
 
-  const insertList = useCallback((ordered: boolean) => {
-    const tag = ordered ? "ol" : "ul"
-    exec("insertHTML", `<${tag} style="padding-left:24px"><li>Item</li></${tag}>`)
-  }, [exec])
+  const insertList = useCallback(
+    (ordered: boolean) => {
+      const tag = ordered ? "ol" : "ul"
+      exec("insertHTML", `<${tag} style="padding-left:24px"><li>Item</li></${tag}>`)
+    },
+    [exec]
+  )
 
   const insertLinkHandler = useCallback(() => {
     setLinkUrl("https://")
@@ -99,7 +129,10 @@ export const EditorEmail = forwardRef<EditorEmailHandle, EditorEmailProps>(funct
   const uploadImageToCloudinary = useCallback(async (file: File) => {
     const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME || ""
     const uploadPreset = process.env.NEXT_PUBLIC_CLOUDINARY_UPLOAD_PRESET || ""
-    if (!cloudName || !uploadPreset) { toast.error("Cloudinary não configurado"); return }
+    if (!cloudName || !uploadPreset) {
+      toast.error("Cloudinary não configurado")
+      return
+    }
 
     setImageUploading(true)
     try {
@@ -108,25 +141,33 @@ export const EditorEmail = forwardRef<EditorEmailHandle, EditorEmailProps>(funct
       formData.append("upload_preset", uploadPreset)
       formData.append("folder", "email-massa")
 
-      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, { method: "POST", body: formData })
+      const res = await fetch(`https://api.cloudinary.com/v1_1/${cloudName}/image/upload`, {
+        method: "POST",
+        body: formData,
+      })
       if (!res.ok) throw new Error("Erro no upload")
       const data = await res.json()
       setImageUrl(data.secure_url)
       toast.success("Imagem enviada!")
-    } catch { toast.error("Erro ao enviar imagem") }
-    finally { setImageUploading(false) }
+    } catch {
+      toast.error("Erro ao enviar imagem")
+    } finally {
+      setImageUploading(false)
+    }
   }, [])
 
   const confirmImage = useCallback(() => {
     if (imageUrl && editorRef.current) {
       editorRef.current.focus()
-      document.execCommand("insertHTML", false,
+      document.execCommand(
+        "insertHTML",
+        false,
         `<div contenteditable="false" class="resizable-image" ` +
-        `style="display:inline-block;overflow:visible;max-width:100%;` +
-        `border:1px dashed #94a3b8;padding:3px;margin:4px 0;line-height:0;position:relative">` +
-        `<img src="${imageUrl}" style="display:block;width:100%;height:auto;pointer-events:none" alt="" />` +
-        `<span class="resize-handle" style="position:absolute;bottom:-4px;right:-4px;width:14px;height:14px;background:#3b82f6;border:2px solid white;border-radius:2px;cursor:nwse-resize;display:block;z-index:10;box-shadow:0 1px 3px rgba(0,0,0,0.3)"></span>` +
-        `</div>`
+          `style="display:inline-block;overflow:visible;max-width:100%;` +
+          `border:1px dashed #94a3b8;padding:3px;margin:4px 0;line-height:0;position:relative">` +
+          `<img src="${imageUrl}" style="display:block;width:100%;height:auto;pointer-events:none" alt="" />` +
+          `<span class="resize-handle" style="position:absolute;bottom:-4px;right:-4px;width:14px;height:14px;background:#3b82f6;border:2px solid white;border-radius:2px;cursor:nwse-resize;display:block;z-index:10;box-shadow:0 1px 3px rgba(0,0,0,0.3)"></span>` +
+          `</div>`
       )
       setImageDialogOpen(false)
       setImageUrl("")
@@ -138,7 +179,10 @@ export const EditorEmail = forwardRef<EditorEmailHandle, EditorEmailProps>(funct
       editorRef.current.focus()
       if (savedRange.current) {
         const sel = window.getSelection()
-        if (sel) { sel.removeAllRanges(); sel.addRange(savedRange.current) }
+        if (sel) {
+          sel.removeAllRanges()
+          sel.addRange(savedRange.current)
+        }
       }
       document.execCommand("insertHTML", false, htmlCodeValue)
       setHtmlCodeDialogOpen(false)
@@ -163,58 +207,64 @@ export const EditorEmail = forwardRef<EditorEmailHandle, EditorEmailProps>(funct
     }
   }, [])
 
-  const applyWrapMode = useCallback((mode: "inline" | "float-left" | "float-right" | "free") => {
-    if (!selectedImageEl) return
-    selectedImageEl.style.removeProperty("float")
-    selectedImageEl.style.removeProperty("position")
-    selectedImageEl.style.removeProperty("zIndex")
-    selectedImageEl.style.removeProperty("left")
-    selectedImageEl.style.removeProperty("top")
-    selectedImageEl.style.removeProperty("cursor")
-    if (mode === "inline") {
-      selectedImageEl.style.display = "inline-block"
-      selectedImageEl.style.margin = "4px 0"
-    } else if (mode === "float-left") {
-      selectedImageEl.style.float = "left"
-      selectedImageEl.style.margin = "4px 12px 8px 0"
-    } else if (mode === "float-right") {
-      selectedImageEl.style.float = "right"
-      selectedImageEl.style.margin = "4px 0 8px 12px"
-    } else if (mode === "free") {
-      selectedImageEl.style.position = "absolute"
-      selectedImageEl.style.cursor = "grab"
-      selectedImageEl.style.margin = "0"
-      const rect = selectedImageEl.getBoundingClientRect()
-      const editorRect = editorRef.current?.getBoundingClientRect()
-      if (editorRect) {
-        const maxW = editorRect.width * 0.6
-        const curW = rect.width
-        if (curW > maxW) {
-          selectedImageEl.style.width = `${maxW}px`
+  const applyWrapMode = useCallback(
+    (mode: "inline" | "float-left" | "float-right" | "free") => {
+      if (!selectedImageEl) return
+      selectedImageEl.style.removeProperty("float")
+      selectedImageEl.style.removeProperty("position")
+      selectedImageEl.style.removeProperty("zIndex")
+      selectedImageEl.style.removeProperty("left")
+      selectedImageEl.style.removeProperty("top")
+      selectedImageEl.style.removeProperty("cursor")
+      if (mode === "inline") {
+        selectedImageEl.style.display = "inline-block"
+        selectedImageEl.style.margin = "4px 0"
+      } else if (mode === "float-left") {
+        selectedImageEl.style.float = "left"
+        selectedImageEl.style.margin = "4px 12px 8px 0"
+      } else if (mode === "float-right") {
+        selectedImageEl.style.float = "right"
+        selectedImageEl.style.margin = "4px 0 8px 12px"
+      } else if (mode === "free") {
+        selectedImageEl.style.position = "absolute"
+        selectedImageEl.style.cursor = "grab"
+        selectedImageEl.style.margin = "0"
+        const rect = selectedImageEl.getBoundingClientRect()
+        const editorRect = editorRef.current?.getBoundingClientRect()
+        if (editorRect) {
+          const maxW = editorRect.width * 0.6
+          const curW = rect.width
+          if (curW > maxW) {
+            selectedImageEl.style.width = `${maxW}px`
+          }
+          const newRect = selectedImageEl.getBoundingClientRect()
+          selectedImageEl.style.left = `${newRect.left - editorRect.left}px`
+          selectedImageEl.style.top = `${newRect.top - editorRect.top}px`
         }
-        const newRect = selectedImageEl.getBoundingClientRect()
-        selectedImageEl.style.left = `${newRect.left - editorRect.left}px`
-        selectedImageEl.style.top = `${newRect.top - editorRect.top}px`
       }
-    }
-  }, [selectedImageEl])
+    },
+    [selectedImageEl]
+  )
 
-  const adjustImageZIndex = useCallback((dir: "front" | "back") => {
-    if (!selectedImageEl) return
-    if (selectedImageEl.style.position !== "absolute") {
-      selectedImageEl.style.position = "absolute"
-      selectedImageEl.style.cursor = "grab"
-      selectedImageEl.style.margin = "0"
-      const rect = selectedImageEl.getBoundingClientRect()
-      const editorRect = editorRef.current?.getBoundingClientRect()
-      if (editorRect) {
-        selectedImageEl.style.left = `${rect.left - editorRect.left}px`
-        selectedImageEl.style.top = `${rect.top - editorRect.top}px`
+  const adjustImageZIndex = useCallback(
+    (dir: "front" | "back") => {
+      if (!selectedImageEl) return
+      if (selectedImageEl.style.position !== "absolute") {
+        selectedImageEl.style.position = "absolute"
+        selectedImageEl.style.cursor = "grab"
+        selectedImageEl.style.margin = "0"
+        const rect = selectedImageEl.getBoundingClientRect()
+        const editorRect = editorRef.current?.getBoundingClientRect()
+        if (editorRect) {
+          selectedImageEl.style.left = `${rect.left - editorRect.left}px`
+          selectedImageEl.style.top = `${rect.top - editorRect.top}px`
+        }
       }
-    }
-    const current = parseInt(selectedImageEl.style.zIndex) || 0
-    selectedImageEl.style.zIndex = String(dir === "front" ? current + 1 : current - 1)
-  }, [selectedImageEl])
+      const current = parseInt(selectedImageEl.style.zIndex) || 0
+      selectedImageEl.style.zIndex = String(dir === "front" ? current + 1 : current - 1)
+    },
+    [selectedImageEl]
+  )
 
   useEffect(() => {
     const el = selectedImageEl
@@ -307,85 +357,180 @@ export const EditorEmail = forwardRef<EditorEmailHandle, EditorEmailProps>(funct
     if (editorRef.current) editorRef.current.innerHTML = html
   }, [])
 
-  useImperativeHandle(ref, () => ({
-    getHtml: getContentHtml,
-    setHtml: setContentHtml,
-    openPreview: () => setPreviewDialogOpen(true),
-  }), [getContentHtml, setContentHtml])
+  useImperativeHandle(
+    ref,
+    () => ({
+      getHtml: getContentHtml,
+      setHtml: setContentHtml,
+      openPreview: () => setPreviewDialogOpen(true),
+    }),
+    [getContentHtml, setContentHtml]
+  )
 
   useEffect(() => {
     const link = document.createElement("link")
-    link.href = "https://fonts.googleapis.com/css2?" + [
-      "family=Roboto:wght@400;700",
-      "family=Open+Sans:wght@400;700",
-      "family=Lato:wght@400;700",
-      "family=Montserrat:wght@400;700",
-      "family=Poppins:wght@400;700",
-      "family=Inter:wght@400;700",
-      "family=Nunito:wght@400;700",
-      "family=Raleway:wght@400;700",
-      "family=Ubuntu:wght@400;700",
-      "family=Playfair+Display:wght@400;700",
-      "family=Merriweather:wght@400;700",
-      "family=Oswald:wght@400;700",
-      "family=Noto+Sans:wght@400;700",
-      "family=Source+Sans+Pro:wght@400;700",
-      "family=PT+Sans:wght@400;700",
-      "family=Quicksand:wght@400;700",
-      "family=Work+Sans:wght@400;700",
-    ].join("&") + "&display=swap"
+    link.href =
+      "https://fonts.googleapis.com/css2?" +
+      [
+        "family=Roboto:wght@400;700",
+        "family=Open+Sans:wght@400;700",
+        "family=Lato:wght@400;700",
+        "family=Montserrat:wght@400;700",
+        "family=Poppins:wght@400;700",
+        "family=Inter:wght@400;700",
+        "family=Nunito:wght@400;700",
+        "family=Raleway:wght@400;700",
+        "family=Ubuntu:wght@400;700",
+        "family=Playfair+Display:wght@400;700",
+        "family=Merriweather:wght@400;700",
+        "family=Oswald:wght@400;700",
+        "family=Noto+Sans:wght@400;700",
+        "family=Source+Sans+Pro:wght@400;700",
+        "family=PT+Sans:wght@400;700",
+        "family=Quicksand:wght@400;700",
+        "family=Work+Sans:wght@400;700",
+      ].join("&") +
+      "&display=swap"
     link.rel = "stylesheet"
     document.head.appendChild(link)
-    return () => { if (link.parentNode) link.parentNode.removeChild(link) }
+    return () => {
+      if (link.parentNode) link.parentNode.removeChild(link)
+    }
   }, [])
 
   return (
     <>
       <div className="w-full border rounded-lg border-slate-300 dark:border-slate-600 overflow-hidden bg-white dark:bg-slate-700 relative">
-        <div className="flex flex-wrap items-center gap-0.5 p-1.5 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700" onMouseDown={saveSelection}>
+        <div
+          className="flex flex-wrap items-center gap-0.5 p-1.5 bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700"
+          onMouseDown={saveSelection}
+        >
           {/* Text formatting */}
           <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-            <button type="button" onClick={() => exec("bold")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Negrito"><Bold size={15} /></button>
-            <button type="button" onClick={() => exec("italic")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Itálico"><Italic size={15} /></button>
-            <button type="button" onClick={() => exec("underline")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Sublinhado"><Underline size={15} /></button>
-            <button type="button" onClick={() => exec("strikeThrough")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Tachado"><Strikethrough size={15} /></button>
+            <button
+              type="button"
+              onClick={() => exec("bold")}
+              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+              title="Negrito"
+            >
+              <Bold size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={() => exec("italic")}
+              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+              title="Itálico"
+            >
+              <Italic size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={() => exec("underline")}
+              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+              title="Sublinhado"
+            >
+              <Underline size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={() => exec("strikeThrough")}
+              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+              title="Tachado"
+            >
+              <Strikethrough size={15} />
+            </button>
           </div>
 
           {/* Alignment */}
           <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-            <button type="button" onClick={() => exec("justifyLeft")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Alinhar Esquerda"><AlignLeft size={15} /></button>
-            <button type="button" onClick={() => exec("justifyCenter")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Centralizar"><AlignCenter size={15} /></button>
-            <button type="button" onClick={() => exec("justifyRight")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Alinhar Direita"><AlignRight size={15} /></button>
+            <button
+              type="button"
+              onClick={() => exec("justifyLeft")}
+              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+              title="Alinhar Esquerda"
+            >
+              <AlignLeft size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={() => exec("justifyCenter")}
+              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+              title="Centralizar"
+            >
+              <AlignCenter size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={() => exec("justifyRight")}
+              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+              title="Alinhar Direita"
+            >
+              <AlignRight size={15} />
+            </button>
           </div>
 
           {/* Lists */}
           <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-            <button type="button" onClick={() => insertList(false)} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista Marcadores"><List size={15} /></button>
-            <button type="button" onClick={() => insertList(true)} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Lista Numerada"><ListOrdered size={15} /></button>
+            <button
+              type="button"
+              onClick={() => insertList(false)}
+              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+              title="Lista Marcadores"
+            >
+              <List size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={() => insertList(true)}
+              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+              title="Lista Numerada"
+            >
+              <ListOrdered size={15} />
+            </button>
           </div>
 
           {/* Font */}
           <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-            <select onChange={e => exec("fontName", e.target.value)} className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-28"
-              title="Fonte">
+            <select
+              onChange={(e) => exec("fontName", e.target.value)}
+              className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-28"
+              title="Fonte"
+            >
               {FONT_FAMILIES.map((f: any) => (
-                <option key={f} value={f} style={{ fontFamily: f }}>{f}</option>
+                <option key={f} value={f} style={{ fontFamily: f }}>
+                  {f}
+                </option>
               ))}
             </select>
-            <select onChange={e => exec("fontSize", e.target.value)} className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-20"
-              title="Tamanho">
+            <select
+              onChange={(e) => exec("fontSize", e.target.value)}
+              className="text-xs p-1 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 w-20"
+              title="Tamanho"
+            >
               {FONT_SIZES.map((s: any) => (
-                <option key={s.value} value={s.value}>{s.label}</option>
+                <option key={s.value} value={s.value}>
+                  {s.label}
+                </option>
               ))}
             </select>
           </div>
 
           {/* Color */}
           <div className="flex items-center gap-0.5 px-1 border-r border-slate-200 dark:border-slate-700">
-            <button type="button" onClick={() => openColorPicker("fore")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Cor do Texto">
+            <button
+              type="button"
+              onClick={() => openColorPicker("fore")}
+              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+              title="Cor do Texto"
+            >
               <Palette size={15} />
             </button>
-            <button type="button" onClick={() => openColorPicker("back")} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 relative" title="Cor de Fundo">
+            <button
+              type="button"
+              onClick={() => openColorPicker("back")}
+              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700 relative"
+              title="Cor de Fundo"
+            >
               <div className="relative">
                 <Type size={15} />
                 <span className="absolute -bottom-0.5 left-0 right-0 h-1 bg-yellow-400 rounded" />
@@ -395,9 +540,35 @@ export const EditorEmail = forwardRef<EditorEmailHandle, EditorEmailProps>(funct
 
           {/* Insert */}
           <div className="flex items-center gap-0.5 px-1">
-            <button type="button" onClick={insertLinkHandler} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Inserir Link"><Link size={15} /></button>
-            <button type="button" onClick={insertImageHandler} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Inserir Imagem"><ImageIcon size={15} /></button>
-            <button type="button" onClick={() => { const sel = window.getSelection(); if (sel && sel.rangeCount > 0) savedRange.current = sel.getRangeAt(0); setHtmlCodeValue(""); setHtmlCodeDialogOpen(true) }} className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700" title="Inserir HTML"><Code size={15} /></button>
+            <button
+              type="button"
+              onClick={insertLinkHandler}
+              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+              title="Inserir Link"
+            >
+              <Link size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={insertImageHandler}
+              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+              title="Inserir Imagem"
+            >
+              <ImageIcon size={15} />
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                const sel = window.getSelection()
+                if (sel && sel.rangeCount > 0) savedRange.current = sel.getRangeAt(0)
+                setHtmlCodeValue("")
+                setHtmlCodeDialogOpen(true)
+              }}
+              className="p-1.5 rounded hover:bg-slate-200 dark:hover:bg-slate-700"
+              title="Inserir HTML"
+            >
+              <Code size={15} />
+            </button>
           </div>
         </div>
 
@@ -416,31 +587,55 @@ export const EditorEmail = forwardRef<EditorEmailHandle, EditorEmailProps>(funct
           <div
             className="image-toolbar absolute z-[100] flex items-center gap-0.5 rounded-lg bg-white dark:bg-slate-800 border border-slate-300 dark:border-slate-600 p-1 shadow-lg"
             style={{ top: imageToolbarPos.top, left: Math.max(0, imageToolbarPos.left) }}
-            onMouseDown={e => e.preventDefault()}
+            onMouseDown={(e) => e.preventDefault()}
           >
-            <button type="button" onClick={() => applyWrapMode("inline")}
-              className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Em linha (ocupa espaço, quebra texto)">
+            <button
+              type="button"
+              onClick={() => applyWrapMode("inline")}
+              className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700"
+              title="Em linha (ocupa espaço, quebra texto)"
+            >
               <Type size={14} />
             </button>
-            <button type="button" onClick={() => applyWrapMode("float-left")}
-              className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Flutuar à esquerda, texto à direita">
+            <button
+              type="button"
+              onClick={() => applyWrapMode("float-left")}
+              className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700"
+              title="Flutuar à esquerda, texto à direita"
+            >
               <AlignLeft size={14} />
             </button>
-            <button type="button" onClick={() => applyWrapMode("float-right")}
-              className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Flutuar à direita, texto à esquerda">
+            <button
+              type="button"
+              onClick={() => applyWrapMode("float-right")}
+              className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700"
+              title="Flutuar à direita, texto à esquerda"
+            >
               <AlignRight size={14} />
             </button>
-            <button type="button" onClick={() => applyWrapMode("free")}
-              className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Livre (arraste para mover)">
+            <button
+              type="button"
+              onClick={() => applyWrapMode("free")}
+              className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700"
+              title="Livre (arraste para mover)"
+            >
               <Move3D size={14} />
             </button>
             <span className="w-px h-5 bg-slate-300 dark:bg-slate-600 mx-0.5" />
-            <button type="button" onClick={() => adjustImageZIndex("back")}
-              className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Atrás do texto (z-index -1)">
+            <button
+              type="button"
+              onClick={() => adjustImageZIndex("back")}
+              className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700"
+              title="Atrás do texto (z-index -1)"
+            >
               <ChevronDown size={14} />
             </button>
-            <button type="button" onClick={() => adjustImageZIndex("front")}
-              className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700" title="Na frente do texto (z-index +1)">
+            <button
+              type="button"
+              onClick={() => adjustImageZIndex("front")}
+              className="p-1.5 rounded hover:bg-slate-100 dark:hover:bg-slate-700"
+              title="Na frente do texto (z-index +1)"
+            >
               <ChevronUp size={14} />
             </button>
           </div>
@@ -451,7 +646,12 @@ export const EditorEmail = forwardRef<EditorEmailHandle, EditorEmailProps>(funct
       <Dialog open={previewDialogOpen} onOpenChange={setPreviewDialogOpen}>
         <DialogContent
           className="!rounded-none flex flex-col overflow-hidden"
-          style={{ width: previewSize.w, height: previewSize.h, maxWidth: "100vw", maxHeight: "100vh" }}
+          style={{
+            width: previewSize.w,
+            height: previewSize.h,
+            maxWidth: "100vw",
+            maxHeight: "100vh",
+          }}
         >
           <DialogHeader className="shrink-0">
             <DialogTitle>Preview do Email</DialogTitle>
@@ -460,22 +660,34 @@ export const EditorEmail = forwardRef<EditorEmailHandle, EditorEmailProps>(funct
           <div className="flex-1 bg-slate-100 dark:bg-slate-800 rounded-lg p-4 overflow-y-auto shadow-inner min-h-0">
             <div
               className="w-full bg-white text-black shadow-sm mx-auto"
-              style={{ fontFamily: "Arial, sans-serif", lineHeight: "1.8", fontSize: "15px", padding: "32px 40px", minHeight: "100%" }}
+              style={{
+                fontFamily: "Arial, sans-serif",
+                lineHeight: "1.8",
+                fontSize: "15px",
+                padding: "32px 40px",
+                minHeight: "100%",
+              }}
             >
               <SanitizedHtml html={getContentHtml()} />
             </div>
           </div>
           <DialogFooter className="gap-2">
-            <Button variant="outline" onClick={() => {
-              const html = getContentHtml()
-              if (html) exportPDF(`Email - ${assunto || "sem assunto"}`, html)
-            }} className="gap-1">
+            <Button
+              variant="outline"
+              onClick={() => {
+                const html = getContentHtml()
+                if (html) exportPDF(`Email - ${assunto || "sem assunto"}`, html)
+              }}
+              className="gap-1"
+            >
               <FileText size={14} /> Exportar PDF
             </Button>
-            <Button variant="outline" onClick={() => setPreviewDialogOpen(false)}>Fechar</Button>
+            <Button variant="outline" onClick={() => setPreviewDialogOpen(false)}>
+              Fechar
+            </Button>
           </DialogFooter>
           <div
-            onMouseDown={e => {
+            onMouseDown={(e) => {
               e.preventDefault()
               const startX = e.clientX
               const startY = e.clientY
@@ -487,7 +699,10 @@ export const EditorEmail = forwardRef<EditorEmailHandle, EditorEmailProps>(funct
                 const h = parsePx(startH) + (ev.clientY - startY)
                 setPreviewSize({ w: `${Math.max(400, w)}px`, h: `${Math.max(300, h)}px` })
               }
-              const onUp = () => { document.removeEventListener("mousemove", onMove); document.removeEventListener("mouseup", onUp) }
+              const onUp = () => {
+                document.removeEventListener("mousemove", onMove)
+                document.removeEventListener("mouseup", onUp)
+              }
               document.addEventListener("mousemove", onMove)
               document.addEventListener("mouseup", onUp)
             }}
@@ -506,10 +721,16 @@ export const EditorEmail = forwardRef<EditorEmailHandle, EditorEmailProps>(funct
             <DialogDescription>Digite a URL do link</DialogDescription>
           </DialogHeader>
           <div className="py-4">
-            <Input value={linkUrl} onChange={e => setLinkUrl(e.target.value)} placeholder="https://..." />
+            <Input
+              value={linkUrl}
+              onChange={(e) => setLinkUrl(e.target.value)}
+              placeholder="https://..."
+            />
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setLinkDialogOpen(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setLinkDialogOpen(false)}>
+              Cancelar
+            </Button>
             <Button onClick={confirmLink}>Inserir</Button>
           </DialogFooter>
         </DialogContent>
@@ -523,27 +744,60 @@ export const EditorEmail = forwardRef<EditorEmailHandle, EditorEmailProps>(funct
             <DialogDescription>Envie um arquivo ou digite a URL da imagem</DialogDescription>
           </DialogHeader>
           <div className="py-4 space-y-3">
-            <input ref={imageFileRef} type="file" accept="image/*" className="hidden"
-              onChange={e => { const f = e.target.files?.[0]; if (f) uploadImageToCloudinary(f); e.target.value = "" }} />
+            <input
+              ref={imageFileRef}
+              type="file"
+              accept="image/*"
+              className="hidden"
+              onChange={(e) => {
+                const f = e.target.files?.[0]
+                if (f) uploadImageToCloudinary(f)
+                e.target.value = ""
+              }}
+            />
             <div className="flex gap-2">
-              <Button variant="outline" size="sm" onClick={() => imageFileRef.current?.click()} disabled={imageUploading} className="gap-1">
-                {imageUploading ? <Loader2 size={14} className="animate-spin" /> : <ImageIcon size={14} />}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => imageFileRef.current?.click()}
+                disabled={imageUploading}
+                className="gap-1"
+              >
+                {imageUploading ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <ImageIcon size={14} />
+                )}
                 {imageUploading ? "Enviando..." : "Enviar arquivo"}
               </Button>
               <div className="flex-1">
-                <Input value={imageUrl} onChange={e => setImageUrl(e.target.value)} placeholder="Ou cole a URL da imagem" />
+                <Input
+                  value={imageUrl}
+                  onChange={(e) => setImageUrl(e.target.value)}
+                  placeholder="Ou cole a URL da imagem"
+                />
               </div>
             </div>
             {imageUrl && (
               <div className="border rounded-lg overflow-hidden bg-slate-50 dark:bg-slate-800 p-2">
-                <img src={imageUrl} alt="Preview" className="max-h-40 mx-auto"
-                  onError={(e) => { (e.target as HTMLImageElement).style.display = "none" }} />
+                <img
+                  src={imageUrl}
+                  alt="Preview"
+                  className="max-h-40 mx-auto"
+                  onError={(e) => {
+                    ;(e.target as HTMLImageElement).style.display = "none"
+                  }}
+                />
               </div>
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setImageDialogOpen(false)}>Cancelar</Button>
-            <Button onClick={confirmImage} disabled={!imageUrl || imageUploading}>Inserir</Button>
+            <Button variant="outline" onClick={() => setImageDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={confirmImage} disabled={!imageUrl || imageUploading}>
+              Inserir
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -553,12 +807,14 @@ export const EditorEmail = forwardRef<EditorEmailHandle, EditorEmailProps>(funct
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>Inserir Código HTML</DialogTitle>
-            <DialogDescription>Cole ou escreva código HTML para inserir no corpo do email</DialogDescription>
+            <DialogDescription>
+              Cole ou escreva código HTML para inserir no corpo do email
+            </DialogDescription>
           </DialogHeader>
           <div className="py-4">
             <textarea
               value={htmlCodeValue}
-              onChange={e => setHtmlCodeValue(e.target.value)}
+              onChange={(e) => setHtmlCodeValue(e.target.value)}
               placeholder='<div style="background:#f0f0f0;padding:20px;border-radius:8px;"><h2>Título</h2><p>Texto do email...</p></div>'
               className="w-full h-64 p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-800 font-mono text-sm text-slate-800 dark:text-slate-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-y"
             />
@@ -572,8 +828,12 @@ export const EditorEmail = forwardRef<EditorEmailHandle, EditorEmailProps>(funct
             )}
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setHtmlCodeDialogOpen(false)}>Cancelar</Button>
-            <Button onClick={insertHtmlCode} disabled={!htmlCodeValue}>Inserir</Button>
+            <Button variant="outline" onClick={() => setHtmlCodeDialogOpen(false)}>
+              Cancelar
+            </Button>
+            <Button onClick={insertHtmlCode} disabled={!htmlCodeValue}>
+              Inserir
+            </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -587,22 +847,55 @@ export const EditorEmail = forwardRef<EditorEmailHandle, EditorEmailProps>(funct
           </DialogHeader>
           <div className="py-4 space-y-3">
             <div className="flex items-center gap-3">
-              <input type="color" value={colorValue} onChange={e => setColorValue(e.target.value)} className="w-12 h-10 p-0.5 rounded border cursor-pointer" />
-              <Input value={colorValue} onChange={e => setColorValue(e.target.value)} placeholder="#000000" className="font-mono" />
+              <input
+                type="color"
+                value={colorValue}
+                onChange={(e) => setColorValue(e.target.value)}
+                className="w-12 h-10 p-0.5 rounded border cursor-pointer"
+              />
+              <Input
+                value={colorValue}
+                onChange={(e) => setColorValue(e.target.value)}
+                placeholder="#000000"
+                className="font-mono"
+              />
             </div>
             <div className="flex flex-wrap gap-1.5">
-              {["#000000","#333333","#666666","#999999","#cccccc","#ffffff",
-                "#ff0000","#ff6600","#ffcc00","#00cc00","#0066ff","#6633cc",
-                "#cc0066","#00cccc","#009966","#990000","#003366","#660066",
+              {[
+                "#000000",
+                "#333333",
+                "#666666",
+                "#999999",
+                "#cccccc",
+                "#ffffff",
+                "#ff0000",
+                "#ff6600",
+                "#ffcc00",
+                "#00cc00",
+                "#0066ff",
+                "#6633cc",
+                "#cc0066",
+                "#00cccc",
+                "#009966",
+                "#990000",
+                "#003366",
+                "#660066",
               ].map((c: any) => (
-                <button key={c} type="button" onClick={() => setColorValue(c)}
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setColorValue(c)}
                   className="w-8 h-8 rounded border border-slate-300 dark:border-slate-600 hover:scale-110 transition-transform"
-                  style={{ backgroundColor: c }} title={c} />
+                  style={{ backgroundColor: c }}
+                  title={c}
+                />
               ))}
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => setColorDialogOpen(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setColorDialogOpen(false)}>
+              Cancelar
+            </Button>
             <Button onClick={applyColor}>Aplicar</Button>
           </DialogFooter>
         </DialogContent>

@@ -10,9 +10,11 @@ export function validarUrlRotina(url: string | undefined, ehAdministrador: boole
 
   const u = url.trim()
   if (!u.startsWith("/")) return "URL deve começar com /"
-  if (u.includes("[") || u.includes("]")) return "Rotinas de detalhe ([id]) não podem ser adicionadas ao menu"
+  if (u.includes("[") || u.includes("]"))
+    return "Rotinas de detalhe ([id]) não podem ser adicionadas ao menu"
   if (u.startsWith("/api")) return "URLs de API não podem ser adicionadas ao menu"
-  if (u.startsWith("/admin") && !ehAdministrador) return "Páginas administrativas só podem ser adicionadas por administradores"
+  if (u.startsWith("/admin") && !ehAdministrador)
+    return "Páginas administrativas só podem ser adicionadas por administradores"
 
   return null
 }

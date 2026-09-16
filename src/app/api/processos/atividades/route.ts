@@ -36,7 +36,12 @@ export async function GET(req: NextRequest) {
     let lista
     if (subprocessoId) {
       lista = await base
-        .where(and(eq(procAtividades.subprocessoId, parseInt(subprocessoId)), eq(procAtividades.ativo, true)))
+        .where(
+          and(
+            eq(procAtividades.subprocessoId, parseInt(subprocessoId)),
+            eq(procAtividades.ativo, true)
+          )
+        )
         .orderBy(asc(procAtividades.ordem))
     } else if (processoId) {
       lista = await base
@@ -86,7 +91,12 @@ export async function POST(req: NextRequest) {
       usuarioNome: session.user.name,
     })
 
-    await notificar("PROC_ATIVIDADE_CRIADA", `Atividade cadastrada: ${nova.nome}`, `/processos/atividades/${nova.id}`, session.user.name)
+    await notificar(
+      "PROC_ATIVIDADE_CRIADA",
+      `Atividade cadastrada: ${nova.nome}`,
+      `/processos/atividades/${nova.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {

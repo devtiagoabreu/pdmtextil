@@ -2,16 +2,18 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
-import { produtosCru, produtoCruAmostra, produtoCruAcabamento, produtoCruAcabamentoAmostra } from "@/lib/db/schema/produto-cru"
+import {
+  produtosCru,
+  produtoCruAmostra,
+  produtoCruAcabamento,
+  produtoCruAcabamentoAmostra,
+} from "@/lib/db/schema/produto-cru"
 import { and, eq, inArray } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
 import { getValidStatuses } from "@/lib/status-utils"
 
 // PATCH - Mudar status da solicitação
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -26,7 +28,10 @@ export async function PATCH(
 
     const validStatuses = await getValidStatuses("SOLICITACAO_DESENVOLVIMENTO")
     if (!status || !validStatuses.includes(status)) {
-      return NextResponse.json({ error: `Status inválido. Use: ${validStatuses.join(", ")}` }, { status: 400 })
+      return NextResponse.json(
+        { error: `Status inválido. Use: ${validStatuses.join(", ")}` },
+        { status: 400 }
+      )
     }
 
     const [solicitacaoAtual] = await db
@@ -88,7 +93,12 @@ export async function PATCH(
   }
 }
 
-async function sincronizarAmostras(solicitacaoId: number, statusAntigo: string, statusNovo: string, usuarioNome: string) {
+async function sincronizarAmostras(
+  solicitacaoId: number,
+  statusAntigo: string,
+  statusNovo: string,
+  usuarioNome: string
+) {
   const produtos = await db
     .select({ id: produtosCru.id })
     .from(produtosCru)
@@ -105,7 +115,12 @@ async function sincronizarAmostras(solicitacaoId: number, statusAntigo: string, 
       await db
         .update(produtoCruAmostra)
         .set({ status: tecidoNovoStatus })
-        .where(and(eq(produtoCruAmostra.produtoCruId, pid), inArray(produtoCruAmostra.status, ["EM_PRODUCAO_TEC"])))
+        .where(
+          and(
+            eq(produtoCruAmostra.produtoCruId, pid),
+            inArray(produtoCruAmostra.status, ["EM_PRODUCAO_TEC"])
+          )
+        )
     }
 
     for (const pid of produtoIds) {
@@ -118,18 +133,34 @@ async function sincronizarAmostras(solicitacaoId: number, statusAntigo: string, 
         await db
           .update(produtoCruAcabamentoAmostra)
           .set({ status: benNovoStatus })
-          .where(and(inArray(produtoCruAcabamentoAmostra.acabamentoId, acabamentoIds), inArray(produtoCruAcabamentoAmostra.status, ["EM_PRODUCAO_BEN"])))
+          .where(
+            and(
+              inArray(produtoCruAcabamentoAmostra.acabamentoId, acabamentoIds),
+              inArray(produtoCruAcabamentoAmostra.status, ["EM_PRODUCAO_BEN"])
+            )
+          )
       }
     }
 
-    await registrarLog({ tipo: "ATUALIZACAO", acao: "status_em_massa", descricao: `Amostras da solicitação #${solicitacaoId} redefinidas para ${tecidoNovoStatus} ao mover para ${statusNovo}`, entidade: "SolicitacaoDesenvolvimento", entidadeId: solicitacaoId, usuarioNome: usuarioNome })
-
+    await registrarLog({
+      tipo: "ATUALIZACAO",
+      acao: "status_em_massa",
+      descricao: `Amostras da solicitação #${solicitacaoId} redefinidas para ${tecidoNovoStatus} ao mover para ${statusNovo}`,
+      entidade: "SolicitacaoDesenvolvimento",
+      entidadeId: solicitacaoId,
+      usuarioNome: usuarioNome,
+    })
   } else if (statusNovo === "CONCLUIDO_DEV") {
     for (const pid of produtoIds) {
       await db
         .update(produtoCruAmostra)
         .set({ status: "APROVADO_DESENVOLVIMENTO" })
-        .where(and(eq(produtoCruAmostra.produtoCruId, pid), inArray(produtoCruAmostra.status, ["EM_PRODUCAO_TEC"])))
+        .where(
+          and(
+            eq(produtoCruAmostra.produtoCruId, pid),
+            inArray(produtoCruAmostra.status, ["EM_PRODUCAO_TEC"])
+          )
+        )
     }
 
     for (const pid of produtoIds) {
@@ -142,18 +173,34 @@ async function sincronizarAmostras(solicitacaoId: number, statusAntigo: string, 
         await db
           .update(produtoCruAcabamentoAmostra)
           .set({ status: "APROVADO_DESENVOLVIMENTO" })
-          .where(and(inArray(produtoCruAcabamentoAmostra.acabamentoId, acabamentoIds), inArray(produtoCruAcabamentoAmostra.status, ["EM_PRODUCAO_BEN"])))
+          .where(
+            and(
+              inArray(produtoCruAcabamentoAmostra.acabamentoId, acabamentoIds),
+              inArray(produtoCruAcabamentoAmostra.status, ["EM_PRODUCAO_BEN"])
+            )
+          )
       }
     }
 
-    await registrarLog({ tipo: "ATUALIZACAO", acao: "status_em_massa", descricao: `Amostras da solicitação #${solicitacaoId} aprovadas para Desenvolvimento ao mover para ${statusNovo}`, entidade: "SolicitacaoDesenvolvimento", entidadeId: solicitacaoId, usuarioNome: usuarioNome })
-
+    await registrarLog({
+      tipo: "ATUALIZACAO",
+      acao: "status_em_massa",
+      descricao: `Amostras da solicitação #${solicitacaoId} aprovadas para Desenvolvimento ao mover para ${statusNovo}`,
+      entidade: "SolicitacaoDesenvolvimento",
+      entidadeId: solicitacaoId,
+      usuarioNome: usuarioNome,
+    })
   } else if (statusNovo === "APROVADO_CLI") {
     for (const pid of produtoIds) {
       await db
         .update(produtoCruAmostra)
         .set({ status: "APROVADO_COMERCIAL" })
-        .where(and(eq(produtoCruAmostra.produtoCruId, pid), inArray(produtoCruAmostra.status, ["APROVADO_DESENVOLVIMENTO"])))
+        .where(
+          and(
+            eq(produtoCruAmostra.produtoCruId, pid),
+            inArray(produtoCruAmostra.status, ["APROVADO_DESENVOLVIMENTO"])
+          )
+        )
     }
 
     for (const pid of produtoIds) {
@@ -166,10 +213,22 @@ async function sincronizarAmostras(solicitacaoId: number, statusAntigo: string, 
         await db
           .update(produtoCruAcabamentoAmostra)
           .set({ status: "APROVADO_COMERCIAL" })
-          .where(and(inArray(produtoCruAcabamentoAmostra.acabamentoId, acabamentoIds), inArray(produtoCruAcabamentoAmostra.status, ["APROVADO_DESENVOLVIMENTO"])))
+          .where(
+            and(
+              inArray(produtoCruAcabamentoAmostra.acabamentoId, acabamentoIds),
+              inArray(produtoCruAcabamentoAmostra.status, ["APROVADO_DESENVOLVIMENTO"])
+            )
+          )
       }
     }
 
-    await registrarLog({ tipo: "ATUALIZACAO", acao: "status_em_massa", descricao: `Amostras da solicitação #${solicitacaoId} aprovadas para Comercial ao mover para ${statusNovo}`, entidade: "SolicitacaoDesenvolvimento", entidadeId: solicitacaoId, usuarioNome: usuarioNome })
+    await registrarLog({
+      tipo: "ATUALIZACAO",
+      acao: "status_em_massa",
+      descricao: `Amostras da solicitação #${solicitacaoId} aprovadas para Comercial ao mover para ${statusNovo}`,
+      entidade: "SolicitacaoDesenvolvimento",
+      entidadeId: solicitacaoId,
+      usuarioNome: usuarioNome,
+    })
   }
 }

@@ -19,7 +19,10 @@ vi.mock("@/lib/db", () => ({
 }))
 
 const sessionAdmin = { session: { user: { id: "1", role: "ADMIN", name: "Tiago" } }, userId: 1 }
-const sessionQualidade = { session: { user: { id: "2", role: "QUALIDADE", name: "Ana" } }, userId: 2 }
+const sessionQualidade = {
+  session: { user: { id: "2", role: "QUALIDADE", name: "Ana" } },
+  userId: 2,
+}
 
 const reuniaoRow = {
   id: 3,
@@ -69,11 +72,26 @@ describe("GET /api/reunioes", () => {
   it("lista reuniões com agregados e links", async () => {
     db.select
       .mockReturnValueOnce(createQueryBuilder([reuniaoRow]))
-      .mockReturnValueOnce(createQueryBuilder([{ id: 10, reuniaoId: 3, rotulo: "Release notes", url: "https://x", descricao: null, ordem: 1 }]))
+      .mockReturnValueOnce(
+        createQueryBuilder([
+          {
+            id: 10,
+            reuniaoId: 3,
+            rotulo: "Release notes",
+            url: "https://x",
+            descricao: null,
+            ordem: 1,
+          },
+        ])
+      )
       .mockReturnValueOnce(createQueryBuilder([{ reuniaoId: 3 }, { reuniaoId: 3 }]))
-      .mockReturnValueOnce(createQueryBuilder([{ reuniaoId: 3 }, { reuniaoId: 3 }, { reuniaoId: 3 }]))
+      .mockReturnValueOnce(
+        createQueryBuilder([{ reuniaoId: 3 }, { reuniaoId: 3 }, { reuniaoId: 3 }])
+      )
       .mockReturnValueOnce(createQueryBuilder([{ reuniaoId: 3 }, { reuniaoId: 3 }]))
-      .mockReturnValueOnce(createQueryBuilder([{ id: 2, nome: "Systêxtil", status: "EM_ANDAMENTO" }]))
+      .mockReturnValueOnce(
+        createQueryBuilder([{ id: 2, nome: "Systêxtil", status: "EM_ANDAMENTO" }])
+      )
 
     const res = await get("http://localhost/api/reunioes")
     expect(res.status).toBe(200)
@@ -99,7 +117,9 @@ describe("POST /api/reunioes", () => {
   beforeEach(() => {
     vi.mocked(requireAuth).mockReset()
     resetDb(db)
-    db.transaction = vi.fn((cb: any) => cb({ insert: vi.fn(() => createQueryBuilder([{ id: 3, titulo: "Rodada 15" }])) }))
+    db.transaction = vi.fn((cb: any) =>
+      cb({ insert: vi.fn(() => createQueryBuilder([{ id: 3, titulo: "Rodada 15" }])) })
+    )
     vi.mocked(requireAuth).mockResolvedValue(sessionAdmin as any)
   })
 
@@ -143,12 +163,44 @@ describe("POST /api/reunioes", () => {
 
     db.select
       .mockReturnValueOnce(createQueryBuilder([reuniaoRow]))
-      .mockReturnValueOnce(createQueryBuilder([{ id: 2, nome: "Systêxtil", status: "EM_ANDAMENTO" }]))
-      .mockReturnValueOnce(createQueryBuilder([{ id: 1, reuniaoId: 3, conteudo: "Conteúdo da ata", criadoPor: "Tiago" }]))
-      .mockReturnValueOnce(createQueryBuilder([{ id: 1, reuniaoId: 3, ordem: 1, descricao: "Item 1" }]))
-      .mockReturnValueOnce(createQueryBuilder([{ id: 1, reuniaoId: 3, nome: "Fulano", empresa: "X", papel: "Dev" }]))
-      .mockReturnValueOnce(createQueryBuilder([{ id: 1, reuniaoId: 3, descricao: "Tarefa", responsavel: "Jean", prazo: null, status: "PENDENTE" }]))
-      .mockReturnValueOnce(createQueryBuilder([{ id: 1, reuniaoId: 3, rotulo: "Release notes", url: "https://x", descricao: null, ordem: 1 }]))
+      .mockReturnValueOnce(
+        createQueryBuilder([{ id: 2, nome: "Systêxtil", status: "EM_ANDAMENTO" }])
+      )
+      .mockReturnValueOnce(
+        createQueryBuilder([
+          { id: 1, reuniaoId: 3, conteudo: "Conteúdo da ata", criadoPor: "Tiago" },
+        ])
+      )
+      .mockReturnValueOnce(
+        createQueryBuilder([{ id: 1, reuniaoId: 3, ordem: 1, descricao: "Item 1" }])
+      )
+      .mockReturnValueOnce(
+        createQueryBuilder([{ id: 1, reuniaoId: 3, nome: "Fulano", empresa: "X", papel: "Dev" }])
+      )
+      .mockReturnValueOnce(
+        createQueryBuilder([
+          {
+            id: 1,
+            reuniaoId: 3,
+            descricao: "Tarefa",
+            responsavel: "Jean",
+            prazo: null,
+            status: "PENDENTE",
+          },
+        ])
+      )
+      .mockReturnValueOnce(
+        createQueryBuilder([
+          {
+            id: 1,
+            reuniaoId: 3,
+            rotulo: "Release notes",
+            url: "https://x",
+            descricao: null,
+            ordem: 1,
+          },
+        ])
+      )
 
     const res = await post({
       titulo: "Rodada 15 — release notes 2026",
@@ -161,7 +213,14 @@ describe("POST /api/reunioes", () => {
       videoUrl: "https://meet.google.com/abc",
       pautas: [{ descricao: "Item 1" }],
       participantes: [{ nome: "Fulano", empresa: "X", papel: "Dev" }],
-      encaminhamentos: [{ descricao: "Tarefa", responsavel: "Jean", prazo: "2026-10-01T12:00:00.000Z", status: "PENDENTE" }],
+      encaminhamentos: [
+        {
+          descricao: "Tarefa",
+          responsavel: "Jean",
+          prazo: "2026-10-01T12:00:00.000Z",
+          status: "PENDENTE",
+        },
+      ],
       links: [{ rotulo: "Release notes", url: "https://x", descricao: null }],
     })
 

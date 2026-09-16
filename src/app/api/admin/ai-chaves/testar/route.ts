@@ -29,13 +29,17 @@ export async function POST(req: NextRequest) {
       if (!existente) return NextResponse.json({ error: "Chave não encontrada" }, { status: 404 })
       chave = {
         ...existente,
-        chaveApi: body.chaveApi && body.chaveApi !== mascarar(existente.chaveApi) ? body.chaveApi : existente.chaveApi,
+        chaveApi:
+          body.chaveApi && body.chaveApi !== mascarar(existente.chaveApi)
+            ? body.chaveApi
+            : existente.chaveApi,
       }
     } else {
       chave = body
     }
 
-    if (!chave?.chaveApi) return NextResponse.json({ error: "chaveApi é obrigatório" }, { status: 400 })
+    if (!chave?.chaveApi)
+      return NextResponse.json({ error: "chaveApi é obrigatório" }, { status: 400 })
 
     const resultado = await testarChave(chave)
     return NextResponse.json(resultado)

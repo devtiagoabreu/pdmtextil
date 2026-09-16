@@ -114,9 +114,7 @@ export default function PesquisaSatisfacaoPage() {
           <div className="rounded-full bg-green-100 dark:bg-green-950/50 w-16 h-16 flex items-center justify-center mx-auto mb-4">
             <CheckCircle2 size={32} className="text-green-600 dark:text-green-400" />
           </div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50 mb-2">
-            Obrigado!
-          </h1>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50 mb-2">Obrigado!</h1>
           <p className="text-sm text-slate-500 dark:text-slate-400">
             Sua resposta foi registrada com sucesso. Sua opiniao e muito importante para nos!
           </p>
@@ -169,7 +167,9 @@ export default function PesquisaSatisfacaoPage() {
                       <button
                         key={star}
                         type="button"
-                        onClick={() => setRespostas((prev) => ({ ...prev, [pergunta.id]: String(star) }))}
+                        onClick={() =>
+                          setRespostas((prev) => ({ ...prev, [pergunta.id]: String(star) }))
+                        }
                         className="p-1 transition-transform hover:scale-110"
                       >
                         <Star
@@ -191,7 +191,9 @@ export default function PesquisaSatisfacaoPage() {
                 ) : pergunta.tipo === "ABERTA" ? (
                   <textarea
                     value={respostas[pergunta.id] || ""}
-                    onChange={(e) => setRespostas((prev) => ({ ...prev, [pergunta.id]: e.target.value }))}
+                    onChange={(e) =>
+                      setRespostas((prev) => ({ ...prev, [pergunta.id]: e.target.value }))
+                    }
                     rows={3}
                     placeholder="Digite sua observacao..."
                     className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"

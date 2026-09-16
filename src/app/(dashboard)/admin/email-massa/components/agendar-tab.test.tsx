@@ -79,7 +79,7 @@ describe("AgendarTab", () => {
         onNovoDisparo={vi.fn()}
         onEnviarAgendado={vi.fn()}
         disparoProgresso={null}
-      />,
+      />
     )
 
     expect(await screen.findByText("07.08 | Feira Equipotel")).toBeInTheDocument()
@@ -95,12 +95,14 @@ describe("AgendarTab", () => {
         onNovoDisparo={vi.fn()}
         onEnviarAgendado={onEnviarAgendado}
         disparoProgresso={null}
-      />,
+      />
     )
 
     await screen.findByText("07.08 | Feira Equipotel")
     fireEvent.click(screen.getByRole("button", { name: /Enviar agora/ }))
-    expect(onEnviarAgendado).toHaveBeenCalledWith(expect.objectContaining({ id: 4, status: "agendado" }))
+    expect(onEnviarAgendado).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 4, status: "agendado" })
+    )
   })
 
   it("mostra a barra de progresso quando há envio em andamento", async () => {
@@ -110,7 +112,7 @@ describe("AgendarTab", () => {
         onNovoDisparo={vi.fn()}
         onEnviarAgendado={vi.fn()}
         disparoProgresso={progresso}
-      />,
+      />
     )
 
     await screen.findByText("07.08 | Feira Equipotel")
@@ -129,20 +131,27 @@ describe("AgendarTab", () => {
         onNovoDisparo={vi.fn()}
         onEnviarAgendado={vi.fn()}
         disparoProgresso={null}
-      />,
+      />
     )
 
     await screen.findByText("07.08 | Feira Equipotel")
     fireEvent.click(screen.getByRole("button", { name: /Reutilizar/ }))
-    expect(onCarregarNoEditor).toHaveBeenCalledWith(expect.objectContaining({ id: 6, status: "enviado" }))
-    expect(screen.getByRole("button", { name: "Excluir 07.08 | Feira Equipotel" })).toBeInTheDocument()
+    expect(onCarregarNoEditor).toHaveBeenCalledWith(
+      expect.objectContaining({ id: 6, status: "enviado" })
+    )
+    expect(
+      screen.getByRole("button", { name: "Excluir 07.08 | Feira Equipotel" })
+    ).toBeInTheDocument()
   })
 
   it("exclui o rascunho via modal de confirmação e refaz o fetch", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
-      if (method === "GET" && url === "/api/admin/email-massa/agendados") return { json: [agendado, rascunho] }
-      if (method === "POST" && url === "/api/admin/email-massa/agendados/executar") return { json: { executados: 0 } }
-      if (method === "DELETE" && url === "/api/admin/email-massa/agendados/5") return { json: { success: true } }
+      if (method === "GET" && url === "/api/admin/email-massa/agendados")
+        return { json: [agendado, rascunho] }
+      if (method === "POST" && url === "/api/admin/email-massa/agendados/executar")
+        return { json: { executados: 0 } }
+      if (method === "DELETE" && url === "/api/admin/email-massa/agendados/5")
+        return { json: { success: true } }
       return { json: null }
     })
     vi.stubGlobal("fetch", fetchMock.fn)
@@ -152,7 +161,7 @@ describe("AgendarTab", () => {
         onNovoDisparo={vi.fn()}
         onEnviarAgendado={vi.fn()}
         disparoProgresso={null}
-      />,
+      />
     )
 
     await screen.findByText("Rascunho 1")
@@ -162,6 +171,10 @@ describe("AgendarTab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Excluir" }))
 
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Excluído"))
-    expect(fetchMock.calls.some((c) => c.method === "DELETE" && c.url === "/api/admin/email-massa/agendados/5")).toBe(true)
+    expect(
+      fetchMock.calls.some(
+        (c) => c.method === "DELETE" && c.url === "/api/admin/email-massa/agendados/5"
+      )
+    ).toBe(true)
   })
 })

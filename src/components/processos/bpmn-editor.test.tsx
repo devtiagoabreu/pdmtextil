@@ -75,7 +75,9 @@ describe("BpmnEditor", () => {
     expect(screen.getByText("BPMN 2.0 (bpmn-js)")).toBeInTheDocument()
     await waitFor(() => expect(ModelerFake.instancia).not.toBeNull())
     expect(container.querySelector(".pdm-bpmn")).toBeTruthy()
-    expect(container.querySelector(".pdm-bpmn [data-escuro]")?.getAttribute("data-escuro")).toBe("false")
+    expect(container.querySelector(".pdm-bpmn [data-escuro]")?.getAttribute("data-escuro")).toBe(
+      "false"
+    )
   })
 
   it("alterna o fundo do canvas entre claro e escuro", async () => {
@@ -95,7 +97,9 @@ describe("BpmnEditor", () => {
   it("abre o painel de estilos manualmente via botão", () => {
     render(<BpmnEditor xml={XML} onChange={() => {}} />)
     fireEvent.click(screen.getByRole("button", { name: "Painel de estilos" }))
-    expect(screen.getByText("Selecione uma forma ou conexão para editar seus estilos.")).toBeInTheDocument()
+    expect(
+      screen.getByText("Selecione uma forma ou conexão para editar seus estilos.")
+    ).toBeInTheDocument()
   })
 
   it("abre o painel automaticamente ao selecionar um elemento", async () => {
@@ -112,7 +116,9 @@ describe("BpmnEditor", () => {
     act(() => selecionar(ElementoBpmn))
     await screen.findByText("Preenchimento")
 
-    fireEvent.change(screen.getByLabelText("Cor de preenchimento"), { target: { value: "#00ff00" } })
+    fireEvent.change(screen.getByLabelText("Cor de preenchimento"), {
+      target: { value: "#00ff00" },
+    })
     expect(modeling.setColor).toHaveBeenCalledWith(ElementoBpmn, {
       fill: "#00ff00",
       stroke: undefined,

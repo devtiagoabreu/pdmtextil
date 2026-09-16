@@ -15,8 +15,24 @@ describe("NovaOportunidadePage", () => {
       if (method === "GET" && url === "/api/admin/status?tipo=OPORTUNIDADE") {
         return {
           json: [
-            { id: 1, nome: "NOVO", rotulo: "Novo", tipo: "OPORTUNIDADE", cor: "#3b82f6", ordem: 1, ativo: true },
-            { id: 2, nome: "NEGOCIACAO", rotulo: "Negociação", tipo: "OPORTUNIDADE", cor: "#f97316", ordem: 4, ativo: true },
+            {
+              id: 1,
+              nome: "NOVO",
+              rotulo: "Novo",
+              tipo: "OPORTUNIDADE",
+              cor: "#3b82f6",
+              ordem: 1,
+              ativo: true,
+            },
+            {
+              id: 2,
+              nome: "NEGOCIACAO",
+              rotulo: "Negociação",
+              tipo: "OPORTUNIDADE",
+              cor: "#f97316",
+              ordem: 4,
+              ativo: true,
+            },
           ],
         }
       }
@@ -54,8 +70,12 @@ describe("NovaOportunidadePage", () => {
     await screen.findByRole("heading", { name: "Nova Oportunidade" })
     fireEvent.click(screen.getByRole("button", { name: /Pessoa/i }))
 
-    expect(findCall(fetchMock.calls, "/api/usuarios/ativos?role=COMERCIAL,ADMIN,SUDO", "GET")).toBeDefined()
-    await waitFor(() => expect(screen.getByRole("option", { name: "Ana Vendas" })).toBeInTheDocument())
+    expect(
+      findCall(fetchMock.calls, "/api/usuarios/ativos?role=COMERCIAL,ADMIN,SUDO", "GET")
+    ).toBeDefined()
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Ana Vendas" })).toBeInTheDocument()
+    )
   })
 
   it("valida Título obrigatório", async () => {
@@ -76,9 +96,15 @@ describe("NovaOportunidadePage", () => {
       target: { value: "Venda de malha 100% algodão" },
     })
 
-    await waitFor(() => expect(screen.getByRole("option", { name: "Tecelagem Alpha" })).toBeInTheDocument())
-    await waitFor(() => expect(screen.getByRole("option", { name: "Carlos Lead" })).toBeInTheDocument())
-    await waitFor(() => expect(screen.getByRole("option", { name: "Ana Vendas" })).toBeInTheDocument())
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Tecelagem Alpha" })).toBeInTheDocument()
+    )
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Carlos Lead" })).toBeInTheDocument()
+    )
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Ana Vendas" })).toBeInTheDocument()
+    )
     await waitFor(() => expect(screen.getByRole("option", { name: "NOVO" })).toBeInTheDocument())
 
     const selects = screen.getAllByRole("combobox")
@@ -87,7 +113,9 @@ describe("NovaOportunidadePage", () => {
     fireEvent.change(selects[2], { target: { value: "3" } })
 
     fireEvent.change(screen.getByPlaceholderText("R$ 0,00"), { target: { value: "5000" } })
-    fireEvent.change(container.querySelector('input[type="date"]')!, { target: { value: "2026-08-30" } })
+    fireEvent.change(container.querySelector('input[type="date"]')!, {
+      target: { value: "2026-08-30" },
+    })
     fireEvent.change(screen.getAllByRole("spinbutton")[1], { target: { value: "50" } })
     fireEvent.change(screen.getByPlaceholderText("Detalhes da oportunidade..."), {
       target: { value: "Cliente quer 5 toneladas de malha" },
@@ -111,7 +139,9 @@ describe("NovaOportunidadePage", () => {
         status: "NOVO",
       })
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Oportunidade criada com sucesso"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Oportunidade criada com sucesso")
+    )
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/crm/oportunidades")
   })
 
@@ -142,7 +172,9 @@ describe("NovaOportunidadePage", () => {
         status: "NOVO",
       })
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Oportunidade criada com sucesso"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Oportunidade criada com sucesso")
+    )
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/crm/oportunidades")
   })
 })

@@ -6,10 +6,16 @@ import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { produtosCru } from "@/lib/db/schema/produto-cru"
 import { eq, desc, and, or, sql } from "drizzle-orm"
 
-async function getEntidadeResponsavel(entidadeTipo: string, entidadeId: number): Promise<number | null> {
+async function getEntidadeResponsavel(
+  entidadeTipo: string,
+  entidadeId: number
+): Promise<number | null> {
   if (entidadeTipo === "SOLICITACAO") {
     const [row] = await db
-      .select({ responsavelId: solicitacoes.responsavelId, solicitanteId: solicitacoes.solicitanteId })
+      .select({
+        responsavelId: solicitacoes.responsavelId,
+        solicitanteId: solicitacoes.solicitanteId,
+      })
       .from(solicitacoes)
       .where(eq(solicitacoes.id, entidadeId))
       .limit(1)
@@ -41,10 +47,7 @@ export async function GET(req: NextRequest) {
         .select()
         .from(chats)
         .where(
-          and(
-            eq(chats.entidadeTipo, entidadeTipo),
-            eq(chats.entidadeId, parseInt(entidadeId))
-          )
+          and(eq(chats.entidadeTipo, entidadeTipo), eq(chats.entidadeId, parseInt(entidadeId)))
         )
         .limit(1)
       return NextResponse.json(result[0] || null)
@@ -135,8 +138,13 @@ export async function POST(req: NextRequest) {
         participantes.push(responsavelId)
       }
     } else if (destinatarios === "todos") {
-      const todos = await db.select({ id: usuarios.id }).from(usuarios).where(sql`ativo = true`)
-      todos.forEach((u: any) => { if (u.id !== userId) participantes.push(u.id) })
+      const todos = await db
+        .select({ id: usuarios.id })
+        .from(usuarios)
+        .where(sql`ativo = true`)
+      todos.forEach((u: any) => {
+        if (u.id !== userId) participantes.push(u.id)
+      })
     } else if (Array.isArray(destinatarios)) {
       participantes.push(...destinatarios.filter((id: number) => id !== userId))
     }
@@ -154,9 +162,9 @@ export async function POST(req: NextRequest) {
 
     const todosParticipantes = [userId, ...participantes]
     if (todosParticipantes.length > 0) {
-      await db.insert(chatParticipantes).values(
-        todosParticipantes.map((uid: any) => ({ chatId: chat.id, usuarioId: uid }))
-      )
+      await db
+        .insert(chatParticipantes)
+        .values(todosParticipantes.map((uid: any) => ({ chatId: chat.id, usuarioId: uid })))
     }
 
     const [msg] = await db

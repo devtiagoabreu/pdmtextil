@@ -80,7 +80,9 @@ describe("ContatosPage exclusão", () => {
       const call = findCall(fetchMock.calls, "/api/crm/contatos/1", "DELETE")
       expect(call).toBeDefined()
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith('Contato "Carlos Silva" excluído'))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith('Contato "Carlos Silva" excluído')
+    )
   })
 
   it("não mostra o botão de excluir para não-administradores", async () => {

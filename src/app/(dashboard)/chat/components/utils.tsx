@@ -17,5 +17,5 @@ export function renderMensagem(texto: string, allUsers: { id: number; name: stri
 }
 
 export function isWithin5Min(data: string) {
-  return (Date.now() - new Date(data).getTime()) < 5 * 60 * 1000
+  return Date.now() - new Date(data).getTime() < 5 * 60 * 1000
 }

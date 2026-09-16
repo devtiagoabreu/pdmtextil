@@ -48,7 +48,11 @@ export async function POST(req: NextRequest) {
     if ("error" in parsed) return parsed.error
     const { password, ...userData } = parsed.data
 
-    const existente = await db.select().from(usuarios).where(eq(usuarios.email, userData.email)).limit(1)
+    const existente = await db
+      .select()
+      .from(usuarios)
+      .where(eq(usuarios.email, userData.email))
+      .limit(1)
     if (existente.length > 0) {
       return NextResponse.json({ error: "Email já cadastrado" }, { status: 400 })
     }
@@ -66,7 +70,13 @@ export async function POST(req: NextRequest) {
       })
       .returning()
 
-    return NextResponse.json({ id: novo.id, email: novo.email, name: novo.name, role: novo.role, celWhatsapp: novo.celWhatsapp })
+    return NextResponse.json({
+      id: novo.id,
+      email: novo.email,
+      name: novo.name,
+      role: novo.role,
+      celWhatsapp: novo.celWhatsapp,
+    })
   } catch (error) {
     return handleApiError(error, "POST /api/admin/usuarios", session?.user?.name)
   }

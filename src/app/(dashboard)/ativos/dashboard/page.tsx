@@ -1,7 +1,15 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { Package, Layers, Calendar, ClipboardList, Clock, AlertTriangle, Loader2 } from "lucide-react"
+import {
+  Package,
+  Layers,
+  Calendar,
+  ClipboardList,
+  Clock,
+  AlertTriangle,
+  Loader2,
+} from "lucide-react"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -25,7 +33,13 @@ interface DashboardData {
     atrasadas: number
   }
   proximas: ProximaVistoria[]
-  compliancePorArea: Array<{ areaId: number | null; areaNome: string; total: number; conformes: number; percentual: number }>
+  compliancePorArea: Array<{
+    areaId: number | null
+    areaNome: string
+    total: number
+    conformes: number
+    percentual: number
+  }>
 }
 
 const STATUS_BADGE: Record<string, string> = {
@@ -93,18 +107,31 @@ export default function AtivosDashboardPage() {
             className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 flex items-center justify-between"
           >
             <div className="flex items-center gap-3">
-              <div className={`h-10 w-10 rounded-lg flex items-center justify-center ${
-                destaque && value > 0
-                  ? "bg-red-100 dark:bg-red-900/30"
-                  : "bg-slate-100 dark:bg-slate-800"
-              }`}>
-                <Icon size={20} className={destaque && value > 0 ? "text-red-600 dark:text-red-400" : "text-slate-600 dark:text-slate-300"} />
+              <div
+                className={`h-10 w-10 rounded-lg flex items-center justify-center ${
+                  destaque && value > 0
+                    ? "bg-red-100 dark:bg-red-900/30"
+                    : "bg-slate-100 dark:bg-slate-800"
+                }`}
+              >
+                <Icon
+                  size={20}
+                  className={
+                    destaque && value > 0
+                      ? "text-red-600 dark:text-red-400"
+                      : "text-slate-600 dark:text-slate-300"
+                  }
+                />
               </div>
               <span className="text-sm text-slate-600 dark:text-slate-300">{label}</span>
             </div>
-            <span className={`text-2xl font-bold ${
-              destaque && value > 0 ? "text-red-600 dark:text-red-400" : "text-slate-900 dark:text-slate-50"
-            }`}>
+            <span
+              className={`text-2xl font-bold ${
+                destaque && value > 0
+                  ? "text-red-600 dark:text-red-400"
+                  : "text-slate-900 dark:text-slate-50"
+              }`}
+            >
               {value}
             </span>
           </div>
@@ -121,16 +148,29 @@ export default function AtivosDashboardPage() {
           <table className="w-full">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Área</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Total</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Conformes</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Percentual</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Área
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Total
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Conformes
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Percentual
+                </th>
               </tr>
             </thead>
             <tbody>
               {compliancePorArea.map((item) => (
-                <tr key={item.areaId ?? item.areaNome} className="border-b border-slate-100 dark:border-slate-800">
-                  <td className="p-4 text-sm font-medium text-slate-900 dark:text-slate-50">{item.areaNome}</td>
+                <tr
+                  key={item.areaId ?? item.areaNome}
+                  className="border-b border-slate-100 dark:border-slate-800"
+                >
+                  <td className="p-4 text-sm font-medium text-slate-900 dark:text-slate-50">
+                    {item.areaNome}
+                  </td>
                   <td className="p-4 text-sm text-slate-500">{item.total}</td>
                   <td className="p-4 text-sm text-slate-500">{item.conformes}</td>
                   <td className="p-4">
@@ -138,7 +178,11 @@ export default function AtivosDashboardPage() {
                       <div className="h-2 flex-1 rounded-full bg-slate-100 dark:bg-slate-800 overflow-hidden">
                         <div
                           className={`h-full rounded-full ${
-                            item.percentual >= 80 ? "bg-green-500" : item.percentual >= 50 ? "bg-yellow-500" : "bg-red-500"
+                            item.percentual >= 80
+                              ? "bg-green-500"
+                              : item.percentual >= 50
+                                ? "bg-yellow-500"
+                                : "bg-red-500"
                           }`}
                           style={{ width: `${item.percentual}%` }}
                         />
@@ -166,23 +210,37 @@ export default function AtivosDashboardPage() {
             <table className="w-full">
               <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
                 <tr>
-                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Data Programada</th>
-                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ativo</th>
-                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Tipo de Vistoria</th>
-                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                    Data Programada
+                  </th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                    Ativo
+                  </th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                    Tipo de Vistoria
+                  </th>
+                  <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                    Status
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {proximas.map((v) => (
                   <tr key={v.id} className="border-b border-slate-100 dark:border-slate-800">
-                    <td className="p-4 text-sm text-slate-600 dark:text-slate-300">{formatarData(v.dataProgramada)}</td>
+                    <td className="p-4 text-sm text-slate-600 dark:text-slate-300">
+                      {formatarData(v.dataProgramada)}
+                    </td>
                     <td className="p-4 text-sm font-medium text-slate-900 dark:text-slate-50">
                       {v.ativoNome}
-                      {v.ativoCodigo && <span className="text-slate-400 ml-2">{v.ativoCodigo}</span>}
+                      {v.ativoCodigo && (
+                        <span className="text-slate-400 ml-2">{v.ativoCodigo}</span>
+                      )}
                     </td>
                     <td className="p-4 text-sm text-slate-500">{v.tipoVistoriaNome}</td>
                     <td className="p-4">
-                      <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[v.status] || "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}>
+                      <span
+                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_BADGE[v.status] || "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}
+                      >
                         {v.status}
                       </span>
                     </td>

@@ -10,10 +10,7 @@ export async function GET() {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
     const { session } = auth
-    const lista = await db
-      .select()
-      .from(basesUrdume)
-      .orderBy(basesUrdume.nome)
+    const lista = await db.select().from(basesUrdume).orderBy(basesUrdume.nome)
 
     return NextResponse.json(lista)
   } catch (error) {
@@ -23,8 +20,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const auth = await requireAuth()
-  const session = (auth instanceof NextResponse) ? null : auth.session
-  const userIdResult = (auth instanceof NextResponse) ? null : auth.userId
+  const session = auth instanceof NextResponse ? null : auth.session
+  const userIdResult = auth instanceof NextResponse ? null : auth.userId
   try {
     if (auth instanceof NextResponse) return auth
 

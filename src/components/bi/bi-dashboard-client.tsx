@@ -35,7 +35,11 @@ export function BiDashboardClient() {
 
   const queryClient = useQueryClient()
 
-  const { data: sheetData, isLoading: sheetLoading, error: sheetError } = useQuery<any>({
+  const {
+    data: sheetData,
+    isLoading: sheetLoading,
+    error: sheetError,
+  } = useQuery<any>({
     queryKey: ["bi-sheet", sheetId, dataInicial, dataFinal],
     queryFn: async ({ queryKey }) => {
       const [, id, de, ate] = queryKey as [string, string, string, string]
@@ -94,13 +98,16 @@ export function BiDashboardClient() {
     }
   }, [sheetData])
 
-  const fetchSheetData = useCallback((id: string, period?: { de?: string; ate?: string }) => {
-    setDataInicial(period?.de || "")
-    setDataFinal(period?.ate || "")
-    setSheetId(id)
-    setError("")
-    queryClient.refetchQueries({ queryKey: ["bi-sheet"] })
-  }, [queryClient])
+  const fetchSheetData = useCallback(
+    (id: string, period?: { de?: string; ate?: string }) => {
+      setDataInicial(period?.de || "")
+      setDataFinal(period?.ate || "")
+      setSheetId(id)
+      setError("")
+      queryClient.refetchQueries({ queryKey: ["bi-sheet"] })
+    },
+    [queryClient]
+  )
 
   const periodQs = () => {
     const p = new URLSearchParams()
@@ -141,7 +148,12 @@ export function BiDashboardClient() {
   }
 
   const handleSaveTtl = async () => {
-    if (ttlMinutos === null || !Number.isFinite(ttlMinutos) || ttlMinutos < 1 || ttlMinutos > 1440) {
+    if (
+      ttlMinutos === null ||
+      !Number.isFinite(ttlMinutos) ||
+      ttlMinutos < 1 ||
+      ttlMinutos > 1440
+    ) {
       setConfigMsg("Valor inválido (1–1440 min)")
       return
     }
@@ -169,7 +181,9 @@ export function BiDashboardClient() {
     if (!produto || !sheetId) return
     setLoadingClientes(true)
     try {
-      const res = await fetch(`/api/bi/${sheetId}/produto/${encodeURIComponent(produto)}/clientes${periodQs()}`)
+      const res = await fetch(
+        `/api/bi/${sheetId}/produto/${encodeURIComponent(produto)}/clientes${periodQs()}`
+      )
       if (!res.ok) throw new Error("Erro ao buscar clientes")
       const data = await res.json()
       setClientesData(data.clientes || [])
@@ -186,7 +200,9 @@ export function BiDashboardClient() {
     if (!grupo || !sheetId) return
     setLoadingClientes(true)
     try {
-      const res = await fetch(`/api/bi/${sheetId}/grupo/${encodeURIComponent(grupo)}/clientes${periodQs()}`)
+      const res = await fetch(
+        `/api/bi/${sheetId}/grupo/${encodeURIComponent(grupo)}/clientes${periodQs()}`
+      )
       if (!res.ok) throw new Error("Erro ao buscar clientes")
       const data = await res.json()
       setClientesData(data.clientes || [])
@@ -230,11 +246,7 @@ export function BiDashboardClient() {
       />
 
       {sheetData && (
-        <PeriodBar
-          dataInicial={dataInicial}
-          dataFinal={dataFinal}
-          onApplyPeriod={applyPeriod}
-        />
+        <PeriodBar dataInicial={dataInicial} dataFinal={dataFinal} onApplyPeriod={applyPeriod} />
       )}
 
       {sheetData && (
@@ -252,7 +264,11 @@ export function BiDashboardClient() {
           {activeTab === "representantes" && <RepresentantesTab sheetData={sheetData} />}
 
           {activeTab === "clientes" && (
-            <ClientesTab sheetData={sheetData} filtroClientes={filtroClientes} setFiltroClientes={setFiltroClientes} />
+            <ClientesTab
+              sheetData={sheetData}
+              filtroClientes={filtroClientes}
+              setFiltroClientes={setFiltroClientes}
+            />
           )}
 
           {activeTab === "produto" && (

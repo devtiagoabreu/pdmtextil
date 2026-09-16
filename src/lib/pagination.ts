@@ -29,7 +29,10 @@ export function getPaginationParams(
   }
 }
 
-export function cursorCondition(table: { id: any }, cursor: number | undefined): SQLWrapper | undefined {
+export function cursorCondition(
+  table: { id: any },
+  cursor: number | undefined
+): SQLWrapper | undefined {
   if (!cursor) return undefined
   return gt(table.id, cursor)
 }

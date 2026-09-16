@@ -14,12 +14,16 @@ vi.mock("@/lib/auth", () => ({
 
 describe("BiPage", () => {
   it("renderiza o heading", async () => {
-    const fetchMock = createFetchMock(routeJson({
-      "GET /api/bi/config": { ttlMinutos: 30 },
-    }))
+    const fetchMock = createFetchMock(
+      routeJson({
+        "GET /api/bi/config": { ttlMinutos: 30 },
+      })
+    )
     vi.stubGlobal("fetch", fetchMock.fn)
     const element = await BiPage()
     renderPage(element)
-    expect(await screen.findByRole("heading", { name: /BI - Business Intelligence/ })).toBeInTheDocument()
+    expect(
+      await screen.findByRole("heading", { name: /BI - Business Intelligence/ })
+    ).toBeInTheDocument()
   })
 })

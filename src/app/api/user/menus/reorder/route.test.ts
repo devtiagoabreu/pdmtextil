@@ -19,7 +19,7 @@ function patch(body: unknown) {
       method: "PATCH",
       body: JSON.stringify(body),
       headers: { "Content-Type": "application/json" },
-    }),
+    })
   )
 }
 
@@ -34,7 +34,13 @@ function extractParamValues(node: any, out: any[] = []): any[] {
   if (node == null || typeof node !== "object") return out
   if (Array.isArray(node.queryChunks)) {
     for (const chunk of node.queryChunks) {
-      if (chunk && typeof chunk === "object" && "value" in chunk && chunk.value !== null && typeof chunk.value !== "object") {
+      if (
+        chunk &&
+        typeof chunk === "object" &&
+        "value" in chunk &&
+        chunk.value !== null &&
+        typeof chunk.value !== "object"
+      ) {
         out.push(chunk.value)
       }
       extractParamValues(chunk, out)
@@ -51,7 +57,7 @@ describe("PATCH /api/user/menus/reorder", () => {
 
   it("retorna 401 quando não autenticado", async () => {
     vi.mocked(requireAuth).mockResolvedValue(
-      NextResponse.json({ error: "Não autorizado" }, { status: 401 }) as any,
+      NextResponse.json({ error: "Não autorizado" }, { status: 401 }) as any
     )
     const res = await patch({ ids: [1] })
     expect(res.status).toBe(401)
@@ -77,7 +83,7 @@ describe("PATCH /api/user/menus/reorder", () => {
         { id: 100, usuarioId: 16, titulo: "A" },
         { id: 101, usuarioId: 16, titulo: "B" },
       ],
-      [],
+      []
     )
 
     const res = await patch({ ids: [101, 100] })
@@ -97,7 +103,7 @@ describe("PATCH /api/user/menus/reorder", () => {
 
     let seq = 500
     db.insert = vi.fn((table: any) =>
-      createQueryBuilder(table === userMenus ? [{ id: seq++ }] : undefined),
+      createQueryBuilder(table === userMenus ? [{ id: seq++ }] : undefined)
     )
 
     mockSelectSequence(
@@ -114,7 +120,7 @@ describe("PATCH /api/user/menus/reorder", () => {
         { id: 500, usuarioId: 16, titulo: "CRM" },
         { id: 501, usuarioId: 16, titulo: "Financeiro" },
       ],
-      [],
+      []
     )
 
     const res = await patch({ ids: [50, 51] })
@@ -123,7 +129,7 @@ describe("PATCH /api/user/menus/reorder", () => {
     expect(data).toHaveLength(2)
 
     const menuInserts = db.insert.mock.results.filter(
-      (r: any) => r.value.values.mock.calls[0]?.[0]?.usuarioId === 16,
+      (r: any) => r.value.values.mock.calls[0]?.[0]?.usuarioId === 16
     )
     expect(menuInserts).toHaveLength(2)
     expect(db.insert).toHaveBeenCalledTimes(3)
@@ -155,7 +161,7 @@ describe("PATCH /api/user/menus/reorder", () => {
         { id: 39, usuarioId: 16, titulo: "CRM" },
         { id: 40, usuarioId: 16, titulo: "Financeiro" },
       ],
-      [],
+      []
     )
 
     const res = await patch({ ids: [50, 51] })

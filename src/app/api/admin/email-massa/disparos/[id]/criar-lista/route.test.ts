@@ -94,15 +94,14 @@ describe("POST /api/admin/email-massa/disparos/[id]/criar-lista", () => {
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data).toEqual({ listaId: 7, nome: "Lidos Equipotel", total: 2 })
-    expect(db.insert).toHaveBeenNthCalledWith(
-      1,
-      expect.anything()
-    )
+    expect(db.insert).toHaveBeenNthCalledWith(1, expect.anything())
   })
 
   it("cria lista de clicados usando selectDistinct com join", async () => {
     db.select = vi.fn(() => createQueryBuilder([disparo]))
-    db.selectDistinct = vi.fn(() => createQueryBuilder([{ nome: "Ana Souza", email: "ana@empresa.com" }]))
+    db.selectDistinct = vi.fn(() =>
+      createQueryBuilder([{ nome: "Ana Souza", email: "ana@empresa.com" }])
+    )
     db.insert = vi.fn()
     db.insert.mockImplementationOnce(() => createQueryBuilder([{ id: 8, nome: "Clicados" }]))
     db.insert.mockImplementationOnce(() => createQueryBuilder([{ id: 1 }]))
@@ -116,7 +115,9 @@ describe("POST /api/admin/email-massa/disparos/[id]/criar-lista", () => {
   it("cria lista de falhas", async () => {
     db.select = vi.fn()
     db.select.mockImplementationOnce(() => createQueryBuilder([disparo]))
-    db.select.mockImplementationOnce(() => createQueryBuilder([{ nome: "Carla Dias", email: "carla@empresa.com" }]))
+    db.select.mockImplementationOnce(() =>
+      createQueryBuilder([{ nome: "Carla Dias", email: "carla@empresa.com" }])
+    )
     db.insert = vi.fn()
     db.insert.mockImplementationOnce(() => createQueryBuilder([{ id: 9, nome: "Falhas" }]))
     db.insert.mockImplementationOnce(() => createQueryBuilder([{ id: 1 }]))

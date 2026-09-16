@@ -86,7 +86,12 @@ export async function POST(req: NextRequest) {
       usuarioNome: session.user.name,
     })
 
-    await notificar("PROC_PROCESSO_CRIADO", `Processo cadastrado: ${novo.nome}`, `/processos/processos/${novo.id}`, session.user.name)
+    await notificar(
+      "PROC_PROCESSO_CRIADO",
+      `Processo cadastrado: ${novo.nome}`,
+      `/processos/processos/${novo.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(novo, { status: 201 })
   } catch (error) {

@@ -55,7 +55,16 @@ export async function POST(req: NextRequest) {
     if (auth instanceof NextResponse) return auth
 
     const body = await req.json()
-    const { moduloId, titulo, conteudoMd, preRequisitos, linksPop, linksVideo, pathnameRelacionado, ordem } = body
+    const {
+      moduloId,
+      titulo,
+      conteudoMd,
+      preRequisitos,
+      linksPop,
+      linksVideo,
+      pathnameRelacionado,
+      ordem,
+    } = body
 
     if (!moduloId || !titulo) {
       return NextResponse.json({ error: "moduloId e titulo são obrigatórios" }, { status: 400 })

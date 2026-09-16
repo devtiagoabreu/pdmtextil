@@ -26,10 +26,7 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
 
     // Se não pertence ao usuário, é role-based → fork
     if (!menu) {
-      const [roleMenu] = await db
-        .select()
-        .from(userMenus)
-        .where(eq(userMenus.id, menuId))
+      const [roleMenu] = await db.select().from(userMenus).where(eq(userMenus.id, menuId))
 
       if (!roleMenu || roleMenu.usuarioId !== null || !roleMenu.role) {
         return NextResponse.json({ error: "Menu não encontrado" }, { status: 404 })
@@ -80,10 +77,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
 
     // Se não pertence ao usuário, é role-based → fork
     if (!menu) {
-      const [roleMenu] = await db
-        .select()
-        .from(userMenus)
-        .where(eq(userMenus.id, menuId))
+      const [roleMenu] = await db.select().from(userMenus).where(eq(userMenus.id, menuId))
 
       if (!roleMenu || roleMenu.usuarioId !== null || !roleMenu.role) {
         return NextResponse.json({ error: "Menu não encontrado" }, { status: 404 })
@@ -94,9 +88,7 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       if (!newId) return NextResponse.json({ error: "Menu não encontrado" }, { status: 404 })
 
       // Deleta o menu recém-forkado
-      await db
-        .delete(userMenus)
-        .where(eq(userMenus.id, newId))
+      await db.delete(userMenus).where(eq(userMenus.id, newId))
 
       return NextResponse.json({ success: true })
     }

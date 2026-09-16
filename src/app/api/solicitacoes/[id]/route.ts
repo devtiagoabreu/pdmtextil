@@ -8,16 +8,13 @@ import { notificar, notificarDelecao, registrarLog } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 export const dynamic = "force-dynamic"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
     const { id } = await params
-    
+
     const resultado = await db
       .select()
       .from(solicitacoes)
@@ -29,7 +26,10 @@ export async function GET(
     }
 
     const solicitacao = resultado[0]
-    const anexosResult = await db.select().from(anexos).where(eq(anexos.solicitacaoId, parseInt(id)))
+    const anexosResult = await db
+      .select()
+      .from(anexos)
+      .where(eq(anexos.solicitacaoId, parseInt(id)))
     const data = {
       ...solicitacao,
       anexos: anexosResult,
@@ -42,10 +42,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -67,18 +64,21 @@ export async function PUT(
 
     const solicitacaoAntiga = resultado[0]
     const historicoAntigo: any[] = (solicitacaoAntiga.historicoComunicacao as any[]) || []
-    
+
     const alteracoes: string[] = []
     if (body.cliente && body.cliente !== solicitacaoAntiga.cliente) {
       alteracoes.push(`Cliente: ${solicitacaoAntiga.cliente} → ${body.cliente}`)
     }
     if (body.projeto !== undefined && body.projeto !== solicitacaoAntiga.projeto) {
-      alteracoes.push(`Projeto: ${solicitacaoAntiga.projeto || '-'} → ${body.projeto || '-'}`)
+      alteracoes.push(`Projeto: ${solicitacaoAntiga.projeto || "-"} → ${body.projeto || "-"}`)
     }
     if (body.status && body.status !== solicitacaoAntiga.status) {
       alteracoes.push(`Status: ${solicitacaoAntiga.status} → ${body.status}`)
     }
-    if (body.briefing && JSON.stringify(body.briefing) !== JSON.stringify(solicitacaoAntiga.briefing)) {
+    if (
+      body.briefing &&
+      JSON.stringify(body.briefing) !== JSON.stringify(solicitacaoAntiga.briefing)
+    ) {
       alteracoes.push("Briefing atualizado")
     }
     if (body.prazoDesejado !== undefined) {
@@ -89,7 +89,7 @@ export async function PUT(
         ? new Date(body.prazoDesejado).toISOString().split("T")[0]
         : null
       if (prazoAntigoStr !== prazoNovoStr) {
-        alteracoes.push(`Prazo Desejado: ${prazoAntigoStr || '-'} → ${prazoNovoStr || '-'}`)
+        alteracoes.push(`Prazo Desejado: ${prazoAntigoStr || "-"} → ${prazoNovoStr || "-"}`)
       }
     }
 
@@ -100,7 +100,7 @@ export async function PUT(
         usuario: session.user?.name || "Usuário",
         acao: alteracoes.length > 0 ? "ALTERACAO" : "ATUALIZACAO",
         mensagens: alteracoes,
-      }
+      },
     ]
 
     // Mapeamento explícito — NUNCA use spread do body diretamente no Drizzle.
@@ -110,10 +110,10 @@ export async function PUT(
       updatedAt: new Date(),
     }
 
-    if (body.tipo !== undefined)     setValues.tipo     = body.tipo
-    if (body.cliente !== undefined)  setValues.cliente  = body.cliente
-    if (body.cnpj !== undefined)     setValues.cnpj     = cnpj
-    if (body.projeto !== undefined)  setValues.projeto  = body.projeto || null
+    if (body.tipo !== undefined) setValues.tipo = body.tipo
+    if (body.cliente !== undefined) setValues.cliente = body.cliente
+    if (body.cnpj !== undefined) setValues.cnpj = cnpj
+    if (body.projeto !== undefined) setValues.projeto = body.projeto || null
     if (body.status !== undefined) {
       setValues.status = body.status
       if (body.status === "CONCLUIDO") setValues.dataConclusao = new Date()
@@ -131,7 +131,11 @@ export async function PUT(
       .where(eq(solicitacoes.id, parseInt(id)))
       .returning()
 
-    if (body.status && body.status !== solicitacaoAntiga.status && (body.status === "APROVADO" || body.status === "REPROVADO")) {
+    if (
+      body.status &&
+      body.status !== solicitacaoAntiga.status &&
+      (body.status === "APROVADO" || body.status === "REPROVADO")
+    ) {
       await notificar(
         body.status === "APROVADO" ? "SOLICITACAO_APROVADA" : "SOLICITACAO_REPROVADA",
         `Solicitação #${id} foi ${body.status === "APROVADO" ? "aprovada" : "reprovada"} por ${session.user.name}${alteracoes.length > 0 ? ` — ${alteracoes[0]}` : ""}`,
@@ -160,14 +164,21 @@ export async function PUT(
               tipo: "LINK",
               titulo: a.nome || "Link",
               url: a.link || a.url,
-              criadoPor: parseInt(session.user?.id || "0")
+              criadoPor: parseInt(session.user?.id || "0"),
             }))
           )
         }
       }
     }
 
-    await registrarLog({ tipo: "ATUALIZACAO", acao: "atualizar_status", descricao: `Solicitação #${id} alterada para ${body.status}`, entidade: "Solicitacao", entidadeId: parseInt(id), usuarioNome: session.user.name })
+    await registrarLog({
+      tipo: "ATUALIZACAO",
+      acao: "atualizar_status",
+      descricao: `Solicitação #${id} alterada para ${body.status}`,
+      entidade: "Solicitacao",
+      entidadeId: parseInt(id),
+      usuarioNome: session.user.name,
+    })
 
     return NextResponse.json(solicitacaoAtualizada)
   } catch (error: any) {
@@ -176,27 +187,23 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     if (session.user.role !== "ADMIN" && session.user.role !== "SUDO") {
-      return NextResponse.json({ error: "Apenas administradores podem excluir solicitações" }, { status: 403 })
+      return NextResponse.json(
+        { error: "Apenas administradores podem excluir solicitações" },
+        { status: 403 }
+      )
     }
 
     const { id } = await params
     const solicitacaoId = parseInt(id)
 
-    await db
-      .delete(anexos)
-      .where(eq(anexos.solicitacaoId, solicitacaoId))
+    await db.delete(anexos).where(eq(anexos.solicitacaoId, solicitacaoId))
 
-    await db
-      .delete(solicitacoes)
-      .where(eq(solicitacoes.id, solicitacaoId))
+    await db.delete(solicitacoes).where(eq(solicitacoes.id, solicitacaoId))
 
     await notificarDelecao("Solicitação", id, session?.user?.name)
 

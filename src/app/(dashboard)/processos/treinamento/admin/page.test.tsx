@@ -15,7 +15,14 @@ const modulos = [
     ativo: true,
     createdAt: "2026-01-01",
     licoes: [
-      { id: 10, moduloId: 1, titulo: "O que é um processo", ordem: 1, ativo: true, pathnameRelacionado: "/processos" },
+      {
+        id: 10,
+        moduloId: 1,
+        titulo: "O que é um processo",
+        ordem: 1,
+        ativo: true,
+        pathnameRelacionado: "/processos",
+      },
     ],
   },
   {
@@ -34,10 +41,14 @@ const modulos = [
 function buildHandler() {
   return ({ method, url }: { method: string; url: string }) => {
     if (method === "GET" && url === "/api/processos/treinamento") return { json: modulos }
-    if (method === "POST" && url === "/api/processos/treinamento/modulos") return { status: 201, json: { id: 3 } }
-    if (method === "PUT" && url === "/api/processos/treinamento/modulos/1") return { json: { id: 1 } }
-    if (method === "DELETE" && url === "/api/processos/treinamento/10") return { json: { ok: true } }
-    if (method === "DELETE" && url === "/api/processos/treinamento/modulos/1") return { json: { ok: true } }
+    if (method === "POST" && url === "/api/processos/treinamento/modulos")
+      return { status: 201, json: { id: 3 } }
+    if (method === "PUT" && url === "/api/processos/treinamento/modulos/1")
+      return { json: { id: 1 } }
+    if (method === "DELETE" && url === "/api/processos/treinamento/10")
+      return { json: { ok: true } }
+    if (method === "DELETE" && url === "/api/processos/treinamento/modulos/1")
+      return { json: { ok: true } }
     return { json: null }
   }
 }
@@ -66,14 +77,23 @@ describe("AdminTreinamentoPage", () => {
     await screen.findByText("Visão Geral")
 
     fireEvent.click(screen.getByRole("button", { name: "Novo Módulo" }))
-    fireEvent.change(screen.getByPlaceholderText("Título do módulo"), { target: { value: "Módulo Teste" } })
-    fireEvent.change(screen.getByPlaceholderText("Descrição (opcional)"), { target: { value: "Descrição teste" } })
+    fireEvent.change(screen.getByPlaceholderText("Título do módulo"), {
+      target: { value: "Módulo Teste" },
+    })
+    fireEvent.change(screen.getByPlaceholderText("Descrição (opcional)"), {
+      target: { value: "Descrição teste" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
 
     await waitFor(() => {
       const call = findCall(fetchMock.calls, "/api/processos/treinamento/modulos", "POST")
       expect(call).toBeDefined()
-      expect(call!.body).toEqual({ titulo: "Módulo Teste", descricao: "Descrição teste", icone: "GraduationCap", cor: "#0ea5e9" })
+      expect(call!.body).toEqual({
+        titulo: "Módulo Teste",
+        descricao: "Descrição teste",
+        icone: "GraduationCap",
+        cor: "#0ea5e9",
+      })
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Módulo criado"))
   })
@@ -84,7 +104,9 @@ describe("AdminTreinamentoPage", () => {
 
     fireEvent.click(screen.getAllByTitle("Remover")[0])
 
-    await waitFor(() => expect(findCall(fetchMock.calls, "/api/processos/treinamento/10", "DELETE")).toBeDefined())
+    await waitFor(() =>
+      expect(findCall(fetchMock.calls, "/api/processos/treinamento/10", "DELETE")).toBeDefined()
+    )
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Lição removida"))
   })
 
@@ -94,7 +116,11 @@ describe("AdminTreinamentoPage", () => {
 
     fireEvent.click(screen.getAllByTitle("Remover módulo")[0])
 
-    await waitFor(() => expect(findCall(fetchMock.calls, "/api/processos/treinamento/modulos/1", "DELETE")).toBeDefined())
+    await waitFor(() =>
+      expect(
+        findCall(fetchMock.calls, "/api/processos/treinamento/modulos/1", "DELETE")
+      ).toBeDefined()
+    )
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Módulo removido"))
   })
 
@@ -104,7 +130,9 @@ describe("AdminTreinamentoPage", () => {
 
     fireEvent.click(screen.getAllByTitle("Editar módulo")[0])
     await screen.findByDisplayValue("Visão Geral")
-    fireEvent.change(screen.getByDisplayValue("Visão Geral"), { target: { value: "Visão Geral v2" } })
+    fireEvent.change(screen.getByDisplayValue("Visão Geral"), {
+      target: { value: "Visão Geral v2" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
 
     await waitFor(() => {
@@ -127,6 +155,8 @@ describe("AdminTreinamentoPage", () => {
 
     expect(screen.getByTitle("Editar")).toHaveAttribute("href", "/processos/treinamento/admin/10")
     const novas = screen.getAllByTitle("Nova lição neste módulo")
-    expect(novas.some((l) => l.getAttribute("href") === "/processos/treinamento/admin/novo?moduloId=1")).toBe(true)
+    expect(
+      novas.some((l) => l.getAttribute("href") === "/processos/treinamento/admin/novo?moduloId=1")
+    ).toBe(true)
   })
 })

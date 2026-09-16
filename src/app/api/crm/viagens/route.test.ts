@@ -20,8 +20,20 @@ vi.mock("@/lib/db", () => ({
 const sessionAdmin = { session: { user: { id: "1", role: "ADMIN", name: "Tiago" } }, userId: 1 }
 
 const viagens = [
-  { id: 1, titulo: "Feira Agritech", destinoCidade: "São Paulo", destinoUf: "SP", status: "PLANEJADA" },
-  { id: 2, titulo: "Visita ao cliente", destinoCidade: "Campinas", destinoUf: "SP", status: "CONCLUIDA" },
+  {
+    id: 1,
+    titulo: "Feira Agritech",
+    destinoCidade: "São Paulo",
+    destinoUf: "SP",
+    status: "PLANEJADA",
+  },
+  {
+    id: 2,
+    titulo: "Visita ao cliente",
+    destinoCidade: "Campinas",
+    destinoUf: "SP",
+    status: "CONCLUIDA",
+  },
 ]
 
 function get(url: string) {
@@ -46,7 +58,9 @@ describe("GET /api/crm/viagens", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await get("http://localhost/api/crm/viagens")
     expect(res.status).toBe(401)
   })
@@ -92,7 +106,9 @@ describe("POST /api/crm/viagens", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await post({ titulo: "Feira" })
     expect(res.status).toBe(401)
   })
@@ -117,7 +133,9 @@ describe("POST /api/crm/viagens", () => {
     })
     expect(res.status).toBe(201)
     expect(db.transaction).toHaveBeenCalled()
-    expect((tx.insert as ReturnType<typeof vi.fn>).mock.results[0].value.values).toHaveBeenCalledWith(
+    expect(
+      (tx.insert as ReturnType<typeof vi.fn>).mock.results[0].value.values
+    ).toHaveBeenCalledWith(
       expect.objectContaining({ titulo: "Feira Agritech", status: "PLANEJADA", criadoPor: 1 })
     )
     expect(await res.json()).toEqual({ id: 1, titulo: "Feira Agritech" })

@@ -32,7 +32,9 @@ export function LeadsCard({ empresaId }: { empresaId: string }) {
         <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Leads</h2>
         <QuickCreateLead
           empresaId={empresaId}
-          onCreated={() => queryClient.invalidateQueries({ queryKey: ["crm-pessoa-leads", empresaId] })}
+          onCreated={() =>
+            queryClient.invalidateQueries({ queryKey: ["crm-pessoa-leads", empresaId] })
+          }
         />
       </div>
       {leads.length === 0 ? (
@@ -47,7 +49,10 @@ export function LeadsCard({ empresaId }: { empresaId: string }) {
             >
               <p className="text-sm font-medium text-slate-900 dark:text-slate-100">{lead.nome}</p>
               <p className="text-xs text-slate-500 mt-0.5">
-                {lead.empresaNomeFantasia || lead.empresaRazaoSocial || lead.empresaNome || [lead.cargo, lead.celular].filter(Boolean).join(" · ")}
+                {lead.empresaNomeFantasia ||
+                  lead.empresaRazaoSocial ||
+                  lead.empresaNome ||
+                  [lead.cargo, lead.celular].filter(Boolean).join(" · ")}
               </p>
             </Link>
           ))}

@@ -1,6 +1,17 @@
 "use client"
 
-import { PieChart, Pie, Cell, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+import {
+  PieChart,
+  Pie,
+  Cell,
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts"
 import { ChartCard } from "@/components/ui/chart-card"
 import { ChartTooltip } from "@/components/ui/chart-tooltip"
 import { AnimatedLine } from "@/components/ui/animated-line"
@@ -32,8 +43,12 @@ export function ReqCorteCharts({ stats }: ReqCorteChartsProps) {
                 name: STATUS_LABELS[s.status] || s.status,
                 value: s.total,
               }))}
-              cx="50%" cy="50%" innerRadius={50} outerRadius={85}
-              dataKey="value" label={({ name, value }) => value > 0 ? `${name}: ${value}` : ""}
+              cx="50%"
+              cy="50%"
+              innerRadius={50}
+              outerRadius={85}
+              dataKey="value"
+              label={({ name, value }) => (value > 0 ? `${name}: ${value}` : "")}
               startAngle={90}
               endAngle={-270}
               animationDuration={2500}
@@ -56,7 +71,16 @@ export function ReqCorteCharts({ stats }: ReqCorteChartsProps) {
             <XAxis dataKey="mes" tick={{ fontSize: 11 }} stroke="#94a3b8" />
             <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
             <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} requisições`} />} />
-            <AnimatedLine type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 4 }} activeDot={{ r: 7, stroke: "#6366f1", strokeWidth: 2, fill: "#fff" }} drawDuration={2000} drawDelay={1100} />
+            <AnimatedLine
+              type="monotone"
+              dataKey="total"
+              stroke="#6366f1"
+              strokeWidth={2}
+              dot={{ fill: "#6366f1", r: 4 }}
+              activeDot={{ r: 7, stroke: "#6366f1", strokeWidth: 2, fill: "#fff" }}
+              drawDuration={2000}
+              drawDelay={1100}
+            />
           </LineChart>
         </ResponsiveContainer>
       </ChartCard>

@@ -66,7 +66,9 @@ describe("GET /api/user/email-config", () => {
   it("retorna a configuração sem expor a senha decifrada", async () => {
     vi.mocked(getServerSession).mockResolvedValue(session as any)
     db.select = vi.fn(() =>
-      createQueryBuilder([{ id: 1, usuarioId: 7, email: "teste@exemplo.com", senhaApp: "cripto", limiteDiario: 2000 }]),
+      createQueryBuilder([
+        { id: 1, usuarioId: 7, email: "teste@exemplo.com", senhaApp: "cripto", limiteDiario: 2000 },
+      ])
     )
     const res = await GET()
     expect(res.status).toBe(200)
@@ -97,14 +99,18 @@ describe("PUT /api/user/email-config", () => {
   it("retorna 400 quando limite diário é inválido", async () => {
     const res = await PUT(put({ email: "a@b.com", senha_app: "x", limite_diario: 10 }))
     expect(res.status).toBe(400)
-    expect(await res.json()).toEqual({ error: "Limite diário deve ser um número entre 100 e 50000" })
+    expect(await res.json()).toEqual({
+      error: "Limite diário deve ser um número entre 100 e 50000",
+    })
   })
 
   it("cria a configuração quando ainda não existe", async () => {
     vi.mocked(encrypt).mockReturnValue("cripto")
     db.select = vi.fn(() => createQueryBuilder([]))
     db.insert = vi.fn(() => createQueryBuilder(undefined))
-    const res = await PUT(put({ email: "teste@exemplo.com", senha_app: "segredo", limite_diario: 1500 }))
+    const res = await PUT(
+      put({ email: "teste@exemplo.com", senha_app: "segredo", limite_diario: 1500 })
+    )
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ success: true })
     expect(encrypt).toHaveBeenCalledWith("segredo")
@@ -115,7 +121,9 @@ describe("PUT /api/user/email-config", () => {
     vi.mocked(encrypt).mockReturnValue("cripto")
     db.select = vi.fn(() => createQueryBuilder([{ id: 1 }]))
     db.update = vi.fn(() => createQueryBuilder(undefined))
-    const res = await PUT(put({ email: "novo@exemplo.com", senha_app: "outra", limite_diario: 3000 }))
+    const res = await PUT(
+      put({ email: "novo@exemplo.com", senha_app: "outra", limite_diario: 3000 })
+    )
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ success: true })
     expect(db.update).toHaveBeenCalled()
@@ -131,7 +139,11 @@ describe("POST /api/user/email-config", () => {
 
   function mockVerify(result: "ok" | "erro") {
     const transporter = {
-      verify: vi.fn(result === "ok" ? vi.fn().mockResolvedValue(true) : vi.fn().mockRejectedValue(new Error("Invalid login"))),
+      verify: vi.fn(
+        result === "ok"
+          ? vi.fn().mockResolvedValue(true)
+          : vi.fn().mockRejectedValue(new Error("Invalid login"))
+      ),
       close: vi.fn(),
     }
     vi.mocked(nodemailer.createTransport).mockReturnValue(transporter as any)
@@ -156,7 +168,10 @@ describe("POST /api/user/email-config", () => {
     const data = await res.json()
     expect(data.success).toBe(true)
     expect(nodemailer.createTransport).toHaveBeenCalledWith(
-      expect.objectContaining({ host: "smtp.gmail.com", auth: { user: "teste@gmail.com", pass: "segredo" } })
+      expect.objectContaining({
+        host: "smtp.gmail.com",
+        auth: { user: "teste@gmail.com", pass: "segredo" },
+      })
     )
   })
 

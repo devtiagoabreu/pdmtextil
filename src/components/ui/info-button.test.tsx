@@ -11,8 +11,14 @@ const content: InfoContent = {
   rules: ["Regra 1"],
   fields: [{ name: "Título", desc: "Nome" }],
   examples: [
-    { title: "Exemplo do dia a dia", desc: "Você cadastra a oportunidade com valor estimado de R$ 120.000." },
-    { title: "Quando cada uma é usada", desc: "A proposta formaliza o orçamento com o valor cotado." },
+    {
+      title: "Exemplo do dia a dia",
+      desc: "Você cadastra a oportunidade com valor estimado de R$ 120.000.",
+    },
+    {
+      title: "Quando cada uma é usada",
+      desc: "A proposta formaliza o orçamento com o valor cotado.",
+    },
   ],
 }
 

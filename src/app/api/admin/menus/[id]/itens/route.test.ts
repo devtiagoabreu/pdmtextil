@@ -19,7 +19,7 @@ function post(body: unknown, menuId = "5") {
       body: JSON.stringify(body),
       headers: { "Content-Type": "application/json" },
     }),
-    { params: Promise.resolve({ id: menuId }) },
+    { params: Promise.resolve({ id: menuId }) }
   )
 }
 
@@ -36,7 +36,7 @@ describe("POST /api/admin/menus/[id]/itens", () => {
 
   it("retorna 403 quando não é admin", async () => {
     vi.mocked(requireAuth).mockResolvedValue(
-      NextResponse.json({ error: "Acesso restrito a administradores" }, { status: 403 }) as any,
+      NextResponse.json({ error: "Acesso restrito a administradores" }, { status: 403 }) as any
     )
     const res = await post({ titulo: "X", url: "/cadastros/clientes" })
     expect(res.status).toBe(403)
@@ -78,7 +78,9 @@ describe("POST /api/admin/menus/[id]/itens", () => {
   it("cria item válido em menu não-admin", async () => {
     vi.mocked(requireAuth).mockResolvedValue(adminSession as any)
     mockMenu("CRM")
-    db.insert = vi.fn(() => createQueryBuilder([{ id: 10, userMenuId: 5, url: "/cadastros/clientes" }]))
+    db.insert = vi.fn(() =>
+      createQueryBuilder([{ id: 10, userMenuId: 5, url: "/cadastros/clientes" }])
+    )
     const res = await post({ titulo: "Clientes", url: "/cadastros/clientes" })
     expect(res.status).toBe(201)
     const data = await res.json()

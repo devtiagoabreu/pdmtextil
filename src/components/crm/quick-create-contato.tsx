@@ -5,7 +5,12 @@ import { useQuery } from "@tanstack/react-query"
 import { Plus, Loader2 } from "lucide-react"
 import { toast } from "sonner"
 import {
-  Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
 } from "@/components/ui/dialog"
 
 type Props = {
@@ -16,7 +21,13 @@ type Props = {
   onCreated: (id: number, nome: string) => void
 }
 
-export function QuickCreateContato({ empresaId, clienteId, clienteNome, onClickGuard, onCreated }: Props) {
+export function QuickCreateContato({
+  empresaId,
+  clienteId,
+  clienteNome,
+  onClickGuard,
+  onCreated,
+}: Props) {
   const [open, setOpen] = useState(false)
   const [saving, setSaving] = useState(false)
   const [nome, setNome] = useState("")
@@ -119,55 +130,67 @@ export function QuickCreateContato({ empresaId, clienteId, clienteNome, onClickG
             </label>
             <select
               value={selectedEmpresaId}
-              onChange={e => setSelectedEmpresaId(e.target.value)}
+              onChange={(e) => setSelectedEmpresaId(e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               required={!isClienteMode}
             >
               <option value="">Selecione...</option>
               {(empresas ?? []).map((e: any) => (
-                <option key={e.id} value={String(e.id)}>{e.razaoSocial || e.nomeFantasia}</option>
+                <option key={e.id} value={String(e.id)}>
+                  {e.razaoSocial || e.nomeFantasia}
+                </option>
               ))}
             </select>
             {isClienteMode && (
-              <p className="text-[11px] text-slate-400 mt-1">Opcional — vincule a uma Pessoa se desejar</p>
+              <p className="text-[11px] text-slate-400 mt-1">
+                Opcional — vincule a uma Pessoa se desejar
+              </p>
             )}
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Nome *
+            </label>
             <input
               type="text"
               value={nome}
-              onChange={e => setNome(e.target.value)}
+              onChange={(e) => setNome(e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cargo</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Cargo
+              </label>
               <input
                 type="text"
                 value={cargo}
-                onChange={e => setCargo(e.target.value)}
+                onChange={(e) => setCargo(e.target.value)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Celular</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Celular
+              </label>
               <input
                 type="text"
                 value={celular}
-                onChange={e => setCelular(e.target.value)}
+                onChange={(e) => setCelular(e.target.value)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               />
             </div>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">E-mail</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              E-mail
+            </label>
             <input
               type="email"
               value={email}
-              onChange={e => setEmail(e.target.value)}
+              onChange={(e) => setEmail(e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>

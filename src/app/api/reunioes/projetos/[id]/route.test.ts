@@ -19,8 +19,14 @@ vi.mock("@/lib/db", () => ({
 }))
 
 const sessionAdmin = { session: { user: { id: "1", role: "ADMIN", name: "Tiago" } }, userId: 1 }
-const sessionQualidade = { session: { user: { id: "2", role: "QUALIDADE", name: "Ana" } }, userId: 2 }
-const sessionComercial = { session: { user: { id: "3", role: "COMERCIAL", name: "Jean" } }, userId: 3 }
+const sessionQualidade = {
+  session: { user: { id: "2", role: "QUALIDADE", name: "Ana" } },
+  userId: 2,
+}
+const sessionComercial = {
+  session: { user: { id: "3", role: "COMERCIAL", name: "Jean" } },
+  userId: 3,
+}
 
 const projetoRow = {
   id: 2,
@@ -53,9 +59,12 @@ function put(id = "2", body: unknown) {
 }
 
 function del(id = "2") {
-  return DELETE(new NextRequest(`http://localhost/api/reunioes/projetos/${id}`, { method: "DELETE" }), {
-    params: Promise.resolve({ id }),
-  })
+  return DELETE(
+    new NextRequest(`http://localhost/api/reunioes/projetos/${id}`, { method: "DELETE" }),
+    {
+      params: Promise.resolve({ id }),
+    }
+  )
 }
 
 describe("GET /api/reunioes/projetos/[id]", () => {
@@ -187,7 +196,9 @@ describe("DELETE /api/reunioes/projetos/[id]", () => {
       .mockReturnValueOnce(createQueryBuilder([{ id: 3 }]))
     const res = await del("2")
     expect(res.status).toBe(400)
-    expect(await res.json()).toEqual({ error: "Não é possível excluir: há reuniões vinculadas a este projeto." })
+    expect(await res.json()).toEqual({
+      error: "Não é possível excluir: há reuniões vinculadas a este projeto.",
+    })
     expect(db.delete).not.toHaveBeenCalled()
   })
 

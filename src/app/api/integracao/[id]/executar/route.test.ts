@@ -67,13 +67,13 @@ describe("GET /api/integracao/[id]/executar", () => {
           tipoAuth: "bearer",
           authConfig: { token: "tok1234567890" },
         },
-      ]),
+      ])
     )
     fetchMock.mockResolvedValue(
       new Response(JSON.stringify({ ok: true }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
-      }),
+      })
     )
     const res = await get("1", "?tela=clientes&page=2")
     expect(res.status).toBe(200)
@@ -97,13 +97,13 @@ describe("GET /api/integracao/[id]/executar", () => {
           tipoAuth: "api_key",
           authConfig: { key: "chave123", key_name: "api_key", in: "query" },
         },
-      ]),
+      ])
     )
     fetchMock.mockResolvedValue(
       new Response(JSON.stringify({ ok: true }), {
         status: 200,
         headers: { "Content-Type": "application/json" },
-      }),
+      })
     )
     const res = await get("2")
     expect(res.status).toBe(200)

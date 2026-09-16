@@ -36,13 +36,26 @@ export function LinksEditor({
       {links.length > 0 && (
         <div className="space-y-1 mb-2">
           {links.map((link: any, i: any) => (
-            <div key={link.url || i} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded text-sm">
-              <a href={link.url} target="_blank" rel="noopener noreferrer"
-                className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline truncate">
+            <div
+              key={link.url || i}
+              className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded text-sm"
+            >
+              <a
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline truncate"
+              >
                 <ExternalLink size={12} />
                 {link.descricao || link.url}
               </a>
-              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => remove(i)} aria-label={`Remover link ${i + 1}`}>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-6 w-6"
+                onClick={() => remove(i)}
+                aria-label={`Remover link ${i + 1}`}
+              >
                 <Trash2 size={12} />
               </Button>
             </div>
@@ -52,11 +65,21 @@ export function LinksEditor({
       <div className="flex gap-2 items-end">
         <div className="flex-1 space-y-1">
           <Label className="text-xs">URL</Label>
-          <Input size={8} value={novaUrl} onChange={e => setNovaUrl(e.target.value)} placeholder="https://..." />
+          <Input
+            size={8}
+            value={novaUrl}
+            onChange={(e) => setNovaUrl(e.target.value)}
+            placeholder="https://..."
+          />
         </div>
         <div className="flex-1 space-y-1">
           <Label className="text-xs">Descrição</Label>
-          <Input size={8} value={novaDescricao} onChange={e => setNovaDescricao(e.target.value)} placeholder="Foto, laudo..." />
+          <Input
+            size={8}
+            value={novaDescricao}
+            onChange={(e) => setNovaDescricao(e.target.value)}
+            placeholder="Foto, laudo..."
+          />
         </div>
         <Button size="sm" onClick={add} disabled={!novaUrl.trim()} aria-label="Adicionar link">
           <Plus size={14} />

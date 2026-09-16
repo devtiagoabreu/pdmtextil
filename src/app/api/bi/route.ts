@@ -2,7 +2,13 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { loadSheet, getSheetById, sheetNoPeriodo } from "@/lib/bi/sheet-loader"
-import { getMetrics, getRevenueByRepresentante, getMonthlyTrend, getGeoDistribution, getAbcCurve } from "@/lib/bi/sheet-loader"
+import {
+  getMetrics,
+  getRevenueByRepresentante,
+  getMonthlyTrend,
+  getGeoDistribution,
+  getAbcCurve,
+} from "@/lib/bi/sheet-loader"
 
 export const dynamic = "force-dynamic"
 
@@ -18,13 +24,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       id: sheet.id,
       title: sheet.title,
-      tabs: sheet.tabs.map(t => ({ name: t.name, columns: t.header.length, rows: t.rows.length })),
+      tabs: sheet.tabs.map((t) => ({
+        name: t.name,
+        columns: t.header.length,
+        rows: t.rows.length,
+      })),
       relationships: sheet.relationships,
       loadedAt: sheet.loadedAt,
     })
   } catch (error: any) {
     console.error("[BI] Error loading sheet:", error)
-    return NextResponse.json({ error: error.message || "Erro ao carregar planilha" }, { status: 500 })
+    return NextResponse.json(
+      { error: error.message || "Erro ao carregar planilha" },
+      { status: 500 }
+    )
   }
 }
 
@@ -36,7 +49,11 @@ export async function GET(req: NextRequest) {
   if (!sheetId) return NextResponse.json({ error: "sheetId é obrigatório" }, { status: 400 })
 
   const sheet = await getSheetById(sheetId)
-  if (!sheet) return NextResponse.json({ error: "Planilha não encontrada. Carregue-a primeiro." }, { status: 404 })
+  if (!sheet)
+    return NextResponse.json(
+      { error: "Planilha não encontrada. Carregue-a primeiro." },
+      { status: 404 }
+    )
 
   const de = req.nextUrl.searchParams.get("de")
   const ate = req.nextUrl.searchParams.get("ate")
@@ -52,7 +69,7 @@ export async function GET(req: NextRequest) {
   return NextResponse.json({
     id: sheet.id,
     title: sheet.title,
-    tabs: sheet.tabs.map(t => ({ name: t.name, header: t.header, rows: t.rows.length })),
+    tabs: sheet.tabs.map((t) => ({ name: t.name, header: t.header, rows: t.rows.length })),
     metrics,
     revenueByRep,
     monthlyTrend,

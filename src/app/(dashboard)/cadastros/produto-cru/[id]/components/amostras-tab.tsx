@@ -4,7 +4,15 @@ import type { MouseEvent } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { ChevronDown, ChevronRight, FileText, FlaskConical, Loader2, Plus, Trash2 } from "lucide-react"
+import {
+  ChevronDown,
+  ChevronRight,
+  FileText,
+  FlaskConical,
+  Loader2,
+  Plus,
+  Trash2,
+} from "lucide-react"
 import { LinksEditor } from "@/components/links/LinksEditor"
 import type { Acabamento, AcabamentoAmostra, Amostra, LinkItem, StatusOption } from "./types"
 
@@ -114,7 +122,9 @@ export function AmostrasTab({
   return (
     <div className="space-y-6">
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-4">
-        <h2 id="amostras" className="text-lg font-semibold">Amostras (Tecido Cru)</h2>
+        <h2 id="amostras" className="text-lg font-semibold">
+          Amostras (Tecido Cru)
+        </h2>
 
         {amostras.length > 0 && (
           <div className="space-y-2">
@@ -125,53 +135,93 @@ export function AmostrasTab({
                     <div className="flex items-center gap-2 flex-wrap">
                       <p className="font-medium truncate">{a.descricao || "Sem descrição"}</p>
                       {a.quantidadeProduzida ? (
-                        <span className="text-xs font-medium text-purple-600 bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 rounded">Qtd: {a.quantidadeProduzida}</span>
+                        <span className="text-xs font-medium text-purple-600 bg-purple-100 dark:bg-purple-900/30 px-2 py-0.5 rounded">
+                          Qtd: {a.quantidadeProduzida}
+                        </span>
                       ) : (
                         <span className="text-xs text-slate-400">Qtd: -</span>
                       )}
                       {a.idIntegracaoErpCru ? (
-                        <span className="text-xs font-medium text-blue-600 bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded">ERP: {a.idIntegracaoErpCru}</span>
+                        <span className="text-xs font-medium text-blue-600 bg-blue-100 dark:bg-blue-900/30 px-2 py-0.5 rounded">
+                          ERP: {a.idIntegracaoErpCru}
+                        </span>
                       ) : (
                         <span className="text-xs text-slate-400">ERP: -</span>
                       )}
                       {a.dados?.tear ? (
-                        <span className="text-xs font-medium text-amber-600 bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 rounded">Tear: {a.dados.tear}</span>
+                        <span className="text-xs font-medium text-amber-600 bg-amber-100 dark:bg-amber-900/30 px-2 py-0.5 rounded">
+                          Tear: {a.dados.tear}
+                        </span>
                       ) : null}
                     </div>
                     <p className="text-xs text-slate-500 mt-1">
-                      {a.observacoes && (
-                        <span className="text-slate-400">{a.observacoes}</span>
-                      )}
+                      {a.observacoes && <span className="text-slate-400">{a.observacoes}</span>}
                       <select
                         value={a.status}
-                        onChange={e => onUpdateStatusAmostra(a.id, e.target.value)}
+                        onChange={(e) => onUpdateStatusAmostra(a.id, e.target.value)}
                         className={`text-xs rounded-full px-2 py-0.5 border-0 font-medium ml-1 cursor-pointer ${
-                          a.status.startsWith("APROVADA") ? "bg-green-100 text-green-700" :
-                          a.status === "REPROVADA" ? "bg-red-100 text-red-700" :
-                          "bg-yellow-100 text-yellow-700"
+                          a.status.startsWith("APROVADA")
+                            ? "bg-green-100 text-green-700"
+                            : a.status === "REPROVADA"
+                              ? "bg-red-100 text-red-700"
+                              : "bg-yellow-100 text-yellow-700"
                         }`}
                       >
                         {statusOptionsAmostra.map((s) => (
-                          <option key={s.value} value={s.value} className="bg-white text-slate-900">{s.label}</option>
+                          <option key={s.value} value={s.value} className="bg-white text-slate-900">
+                            {s.label}
+                          </option>
                         ))}
                       </select>
                       {a.motivoAprovacao && (
-                        <span className="text-slate-400 italic ml-2">Motivo: {a.motivoAprovacao}</span>
+                        <span className="text-slate-400 italic ml-2">
+                          Motivo: {a.motivoAprovacao}
+                        </span>
                       )}
                     </p>
                   </div>
                   <div className="flex items-center gap-1">
-                    <Button type="button" variant="ghost" size="sm" className="text-xs" onClick={() => onGerarPdfAmostra(a, "TECIDO_CRU")} disabled={gerandoPdf === `TECIDO_CRU-${a.id}`}>
-                      {gerandoPdf === `TECIDO_CRU-${a.id}` ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs"
+                      onClick={() => onGerarPdfAmostra(a, "TECIDO_CRU")}
+                      disabled={gerandoPdf === `TECIDO_CRU-${a.id}`}
+                    >
+                      {gerandoPdf === `TECIDO_CRU-${a.id}` ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <FileText size={14} />
+                      )}
                       Solic. Amostra
                     </Button>
-                    <Button type="button" variant="ghost" size="sm" className="text-xs" onClick={() => onEditarAmostra(a)}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs"
+                      onClick={() => onEditarAmostra(a)}
+                    >
                       Editar
                     </Button>
-                    <Button type="button" variant="ghost" size="sm" className="text-xs" onClick={() => setAmostraLinksAberta(amostraLinksAberta === a.id ? null : a.id)}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="sm"
+                      className="text-xs"
+                      onClick={() =>
+                        setAmostraLinksAberta(amostraLinksAberta === a.id ? null : a.id)
+                      }
+                    >
                       Links {a.links?.length ? `(${a.links.length})` : ""}
                     </Button>
-                    <Button type="button" variant="ghost" size="icon" onClick={() => onExcluirAmostra(a)}>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => onExcluirAmostra(a)}
+                    >
                       <Trash2 size={16} />
                     </Button>
                   </div>
@@ -180,7 +230,7 @@ export function AmostrasTab({
                   <div className="ml-4 mt-1 p-3 bg-white dark:bg-slate-800 rounded-lg border">
                     <LinksEditor
                       links={a.links || []}
-                      onChange={links => onSaveAmostraLinks(a.id, links)}
+                      onChange={(links) => onSaveAmostraLinks(a.id, links)}
                     />
                   </div>
                 )}
@@ -192,21 +242,39 @@ export function AmostrasTab({
         <div className="flex gap-2 items-end">
           <div className="space-y-1 flex-1">
             <Label>Descrição</Label>
-            <Input value={novaAmostraDescricao} onChange={e => setNovaAmostraDescricao(e.target.value)} placeholder="AMOSTRA - PILOTAGEM 001" />
+            <Input
+              value={novaAmostraDescricao}
+              onChange={(e) => setNovaAmostraDescricao(e.target.value)}
+              placeholder="AMOSTRA - PILOTAGEM 001"
+            />
           </div>
           <div className="space-y-1 flex-1">
             <Label>Observações</Label>
-            <Input value={novaAmostraObs} onChange={e => setNovaAmostraObs(e.target.value)} placeholder="Observações" />
+            <Input
+              value={novaAmostraObs}
+              onChange={(e) => setNovaAmostraObs(e.target.value)}
+              placeholder="Observações"
+            />
           </div>
           <div className="space-y-1 w-28">
             <Label>Qtd Produzida</Label>
-            <Input value={novaAmostraQtd} onChange={e => setNovaAmostraQtd(e.target.value)} placeholder="10 M" />
+            <Input
+              value={novaAmostraQtd}
+              onChange={(e) => setNovaAmostraQtd(e.target.value)}
+              placeholder="10 M"
+            />
           </div>
           <div className="space-y-1 w-36">
             <Label>ERP (Cru)</Label>
-            <Input value={novaAmostraErp} onChange={e => setNovaAmostraErp(e.target.value)} placeholder="ERP.00001" />
+            <Input
+              value={novaAmostraErp}
+              onChange={(e) => setNovaAmostraErp(e.target.value)}
+              placeholder="ERP.00001"
+            />
           </div>
-          <Button type="button" onClick={onAddAmostra} size="sm"><Plus size={16} /></Button>
+          <Button type="button" onClick={onAddAmostra} size="sm">
+            <Plus size={16} />
+          </Button>
         </div>
       </div>
 
@@ -218,20 +286,39 @@ export function AmostrasTab({
         {acabamentos.length > 0 && (
           <div className="space-y-3">
             {acabamentos.map((acab) => (
-              <div key={acab.id} className="rounded-xl border border-slate-200 dark:border-slate-800">
+              <div
+                key={acab.id}
+                className="rounded-xl border border-slate-200 dark:border-slate-800"
+              >
                 <div
                   className="flex items-center justify-between p-3 cursor-pointer hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                  onClick={() => setExpandedAcabamento(expandedAcabamento === acab.id ? null : acab.id)}
+                  onClick={() =>
+                    setExpandedAcabamento(expandedAcabamento === acab.id ? null : acab.id)
+                  }
                 >
                   <div className="flex items-center gap-2">
-                    {expandedAcabamento === acab.id ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                    {expandedAcabamento === acab.id ? (
+                      <ChevronDown size={16} />
+                    ) : (
+                      <ChevronRight size={16} />
+                    )}
                     <span className="font-medium">{acab.tipoAcabamento}</span>
                     <span className="text-sm text-slate-500">{acab.descricao}</span>
                     {acab.idIntegracaoErpAcabado && (
-                      <span className="text-xs text-slate-400">ERP: {acab.idIntegracaoErpAcabado}</span>
+                      <span className="text-xs text-slate-400">
+                        ERP: {acab.idIntegracaoErpAcabado}
+                      </span>
                     )}
                   </div>
-                  <Button type="button" variant="ghost" size="icon" onClick={(e: MouseEvent<HTMLButtonElement>) => { e.stopPropagation(); onExcluirAcabamento(acab) }}>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={(e: MouseEvent<HTMLButtonElement>) => {
+                      e.stopPropagation()
+                      onExcluirAcabamento(acab)
+                    }}
+                  >
                     <Trash2 size={16} />
                   </Button>
                 </div>
@@ -241,7 +328,14 @@ export function AmostrasTab({
                     <div>
                       <div className="flex items-center justify-between mb-2">
                         <h3 className="text-sm font-medium">Amostras</h3>
-                        <Button type="button" size="sm" variant="outline" onClick={() => setExpandedAmostraForm(expandedAmostraForm === acab.id ? null : acab.id)}>
+                        <Button
+                          type="button"
+                          size="sm"
+                          variant="outline"
+                          onClick={() =>
+                            setExpandedAmostraForm(expandedAmostraForm === acab.id ? null : acab.id)
+                          }
+                        >
                           <Plus size={14} /> Amostra
                         </Button>
                       </div>
@@ -253,36 +347,79 @@ export function AmostrasTab({
                               <div className="flex-1 min-w-0">
                                 <span className="text-sm">{as.descricao || "Sem descrição"}</span>
                                 {as.dados?.tear && (
-                                  <span className="text-xs font-medium text-amber-600 bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded ml-2">Tear: {as.dados.tear}</span>
+                                  <span className="text-xs font-medium text-amber-600 bg-amber-100 dark:bg-amber-900/30 px-1.5 py-0.5 rounded ml-2">
+                                    Tear: {as.dados.tear}
+                                  </span>
                                 )}
                                 {as.quantidadeProduzida && (
-                                  <span className="text-xs text-slate-400 ml-2">Qtd: {as.quantidadeProduzida}</span>
+                                  <span className="text-xs text-slate-400 ml-2">
+                                    Qtd: {as.quantidadeProduzida}
+                                  </span>
                                 )}
                                 {as.motivoAprovacao && (
-                                  <p className="text-xs text-slate-400 italic truncate">Motivo: {as.motivoAprovacao}</p>
+                                  <p className="text-xs text-slate-400 italic truncate">
+                                    Motivo: {as.motivoAprovacao}
+                                  </p>
                                 )}
                               </div>
                               <div className="flex items-center gap-1">
-                                <Button type="button" variant="ghost" size="sm" className="text-xs h-6" onClick={() => onGerarPdfAmostra(as, "ACABAMENTO")} disabled={gerandoPdf === `ACABAMENTO-${as.id}`}>
-                                  {gerandoPdf === `ACABAMENTO-${as.id}` ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />}
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-xs h-6"
+                                  onClick={() => onGerarPdfAmostra(as, "ACABAMENTO")}
+                                  disabled={gerandoPdf === `ACABAMENTO-${as.id}`}
+                                >
+                                  {gerandoPdf === `ACABAMENTO-${as.id}` ? (
+                                    <Loader2 size={12} className="animate-spin" />
+                                  ) : (
+                                    <FileText size={12} />
+                                  )}
                                 </Button>
-                                <Button type="button" variant="ghost" size="sm" className="text-xs h-6" onClick={() => setAcabAmostraLinksAberta(acabAmostraLinksAberta === key ? null : key)}>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="sm"
+                                  className="text-xs h-6"
+                                  onClick={() =>
+                                    setAcabAmostraLinksAberta(
+                                      acabAmostraLinksAberta === key ? null : key
+                                    )
+                                  }
+                                >
                                   Links {as.links?.length ? `(${as.links.length})` : ""}
                                 </Button>
                                 <select
                                   value={as.status}
-                                  onChange={e => onUpdateStatusAmostraAcabamento(acab.id, as.id, e.target.value)}
+                                  onChange={(e) =>
+                                    onUpdateStatusAmostraAcabamento(acab.id, as.id, e.target.value)
+                                  }
                                   className={`text-xs rounded-full px-2 py-0.5 border-0 font-medium cursor-pointer ${
-                                    as.status.startsWith("APROVADA") ? "bg-green-100 text-green-700" :
-                                    as.status === "REPROVADA" ? "bg-red-100 text-red-700" :
-                                    "bg-yellow-100 text-yellow-700"
+                                    as.status.startsWith("APROVADA")
+                                      ? "bg-green-100 text-green-700"
+                                      : as.status === "REPROVADA"
+                                        ? "bg-red-100 text-red-700"
+                                        : "bg-yellow-100 text-yellow-700"
                                   }`}
                                 >
                                   {statusOptionsAmostra.map((s) => (
-                                    <option key={s.value} value={s.value} className="bg-white text-slate-900">{s.label}</option>
+                                    <option
+                                      key={s.value}
+                                      value={s.value}
+                                      className="bg-white text-slate-900"
+                                    >
+                                      {s.label}
+                                    </option>
                                   ))}
                                 </select>
-                                <Button type="button" variant="ghost" size="icon" className="h-6 w-6" onClick={() => onExcluirAmostraAcabamento(acab.id, as.id)}>
+                                <Button
+                                  type="button"
+                                  variant="ghost"
+                                  size="icon"
+                                  className="h-6 w-6"
+                                  onClick={() => onExcluirAmostraAcabamento(acab.id, as.id)}
+                                >
                                   <Trash2 size={12} />
                                 </Button>
                               </div>
@@ -291,7 +428,9 @@ export function AmostrasTab({
                               <div className="ml-4 mb-2 p-3 bg-white dark:bg-slate-800 rounded-lg border">
                                 <LinksEditor
                                   links={as.links || []}
-                                  onChange={links => onSaveAcabAmostraLinks(acab.id, as.id, links)}
+                                  onChange={(links) =>
+                                    onSaveAcabAmostraLinks(acab.id, as.id, links)
+                                  }
                                 />
                               </div>
                             )}
@@ -300,9 +439,24 @@ export function AmostrasTab({
                       })}
                       {expandedAmostraForm === acab.id && (
                         <div className="flex gap-2 mt-2">
-                          <Input value={novaAmostraAcabDescricao} onChange={e => setNovaAmostraAcabDescricao(e.target.value)} placeholder="Descrição da amostra" />
-                          <Input value={novaAmostraAcabQtd} onChange={e => setNovaAmostraAcabQtd(e.target.value)} placeholder="Qtd produzida" className="w-32" />
-                          <Button type="button" size="sm" onClick={() => onAddAmostraAcabamento(acab.id)}>Adicionar</Button>
+                          <Input
+                            value={novaAmostraAcabDescricao}
+                            onChange={(e) => setNovaAmostraAcabDescricao(e.target.value)}
+                            placeholder="Descrição da amostra"
+                          />
+                          <Input
+                            value={novaAmostraAcabQtd}
+                            onChange={(e) => setNovaAmostraAcabQtd(e.target.value)}
+                            placeholder="Qtd produzida"
+                            className="w-32"
+                          />
+                          <Button
+                            type="button"
+                            size="sm"
+                            onClick={() => onAddAmostraAcabamento(acab.id)}
+                          >
+                            Adicionar
+                          </Button>
                         </div>
                       )}
                     </div>
@@ -311,17 +465,35 @@ export function AmostrasTab({
                       <h3 className="text-sm font-medium mb-2">Receitas de Beneficiamento</h3>
                       <div className="space-y-1">
                         {acab.amostras.map((as) => (
-                          <div key={as.id} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded text-sm">
+                          <div
+                            key={as.id}
+                            className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded text-sm"
+                          >
                             <span className="text-slate-600">
                               {as.descricao || `Amostra #${as.id}`}
-                              {as.dados?.tear && <span className="text-xs text-amber-500 ml-1">[Tear: {as.dados.tear}]</span>}
-                              <span className={`ml-2 text-xs font-medium px-1.5 py-0.5 rounded ${
-                                as.status.startsWith("APROVADA") ? "bg-green-100 text-green-700" :
-                                as.status === "REPROVADA" ? "bg-red-100 text-red-700" :
-                                "bg-yellow-100 text-yellow-700"
-                              }`}>{as.status}</span>
+                              {as.dados?.tear && (
+                                <span className="text-xs text-amber-500 ml-1">
+                                  [Tear: {as.dados.tear}]
+                                </span>
+                              )}
+                              <span
+                                className={`ml-2 text-xs font-medium px-1.5 py-0.5 rounded ${
+                                  as.status.startsWith("APROVADA")
+                                    ? "bg-green-100 text-green-700"
+                                    : as.status === "REPROVADA"
+                                      ? "bg-red-100 text-red-700"
+                                      : "bg-yellow-100 text-yellow-700"
+                                }`}
+                              >
+                                {as.status}
+                              </span>
                             </span>
-                            <Button type="button" size="sm" variant="ghost" onClick={() => onAbrirReceita(acab.id, as.id)}>
+                            <Button
+                              type="button"
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => onAbrirReceita(acab.id, as.id)}
+                            >
                               <FlaskConical size={14} className="mr-1" /> Receita
                             </Button>
                           </div>
@@ -341,20 +513,37 @@ export function AmostrasTab({
         <div className="flex gap-2 items-end flex-wrap">
           <div className="space-y-1">
             <Label>Tipo Acabamento</Label>
-            <select value={novoAcabamentoTipo} onChange={e => setNovoAcabamentoTipo(e.target.value)}
-              className="p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
-              {TIPO_ACABAMENTO.map((t) => <option key={t} value={t}>{t}</option>)}
+            <select
+              value={novoAcabamentoTipo}
+              onChange={(e) => setNovoAcabamentoTipo(e.target.value)}
+              className="p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+            >
+              {TIPO_ACABAMENTO.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
             </select>
           </div>
           <div className="space-y-1 flex-1">
             <Label>Descrição</Label>
-            <Input value={novoAcabamentoDescricao} onChange={e => setNovoAcabamentoDescricao(e.target.value)} placeholder="Tinto Branco" />
+            <Input
+              value={novoAcabamentoDescricao}
+              onChange={(e) => setNovoAcabamentoDescricao(e.target.value)}
+              placeholder="Tinto Branco"
+            />
           </div>
           <div className="space-y-1 flex-1">
             <Label>ERP (Acabado)</Label>
-            <Input value={novoAcabamentoErp} onChange={e => setNovoAcabamentoErp(e.target.value)} placeholder="2.K1820.TIN.000001" />
+            <Input
+              value={novoAcabamentoErp}
+              onChange={(e) => setNovoAcabamentoErp(e.target.value)}
+              placeholder="2.K1820.TIN.000001"
+            />
           </div>
-          <Button type="button" onClick={onAddAcabamento} size="sm"><Plus size={16} /> Acabamento</Button>
+          <Button type="button" onClick={onAddAcabamento} size="sm">
+            <Plus size={16} /> Acabamento
+          </Button>
         </div>
       </div>
     </div>

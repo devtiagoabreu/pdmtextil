@@ -14,7 +14,10 @@ export interface CalendarEventInput {
   location?: string
 }
 
-export async function createCalendarEvent(accessToken: string, event: CalendarEventInput): Promise<string> {
+export async function createCalendarEvent(
+  accessToken: string,
+  event: CalendarEventInput
+): Promise<string> {
   const calendar = getCalendarClient(accessToken)
   const startDateTime = new Date(event.startTime).toISOString()
   const endDateTime = event.endTime
@@ -35,7 +38,11 @@ export async function createCalendarEvent(accessToken: string, event: CalendarEv
   return res.data.id || ""
 }
 
-export async function updateCalendarEvent(accessToken: string, eventId: string, event: CalendarEventInput): Promise<void> {
+export async function updateCalendarEvent(
+  accessToken: string,
+  eventId: string,
+  event: CalendarEventInput
+): Promise<void> {
   const calendar = getCalendarClient(accessToken)
   const startDateTime = new Date(event.startTime).toISOString()
   const endDateTime = event.endTime

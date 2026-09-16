@@ -42,10 +42,7 @@ export function StaggeredBarChart({
             animationBegin={animationBegin}
           >
             {data.map((entry: any, index: any) => (
-              <Cell
-                key={`cell-${index}`}
-                fill={colors[index % colors.length]}
-              />
+              <Cell key={`cell-${index}`} fill={colors[index % colors.length]} />
             ))}
           </Bar>
         </BarChart>

@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { ativos, ativoCategorias, ativosPlanosVistoria, ativosVistorias, ativosTiposVistoria } from "@/lib/db/schema/ativos"
+import {
+  ativos,
+  ativoCategorias,
+  ativosPlanosVistoria,
+  ativosVistorias,
+  ativosTiposVistoria,
+} from "@/lib/db/schema/ativos"
 import { procAreas } from "@/lib/db/schema/processos"
 import { count, eq, and, gte, lte, notInArray, inArray, asc } from "drizzle-orm"
 import { handleApiError } from "@/lib/api-error"
@@ -23,8 +29,8 @@ export async function GET(req: NextRequest) {
       .where(
         and(
           gte(ativosVistorias.dataRealizada, primeiroDia),
-          lte(ativosVistorias.dataRealizada, hoje),
-        ),
+          lte(ativosVistorias.dataRealizada, hoje)
+        )
       )
     const [rPendentes] = await db
       .select({ n: count() })
@@ -36,8 +42,8 @@ export async function GET(req: NextRequest) {
       .where(
         and(
           lte(ativosVistorias.dataProgramada, hoje),
-          notInArray(ativosVistorias.status, ["CONCLUIDA", "CANCELADA"]),
-        ),
+          notInArray(ativosVistorias.status, ["CONCLUIDA", "CANCELADA"])
+        )
       )
 
     const proximas = await db
@@ -58,8 +64,8 @@ export async function GET(req: NextRequest) {
       .where(
         and(
           inArray(ativosVistorias.status, ["PENDENTE", "EM_ANDAMENTO"]),
-          gte(ativosVistorias.dataProgramada, hoje),
-        ),
+          gte(ativosVistorias.dataProgramada, hoje)
+        )
       )
       .orderBy(asc(ativosVistorias.dataProgramada))
       .limit(10)

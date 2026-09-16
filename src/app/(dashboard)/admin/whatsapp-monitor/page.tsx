@@ -5,7 +5,19 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { toast } from "sonner"
-import { Loader2, RefreshCw, Check, X, SkipForward, AlertTriangle, ChevronDown, ChevronRight, Activity, Clock, MessageSquare } from "lucide-react"
+import {
+  Loader2,
+  RefreshCw,
+  Check,
+  X,
+  SkipForward,
+  AlertTriangle,
+  ChevronDown,
+  ChevronRight,
+  Activity,
+  Clock,
+  MessageSquare,
+} from "lucide-react"
 
 interface StepLog {
   step: string
@@ -76,14 +88,24 @@ function StatusBadge({ status }: { status: string }) {
     skipped: "bg-slate-50 text-slate-400 dark:bg-slate-900 dark:text-slate-500",
   }
   return (
-    <span className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${colors[status] || colors.skipped}`}>
+    <span
+      className={`inline-flex items-center gap-1 text-xs font-medium px-2 py-0.5 rounded-full ${colors[status] || colors.skipped}`}
+    >
       <StatusIcon status={status} />
       {status}
     </span>
   )
 }
 
-function FlowDiagram({ steps, activeStep, onStepClick }: { steps: StepLog[]; activeStep: string | null; onStepClick: (step: string) => void }) {
+function FlowDiagram({
+  steps,
+  activeStep,
+  onStepClick,
+}: {
+  steps: StepLog[]
+  activeStep: string | null
+  onStepClick: (step: string) => void
+}) {
   return (
     <div className="flex items-center gap-1 overflow-x-auto pb-2">
       {steps.map((step: any, i: any) => (
@@ -94,18 +116,22 @@ function FlowDiagram({ steps, activeStep, onStepClick }: { steps: StepLog[]; act
               activeStep === step.step
                 ? "border-blue-400 bg-blue-50 dark:bg-blue-950/50 shadow-sm"
                 : step.status === "error"
-                ? "border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-800"
-                : step.status === "success"
-                ? "border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-800"
-                : "border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800"
+                  ? "border-red-200 bg-red-50 dark:bg-red-950/20 dark:border-red-800"
+                  : step.status === "success"
+                    ? "border-green-200 bg-green-50 dark:bg-green-950/20 dark:border-green-800"
+                    : "border-slate-200 bg-white dark:border-slate-700 dark:bg-slate-800"
             }`}
           >
             <span className="text-lg">{STEP_ICONS[step.step] || "❓"}</span>
-            <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 whitespace-nowrap">{STEP_LABELS[step.step] || step.step}</span>
+            <span className="text-[10px] font-medium text-slate-600 dark:text-slate-300 whitespace-nowrap">
+              {STEP_LABELS[step.step] || step.step}
+            </span>
             <StatusIcon status={step.status} />
           </button>
           {i < steps.length - 1 && (
-            <div className={`w-4 h-0.5 ${step.status === "error" ? "bg-red-300" : "bg-slate-200 dark:bg-slate-700"}`} />
+            <div
+              className={`w-4 h-0.5 ${step.status === "error" ? "bg-red-300" : "bg-slate-200 dark:bg-slate-700"}`}
+            />
           )}
         </div>
       ))}
@@ -122,9 +148,15 @@ function StepDetail({ step }: { step: StepLog }) {
         onClick={() => setExpanded(!expanded)}
         className="w-full flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
       >
-        {expanded ? <ChevronDown size={16} className="text-slate-400" /> : <ChevronRight size={16} className="text-slate-400" />}
+        {expanded ? (
+          <ChevronDown size={16} className="text-slate-400" />
+        ) : (
+          <ChevronRight size={16} className="text-slate-400" />
+        )}
         <span className="text-lg">{STEP_ICONS[step.step] || "❓"}</span>
-        <span className="font-medium text-sm text-slate-700 dark:text-slate-200">{STEP_LABELS[step.step] || step.step}</span>
+        <span className="font-medium text-sm text-slate-700 dark:text-slate-200">
+          {STEP_LABELS[step.step] || step.step}
+        </span>
         <StatusBadge status={step.status} />
         {step.durationMs != null && step.durationMs > 0 && (
           <span className="text-xs text-slate-400 ml-auto flex items-center gap-1">
@@ -226,9 +258,13 @@ export default function WhatsAppMonitorPage() {
         <div>
           <div className="flex items-center gap-2">
             <Activity className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Monitor WhatsApp IA</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+              Monitor WhatsApp IA
+            </h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">Acompanhe as execuções do fluxo de atendimento automático</p>
+          <p className="text-sm text-slate-500 mt-1">
+            Acompanhe as execuções do fluxo de atendimento automático
+          </p>
         </div>
         <div className="flex items-center gap-2">
           <Button
@@ -273,17 +309,31 @@ export default function WhatsAppMonitorPage() {
               <div>
                 <h3 className="font-semibold text-slate-900 dark:text-slate-50">
                   {selectedExec.pushName || "Desconhecido"}{" "}
-                  <span className="text-sm font-normal text-slate-500">({selectedExec.remoteJid?.replace(/@s\.whatsapp\.net$/, "")})</span>
+                  <span className="text-sm font-normal text-slate-500">
+                    ({selectedExec.remoteJid?.replace(/@s\.whatsapp\.net$/, "")})
+                  </span>
                 </h3>
                 <p className="text-xs text-slate-400 mt-0.5">
-                  {new Date(selectedExec.startedAt).toLocaleString("pt-BR")} — {selectedExec.steps.length} etapas
+                  {new Date(selectedExec.startedAt).toLocaleString("pt-BR")} —{" "}
+                  {selectedExec.steps.length} etapas
                 </p>
               </div>
-              <Button variant="ghost" size="sm" onClick={() => { setSelectedExecution(null); setActiveStep(null) }}>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSelectedExecution(null)
+                  setActiveStep(null)
+                }}
+              >
                 Fechar
               </Button>
             </div>
-            <FlowDiagram steps={selectedExec.steps} activeStep={activeStep} onStepClick={setActiveStep} />
+            <FlowDiagram
+              steps={selectedExec.steps}
+              activeStep={activeStep}
+              onStepClick={setActiveStep}
+            />
           </CardContent>
         </Card>
       )}
@@ -296,12 +346,17 @@ export default function WhatsAppMonitorPage() {
         <div className="text-center py-16">
           <MessageSquare className="mx-auto text-slate-300 mb-3" size={48} />
           <p className="text-slate-500">Nenhuma execução encontrada</p>
-          <p className="text-xs text-slate-400 mt-1">As execuções aparecerão aqui quando o bot receber mensagens</p>
+          <p className="text-xs text-slate-400 mt-1">
+            As execuções aparecerão aqui quando o bot receber mensagens
+          </p>
         </div>
       ) : (
         <div className="space-y-3">
           {executions.map((exec: any) => (
-            <div key={exec.executionId} className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900">
+            <div
+              key={exec.executionId}
+              className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900"
+            >
               <button
                 onClick={() => {
                   toggleExpand(exec.executionId)
@@ -319,11 +374,17 @@ export default function WhatsAppMonitorPage() {
                     <span className="font-medium text-sm text-slate-900 dark:text-slate-100">
                       {exec.pushName || "Desconhecido"}
                     </span>
-                    <span className="text-xs text-slate-400">{exec.remoteJid?.replace(/@s\.whatsapp\.net$/, "")}</span>
+                    <span className="text-xs text-slate-400">
+                      {exec.remoteJid?.replace(/@s\.whatsapp\.net$/, "")}
+                    </span>
                   </div>
                   <p className="text-xs text-slate-400 mt-0.5">
                     {new Date(exec.startedAt).toLocaleString("pt-BR")} — {exec.totalSteps} etapas
-                    {exec.errorSteps > 0 && <span className="text-red-500 ml-1">({exec.errorSteps} erro{exec.errorSteps > 1 ? "s" : ""})</span>}
+                    {exec.errorSteps > 0 && (
+                      <span className="text-red-500 ml-1">
+                        ({exec.errorSteps} erro{exec.errorSteps > 1 ? "s" : ""})
+                      </span>
+                    )}
                   </p>
                 </div>
                 <div className="flex items-center gap-1">
@@ -331,7 +392,13 @@ export default function WhatsAppMonitorPage() {
                     <div
                       key={step.step}
                       className={`w-2 h-2 rounded-full ${
-                        step.status === "success" ? "bg-green-400" : step.status === "error" ? "bg-red-400" : step.status === "ignored" ? "bg-slate-300" : "bg-slate-200"
+                        step.status === "success"
+                          ? "bg-green-400"
+                          : step.status === "error"
+                            ? "bg-red-400"
+                            : step.status === "ignored"
+                              ? "bg-slate-300"
+                              : "bg-slate-200"
                       }`}
                       title={`${STEP_LABELS[step.step]}: ${step.status}`}
                     />

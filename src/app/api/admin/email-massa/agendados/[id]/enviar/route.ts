@@ -8,13 +8,13 @@ import { criarDisparo } from "@/lib/email-massa"
 
 export const dynamic = "force-dynamic"
 
-export async function POST(
-  _req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(_req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
+    if (
+      !session ||
+      (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")
+    ) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -22,10 +22,16 @@ export async function POST(
     const agendadoId = Number(id)
     if (!agendadoId) return NextResponse.json({ error: "Agendamento inválido" }, { status: 400 })
 
-    const [agendado] = await db.select().from(emailAgendados).where(eq(emailAgendados.id, agendadoId))
-    if (!agendado) return NextResponse.json({ error: "Agendamento não encontrado" }, { status: 404 })
-    if (agendado.status === "enviado") return NextResponse.json({ error: "Este disparo já foi enviado" }, { status: 400 })
-    if (agendado.status === "cancelado") return NextResponse.json({ error: "Este disparo foi cancelado" }, { status: 400 })
+    const [agendado] = await db
+      .select()
+      .from(emailAgendados)
+      .where(eq(emailAgendados.id, agendadoId))
+    if (!agendado)
+      return NextResponse.json({ error: "Agendamento não encontrado" }, { status: 404 })
+    if (agendado.status === "enviado")
+      return NextResponse.json({ error: "Este disparo já foi enviado" }, { status: 400 })
+    if (agendado.status === "cancelado")
+      return NextResponse.json({ error: "Este disparo foi cancelado" }, { status: 400 })
 
     const result = await criarDisparo({
       nome: agendado.nome,
@@ -39,7 +45,8 @@ export async function POST(
       criadoPor: agendado.criadoPor || undefined,
     })
 
-    if (!result) return NextResponse.json({ error: "Nenhum destinatário encontrado" }, { status: 400 })
+    if (!result)
+      return NextResponse.json({ error: "Nenhum destinatário encontrado" }, { status: 400 })
 
     await db
       .update(emailAgendados)

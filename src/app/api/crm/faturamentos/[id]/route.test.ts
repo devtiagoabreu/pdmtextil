@@ -32,7 +32,16 @@ const faturamento = {
 }
 
 const itens = [
-  { id: 1, faturamentoId: 1, produto: "Malha penteada azul", codigo: "MP-01", unidade: "METROS", quantidade: "100", valorUnitario: "12.5", valorTotal: "1250" },
+  {
+    id: 1,
+    faturamentoId: 1,
+    produto: "Malha penteada azul",
+    codigo: "MP-01",
+    unidade: "METROS",
+    quantidade: "100",
+    valorUnitario: "12.5",
+    valorTotal: "1250",
+  },
 ]
 
 function req(id: string, method = "GET", body?: Record<string, unknown>) {
@@ -55,7 +64,9 @@ describe("GET /api/crm/faturamentos/[id]", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await get("1")
     expect(res.status).toBe(401)
   })
@@ -89,27 +100,37 @@ describe("PUT /api/crm/faturamentos/[id]", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
-    const res = await PUT(req("1", "PUT", { status: "RECEBIDO" }), { params: Promise.resolve({ id: "1" }) })
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
+    const res = await PUT(req("1", "PUT", { status: "RECEBIDO" }), {
+      params: Promise.resolve({ id: "1" }),
+    })
     expect(res.status).toBe(401)
   })
 
   it("retorna 404 quando não existe", async () => {
     db.select.mockReturnValueOnce(createQueryBuilder([]))
-    const res = await PUT(req("99", "PUT", { status: "RECEBIDO" }), { params: Promise.resolve({ id: "99" }) })
+    const res = await PUT(req("99", "PUT", { status: "RECEBIDO" }), {
+      params: Promise.resolve({ id: "99" }),
+    })
     expect(res.status).toBe(404)
   })
 
   it("retorna 400 com oportunidade inválida", async () => {
     db.select.mockReturnValueOnce(createQueryBuilder([faturamento]))
-    const res = await PUT(req("1", "PUT", { oportunidadeId: "" }), { params: Promise.resolve({ id: "1" }) })
+    const res = await PUT(req("1", "PUT", { oportunidadeId: "" }), {
+      params: Promise.resolve({ id: "1" }),
+    })
     expect(res.status).toBe(400)
     expect(await res.json()).toEqual({ error: "Oportunidade é obrigatória" })
   })
 
   it("retorna 400 com lista de itens vazia", async () => {
     db.select.mockReturnValueOnce(createQueryBuilder([faturamento]))
-    const res = await PUT(req("1", "PUT", { status: "RECEBIDO", itens: [] }), { params: Promise.resolve({ id: "1" }) })
+    const res = await PUT(req("1", "PUT", { status: "RECEBIDO", itens: [] }), {
+      params: Promise.resolve({ id: "1" }),
+    })
     expect(res.status).toBe(400)
     expect(await res.json()).toEqual({ error: "Adicione ao menos um item com produto" })
   })
@@ -122,7 +143,19 @@ describe("PUT /api/crm/faturamentos/[id]", () => {
       insert: vi.fn(() => createQueryBuilder(undefined)),
     }
     db.transaction = vi.fn((cb: any) => cb(tx))
-    const res = await PUT(req("1", "PUT", { status: "RECEBIDO", itens: itens.map(i => ({ produto: i.produto, unidade: i.unidade, quantidade: Number(i.quantidade), valorUnitario: Number(i.valorUnitario), valorTotal: Number(i.valorTotal) })) }), { params: Promise.resolve({ id: "1" }) })
+    const res = await PUT(
+      req("1", "PUT", {
+        status: "RECEBIDO",
+        itens: itens.map((i) => ({
+          produto: i.produto,
+          unidade: i.unidade,
+          quantidade: Number(i.quantidade),
+          valorUnitario: Number(i.valorUnitario),
+          valorTotal: Number(i.valorTotal),
+        })),
+      }),
+      { params: Promise.resolve({ id: "1" }) }
+    )
     expect(res.status).toBe(200)
     expect(db.transaction).toHaveBeenCalled()
     expect(await res.json()).toEqual({ id: 1, numero: "FAT-001", status: "RECEBIDO" })
@@ -137,7 +170,9 @@ describe("DELETE /api/crm/faturamentos/[id]", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await DELETE(req("1", "DELETE"), { params: Promise.resolve({ id: "1" }) })
     expect(res.status).toBe(401)
   })

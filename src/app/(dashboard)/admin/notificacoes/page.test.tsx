@@ -21,7 +21,9 @@ describe("NotificacoesAdminPage", () => {
     setup()
     renderPage(<NotificacoesAdminPage />)
 
-    expect(await screen.findByRole("heading", { name: "Notificações por Tipo" }, { timeout: 5000 })).toBeInTheDocument()
+    expect(
+      await screen.findByRole("heading", { name: "Notificações por Tipo" }, { timeout: 5000 })
+    ).toBeInTheDocument()
     expect(screen.getByText("Solicitação Criada")).toBeInTheDocument()
   })
 
@@ -40,6 +42,8 @@ describe("NotificacoesAdminPage", () => {
       expect(Array.isArray(call?.body?.roles)).toBe(true)
       expect(call?.body?.roles).toEqual(expect.arrayContaining(["ADMIN", "COMERCIAL"]))
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Regras de notificação salvas!"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Regras de notificação salvas!")
+    )
   })
 })

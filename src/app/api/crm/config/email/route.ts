@@ -35,16 +35,19 @@ export async function PUT(req: NextRequest) {
     const existing = await db.select().from(crmEmailConfig).limit(1)
 
     if (existing.length > 0) {
-      await db.update(crmEmailConfig).set({
-        host: body.host || "smtp.gmail.com",
-        port: body.port || 587,
-        user: body.user,
-        pass: encrypt(body.pass),
-        fromName: body.fromName || "PDM PRO TEXTIL - CRM",
-        replyTo: body.replyTo || null,
-        ativo: body.ativo ?? true,
-        updatedAt: new Date(),
-      }).where(eq(crmEmailConfig.id, existing[0].id))
+      await db
+        .update(crmEmailConfig)
+        .set({
+          host: body.host || "smtp.gmail.com",
+          port: body.port || 587,
+          user: body.user,
+          pass: encrypt(body.pass),
+          fromName: body.fromName || "PDM PRO TEXTIL - CRM",
+          replyTo: body.replyTo || null,
+          ativo: body.ativo ?? true,
+          updatedAt: new Date(),
+        })
+        .where(eq(crmEmailConfig.id, existing[0].id))
     } else {
       await db.insert(crmEmailConfig).values({
         host: body.host || "smtp.gmail.com",

@@ -23,9 +23,7 @@ export async function GET(req: NextRequest) {
     const [chat] = await db
       .select()
       .from(chats)
-      .where(
-        and(eq(chats.entidadeTipo, entidadeTipo), eq(chats.entidadeId, parseInt(entidadeId)))
-      )
+      .where(and(eq(chats.entidadeTipo, entidadeTipo), eq(chats.entidadeId, parseInt(entidadeId))))
       .limit(1)
 
     if (!chat) return NextResponse.json(null)

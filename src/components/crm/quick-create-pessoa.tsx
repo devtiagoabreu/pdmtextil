@@ -5,7 +5,12 @@ import { useQuery } from "@tanstack/react-query"
 import { Plus, Loader2, Search, Check, AlertCircle } from "lucide-react"
 import { toast } from "sonner"
 import {
-  Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
 } from "@/components/ui/dialog"
 import { SelectUf } from "./select-uf"
 import { SelectCidade } from "./select-cidade"
@@ -133,7 +138,11 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
       setConsulted(true)
       setRazaoSocial(api.razao_social || "")
       setNomeFantasia(api.nome_fantasia || "")
-      setSegmento(api.cnaes?.find((c: { is_principal?: boolean }) => c.is_principal)?.descricao || api.cnae_principal_descricao || "")
+      setSegmento(
+        api.cnaes?.find((c: { is_principal?: boolean }) => c.is_principal)?.descricao ||
+          api.cnae_principal_descricao ||
+          ""
+      )
       setPorte(api.porte_empresa || "")
       setEndereco(api.logradouro || "")
       setNumero(api.numero || "")
@@ -172,7 +181,7 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
           nome: tipoPessoa === "PF" ? nomePF : null,
           cpf: tipoPessoa === "PF" ? cpf : null,
           razaoSocial: tipoPessoa === "PJ" ? razaoSocial : null,
-          nomeFantasia: tipoPessoa === "PJ" ? (nomeFantasia || null) : null,
+          nomeFantasia: tipoPessoa === "PJ" ? nomeFantasia || null : null,
           cnpj: tipoPessoa === "PJ" ? cnpj : null,
           segmento: segmento || null,
           porte: porte || null,
@@ -202,7 +211,13 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
   }
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm() }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        setOpen(v)
+        if (!v) resetForm()
+      }}
+    >
       {!isControlled && (
         <DialogTrigger
           type="button"
@@ -216,13 +231,23 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
         <DialogHeader className="px-4 pt-4 sm:px-6 sm:pt-6">
           <DialogTitle>Nova Pessoa (Negócio)</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 px-4 pb-4 sm:px-6 sm:pb-6 max-h-[80vh] overflow-y-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 px-4 pb-4 sm:px-6 sm:pb-6 max-h-[80vh] overflow-y-auto"
+        >
           <div className="flex items-center justify-between">
-            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Tipo de Pessoa</label>
+            <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Tipo de Pessoa
+            </label>
             <div className="flex rounded-lg bg-slate-100 dark:bg-slate-800 p-1">
               <button
                 type="button"
-                onClick={() => { setTipoPessoa("PF"); setRazaoSocial(""); setNomeFantasia(""); setCnpj("") }}
+                onClick={() => {
+                  setTipoPessoa("PF")
+                  setRazaoSocial("")
+                  setNomeFantasia("")
+                  setCnpj("")
+                }}
                 className={`px-3 py-1.5 text-xs font-medium rounded-md transition-colors ${
                   tipoPessoa === "PF"
                     ? "bg-white dark:bg-slate-700 text-purple-700 dark:text-purple-300 shadow-sm"
@@ -246,89 +271,108 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
           </div>
           {tipoPessoa === "PJ" ? (
             <>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Razão Social *</label>
-            <input
-              type="text"
-              value={razaoSocial}
-              onChange={e => setRazaoSocial(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              required
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome Fantasia</label>
-            <input
-              type="text"
-              value={nomeFantasia}
-              onChange={e => setNomeFantasia(e.target.value)}
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CNPJ *</label>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={cnpj}
-                onChange={e => setCnpj(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && (e.preventDefault(), handleConsultarCnpj())}
-                className="flex-1 min-w-0 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
-                placeholder="00.000.000/0001-00"
-                required
-              />
-              <button
-                type="button"
-                onClick={handleConsultarCnpj}
-                disabled={consulting}
-                className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/50 dark:hover:bg-blue-950/80 border border-blue-200 dark:border-blue-800 rounded-lg transition-colors disabled:opacity-50"
-              >
-                {consulting ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
-                <span className="hidden sm:inline">Consultar</span>
-              </button>
-            </div>
-          </div>
-
-          {consulted && !apiData && (
-            <div className="rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 p-3 flex items-start gap-2">
-              <AlertCircle size={16} className="text-amber-500 mt-0.5 shrink-0" />
-              <p className="text-sm text-amber-700 dark:text-amber-300">
-                CNPJ {formatCnpj(cnpj)} não encontrado na Receita Federal. Preencha os dados manualmente.
-              </p>
-            </div>
-          )}
-
-          {apiData && (
-            <div className="rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 p-3 flex items-start gap-2">
-              <Check size={16} className="text-emerald-500 mt-0.5 shrink-0" />
-              <div className="text-sm">
-                <p className="font-medium text-emerald-800 dark:text-emerald-300">{apiData.razao_social}</p>
-                <p className="text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">
-                  {apiData.nome_fantasia} — {apiData.situacao_cadastral}
-                </p>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Razão Social *
+                </label>
+                <input
+                  type="text"
+                  value={razaoSocial}
+                  onChange={(e) => setRazaoSocial(e.target.value)}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  required
+                />
               </div>
-            </div>
-          )}
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Nome Fantasia
+                </label>
+                <input
+                  type="text"
+                  value={nomeFantasia}
+                  onChange={(e) => setNomeFantasia(e.target.value)}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  CNPJ *
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="text"
+                    value={cnpj}
+                    onChange={(e) => setCnpj(e.target.value)}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && (e.preventDefault(), handleConsultarCnpj())
+                    }
+                    className="flex-1 min-w-0 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                    placeholder="00.000.000/0001-00"
+                    required
+                  />
+                  <button
+                    type="button"
+                    onClick={handleConsultarCnpj}
+                    disabled={consulting}
+                    className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 dark:bg-blue-950/50 dark:hover:bg-blue-950/80 border border-blue-200 dark:border-blue-800 rounded-lg transition-colors disabled:opacity-50"
+                  >
+                    {consulting ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Search size={14} />
+                    )}
+                    <span className="hidden sm:inline">Consultar</span>
+                  </button>
+                </div>
+              </div>
+
+              {consulted && !apiData && (
+                <div className="rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 p-3 flex items-start gap-2">
+                  <AlertCircle size={16} className="text-amber-500 mt-0.5 shrink-0" />
+                  <p className="text-sm text-amber-700 dark:text-amber-300">
+                    CNPJ {formatCnpj(cnpj)} não encontrado na Receita Federal. Preencha os dados
+                    manualmente.
+                  </p>
+                </div>
+              )}
+
+              {apiData && (
+                <div className="rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 p-3 flex items-start gap-2">
+                  <Check size={16} className="text-emerald-500 mt-0.5 shrink-0" />
+                  <div className="text-sm">
+                    <p className="font-medium text-emerald-800 dark:text-emerald-300">
+                      {apiData.razao_social}
+                    </p>
+                    <p className="text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">
+                      {apiData.nome_fantasia} — {apiData.situacao_cadastral}
+                    </p>
+                  </div>
+                </div>
+              )}
             </>
           ) : (
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <div className="sm:col-span-2">
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome Completo *</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Nome Completo *
+                  </label>
                   <input
                     type="text"
                     value={nomePF}
-                    onChange={e => setNomePF(e.target.value)}
+                    onChange={(e) => setNomePF(e.target.value)}
                     className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                     required
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CPF</label>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    CPF
+                  </label>
                   <input
                     type="text"
                     value={cpf}
-                    onChange={e => setCpf(e.target.value)}
+                    onChange={(e) => setCpf(e.target.value)}
                     placeholder="000.000.000-00"
                     className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
@@ -339,14 +383,18 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Segmento</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Segmento
+              </label>
               <SelectSegmento value={segmento} onChange={setSegmento} />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Porte</label>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Porte
+              </label>
               <select
                 value={porte}
-                onChange={e => setPorte(e.target.value)}
+                onChange={(e) => setPorte(e.target.value)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Selecione...</option>
@@ -359,35 +407,77 @@ export function QuickCreatePessoa({ onCreated, open: openProp, onOpenChange }: P
           </div>
 
           <div className="border-t border-slate-100 dark:border-slate-800 pt-3">
-            <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">Endereço</p>
+            <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">
+              Endereço
+            </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Logradouro</label>
-                <input type="text" value={endereco} onChange={e => setEndereco(e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Logradouro
+                </label>
+                <input
+                  type="text"
+                  value={endereco}
+                  onChange={(e) => setEndereco(e.target.value)}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Número</label>
-                <input type="text" value={numero} onChange={e => setNumero(e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Número
+                </label>
+                <input
+                  type="text"
+                  value={numero}
+                  onChange={(e) => setNumero(e.target.value)}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Complemento</label>
-                <input type="text" value={complemento} onChange={e => setComplemento(e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Complemento
+                </label>
+                <input
+                  type="text"
+                  value={complemento}
+                  onChange={(e) => setComplemento(e.target.value)}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Bairro</label>
-                <input type="text" value={bairro} onChange={e => setBairro(e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Bairro
+                </label>
+                <input
+                  type="text"
+                  value={bairro}
+                  onChange={(e) => setBairro(e.target.value)}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UF</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  UF
+                </label>
                 <SelectUf value={uf} onChange={setUf} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Cidade
+                </label>
                 <SelectCidade value={cidade} onChange={setCidade} estadoId={estadoId} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CEP</label>
-                <input type="text" value={cep} onChange={e => setCep(e.target.value)} placeholder="00.000-000" className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  CEP
+                </label>
+                <input
+                  type="text"
+                  value={cep}
+                  onChange={(e) => setCep(e.target.value)}
+                  placeholder="00.000-000"
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                />
               </div>
             </div>
           </div>

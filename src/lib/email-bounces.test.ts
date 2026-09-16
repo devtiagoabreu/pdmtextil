@@ -52,17 +52,20 @@ describe("parseFailedRecipients", () => {
   })
 
   it("faz fallback para o corpo com 'not delivered to'", () => {
-    const raw = "Subject: Delivery Status Notification\r\n\r\nAddress not found. Your message wasn't delivered to madeiradecor@gmail.com because the address wasn't found."
+    const raw =
+      "Subject: Delivery Status Notification\r\n\r\nAddress not found. Your message wasn't delivered to madeiradecor@gmail.com because the address wasn't found."
     expect(parseFailedRecipients(raw)).toEqual(["madeiradecor@gmail.com"])
   })
 
   it("faz fallback para o corpo em pt-BR 'não foi entregue a'", () => {
-    const raw = "Subject: Falha na entrega\r\n\r\nSua mensagem não foi entregue a fulano@exemplo.com.br porque o endereço não foi encontrado."
+    const raw =
+      "Subject: Falha na entrega\r\n\r\nSua mensagem não foi entregue a fulano@exemplo.com.br porque o endereço não foi encontrado."
     expect(parseFailedRecipients(raw)).toEqual(["fulano@exemplo.com.br"])
   })
 
   it("último recurso: emails do corpo excluindo remetentes de DSN", () => {
-    const raw = "Subject: Delivery Status Notification\r\n\r\nFailed for <alvo@empresa.com.br>. From: mailer-daemon@googlemail.com"
+    const raw =
+      "Subject: Delivery Status Notification\r\n\r\nFailed for <alvo@empresa.com.br>. From: mailer-daemon@googlemail.com"
     expect(parseFailedRecipients(raw)).toEqual(["alvo@empresa.com.br"])
   })
 
@@ -104,7 +107,9 @@ describe("sincronizarBounces", () => {
     })
 
     db.select
-      .mockReturnValueOnce(makeQueryChain([[{ email: "contato@promodatextil.ind.br", senhaApp: "abc" }]]))
+      .mockReturnValueOnce(
+        makeQueryChain([[{ email: "contato@promodatextil.ind.br", senhaApp: "abc" }]])
+      )
       .mockReturnValueOnce(makeQueryChain([[]]))
     mockImapFlow.mockImplementation(function () {
       return client as any
@@ -132,7 +137,9 @@ describe("sincronizarBounces", () => {
     })
 
     db.select
-      .mockReturnValueOnce(makeQueryChain([[{ email: "contato@promodatextil.ind.br", senhaApp: "abc" }]]))
+      .mockReturnValueOnce(
+        makeQueryChain([[{ email: "contato@promodatextil.ind.br", senhaApp: "abc" }]])
+      )
       .mockReturnValueOnce(makeQueryChain([[]]))
     mockImapFlow.mockImplementation(function () {
       return client as any

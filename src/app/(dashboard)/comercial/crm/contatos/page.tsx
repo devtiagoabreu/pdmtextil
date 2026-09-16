@@ -10,9 +10,17 @@ import { getInfoContent } from "@/lib/info-content"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import {
-  PlusCircle, Search, Users,
-  Star, StarOff, Phone, Mail,
-  Building2, User, Pencil, Trash2,
+  PlusCircle,
+  Search,
+  Users,
+  Star,
+  StarOff,
+  Phone,
+  Mail,
+  Building2,
+  User,
+  Pencil,
+  Trash2,
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import ListFilters, { useListFilters } from "@/components/ui/list-filters"
@@ -32,14 +40,19 @@ export default function CrmContatosPage() {
   const isAdmin = session?.user?.role === "ADMIN" || session?.user?.role === "SUDO"
   const [deleteTarget, setDeleteTarget] = useState<Contato | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
-  const { data: contatos, isLoading, refetch } = useQuery<Contato[]>({
+  const {
+    data: contatos,
+    isLoading,
+    refetch,
+  } = useQuery<Contato[]>({
     queryKey: ["crm-contatos"],
     queryFn: fetchContatos,
     retry: 1,
   })
 
   const filterState = useListFilters(
-    { searchFields: ["nome", "email", "cargo", "empresaRazaoSocial", "empresaNomeFantasia"],
+    {
+      searchFields: ["nome", "email", "cargo", "empresaRazaoSocial", "empresaNomeFantasia"],
       dateField: "createdAt",
     },
     contatos || []
@@ -72,9 +85,13 @@ export default function CrmContatosPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Contatos{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Contatos{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {isLoading ? "Carregando..." : `${filteredData.length} de ${(contatos || []).length} total`}
+            {isLoading
+              ? "Carregando..."
+              : `${filteredData.length} de ${(contatos || []).length} total`}
           </p>
         </div>
         <Link
@@ -104,8 +121,13 @@ export default function CrmContatosPage() {
         ) : filteredData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <Users className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhum contato encontrado</p>
-            <Link href="/comercial/crm/contatos/novo" className="text-sm text-blue-600 hover:underline mt-1">
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Nenhum contato encontrado
+            </p>
+            <Link
+              href="/comercial/crm/contatos/novo"
+              className="text-sm text-blue-600 hover:underline mt-1"
+            >
               Cadastrar primeiro contato
             </Link>
           </div>
@@ -114,22 +136,35 @@ export default function CrmContatosPage() {
             <table className="w-full">
               <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Principal</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Nome</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Cargo</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Empresa</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Email</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Celular</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ações</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Principal
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Nome
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Cargo
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Empresa
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Email
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Celular
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Data
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Ações
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {filteredData.map((c) => (
-                  <tr
-                    key={c.id}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                  >
+                  <tr key={c.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                     <td className="px-4 py-3">
                       {c.principal ? (
                         <Star size={14} className="text-amber-400 fill-amber-400" />
@@ -147,7 +182,7 @@ export default function CrmContatosPage() {
                       {c.empresaId ? (
                         <Link
                           href={`/comercial/crm/pessoas/${c.empresaId}`}
-                          onClick={e => e.stopPropagation()}
+                          onClick={(e) => e.stopPropagation()}
                           className="inline-flex items-center gap-1 text-sm text-blue-600 hover:underline"
                         >
                           <Building2 size={12} />
@@ -156,7 +191,7 @@ export default function CrmContatosPage() {
                       ) : c.clienteId ? (
                         <Link
                           href={`/comercial/crm/clientes/${c.clienteId}`}
-                          onClick={e => e.stopPropagation()}
+                          onClick={(e) => e.stopPropagation()}
                           className="inline-flex items-center gap-1 text-sm text-emerald-600 hover:underline"
                         >
                           <User size={12} />
@@ -172,7 +207,9 @@ export default function CrmContatosPage() {
                           <Mail size={12} className="text-slate-400" />
                           {c.email}
                         </span>
-                      ) : "—"}
+                      ) : (
+                        "—"
+                      )}
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-500">
                       {c.celular ? (
@@ -180,7 +217,9 @@ export default function CrmContatosPage() {
                           <Phone size={12} className="text-slate-400" />
                           {c.celular}
                         </span>
-                      ) : "—"}
+                      ) : (
+                        "—"
+                      )}
                     </td>
                     <td className="px-4 py-3 text-sm text-slate-500">
                       {c.createdAt ? new Date(c.createdAt).toLocaleDateString("pt-BR") : "—"}

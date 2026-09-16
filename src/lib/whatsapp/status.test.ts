@@ -1,7 +1,12 @@
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { createQueryBuilder } from "@/test/route-db-mock"
 import { db } from "@/lib/db"
-import { extrairStatusUpdate, mapearStatusEvolution, processarStatusUpdate, registrarExternalIdEnviada } from "./status"
+import {
+  extrairStatusUpdate,
+  mapearStatusEvolution,
+  processarStatusUpdate,
+  registrarExternalIdEnviada,
+} from "./status"
 
 vi.mock("@/lib/db", () => ({
   db: {
@@ -10,7 +15,12 @@ vi.mock("@/lib/db", () => ({
   },
 }))
 
-function msgUpdateBody(id: string, status: string, jid = "5519988887777@s.whatsapp.net", fromMe = true) {
+function msgUpdateBody(
+  id: string,
+  status: string,
+  jid = "5519988887777@s.whatsapp.net",
+  fromMe = true
+) {
   return JSON.stringify({
     event: "messages.update",
     data: {
@@ -45,7 +55,10 @@ describe("extrairStatusUpdate", () => {
   })
 
   it("retorna null quando event nao e messages.update", () => {
-    const body = JSON.stringify({ event: "messages.upsert", data: { key: { id: "X" }, status: "READ" } })
+    const body = JSON.stringify({
+      event: "messages.upsert",
+      data: { key: { id: "X" }, status: "READ" },
+    })
     expect(extrairStatusUpdate(body)).toBeNull()
   })
 
@@ -55,7 +68,10 @@ describe("extrairStatusUpdate", () => {
   })
 
   it("retorna null quando data.status e vazio", () => {
-    const body = JSON.stringify({ event: "messages.update", data: { key: { id: "X" }, status: "" } })
+    const body = JSON.stringify({
+      event: "messages.update",
+      data: { key: { id: "X" }, status: "" },
+    })
     expect(extrairStatusUpdate(body)).toBeNull()
   })
 
@@ -70,12 +86,20 @@ describe("extrairStatusUpdate", () => {
   })
 
   it("aceita type MESSAGES_UPDATE ao inves de event", () => {
-    const body = JSON.stringify({ type: "MESSAGES_UPDATE", data: { key: { id: "T1" }, status: "SENT" } })
-    expect(extrairStatusUpdate(body)).toEqual(expect.objectContaining({ externalId: "T1", status: "SENT" }))
+    const body = JSON.stringify({
+      type: "MESSAGES_UPDATE",
+      data: { key: { id: "T1" }, status: "SENT" },
+    })
+    expect(extrairStatusUpdate(body)).toEqual(
+      expect.objectContaining({ externalId: "T1", status: "SENT" })
+    )
   })
 
   it("retorna remoteJid vazio quando ausente", () => {
-    const body = JSON.stringify({ event: "messages.update", data: { key: { id: "T1" }, status: "SENT" } })
+    const body = JSON.stringify({
+      event: "messages.update",
+      data: { key: { id: "T1" }, status: "SENT" },
+    })
     expect(extrairStatusUpdate(body)).toEqual(expect.objectContaining({ remoteJid: "" }))
   })
 })
@@ -99,7 +123,9 @@ describe("mapearStatusEvolution", () => {
 
 describe("processarStatusUpdate", () => {
   it("atualiza status por match de externalId", async () => {
-    vi.mocked(db.select).mockImplementation(() => createQueryBuilder([{ id: 42, status: "ENVIADA" }]))
+    vi.mocked(db.select).mockImplementation(() =>
+      createQueryBuilder([{ id: 42, status: "ENVIADA" }])
+    )
     vi.mocked(db.update).mockImplementation(() => createQueryBuilder([]))
 
     const result = await processarStatusUpdate(msgUpdateBody("EXT001", "READ"))
@@ -115,7 +141,9 @@ describe("processarStatusUpdate", () => {
       data: { key: { id: "NOEXIST", remoteJid: JID }, status: "DELIVERY_ACK" },
     })
 
-    vi.mocked(db.select).mockImplementation(() => createQueryBuilder([{ id: 99, status: "ENVIADA" }]))
+    vi.mocked(db.select).mockImplementation(() =>
+      createQueryBuilder([{ id: 99, status: "ENVIADA" }])
+    )
     vi.mocked(db.update).mockImplementation(() => createQueryBuilder([]))
 
     const result = await processarStatusUpdate(body)
@@ -138,7 +166,9 @@ describe("processarStatusUpdate", () => {
   })
 
   it("permite upgrade (ENVIADA para ENTREGUE)", async () => {
-    vi.mocked(db.select).mockImplementation(() => createQueryBuilder([{ id: 56, status: "ENVIADA" }]))
+    vi.mocked(db.select).mockImplementation(() =>
+      createQueryBuilder([{ id: 56, status: "ENVIADA" }])
+    )
     vi.mocked(db.update).mockImplementation(() => createQueryBuilder([]))
 
     const result = await processarStatusUpdate(msgUpdateBody("EXT003", "DELIVERY_ACK"))
@@ -149,13 +179,18 @@ describe("processarStatusUpdate", () => {
   })
 
   it("nao trata body que nao e status update", async () => {
-    const body = JSON.stringify({ event: "messages.upsert", data: { key: { id: "X" }, message: { conversation: "oi" } } })
+    const body = JSON.stringify({
+      event: "messages.upsert",
+      data: { key: { id: "X" }, message: { conversation: "oi" } },
+    })
     const result = await processarStatusUpdate(body)
     expect(result.tratado).toBe(false)
   })
 
   it("trata sem atualizar quando status da Evolution e desconhecido", async () => {
-    vi.mocked(db.select).mockImplementation(() => createQueryBuilder([{ id: 60, status: "ENVIADA" }]))
+    vi.mocked(db.select).mockImplementation(() =>
+      createQueryBuilder([{ id: 60, status: "ENVIADA" }])
+    )
     const result = await processarStatusUpdate(msgUpdateBody("EXT004", "UNKNOWN_EVO"))
     expect(result.tratado).toBe(true)
     expect(result.status).toBeUndefined()

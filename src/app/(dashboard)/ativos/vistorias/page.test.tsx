@@ -111,9 +111,7 @@ describe("AtivosVistoriasPage", () => {
           json: {
             id: 1,
             nome: "Grupo Gerador",
-            checklist: [
-              { ordem: 0, pergunta: "Bateria OK?", tipo: "SIM_NAO", obrigatorio: true },
-            ],
+            checklist: [{ ordem: 0, pergunta: "Bateria OK?", tipo: "SIM_NAO", obrigatorio: true }],
           },
         }
       }
@@ -140,9 +138,7 @@ describe("AtivosVistoriasPage", () => {
           json: {
             id: 1,
             nome: "Grupo Gerador",
-            checklist: [
-              { ordem: 0, pergunta: "Bateria OK?", tipo: "SIM_NAO", obrigatorio: true },
-            ],
+            checklist: [{ ordem: 0, pergunta: "Bateria OK?", tipo: "SIM_NAO", obrigatorio: true }],
           },
         }
       }

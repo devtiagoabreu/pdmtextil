@@ -1,7 +1,16 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { Package, Layers, ClipboardList, Calendar, CheckSquare, BarChart3, ArrowRight, Loader2 } from "lucide-react"
+import {
+  Package,
+  Layers,
+  ClipboardList,
+  Calendar,
+  CheckSquare,
+  BarChart3,
+  ArrowRight,
+  Loader2,
+} from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
@@ -75,11 +84,11 @@ export default function AtivosHomePage() {
     queryKey: ["ativos-contagens"],
     queryFn: async () => {
       const [ativos, categorias, tiposVistoria, planos, vistorias] = await Promise.all([
-        fetch("/api/ativos/ativos").then(r => r.json()),
-        fetch("/api/ativos/categorias").then(r => r.json()),
-        fetch("/api/ativos/tipos-vistoria").then(r => r.json()),
-        fetch("/api/ativos/planos").then(r => r.json()),
-        fetch("/api/ativos/vistorias").then(r => r.json()),
+        fetch("/api/ativos/ativos").then((r) => r.json()),
+        fetch("/api/ativos/categorias").then((r) => r.json()),
+        fetch("/api/ativos/tipos-vistoria").then((r) => r.json()),
+        fetch("/api/ativos/planos").then((r) => r.json()),
+        fetch("/api/ativos/vistorias").then((r) => r.json()),
       ])
       return {
         ativos: Array.isArray(ativos) ? ativos.length : 0,
@@ -130,7 +139,10 @@ export default function AtivosHomePage() {
                     {contagem?.[campo] ?? 0}
                   </span>
                 ) : (
-                  <ArrowRight size={18} className="text-slate-300 dark:text-slate-600 group-hover:text-slate-500 dark:group-hover:text-slate-400 transition-colors" />
+                  <ArrowRight
+                    size={18}
+                    className="text-slate-300 dark:text-slate-600 group-hover:text-slate-500 dark:group-hover:text-slate-400 transition-colors"
+                  />
                 )}
               </div>
             </Link>

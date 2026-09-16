@@ -31,7 +31,8 @@ const viagens = [
 
 function buildHandler() {
   return ({ method, url }: { method: string; url: string }) => {
-    if (method === "DELETE" && /^\/api\/crm\/viagens\/\d+$/.test(url)) return { json: { success: true } }
+    if (method === "DELETE" && /^\/api\/crm\/viagens\/\d+$/.test(url))
+      return { json: { success: true } }
     if (method !== "GET") return { json: null }
 
     const u = new URL(url, "http://localhost")
@@ -63,7 +64,10 @@ describe("ViagensPage", () => {
     expect(screen.getAllByText("Concluída").length).toBeGreaterThan(0)
     expect(screen.getByText("R$ 500,00")).toBeInTheDocument()
     expect(screen.getByText("1-2 de 2 viagem(ns)")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Nova Viagem" })).toHaveAttribute("href", "/comercial/crm/viagens/novo")
+    expect(screen.getByRole("link", { name: "Nova Viagem" })).toHaveAttribute(
+      "href",
+      "/comercial/crm/viagens/novo"
+    )
   })
 
   it("mostra estado vazio quando a API retorna vazio", async () => {
@@ -84,7 +88,10 @@ describe("ViagensPage", () => {
     })
 
     await waitFor(
-      () => expect(findCall(fetchMock.calls, "/api/crm/viagens?page=1&limit=50&q=Feira", "GET")).toBeDefined(),
+      () =>
+        expect(
+          findCall(fetchMock.calls, "/api/crm/viagens?page=1&limit=50&q=Feira", "GET")
+        ).toBeDefined(),
       { timeout: 2000 }
     )
     await waitFor(() => expect(screen.queryByText("Visita ao cliente")).not.toBeInTheDocument())
@@ -95,10 +102,15 @@ describe("ViagensPage", () => {
     renderPage(<ViagensPage />)
     await screen.findByText("Feira Agritech - São Paulo")
 
-    fireEvent.change(screen.getByLabelText("Filtrar por status"), { target: { value: "CONCLUIDA" } })
+    fireEvent.change(screen.getByLabelText("Filtrar por status"), {
+      target: { value: "CONCLUIDA" },
+    })
 
     await waitFor(
-      () => expect(findCall(fetchMock.calls, "/api/crm/viagens?page=1&limit=50&status=CONCLUIDA", "GET")).toBeDefined(),
+      () =>
+        expect(
+          findCall(fetchMock.calls, "/api/crm/viagens?page=1&limit=50&status=CONCLUIDA", "GET")
+        ).toBeDefined(),
       { timeout: 2000 }
     )
   })
@@ -108,14 +120,20 @@ describe("ViagensPage", () => {
     await screen.findByText("Feira Agritech - São Paulo")
 
     const row = screen.getByText("Feira Agritech - São Paulo").closest("tr")!
-    const trash = within(row).getAllByRole("button").find((b) => !b.closest("a"))!
+    const trash = within(row)
+      .getAllByRole("button")
+      .find((b) => !b.closest("a"))!
     fireEvent.click(trash)
 
     const dialog = screen.getByRole("dialog", { name: "Excluir viagem" })
     fireEvent.click(within(dialog).getByRole("button", { name: "Excluir" }))
 
-    await waitFor(() => expect(findCall(fetchMock.calls, "/api/crm/viagens/1", "DELETE")).toBeDefined())
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Viagem excluída com sucesso"))
+    await waitFor(() =>
+      expect(findCall(fetchMock.calls, "/api/crm/viagens/1", "DELETE")).toBeDefined()
+    )
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Viagem excluída com sucesso")
+    )
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
   })
 })

@@ -25,18 +25,32 @@ export function DadosPessoaCard({
 }: DadosPessoaCardProps) {
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-      <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Dados da Pessoa (Negócio)</h2>
+      <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">
+        Dados da Pessoa (Negócio)
+      </h2>
       {editing ? (
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Tipo</label>
             <div className="flex gap-2">
-              <button type="button" onClick={() => { setTipoPessoa("PF"); setForm((p: PessoaForm) => ({ ...p, tipoPessoa: "PF" })) }}
-                className={`px-3 py-1.5 text-xs rounded-lg font-medium border ${tipoPessoa === "PF" ? "border-purple-500 bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300" : "border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"}`}>
+              <button
+                type="button"
+                onClick={() => {
+                  setTipoPessoa("PF")
+                  setForm((p: PessoaForm) => ({ ...p, tipoPessoa: "PF" }))
+                }}
+                className={`px-3 py-1.5 text-xs rounded-lg font-medium border ${tipoPessoa === "PF" ? "border-purple-500 bg-purple-50 dark:bg-purple-950/30 text-purple-700 dark:text-purple-300" : "border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"}`}
+              >
                 PF
               </button>
-              <button type="button" onClick={() => { setTipoPessoa("PJ"); setForm((p: PessoaForm) => ({ ...p, tipoPessoa: "PJ" })) }}
-                className={`px-3 py-1.5 text-xs rounded-lg font-medium border ${tipoPessoa === "PJ" ? "border-cyan-500 bg-cyan-50 dark:bg-cyan-950/30 text-cyan-700 dark:text-cyan-300" : "border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"}`}>
+              <button
+                type="button"
+                onClick={() => {
+                  setTipoPessoa("PJ")
+                  setForm((p: PessoaForm) => ({ ...p, tipoPessoa: "PJ" }))
+                }}
+                className={`px-3 py-1.5 text-xs rounded-lg font-medium border ${tipoPessoa === "PJ" ? "border-cyan-500 bg-cyan-50 dark:bg-cyan-950/30 text-cyan-700 dark:text-cyan-300" : "border-slate-200 dark:border-slate-700 text-slate-500 hover:bg-slate-50 dark:hover:bg-slate-800"}`}
+              >
                 PJ
               </button>
             </div>
@@ -46,36 +60,76 @@ export function DadosPessoaCard({
               <>
                 <div className="col-span-2">
                   <label className="block text-xs font-medium text-slate-500 mb-1">Nome</label>
-                  <input type="text" value={form.nome || ""} onChange={e => setForm((p: PessoaForm) => ({ ...p, nome: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <input
+                    type="text"
+                    value={form.nome || ""}
+                    onChange={(e) => setForm((p: PessoaForm) => ({ ...p, nome: e.target.value }))}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">CPF</label>
-                  <input type="text" value={form.cpf || ""} onChange={e => setForm((p: PessoaForm) => ({ ...p, cpf: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <input
+                    type="text"
+                    value={form.cpf || ""}
+                    onChange={(e) => setForm((p: PessoaForm) => ({ ...p, cpf: e.target.value }))}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  />
                 </div>
               </>
             ) : (
               <>
                 <div className="col-span-2">
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Razão Social</label>
-                  <input type="text" value={form.razaoSocial || ""} onChange={e => setForm((p: PessoaForm) => ({ ...p, razaoSocial: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <label className="block text-xs font-medium text-slate-500 mb-1">
+                    Razão Social
+                  </label>
+                  <input
+                    type="text"
+                    value={form.razaoSocial || ""}
+                    onChange={(e) =>
+                      setForm((p: PessoaForm) => ({ ...p, razaoSocial: e.target.value }))
+                    }
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1">Nome Fantasia</label>
-                  <input type="text" value={form.nomeFantasia || ""} onChange={e => setForm((p: PessoaForm) => ({ ...p, nomeFantasia: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <label className="block text-xs font-medium text-slate-500 mb-1">
+                    Nome Fantasia
+                  </label>
+                  <input
+                    type="text"
+                    value={form.nomeFantasia || ""}
+                    onChange={(e) =>
+                      setForm((p: PessoaForm) => ({ ...p, nomeFantasia: e.target.value }))
+                    }
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  />
                 </div>
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1">CNPJ</label>
-                  <input type="text" value={form.cnpj || ""} onChange={e => setForm((p: PessoaForm) => ({ ...p, cnpj: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                  <input
+                    type="text"
+                    value={form.cnpj || ""}
+                    onChange={(e) => setForm((p: PessoaForm) => ({ ...p, cnpj: e.target.value }))}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                  />
                 </div>
               </>
             )}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Segmento</label>
-              <SelectSegmento value={form.segmento || ""} onChange={v => setForm((p: PessoaForm) => ({ ...p, segmento: v }))} />
+              <SelectSegmento
+                value={form.segmento || ""}
+                onChange={(v) => setForm((p: PessoaForm) => ({ ...p, segmento: v }))}
+              />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Porte</label>
-              <select value={form.porte || ""} onChange={e => setForm((p: PessoaForm) => ({ ...p, porte: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
+              <select
+                value={form.porte || ""}
+                onChange={(e) => setForm((p: PessoaForm) => ({ ...p, porte: e.target.value }))}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              >
                 <option value="">Selecione...</option>
                 <option value="MEI">MEI</option>
                 <option value="ME">ME</option>
@@ -86,64 +140,142 @@ export function DadosPessoaCard({
             </div>
             <div className="col-span-2">
               <label className="block text-xs font-medium text-slate-500 mb-1">Site</label>
-              <input type="url" value={form.site || ""} onChange={e => setForm((p: PessoaForm) => ({ ...p, site: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              <input
+                type="url"
+                value={form.site || ""}
+                onChange={(e) => setForm((p: PessoaForm) => ({ ...p, site: e.target.value }))}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Telefone</label>
-              <input type="text" value={form.telefone || ""} onChange={e => setForm((p: PessoaForm) => ({ ...p, telefone: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              <input
+                type="text"
+                value={form.telefone || ""}
+                onChange={(e) => setForm((p: PessoaForm) => ({ ...p, telefone: e.target.value }))}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Celular</label>
-              <input type="text" value={form.celular || ""} onChange={e => setForm((p: PessoaForm) => ({ ...p, celular: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              <input
+                type="text"
+                value={form.celular || ""}
+                onChange={(e) => setForm((p: PessoaForm) => ({ ...p, celular: e.target.value }))}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              />
             </div>
             <div className="col-span-2">
               <label className="block text-xs font-medium text-slate-500 mb-1">E-mail</label>
-              <input type="email" value={form.email || ""} onChange={e => setForm((p: PessoaForm) => ({ ...p, email: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              <input
+                type="email"
+                value={form.email || ""}
+                onChange={(e) => setForm((p: PessoaForm) => ({ ...p, email: e.target.value }))}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              />
             </div>
             <div className="col-span-2">
-              <label className="block text-xs font-medium text-slate-500 mb-1">E-mail p/ Nota Fiscal</label>
-              <input type="email" value={form.emailNf || ""} onChange={e => setForm((p: PessoaForm) => ({ ...p, emailNf: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              <label className="block text-xs font-medium text-slate-500 mb-1">
+                E-mail p/ Nota Fiscal
+              </label>
+              <input
+                type="email"
+                value={form.emailNf || ""}
+                onChange={(e) => setForm((p: PessoaForm) => ({ ...p, emailNf: e.target.value }))}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              />
             </div>
             <div className="col-span-2">
-              <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-1 mb-1">Endereço</p>
+              <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-1 mb-1">
+                Endereço
+              </p>
             </div>
             <div className="col-span-2">
               <label className="block text-xs font-medium text-slate-500 mb-1">Logradouro</label>
-              <input type="text" value={form.endereco || ""} onChange={e => setForm((p: PessoaForm) => ({ ...p, endereco: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              <input
+                type="text"
+                value={form.endereco || ""}
+                onChange={(e) => setForm((p: PessoaForm) => ({ ...p, endereco: e.target.value }))}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Número</label>
-              <input type="text" value={form.numero || ""} onChange={e => setForm((p: PessoaForm) => ({ ...p, numero: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              <input
+                type="text"
+                value={form.numero || ""}
+                onChange={(e) => setForm((p: PessoaForm) => ({ ...p, numero: e.target.value }))}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Complemento</label>
-              <input type="text" value={form.complemento || ""} onChange={e => setForm((p: PessoaForm) => ({ ...p, complemento: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              <input
+                type="text"
+                value={form.complemento || ""}
+                onChange={(e) =>
+                  setForm((p: PessoaForm) => ({ ...p, complemento: e.target.value }))
+                }
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Bairro</label>
-              <input type="text" value={form.bairro || ""} onChange={e => setForm((p: PessoaForm) => ({ ...p, bairro: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              <input
+                type="text"
+                value={form.bairro || ""}
+                onChange={(e) => setForm((p: PessoaForm) => ({ ...p, bairro: e.target.value }))}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">CEP</label>
-              <input type="text" value={form.cep || ""} onChange={e => setForm((p: PessoaForm) => ({ ...p, cep: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              <input
+                type="text"
+                value={form.cep || ""}
+                onChange={(e) => setForm((p: PessoaForm) => ({ ...p, cep: e.target.value }))}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              />
             </div>
             <div className="col-span-2">
               <label className="block text-xs font-medium text-slate-500 mb-1">UF</label>
-              <SelectUf value={form.uf || ""} onChange={v => setForm((p: PessoaForm) => ({ ...p, uf: v }))} />
+              <SelectUf
+                value={form.uf || ""}
+                onChange={(v) => setForm((p: PessoaForm) => ({ ...p, uf: v }))}
+              />
             </div>
             <div className="col-span-2">
               <label className="block text-xs font-medium text-slate-500 mb-1">Cidade</label>
-              <SelectCidade value={form.cidade || ""} onChange={v => setForm((p: PessoaForm) => ({ ...p, cidade: v }))} estadoId={estadoId} />
+              <SelectCidade
+                value={form.cidade || ""}
+                onChange={(v) => setForm((p: PessoaForm) => ({ ...p, cidade: v }))}
+                estadoId={estadoId}
+              />
             </div>
             <div className="col-span-2">
               <label className="block text-xs font-medium text-slate-500 mb-1">Status</label>
-              <select value={form.status || "NOVO"} onChange={e => setForm((p: PessoaForm) => ({ ...p, status: e.target.value }))} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm">
-                {STATUS_OPTIONS.map((s: string) => <option key={s} value={s}>{s}</option>)}
+              <select
+                value={form.status || "NOVO"}
+                onChange={(e) => setForm((p: PessoaForm) => ({ ...p, status: e.target.value }))}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              >
+                {STATUS_OPTIONS.map((s: string) => (
+                  <option key={s} value={s}>
+                    {s}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="col-span-2">
               <label className="block text-xs font-medium text-slate-500 mb-1">Observações</label>
-              <textarea value={form.observacoes || ""} onChange={e => setForm((p: PessoaForm) => ({ ...p, observacoes: e.target.value }))} rows={3} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              <textarea
+                value={form.observacoes || ""}
+                onChange={(e) =>
+                  setForm((p: PessoaForm) => ({ ...p, observacoes: e.target.value }))
+                }
+                rows={3}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              />
             </div>
           </div>
         </div>
@@ -205,7 +337,9 @@ export function DadosPessoaCard({
             <p className="text-slate-900 dark:text-slate-200">{pessoa.emailNf || "—"}</p>
           </div>
           <div className="col-span-2">
-            <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-1 mb-1">Endereço</p>
+            <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 border-b border-slate-100 dark:border-slate-800 pb-1 mb-1">
+              Endereço
+            </p>
           </div>
           <div className="col-span-2">
             <p className="text-xs text-slate-500 mb-0.5">Logradouro</p>
@@ -241,7 +375,9 @@ export function DadosPessoaCard({
           </div>
           <div className="col-span-2">
             <p className="text-xs text-slate-500 mb-0.5">Observações</p>
-            <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{pessoa.observacoes || "—"}</p>
+            <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+              {pessoa.observacoes || "—"}
+            </p>
           </div>
         </div>
       )}

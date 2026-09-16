@@ -72,10 +72,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Estado é obrigatório" }, { status: 400 })
     }
 
-    const [nova] = await db
-      .insert(crmCidades)
-      .values({ nome, estadoId })
-      .returning()
+    const [nova] = await db.insert(crmCidades).values({ nome, estadoId }).returning()
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error: any) {

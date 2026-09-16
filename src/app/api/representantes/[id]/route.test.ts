@@ -20,10 +20,13 @@ function get(id: string) {
 }
 
 function put(id: string, body: any) {
-  return PUT(new NextRequest(`http://localhost/api/representantes/${id}`, {
-    method: "PUT",
-    body: JSON.stringify(body),
-  }), { params: Promise.resolve({ id }) })
+  return PUT(
+    new NextRequest(`http://localhost/api/representantes/${id}`, {
+      method: "PUT",
+      body: JSON.stringify(body),
+    }),
+    { params: Promise.resolve({ id }) }
+  )
 }
 
 function del(id: string) {
@@ -81,7 +84,9 @@ describe("PUT /api/representantes/[id]", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await put("5", { nome: "Rep ABC", cnpj: "11222333000144" })
     expect(res.status).toBe(401)
   })
@@ -140,7 +145,9 @@ describe("DELETE /api/representantes/[id]", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await del("3")
     expect(res.status).toBe(401)
   })

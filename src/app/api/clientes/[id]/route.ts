@@ -5,16 +5,13 @@ import { clientes } from "@/lib/db/schema/clientes"
 import { eq } from "drizzle-orm"
 import { excluirClienteCascade } from "@/lib/cliente-cascade"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
     const { id } = await params
-    
+
     const resultado = await db
       .select()
       .from(clientes)
@@ -32,17 +29,28 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
     const { id } = await params
     const body = await req.json()
 
-    const { nome, cnpj, razaoSocial, email, emailNf, telefone, celular, contato, segmento, endereco, cidade, uf, idIntegracao } = body
+    const {
+      nome,
+      cnpj,
+      razaoSocial,
+      email,
+      emailNf,
+      telefone,
+      celular,
+      contato,
+      segmento,
+      endereco,
+      cidade,
+      uf,
+      idIntegracao,
+    } = body
 
     if (!nome?.trim()) {
       return NextResponse.json({ error: "Nome é obrigatório" }, { status: 400 })
@@ -70,7 +78,10 @@ export async function PUT(
         .limit(1)
 
       if (existenteIdInt[0] && existenteIdInt[0].id !== parseInt(id)) {
-        return NextResponse.json({ error: "ID Integração já cadastrado em outro cliente" }, { status: 409 })
+        return NextResponse.json(
+          { error: "ID Integração já cadastrado em outro cliente" },
+          { status: 409 }
+        )
       }
     }
 
@@ -105,15 +116,15 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
     if ((auth.session.user?.role ?? "") !== "ADMIN" && (auth.session.user?.role ?? "") !== "SUDO") {
-      return NextResponse.json({ error: "Apenas administradores podem excluir clientes" }, { status: 403 })
+      return NextResponse.json(
+        { error: "Apenas administradores podem excluir clientes" },
+        { status: 403 }
+      )
     }
 
     const { id } = await params

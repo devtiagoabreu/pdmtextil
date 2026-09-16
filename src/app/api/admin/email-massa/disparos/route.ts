@@ -12,7 +12,10 @@ export const dynamic = "force-dynamic"
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
+    if (
+      !session ||
+      (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")
+    ) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -40,7 +43,10 @@ export async function GET() {
       .limit(50)
 
     const ids = disparos.map((d: EmailDisparo) => d.id)
-    const contadoresMap = new Map<number, { pendentes: number; enviados: number; falhas: number; lidos: number; cliques: number }>()
+    const contadoresMap = new Map<
+      number,
+      { pendentes: number; enviados: number; falhas: number; lidos: number; cliques: number }
+    >()
     if (ids.length > 0) {
       const rows = await db
         .select({
@@ -72,7 +78,13 @@ export async function GET() {
         .where(inArray(emailEnviados.disparoId, ids))
         .groupBy(emailEnviados.disparoId)
       for (const r of cliquesRows) {
-        const atual = contadoresMap.get(r.disparoId) || { pendentes: 0, enviados: 0, falhas: 0, lidos: 0, cliques: 0 }
+        const atual = contadoresMap.get(r.disparoId) || {
+          pendentes: 0,
+          enviados: 0,
+          falhas: 0,
+          lidos: 0,
+          cliques: 0,
+        }
         contadoresMap.set(r.disparoId!, { ...atual, cliques: Number(r.cliques) })
       }
     }
@@ -80,7 +92,13 @@ export async function GET() {
     return NextResponse.json({
       disparos: disparos.map((d: EmailDisparo) => ({
         ...d,
-        ...(contadoresMap.get(d.id) || { pendentes: 0, enviados: 0, falhas: 0, lidos: 0, cliques: 0 }),
+        ...(contadoresMap.get(d.id) || {
+          pendentes: 0,
+          enviados: 0,
+          falhas: 0,
+          lidos: 0,
+          cliques: 0,
+        }),
       })),
     })
   } catch (error: any) {

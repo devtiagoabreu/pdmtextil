@@ -17,7 +17,13 @@ import { AnexosUpload, AnexoDraft } from "@/components/forms/AnexosUpload"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { cn } from "@/lib/utils"
 import { ClienteAutocomplete } from "@/components/forms/ClienteAutocomplete"
 import {
@@ -42,7 +48,7 @@ export default function NovaSolicitacaoPage() {
   const info = getInfoContent(pathname)
   const [step, setStep] = useState(1)
   const [isSubmitting, setIsSubmitting] = useState(false)
-  
+
   const [comercialData, setComercialData] = useState<Partial<DadosComerciais>>({
     tipo: undefined,
     cliente: "",
@@ -71,7 +77,15 @@ export default function NovaSolicitacaoPage() {
   const [isConsultandoCnpj, setIsConsultandoCnpj] = useState(false)
 
   // STEP 1 FORM
-  const { register, handleSubmit, control, formState: { errors }, setValue, watch, getValues } = useForm<DadosComerciais>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+    setValue,
+    watch,
+    getValues,
+  } = useForm<DadosComerciais>({
     resolver: zodResolver(dadosComerciaisSchema),
     defaultValues: comercialData,
   })
@@ -79,7 +93,7 @@ export default function NovaSolicitacaoPage() {
   // Sincroniza RHF -> comercialData em tempo real
   useEffect(() => {
     const subscription = watch((value) => {
-      setComercialData(prev => ({ ...prev, ...value }))
+      setComercialData((prev) => ({ ...prev, ...value }))
     })
     return () => subscription.unsubscribe()
   }, [watch])
@@ -109,7 +123,20 @@ export default function NovaSolicitacaoPage() {
       const cliente = await res.json()
       setComercialData((prev) => ({ ...prev, cliente: cliente.nome, cnpj: cliente.cnpj }))
       setShowNovoCliente(false)
-      setNovoClienteData({ nome: "", cnpj: "", razaoSocial: "", email: "", emailNf: "", telefone: "", celular: "", contato: "", segmento: "", endereco: "", cidade: "", uf: "" })
+      setNovoClienteData({
+        nome: "",
+        cnpj: "",
+        razaoSocial: "",
+        email: "",
+        emailNf: "",
+        telefone: "",
+        celular: "",
+        contato: "",
+        segmento: "",
+        endereco: "",
+        cidade: "",
+        uf: "",
+      })
       toast.success("Cliente criado com sucesso!")
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Erro ao criar cliente.")
@@ -142,7 +169,8 @@ export default function NovaSolicitacaoPage() {
         nome: api.nome_fantasia || prev.nome,
         cnpj: api.cnpj || prev.cnpj,
         razaoSocial: api.razao_social || prev.razaoSocial,
-        endereco: [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
+        endereco:
+          [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
         cidade: api.municipio || prev.cidade,
         uf: api.uf || prev.uf,
         segmento: api.cnae_principal_descricao || prev.segmento,
@@ -161,15 +189,16 @@ export default function NovaSolicitacaoPage() {
 
       // Usa getValues() do RHF como fonte primária (mais confiável), com fallback para comercialData
       const rhfValues = getValues()
-      
+
       const payload = {
         tipo: rhfValues.tipo || comercialData.tipo,
         cliente: rhfValues.cliente || comercialData.cliente,
         cnpj: rhfValues.cnpj || comercialData.cnpj || null,
         projeto: rhfValues.projeto || comercialData.projeto || null,
-        prazoDesejado: (rhfValues.prazoDesejado || comercialData.prazoDesejado) 
-          ? `${rhfValues.prazoDesejado || comercialData.prazoDesejado}T12:00:00Z` 
-          : null,
+        prazoDesejado:
+          rhfValues.prazoDesejado || comercialData.prazoDesejado
+            ? `${rhfValues.prazoDesejado || comercialData.prazoDesejado}T12:00:00Z`
+            : null,
         briefing: briefingData,
         anexos: anexosData,
       }
@@ -207,8 +236,12 @@ export default function NovaSolicitacaoPage() {
     <div className="max-w-4xl mx-auto py-8">
       <div className="mb-8 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Nova Solicitação{info && <InfoButton content={info} />}</h1>
-          <p className="text-muted-foreground mt-2">Crie uma nova solicitação de desenvolvimento têxtil.</p>
+          <h1 className="text-3xl font-bold tracking-tight">
+            Nova Solicitação{info && <InfoButton content={info} />}
+          </h1>
+          <p className="text-muted-foreground mt-2">
+            Crie uma nova solicitação de desenvolvimento têxtil.
+          </p>
         </div>
         <Link
           href="/comercial/solicitacoes"
@@ -221,25 +254,32 @@ export default function NovaSolicitacaoPage() {
       {/* PROGRESS BAR */}
       <div className="flex items-center justify-between mb-8 relative">
         <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-muted -z-10" />
-        <div 
+        <div
           className="absolute left-0 top-1/2 transform -translate-y-1/2 h-1 bg-primary -z-10 transition-all duration-300"
           style={{ width: `${((step - 1) / 2) * 100}%` }}
         />
-        
+
         {STEPS.map((s) => {
           const Icon = s.icon
           const isActive = step === s.id
           const isCompleted = step > s.id
-          
+
           return (
             <div key={s.id} className="flex flex-col items-center gap-2 bg-background px-4">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
-                isActive ? "bg-primary text-primary-foreground" :
-                isCompleted ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
-              }`}>
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                  isActive
+                    ? "bg-primary text-primary-foreground"
+                    : isCompleted
+                      ? "bg-primary/20 text-primary"
+                      : "bg-muted text-muted-foreground"
+                }`}
+              >
                 {isCompleted ? <CheckCircle className="w-6 h-6" /> : <Icon className="w-5 h-5" />}
               </div>
-              <span className={`text-sm font-medium ${isActive || isCompleted ? "text-foreground" : "text-muted-foreground"}`}>
+              <span
+                className={`text-sm font-medium ${isActive || isCompleted ? "text-foreground" : "text-muted-foreground"}`}
+              >
                 {s.title}
               </span>
             </div>
@@ -263,26 +303,31 @@ export default function NovaSolicitacaoPage() {
                   name="tipo"
                   control={control}
                   render={({ field }) => (
-                    <Select 
+                    <Select
                       onValueChange={(val: string | null) => {
                         if (val) field.onChange(val)
-                        setComercialData(prev => ({ ...prev, tipo: val as DadosComerciais["tipo"] }))
-                      }} 
+                        setComercialData((prev) => ({
+                          ...prev,
+                          tipo: val as DadosComerciais["tipo"],
+                        }))
+                      }}
                       defaultValue={field.value}
                     >
                       <SelectTrigger className={errors.tipo ? "border-red-500" : ""}>
                         <SelectValue placeholder="Selecione o tipo..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="DESENVOLVIMENTO_TECELAGEM">Desenvolvimento de Tecido (Tecelagem)</SelectItem>
-                        <SelectItem value="DESENVOLVIMENTO_BENEFICIAMENTO">Desenvolvimento de Beneficiamento</SelectItem>
+                        <SelectItem value="DESENVOLVIMENTO_TECELAGEM">
+                          Desenvolvimento de Tecido (Tecelagem)
+                        </SelectItem>
+                        <SelectItem value="DESENVOLVIMENTO_BENEFICIAMENTO">
+                          Desenvolvimento de Beneficiamento
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   )}
                 />
-                {errors.tipo && (
-                  <p className="text-xs text-red-500 mt-1">{errors.tipo.message}</p>
-                )}
+                {errors.tipo && <p className="text-xs text-red-500 mt-1">{errors.tipo.message}</p>}
               </div>
 
               <div className="space-y-2 md:col-span-2">
@@ -297,11 +342,11 @@ export default function NovaSolicitacaoPage() {
                       value={field.value}
                       onChange={(val) => {
                         field.onChange(val)
-                        setComercialData(prev => ({ ...prev, cliente: val }))
+                        setComercialData((prev) => ({ ...prev, cliente: val }))
                       }}
                       onSelect={(cliente) => {
                         setValue("cnpj", cliente.cnpj)
-                        setComercialData(prev => ({ ...prev, cnpj: cliente.cnpj }))
+                        setComercialData((prev) => ({ ...prev, cnpj: cliente.cnpj }))
                       }}
                       onNovoCliente={() => setShowNovoCliente(true)}
                       error={errors.cliente?.message}
@@ -317,17 +362,19 @@ export default function NovaSolicitacaoPage() {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nome do Projeto</Label>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Nome do Projeto
+                </Label>
                 <Controller
                   name="projeto"
                   control={control}
                   render={({ field }) => (
-                    <Input 
-                      {...field} 
-                      placeholder="Ex: Coleção Inverno 2027" 
+                    <Input
+                      {...field}
+                      placeholder="Ex: Coleção Inverno 2027"
                       onChange={(e) => {
                         field.onChange(e)
-                        setComercialData(prev => ({ ...prev, projeto: e.target.value }))
+                        setComercialData((prev) => ({ ...prev, projeto: e.target.value }))
                       }}
                     />
                   )}
@@ -335,18 +382,20 @@ export default function NovaSolicitacaoPage() {
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Prazo Desejado</Label>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Prazo Desejado
+                </Label>
                 <Controller
                   name="prazoDesejado"
                   control={control}
                   render={({ field }) => (
-                    <Input 
-                      type="date" 
-                      {...field} 
-                      className="max-w-xs" 
+                    <Input
+                      type="date"
+                      {...field}
+                      className="max-w-xs"
                       onChange={(e) => {
                         field.onChange(e)
-                        setComercialData(prev => ({ ...prev, prazoDesejado: e.target.value }))
+                        setComercialData((prev) => ({ ...prev, prazoDesejado: e.target.value }))
                       }}
                     />
                   )}
@@ -363,10 +412,10 @@ export default function NovaSolicitacaoPage() {
         </div>
 
         <div className={step === 2 ? "block" : "hidden"}>
-          <BriefingTecelagemForm 
+          <BriefingTecelagemForm
             initialData={briefingData}
-            onNext={onStep2Submit} 
-            onBack={() => setStep(1)} 
+            onNext={onStep2Submit}
+            onBack={() => setStep(1)}
           />
         </div>
 
@@ -374,21 +423,30 @@ export default function NovaSolicitacaoPage() {
           <div className="space-y-6">
             <h2 className="text-xl font-semibold border-b pb-2">Anexos e Referências</h2>
             <p className="text-sm text-muted-foreground">
-              Adicione arquivos de modelagem, referências visuais (Pinterest) ou documentos de especificação.
+              Adicione arquivos de modelagem, referências visuais (Pinterest) ou documentos de
+              especificação.
             </p>
-            
-            <AnexosUpload 
-              anexos={anexosData} 
-              onChange={setAnexosData} 
-            />
+
+            <AnexosUpload anexos={anexosData} onChange={setAnexosData} />
 
             <div className="bg-muted/50 p-4 rounded-lg mt-8 border border-border">
               <h3 className="font-semibold mb-2">Resumo da Solicitação</h3>
               <ul className="space-y-1 text-sm">
-                <li><span className="font-medium">Cliente:</span> {watch("cliente") || comercialData.cliente || "—"}</li>
-                <li><span className="font-medium">Projeto:</span> {watch("projeto") || comercialData.projeto || "N/A"}</li>
-                <li><span className="font-medium">Tipo:</span> {(watch("tipo") || comercialData.tipo)?.replace("DESENVOLVIMENTO_", "") || "—"}</li>
-                <li><span className="font-medium">Total de Anexos:</span> {anexosData.length}</li>
+                <li>
+                  <span className="font-medium">Cliente:</span>{" "}
+                  {watch("cliente") || comercialData.cliente || "—"}
+                </li>
+                <li>
+                  <span className="font-medium">Projeto:</span>{" "}
+                  {watch("projeto") || comercialData.projeto || "N/A"}
+                </li>
+                <li>
+                  <span className="font-medium">Tipo:</span>{" "}
+                  {(watch("tipo") || comercialData.tipo)?.replace("DESENVOLVIMENTO_", "") || "—"}
+                </li>
+                <li>
+                  <span className="font-medium">Total de Anexos:</span> {anexosData.length}
+                </li>
               </ul>
             </div>
 
@@ -429,10 +487,16 @@ export default function NovaSolicitacaoPage() {
                   variant="outline"
                   size="sm"
                   onClick={handleConsultarCnpj}
-                  disabled={isConsultandoCnpj || novoClienteData.cnpj.replace(/\D/g, "").length !== 14}
+                  disabled={
+                    isConsultandoCnpj || novoClienteData.cnpj.replace(/\D/g, "").length !== 14
+                  }
                   className="gap-1 shrink-0"
                 >
-                  {isConsultandoCnpj ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+                  {isConsultandoCnpj ? (
+                    <Loader2 size={14} className="animate-spin" />
+                  ) : (
+                    <Search size={14} />
+                  )}
                   Consultar
                 </Button>
               </div>
@@ -541,7 +605,9 @@ export default function NovaSolicitacaoPage() {
                 <Input
                   id="novo-uf"
                   value={novoClienteData.uf}
-                  onChange={(e) => setNovoClienteData((p) => ({ ...p, uf: e.target.value.toUpperCase() }))}
+                  onChange={(e) =>
+                    setNovoClienteData((p) => ({ ...p, uf: e.target.value.toUpperCase() }))
+                  }
                   placeholder="SP"
                   maxLength={2}
                 />
@@ -554,7 +620,9 @@ export default function NovaSolicitacaoPage() {
             </Button>
             <Button
               onClick={handleNovoCliente}
-              disabled={isCriandoCliente || !novoClienteData.nome.trim() || !novoClienteData.cnpj.trim()}
+              disabled={
+                isCriandoCliente || !novoClienteData.nome.trim() || !novoClienteData.cnpj.trim()
+              }
             >
               {isCriandoCliente ? "Criando..." : "Criar Cliente"}
             </Button>

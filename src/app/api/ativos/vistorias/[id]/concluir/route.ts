@@ -9,10 +9,7 @@ import { validateRequest } from "@/lib/validation"
 import { vistoriaConclusaoSchema } from "@/lib/validation"
 import { avancarPlano } from "@/lib/ativos/agendamento"
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -44,11 +41,23 @@ export async function POST(
       .set({
         status: parsed.data.status,
         dataRealizada,
-        executadoPorId: parsed.data.executadoPorId !== undefined ? parsed.data.executadoPorId : vistoria.executadoPorId,
+        executadoPorId:
+          parsed.data.executadoPorId !== undefined
+            ? parsed.data.executadoPorId
+            : vistoria.executadoPorId,
         resultado: parsed.data.resultado !== undefined ? parsed.data.resultado : vistoria.resultado,
-        checklistResposta: parsed.data.checklistResposta !== undefined ? parsed.data.checklistResposta : vistoria.checklistResposta,
-        observacoes: parsed.data.observacoes !== undefined ? parsed.data.observacoes : vistoria.observacoes,
-        custo: parsed.data.custo === undefined ? vistoria.custo : parsed.data.custo === null ? null : String(parsed.data.custo),
+        checklistResposta:
+          parsed.data.checklistResposta !== undefined
+            ? parsed.data.checklistResposta
+            : vistoria.checklistResposta,
+        observacoes:
+          parsed.data.observacoes !== undefined ? parsed.data.observacoes : vistoria.observacoes,
+        custo:
+          parsed.data.custo === undefined
+            ? vistoria.custo
+            : parsed.data.custo === null
+              ? null
+              : String(parsed.data.custo),
         anexos: parsed.data.anexos !== undefined ? parsed.data.anexos : vistoria.anexos,
         updatedAt: new Date(),
       })

@@ -4,7 +4,14 @@ import { screen, fireEvent, waitFor } from "@testing-library/react"
 import EditarUsuarioPage from "./page"
 import { createFetchMock, findCall, navMock, renderPage, toastMock } from "@/test/harness"
 
-const usuario = { id: 5, name: "Ana Souza", email: "ana@empresa.com", role: "COMERCIAL", ativo: true, celWhatsapp: "5519999999999" }
+const usuario = {
+  id: 5,
+  name: "Ana Souza",
+  email: "ana@empresa.com",
+  role: "COMERCIAL",
+  ativo: true,
+  celWhatsapp: "5519999999999",
+}
 const roles = [{ id: 1, name: "COMERCIAL", label: "Comercial", ativo: true }]
 
 function setup() {
@@ -39,7 +46,9 @@ describe("EditarUsuarioPage", () => {
     fireEvent.change(screen.getByDisplayValue("Ana Souza"), { target: { value: "" } })
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
 
-    await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Nome e email são obrigatórios"))
+    await waitFor(() =>
+      expect(toastMock.error).toHaveBeenCalledWith("Nome e email são obrigatórios")
+    )
     expect(findCall(fetchMock.calls, "/api/admin/usuarios/5", "PUT")).toBeUndefined()
   })
 
@@ -48,8 +57,12 @@ describe("EditarUsuarioPage", () => {
     renderPage(<EditarUsuarioPage />)
     await screen.findByDisplayValue("Ana Souza")
 
-    fireEvent.change(screen.getByDisplayValue("ana@empresa.com"), { target: { value: "ana.nova@empresa.com" } })
-    fireEvent.change(screen.getByDisplayValue("5519999999999"), { target: { value: "5519999999998" } })
+    fireEvent.change(screen.getByDisplayValue("ana@empresa.com"), {
+      target: { value: "ana.nova@empresa.com" },
+    })
+    fireEvent.change(screen.getByDisplayValue("5519999999999"), {
+      target: { value: "5519999999998" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
 
     await waitFor(() => {
@@ -71,7 +84,9 @@ describe("EditarUsuarioPage", () => {
     renderPage(<EditarUsuarioPage />)
     await screen.findByDisplayValue("Ana Souza")
 
-    fireEvent.change(screen.getByPlaceholderText("Mínimo 6 caracteres"), { target: { value: "nova-senha" } })
+    fireEvent.change(screen.getByPlaceholderText("Mínimo 6 caracteres"), {
+      target: { value: "nova-senha" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
 
     await waitFor(() => {

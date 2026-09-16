@@ -16,10 +16,7 @@ import { eq, asc, desc, sql } from "drizzle-orm"
 import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -87,10 +84,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -112,7 +106,10 @@ export async function PUT(
 
     const userRole = auth.session.user?.role ?? ""
     if (userRole !== "ADMIN" && userRole !== "SUDO" && existente.criadoPor !== auth.userId) {
-      return NextResponse.json({ error: "Apenas o criador da viagem pode editá-la" }, { status: 403 })
+      return NextResponse.json(
+        { error: "Apenas o criador da viagem pode editá-la" },
+        { status: 403 }
+      )
     }
 
     const values: Record<string, any> = { updatedAt: new Date() }
@@ -147,11 +144,13 @@ export async function PUT(
         .returning()
 
       if (investimentos) {
-        await tx.delete(crmViagensInvestimentos).where(eq(crmViagensInvestimentos.viagemId, viagemId))
+        await tx
+          .delete(crmViagensInvestimentos)
+          .where(eq(crmViagensInvestimentos.viagemId, viagemId))
         if (investimentos.length > 0) {
-          await tx.insert(crmViagensInvestimentos).values(
-            investimentos.map((inv: any) => ({ ...inv, viagemId }))
-          )
+          await tx
+            .insert(crmViagensInvestimentos)
+            .values(investimentos.map((inv: any) => ({ ...inv, viagemId })))
         }
       }
 
@@ -167,7 +166,12 @@ export async function PUT(
       usuarioNome: session.user.name,
     })
 
-    await notificar("VIAGEM_ATUALIZADA", `Viagem "${atualizada.titulo}" atualizada`, `/comercial/crm/viagens/${atualizada.id}`, session.user.name)
+    await notificar(
+      "VIAGEM_ATUALIZADA",
+      `Viagem "${atualizada.titulo}" atualizada`,
+      `/comercial/crm/viagens/${atualizada.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(atualizada)
   } catch (error) {
@@ -175,10 +179,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -199,14 +200,14 @@ export async function DELETE(
     }
 
     if (userRole !== "ADMIN" && userRole !== "SUDO" && existente.criadoPor !== auth.userId) {
-      return NextResponse.json({ error: "Apenas o criador da viagem pode excluí-la" }, { status: 403 })
+      return NextResponse.json(
+        { error: "Apenas o criador da viagem pode excluí-la" },
+        { status: 403 }
+      )
     }
 
     await db.transaction(async (tx: any) => {
-      await tx
-        .update(crmVisitas)
-        .set({ viagemId: null })
-        .where(eq(crmVisitas.viagemId, viagemId))
+      await tx.update(crmVisitas).set({ viagemId: null }).where(eq(crmVisitas.viagemId, viagemId))
       await tx.delete(crmViagens).where(eq(crmViagens.id, viagemId))
     })
 

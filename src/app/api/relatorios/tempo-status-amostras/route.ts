@@ -117,7 +117,8 @@ export async function GET(req: NextRequest) {
 
     function processar(items: any[], tipoAmostra: string) {
       return items.map((r: any) => {
-        const historico = typeof r.historico === "string" ? JSON.parse(r.historico) : (r.historico || [])
+        const historico =
+          typeof r.historico === "string" ? JSON.parse(r.historico) : r.historico || []
         const timeline = processarTimeline(historico, r.status)
         const tempoTotalMs = timeline.reduce((a: number, t: any) => a + (t.duracaoMs ?? 0), 0)
         return {
@@ -148,16 +149,25 @@ export async function GET(req: NextRequest) {
         total: tecidoCruProcessados.length + acabamentoProcessados.length,
         totalTecidoCru: tecidoCruProcessados.length,
         totalAcabamento: acabamentoProcessados.length,
-        pendentes: [...tecidoCruProcessados, ...acabamentoProcessados].filter((r: any) => r.statusAtual === "PENDENTE").length,
-        aprovadas: [...tecidoCruProcessados, ...acabamentoProcessados].filter((r: any) => r.statusAtual === "APROVADO").length,
-        reprovadas: [...tecidoCruProcessados, ...acabamentoProcessados].filter((r: any) => r.statusAtual === "REPROVADA").length,
+        pendentes: [...tecidoCruProcessados, ...acabamentoProcessados].filter(
+          (r: any) => r.statusAtual === "PENDENTE"
+        ).length,
+        aprovadas: [...tecidoCruProcessados, ...acabamentoProcessados].filter(
+          (r: any) => r.statusAtual === "APROVADO"
+        ).length,
+        reprovadas: [...tecidoCruProcessados, ...acabamentoProcessados].filter(
+          (r: any) => r.statusAtual === "REPROVADA"
+        ).length,
       },
     })
   } catch (error) {
     console.error("[GET /api/relatorios/tempo-status-amostras]", error)
-    return NextResponse.json({
-      error: "Erro interno",
-      detail: "Erro interno",
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Erro interno",
+        detail: "Erro interno",
+      },
+      { status: 500 }
+    )
   }
 }

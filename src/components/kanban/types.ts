@@ -1,4 +1,11 @@
-export const ROLES_PERMITIDOS = ["COMERCIAL", "DESENVOLVIMENTO", "QUALIDADE", "PCP", "ADMIN", "SUDO"]
+export const ROLES_PERMITIDOS = [
+  "COMERCIAL",
+  "DESENVOLVIMENTO",
+  "QUALIDADE",
+  "PCP",
+  "ADMIN",
+  "SUDO",
+]
 
 export interface StatusCol {
   nome: string

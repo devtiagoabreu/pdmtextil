@@ -47,7 +47,10 @@ describe("PUT /api/processos/diagramas/[id]", () => {
     vi.mocked(modeloParaMermaid).mockClear()
     vi.mocked(modeloParaMarkdown).mockClear()
     vi.mocked(mermaidParaModelo).mockClear()
-    vi.mocked(mermaidParaModelo).mockReturnValue({ modelo: { no: "inicio" }, erro: undefined } as any)
+    vi.mocked(mermaidParaModelo).mockReturnValue({
+      modelo: { no: "inicio" },
+      erro: undefined,
+    } as any)
   })
 
   afterEach(() => {
@@ -55,7 +58,9 @@ describe("PUT /api/processos/diagramas/[id]", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await put("1", { nome: "X" })
     expect(res.status).toBe(401)
   })
@@ -100,9 +105,22 @@ describe("PUT /api/processos/diagramas/[id]", () => {
   })
 
   it("deriva mermaid e markdown quando envia modelo no corpo", async () => {
-    const existente = { id: 1, nome: "Antigo", tipo: "FLUXOGRAMA", descricao: null, modelo: null, bpmnXml: null, canvas: null, mermaid: null, markdown: null, ativo: true }
+    const existente = {
+      id: 1,
+      nome: "Antigo",
+      tipo: "FLUXOGRAMA",
+      descricao: null,
+      modelo: null,
+      bpmnXml: null,
+      canvas: null,
+      mermaid: null,
+      markdown: null,
+      ativo: true,
+    }
     db.select = vi.fn(() => createQueryBuilder([existente]))
-    db.update = vi.fn(() => createQueryBuilder([{ ...existente, nome: "Novo", modelo: { no: "inicio" } }]))
+    db.update = vi.fn(() =>
+      createQueryBuilder([{ ...existente, nome: "Novo", modelo: { no: "inicio" } }])
+    )
 
     const modelo = { no: "inicio", vertices: [] }
     const res = await put("1", { nome: "Novo", modelo })
@@ -118,9 +136,23 @@ describe("PUT /api/processos/diagramas/[id]", () => {
   })
 
   it("retorna 400 quando o texto mermaid é inválido", async () => {
-    const existente = { id: 1, nome: "Antigo", tipo: "FLUXOGRAMA", descricao: null, modelo: null, bpmnXml: null, canvas: null, mermaid: null, markdown: null, ativo: true }
+    const existente = {
+      id: 1,
+      nome: "Antigo",
+      tipo: "FLUXOGRAMA",
+      descricao: null,
+      modelo: null,
+      bpmnXml: null,
+      canvas: null,
+      mermaid: null,
+      markdown: null,
+      ativo: true,
+    }
     db.select = vi.fn(() => createQueryBuilder([existente]))
-    vi.mocked(mermaidParaModelo).mockReturnValue({ modelo: undefined, erro: "Não foi possível interpretar o texto." } as any)
+    vi.mocked(mermaidParaModelo).mockReturnValue({
+      modelo: undefined,
+      erro: "Não foi possível interpretar o texto.",
+    } as any)
 
     const res = await put("1", { nome: "Novo", mermaid: "invalido" })
     expect(res.status).toBe(400)

@@ -15,7 +15,10 @@ import { integracoes } from "@/lib/db/schema/integracoes"
 import { eq, and, or, SQL, sql } from "drizzle-orm"
 export const dynamic = "force-dynamic"
 
-const entityConfig: Record<string, { table: any; uniqueFields: string[]; idField?: string } | null> = {
+const entityConfig: Record<
+  string,
+  { table: any; uniqueFields: string[]; idField?: string } | null
+> = {
   clientes: { table: clientes, uniqueFields: ["cnpj"] },
   fornecedores: { table: fornecedores, uniqueFields: ["cnpj"] },
   fios: { table: fios, uniqueFields: ["codigoFio", "codigoFioCompleto"] },
@@ -89,7 +92,10 @@ export async function POST(req: NextRequest) {
     const { entidade, integracaoId, fieldMapping, uniqueKey, items, listaId } = await req.json()
 
     if (!entidade || !integracaoId || !fieldMapping || !items?.length) {
-      return NextResponse.json({ error: "entidade, integracaoId, fieldMapping e items são obrigatórios" }, { status: 400 })
+      return NextResponse.json(
+        { error: "entidade, integracaoId, fieldMapping e items são obrigatórios" },
+        { status: 400 }
+      )
     }
 
     const config = entityConfig[entidade]
@@ -100,7 +106,10 @@ export async function POST(req: NextRequest) {
     const { table, uniqueFields } = config
 
     if (entidade === "email-listas" && !listaId) {
-      return NextResponse.json({ error: "listaId é obrigatório para entidade email-listas" }, { status: 400 })
+      return NextResponse.json(
+        { error: "listaId é obrigatório para entidade email-listas" },
+        { status: 400 }
+      )
     }
 
     // Apply field mapping and normalize
@@ -121,18 +130,22 @@ export async function POST(req: NextRequest) {
     const pdmUniqueKey = fieldMapping[uniqueKey] || uniqueKey
     const dbUniqueFieldName = translateFieldName(pdmUniqueKey)
 
-    const uniqueValues = (mapped
+    const uniqueValues = mapped
       .map((m: Record<string, any>) => m[pdmUniqueKey])
-      .filter(Boolean) as string[])
+      .filter(Boolean) as string[]
 
     let existingRecords: Set<string> = new Set()
     if (uniqueValues.length > 0) {
-      const conditions = uniqueValues.map((v: any) => sql`${sql.identifier(dbUniqueFieldName)} = ${v}`)
+      const conditions = uniqueValues.map(
+        (v: any) => sql`${sql.identifier(dbUniqueFieldName)} = ${v}`
+      )
       // For email-listas, only check duplicates within the same list
-      const listCondition = (entidade === "email-listas" && listaId)
-        ? and(or(...conditions), sql`${sql.identifier("lista_id")} = ${Number(listaId)}`)
-        : or(...conditions)
-      const existing = await db.select({ [pdmUniqueKey]: table[pdmUniqueKey] })
+      const listCondition =
+        entidade === "email-listas" && listaId
+          ? and(or(...conditions), sql`${sql.identifier("lista_id")} = ${Number(listaId)}`)
+          : or(...conditions)
+      const existing = await db
+        .select({ [pdmUniqueKey]: table[pdmUniqueKey] })
         .from(table)
         .where(listCondition)
       existingRecords = new Set(existing.map((r: any) => String(r[pdmUniqueKey])))
@@ -145,7 +158,12 @@ export async function POST(req: NextRequest) {
     const duplicatesCount = mapped.length - toInsert.length
 
     if (toInsert.length === 0) {
-      return NextResponse.json({ importados: 0, duplicados: duplicatesCount, vazios: 0, message: `${duplicatesCount} registro(s) já existente(s) na base` })
+      return NextResponse.json({
+        importados: 0,
+        duplicados: duplicatesCount,
+        vazios: 0,
+        message: `${duplicatesCount} registro(s) já existente(s) na base`,
+      })
     }
 
     // Strip unknown fields - only keep columns that exist on the table
@@ -166,7 +184,13 @@ export async function POST(req: NextRequest) {
     }
     const notNullFields = new Set<string>()
     for (const [key, col] of Object.entries(table)) {
-      if (dataFields.has(key) && col && typeof col === "object" && "notNull" in col && (col as any).notNull) {
+      if (
+        dataFields.has(key) &&
+        col &&
+        typeof col === "object" &&
+        "notNull" in col &&
+        (col as any).notNull
+      ) {
         notNullFields.add(key)
       }
     }
@@ -179,7 +203,12 @@ export async function POST(req: NextRequest) {
     const skippedNull = cleaned.length - valid.length
 
     if (valid.length === 0) {
-      return NextResponse.json({ importados: 0, duplicados: duplicatesCount, vazios: skippedNull, message: `${skippedNull} registro(s) com campos vazios, ${duplicatesCount} já existente(s)` })
+      return NextResponse.json({
+        importados: 0,
+        duplicados: duplicatesCount,
+        vazios: skippedNull,
+        message: `${skippedNull} registro(s) com campos vazios, ${duplicatesCount} já existente(s)`,
+      })
     }
 
     await db.insert(table).values(valid)
@@ -192,9 +221,6 @@ export async function POST(req: NextRequest) {
     })
   } catch (error) {
     console.error("[POST /api/integracao/importar]", error)
-    return NextResponse.json(
-      { error: "Erro interno ao importar dados" },
-      { status: 500 }
-    )
+    return NextResponse.json({ error: "Erro interno ao importar dados" }, { status: 500 })
   }
 }

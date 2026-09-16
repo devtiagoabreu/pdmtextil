@@ -37,7 +37,11 @@ export async function GET() {
         .groupBy(crmLeads.origem)
         .orderBy(desc(count())),
       db
-        .select({ status: crmOportunidades.status, total: count(), valor: sql<string>`COALESCE(SUM(${crmOportunidades.valorEstimado}), 0)` })
+        .select({
+          status: crmOportunidades.status,
+          total: count(),
+          valor: sql<string>`COALESCE(SUM(${crmOportunidades.valorEstimado}), 0)`,
+        })
         .from(crmOportunidades)
         .groupBy(crmOportunidades.status),
       db
@@ -63,8 +67,18 @@ export async function GET() {
 
     const getCount = (rows: { total: number }[]) => Number(rows[0]?.total ?? 0)
     const totalOportunidades = getCount(await db.select({ total: count() }).from(crmOportunidades))
-    const ganhas = getCount(await db.select({ total: count() }).from(crmOportunidades).where(eq(crmOportunidades.status, "FECHADO_GANHO")))
-    const perdidas = getCount(await db.select({ total: count() }).from(crmOportunidades).where(eq(crmOportunidades.status, "FECHADO_PERDIDO")))
+    const ganhas = getCount(
+      await db
+        .select({ total: count() })
+        .from(crmOportunidades)
+        .where(eq(crmOportunidades.status, "FECHADO_GANHO"))
+    )
+    const perdidas = getCount(
+      await db
+        .select({ total: count() })
+        .from(crmOportunidades)
+        .where(eq(crmOportunidades.status, "FECHADO_PERDIDO"))
+    )
 
     return NextResponse.json({
       totalEmpresas: getCount(totalEmpresas),
@@ -72,7 +86,10 @@ export async function GET() {
       totalOportunidades,
       totalVisitas: getCount(visitasTotal),
       totalCampanhas: getCount(campanhasTotal),
-      leadsPorOrigem: leadsPorOrigem.map((r: any) => ({ origem: r.origem, total: Number(r.total) })),
+      leadsPorOrigem: leadsPorOrigem.map((r: any) => ({
+        origem: r.origem,
+        total: Number(r.total),
+      })),
       oportunidadesPorStatus: oportunidadesPorStatus.map((r: any) => ({
         status: r.status,
         total: Number(r.total),
@@ -85,8 +102,14 @@ export async function GET() {
           total: Number(r.total),
           valor: Number(r.valor),
         })),
-      tarefasPorStatus: tarefasPorStatus.map((r: any) => ({ status: r.status, total: Number(r.total) })),
-      propostasPorStatus: propostasPorStatus.map((r: any) => ({ status: r.status, total: Number(r.total) })),
+      tarefasPorStatus: tarefasPorStatus.map((r: any) => ({
+        status: r.status,
+        total: Number(r.total),
+      })),
+      propostasPorStatus: propostasPorStatus.map((r: any) => ({
+        status: r.status,
+        total: Number(r.total),
+      })),
       taxaConversao: {
         ganhas,
         perdidas,

@@ -6,10 +6,7 @@ import { eq } from "drizzle-orm"
 import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -49,7 +46,12 @@ export async function PUT(
       usuarioNome: session.user.name,
     })
 
-    await notificar("REGIAO_ATUALIZADA", `Região #${id} atualizada`, `/comercial/crm/regioes/${atualizada.id}`, session.user.name)
+    await notificar(
+      "REGIAO_ATUALIZADA",
+      `Região #${id} atualizada`,
+      `/comercial/crm/regioes/${atualizada.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(atualizada)
   } catch (error) {
@@ -57,10 +59,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth

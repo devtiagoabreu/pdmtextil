@@ -38,7 +38,8 @@ export async function GET(req: NextRequest) {
 
     const fc = filtro("created_at")
 
-    const statsRaw = (await rows(sql`
+    const statsRaw = (
+      await rows(sql`
       SELECT
         COUNT(*)::int AS total,
         COUNT(*) FILTER (WHERE tipo_amostra = 'TECIDO_CRU')::int AS tecido_cru,
@@ -48,7 +49,8 @@ export async function GET(req: NextRequest) {
         UNION ALL
         SELECT 'ACABAMENTO' AS tipo_amostra, aam.created_at FROM produto_cru_acabamento_amostra aam WHERE aam.status = ${status}
       ) sub WHERE ${fc}
-    `))[0] || { total: 0, tecido_cru: 0, acabamento: 0 }
+    `)
+    )[0] || { total: 0, tecido_cru: 0, acabamento: 0 }
 
     const porMes = await rows(sql`
       SELECT TO_CHAR(mes, 'YYYY-MM') AS mes, SUM(total)::int AS total
@@ -116,9 +118,12 @@ export async function GET(req: NextRequest) {
     })
   } catch (error) {
     console.error("[GET /api/relatorios/amostras-por-status]", error)
-    return NextResponse.json({
-      error: "Erro interno",
-      detail: "Erro interno",
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Erro interno",
+        detail: "Erro interno",
+      },
+      { status: 500 }
+    )
   }
 }

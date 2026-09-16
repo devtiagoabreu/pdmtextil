@@ -40,7 +40,12 @@ function derivarRepresentacoes(body: CorpoDiagrama): {
   if (body.mermaid) {
     const parse = mermaidParaModelo(body.mermaid)
     if (!parse.modelo) return { ok: false, erro: parse.erro ?? "Texto Mermaid inválido." }
-    return { ok: true, modelo: parse.modelo, mermaid: body.mermaid, markdown: modeloParaMarkdown(parse.modelo) }
+    return {
+      ok: true,
+      modelo: parse.modelo,
+      mermaid: body.mermaid,
+      markdown: modeloParaMarkdown(parse.modelo),
+    }
   }
   return { ok: true, modelo: null, mermaid: null, markdown: null }
 }
@@ -117,7 +122,12 @@ export async function POST(req: NextRequest) {
       usuarioNome: session.user.name,
     })
 
-    await notificar("PROC_DIAGRAMA_CRIADA", `Diagrama criado: ${nova.nome}`, `/processos/visual/${nova.id}`, session.user.name)
+    await notificar(
+      "PROC_DIAGRAMA_CRIADA",
+      `Diagrama criado: ${nova.nome}`,
+      `/processos/visual/${nova.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {

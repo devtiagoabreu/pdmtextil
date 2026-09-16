@@ -2,7 +2,16 @@
 
 import { useState, useEffect, useRef } from "react"
 import { useQuery } from "@tanstack/react-query"
-import { MessageSquare, Send, Check, CheckCheck, Loader2, User, Bot, AlertTriangle } from "lucide-react"
+import {
+  MessageSquare,
+  Send,
+  Check,
+  CheckCheck,
+  Loader2,
+  User,
+  Bot,
+  AlertTriangle,
+} from "lucide-react"
 import { toast } from "sonner"
 
 type Mensagem = {
@@ -26,7 +35,11 @@ export default function CrmPessoaWhatsapp({ pessoaId }: { pessoaId: string }) {
   const [trocandoModo, setTrocandoModo] = useState(false)
   const bottomRef = useRef<HTMLDivElement>(null)
 
-  const { data: mensagensData, isLoading: loading, isError } = useQuery<Mensagem[]>({
+  const {
+    data: mensagensData,
+    isLoading: loading,
+    isError,
+  } = useQuery<Mensagem[]>({
     queryKey: ["crm-whatsapp", pessoaId],
     queryFn: async () => {
       const res = await fetch(`/api/crm/whatsapp?empresaId=${pessoaId}`)
@@ -105,7 +118,10 @@ export default function CrmPessoaWhatsapp({ pessoaId }: { pessoaId: string }) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           remoteJid,
-          mensagem: modo === "assumir" ? "Assumindo atendimento." : "Conversa devolvida ao atendente automatico.",
+          mensagem:
+            modo === "assumir"
+              ? "Assumindo atendimento."
+              : "Conversa devolvida ao atendente automatico.",
           modo,
         }),
       })
@@ -142,19 +158,25 @@ export default function CrmPessoaWhatsapp({ pessoaId }: { pessoaId: string }) {
   return (
     <div className="flex flex-col h-[400px]">
       {remoteJid && (
-        <div className={`flex items-center justify-between px-4 py-2 border-b border-slate-200 dark:border-slate-800 shrink-0 ${
-          isHumano ? "bg-orange-50 dark:bg-orange-950/20" : "bg-green-50 dark:bg-green-950/20"
-        }`}>
+        <div
+          className={`flex items-center justify-between px-4 py-2 border-b border-slate-200 dark:border-slate-800 shrink-0 ${
+            isHumano ? "bg-orange-50 dark:bg-orange-950/20" : "bg-green-50 dark:bg-green-950/20"
+          }`}
+        >
           <div className="flex items-center gap-2">
             {isHumano ? (
               <>
                 <AlertTriangle size={14} className="text-orange-500" />
-                <span className="text-xs font-medium text-orange-700 dark:text-orange-400">Modo humano ativo</span>
+                <span className="text-xs font-medium text-orange-700 dark:text-orange-400">
+                  Modo humano ativo
+                </span>
               </>
             ) : (
               <>
                 <Bot size={14} className="text-green-600" />
-                <span className="text-xs font-medium text-green-700 dark:text-green-400">Bot ativo</span>
+                <span className="text-xs font-medium text-green-700 dark:text-green-400">
+                  Bot ativo
+                </span>
               </>
             )}
           </div>
@@ -167,7 +189,13 @@ export default function CrmPessoaWhatsapp({ pessoaId }: { pessoaId: string }) {
                 : "bg-orange-500 text-white hover:bg-orange-600"
             } disabled:opacity-50`}
           >
-            {trocandoModo ? <Loader2 size={12} className="animate-spin" /> : isHumano ? <Bot size={12} /> : <User size={12} />}
+            {trocandoModo ? (
+              <Loader2 size={12} className="animate-spin" />
+            ) : isHumano ? (
+              <Bot size={12} />
+            ) : (
+              <User size={12} />
+            )}
             {isHumano ? "Devolver ao Bot" : "Assumir Atendimento"}
           </button>
         </div>
@@ -177,7 +205,10 @@ export default function CrmPessoaWhatsapp({ pessoaId }: { pessoaId: string }) {
           <p className="text-sm text-slate-400 text-center py-8">Nenhuma mensagem</p>
         ) : (
           mensagens.map((msg: any) => (
-            <div key={msg.id} className={`flex ${msg.tipo === "ENVIADA" ? "justify-end" : "justify-start"}`}>
+            <div
+              key={msg.id}
+              className={`flex ${msg.tipo === "ENVIADA" ? "justify-end" : "justify-start"}`}
+            >
               <div
                 className={`max-w-[80%] rounded-lg px-3 py-2 text-sm ${
                   msg.tipo === "ENVIADA"
@@ -186,11 +217,12 @@ export default function CrmPessoaWhatsapp({ pessoaId }: { pessoaId: string }) {
                 }`}
               >
                 <p className="whitespace-pre-wrap break-words">{msg.mensagem}</p>
-                <div className={`flex items-center gap-1 mt-1 ${msg.tipo === "ENVIADA" ? "text-blue-200" : "text-slate-400"}`}>
+                <div
+                  className={`flex items-center gap-1 mt-1 ${msg.tipo === "ENVIADA" ? "text-blue-200" : "text-slate-400"}`}
+                >
                   <span className="text-[10px]">{formatTime(msg.createdAt)}</span>
-                  {msg.tipo === "ENVIADA" && (
-                    msg.status === "ENVIADA" ? <Check size={12} /> : <CheckCheck size={12} />
-                  )}
+                  {msg.tipo === "ENVIADA" &&
+                    (msg.status === "ENVIADA" ? <Check size={12} /> : <CheckCheck size={12} />)}
                 </div>
               </div>
             </div>
@@ -210,8 +242,17 @@ export default function CrmPessoaWhatsapp({ pessoaId }: { pessoaId: string }) {
             type="text"
             value={texto}
             onChange={(e) => setTexto(e.target.value)}
-            onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); enviarMensagem() } }}
-            placeholder={isHumano ? "Modo humano - sua mensagem vai direto ao cliente..." : "Digite uma mensagem..."}
+            onKeyDown={(e) => {
+              if (e.key === "Enter" && !e.shiftKey) {
+                e.preventDefault()
+                enviarMensagem()
+              }
+            }}
+            placeholder={
+              isHumano
+                ? "Modo humano - sua mensagem vai direto ao cliente..."
+                : "Digite uma mensagem..."
+            }
             className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-blue-500/50"
           />
           <button

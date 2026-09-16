@@ -67,7 +67,10 @@ export async function POST(req: NextRequest) {
       if (!isNaN(solId)) {
         try {
           const [sol] = await db
-            .select({ status: solicitacoes.status, historicoComunicacao: solicitacoes.historicoComunicacao })
+            .select({
+              status: solicitacoes.status,
+              historicoComunicacao: solicitacoes.historicoComunicacao,
+            })
             .from(solicitacoes)
             .where(eq(solicitacoes.id, solId))
             .limit(1)
@@ -79,11 +82,15 @@ export async function POST(req: NextRequest) {
               acao: "MUDANCA_STATUS",
               de: sol.status,
               para: "EM_DESENVOLVIMENTO",
-                mensagem: "Produto vinculado à solicitação",
+              mensagem: "Produto vinculado à solicitação",
             })
             await db
               .update(solicitacoes)
-              .set({ status: "EM_DESENVOLVIMENTO", historicoComunicacao: historico, updatedAt: new Date() })
+              .set({
+                status: "EM_DESENVOLVIMENTO",
+                historicoComunicacao: historico,
+                updatedAt: new Date(),
+              })
               .where(eq(solicitacoes.id, solId))
           }
         } catch (err) {
@@ -99,7 +106,14 @@ export async function POST(req: NextRequest) {
       session.user.name
     )
 
-    await registrarLog({ tipo: "CADASTRO", acao: "criar", descricao: `Produto #${novo[0].id} criado - ${body.descricao}`, entidade: "ProdutoCru", entidadeId: novo[0].id, usuarioNome: session.user.name })
+    await registrarLog({
+      tipo: "CADASTRO",
+      acao: "criar",
+      descricao: `Produto #${novo[0].id} criado - ${body.descricao}`,
+      entidade: "ProdutoCru",
+      entidadeId: novo[0].id,
+      usuarioNome: session.user.name,
+    })
 
     return NextResponse.json(novo[0])
   } catch (error) {

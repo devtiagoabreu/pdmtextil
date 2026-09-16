@@ -14,9 +14,16 @@ export async function GET(req: NextRequest) {
 
     let lista
     if (search) {
-      lista = await db.select().from(produtosQuimicos).where(
-        or(ilike(produtosQuimicos.nome, `%${search}%`), ilike(produtosQuimicos.codigo, `%${search}%`))
-      ).orderBy(produtosQuimicos.nome)
+      lista = await db
+        .select()
+        .from(produtosQuimicos)
+        .where(
+          or(
+            ilike(produtosQuimicos.nome, `%${search}%`),
+            ilike(produtosQuimicos.codigo, `%${search}%`)
+          )
+        )
+        .orderBy(produtosQuimicos.nome)
     } else {
       lista = await db.select().from(produtosQuimicos).orderBy(produtosQuimicos.nome)
     }
@@ -39,22 +46,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Código e nome são obrigatórios" }, { status: 400 })
     }
 
-    const novo = await db.insert(produtosQuimicos).values({
-      codigo: body.codigo,
-      nome: body.nome,
-      descricao: body.descricao || null,
-      categoria: body.categoria || null,
-      unidadePadrao: body.unidadePadrao || "kg",
-      tipo: body.tipo || null,
-      concentracao: body.concentracao || null,
-      densidade: body.densidade || null,
-      ph: body.ph || null,
-      observacoes: body.observacoes || null,
-      fichaSeguranca: body.fichaSeguranca || null,
-      idIntegracao: body.idIntegracao || null,
-      ativo: body.ativo ?? true,
-      criadoPor: userIdResult,
-    }).returning()
+    const novo = await db
+      .insert(produtosQuimicos)
+      .values({
+        codigo: body.codigo,
+        nome: body.nome,
+        descricao: body.descricao || null,
+        categoria: body.categoria || null,
+        unidadePadrao: body.unidadePadrao || "kg",
+        tipo: body.tipo || null,
+        concentracao: body.concentracao || null,
+        densidade: body.densidade || null,
+        ph: body.ph || null,
+        observacoes: body.observacoes || null,
+        fichaSeguranca: body.fichaSeguranca || null,
+        idIntegracao: body.idIntegracao || null,
+        ativo: body.ativo ?? true,
+        criadoPor: userIdResult,
+      })
+      .returning()
 
     return NextResponse.json(Array.isArray(novo) ? novo[0] : novo)
   } catch (error: any) {

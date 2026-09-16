@@ -10,10 +10,7 @@ import { eq } from "drizzle-orm"
 import { sendCrmEmail } from "@/lib/email"
 import crypto from "crypto"
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -31,11 +28,7 @@ export async function POST(
       return NextResponse.json({ error: "Email invalido" }, { status: 400 })
     }
 
-    const [visita] = await db
-      .select()
-      .from(crmVisitas)
-      .where(eq(crmVisitas.id, visitaId))
-      .limit(1)
+    const [visita] = await db.select().from(crmVisitas).where(eq(crmVisitas.id, visitaId)).limit(1)
 
     if (!visita) {
       return NextResponse.json({ error: "Visita nao encontrada" }, { status: 404 })

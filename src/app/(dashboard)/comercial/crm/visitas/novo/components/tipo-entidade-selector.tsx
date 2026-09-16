@@ -14,7 +14,12 @@ interface TipoEntidadeSelectorProps {
   }
 }
 
-export function TipoEntidadeSelector({ onSelect, title, description, labels }: TipoEntidadeSelectorProps) {
+export function TipoEntidadeSelector({
+  onSelect,
+  title,
+  description,
+  labels,
+}: TipoEntidadeSelectorProps) {
   const t = {
     cliente: labels?.cliente ?? "Cliente",
     clienteDesc: labels?.clienteDesc ?? "Empresa já cadastrada no sistema",
@@ -26,8 +31,12 @@ export function TipoEntidadeSelector({ onSelect, title, description, labels }: T
 
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 space-y-4">
-      <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 text-center">{title ?? "Quem você vai visitar?"}</h2>
-      <p className="text-sm text-slate-500 text-center">{description ?? "Selecione o tipo de entidade para iniciar o agendamento."}</p>
+      <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-100 text-center">
+        {title ?? "Quem você vai visitar?"}
+      </h2>
+      <p className="text-sm text-slate-500 text-center">
+        {description ?? "Selecione o tipo de entidade para iniciar o agendamento."}
+      </p>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-2">
         <button
           type="button"

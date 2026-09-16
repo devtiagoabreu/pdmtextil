@@ -45,7 +45,11 @@ export default function FiosPage() {
   const [deleteBlocked, setDeleteBlocked] = useState(false)
   const [showApiImport, setShowApiImport] = useState(false)
 
-  const { data: fios = [], isLoading, refetch } = useQuery({
+  const {
+    data: fios = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["fios"],
     queryFn: fetchFios,
   })
@@ -90,11 +94,21 @@ export default function FiosPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <ImportarEntidade config={{ titulo: "Fios", apiBase: "cadastros/fios", arquivoPrefixo: "fios" }} onImportado={() => refetch()} />
-          <ExportarDados data={filteredFios} columns={[
-            { key: "codigoFio", label: "Código" }, { key: "nome", label: "Nome" }, { key: "titulo", label: "Título" },
-            { key: "composicao", label: "Composição" },
-          ]} filename="fios" title="Fios" />
+          <ImportarEntidade
+            config={{ titulo: "Fios", apiBase: "cadastros/fios", arquivoPrefixo: "fios" }}
+            onImportado={() => refetch()}
+          />
+          <ExportarDados
+            data={filteredFios}
+            columns={[
+              { key: "codigoFio", label: "Código" },
+              { key: "nome", label: "Nome" },
+              { key: "titulo", label: "Título" },
+              { key: "composicao", label: "Composição" },
+            ]}
+            filename="fios"
+            title="Fios"
+          />
           <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
             <Database size={16} />
             Importar via API
@@ -126,21 +140,35 @@ export default function FiosPage() {
             <Loader2 className="animate-spin text-slate-400" size={24} />
           </div>
         ) : filteredFios.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
-            Nenhum fio encontrado
-          </div>
+          <div className="p-8 text-center text-slate-500">Nenhum fio encontrado</div>
         ) : (
           <table className="w-full">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Código</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Nome</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Título</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Composição</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Fornecedor</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID Integração</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Código
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Nome
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Título
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Composição
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Fornecedor
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  ID Integração
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Status
+                </th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -149,18 +177,24 @@ export default function FiosPage() {
                   key={fio.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 >
-                  <td className="p-4 text-sm font-medium"><Link href={`/cadastros/fios/${fio.id}`}>{fio.codigoFio}</Link></td>
+                  <td className="p-4 text-sm font-medium">
+                    <Link href={`/cadastros/fios/${fio.id}`}>{fio.codigoFio}</Link>
+                  </td>
                   <td className="p-4 text-sm">{fio.nome}</td>
                   <td className="p-4 text-sm text-slate-500">{fio.titulo || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{fio.composicao || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{fio.fornecedor || "—"}</td>
-                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{fio.idIntegracao || "—"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">
+                    {fio.idIntegracao || "—"}
+                  </td>
                   <td className="p-4">
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                      fio.ativo
-                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                        : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                    }`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                        fio.ativo
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                          : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                      }`}
+                    >
                       {fio.ativo ? "Ativo" : "Inativo"}
                     </span>
                   </td>
@@ -195,12 +229,16 @@ export default function FiosPage() {
       <ConfirmModal
         open={deleteTarget !== null}
         title={deleteBlocked ? "Exclusão não permitida" : "Excluir fio?"}
-        message={deleteBlocked
-          ? "Este fio possui cadastros vinculados e não pode ser excluído."
-          : `Tem certeza que deseja excluir o fio "${deleteTarget?.codigoFio}"?`}
-        subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
-          : undefined}
+        message={
+          deleteBlocked
+            ? "Este fio possui cadastros vinculados e não pode ser excluído."
+            : `Tem certeza que deseja excluir o fio "${deleteTarget?.codigoFio}"?`
+        }
+        subMessage={
+          deleteBlocked
+            ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+            : undefined
+        }
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}
         loading={deleteLoading}

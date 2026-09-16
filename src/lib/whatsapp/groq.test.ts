@@ -35,7 +35,8 @@ beforeEach(() => {
 describe("extrairDadosLead", () => {
   it("extrai nome real, tipoPessoa, documento e linhas da conversa", async () => {
     chamarIA_mock.mockResolvedValue({
-      conteudo: '{"nome":"Tiago","tipoPessoa":"PF","documento":"12345678900","email":null,"empresa":null,"telefone":null,"linhasInteresse":[1,2]}',
+      conteudo:
+        '{"nome":"Tiago","tipoPessoa":"PF","documento":"12345678900","email":null,"empresa":null,"telefone":null,"linhasInteresse":[1,2]}',
       provedor: "groq",
       modelo: "qwen/qwen3.8-27b",
       nomeChave: "DB key 1",
@@ -53,7 +54,8 @@ describe("extrairDadosLead", () => {
 
   it("nunca devolve saudacao como nome (valida e rejeita)", async () => {
     chamarIA_mock.mockResolvedValue({
-      conteudo: '{"nome":"Ola","tipoPessoa":null,"documento":null,"email":null,"empresa":null,"telefone":null,"linhasInteresse":null}',
+      conteudo:
+        '{"nome":"Ola","tipoPessoa":null,"documento":null,"email":null,"empresa":null,"telefone":null,"linhasInteresse":null}',
       provedor: "groq",
       modelo: "qwen/qwen3.8-27b",
       nomeChave: "DB key 1",
@@ -98,7 +100,8 @@ describe("extrairDadosLead", () => {
 
   it("valida nome numerico e tipoPessoa fora de PF/PJ", async () => {
     chamarIA_mock.mockResolvedValue({
-      conteudo: '{"nome":"12345","tipoPessoa":"fisica","documento":"00000000000","linhasInteresse":null}',
+      conteudo:
+        '{"nome":"12345","tipoPessoa":"fisica","documento":"00000000000","linhasInteresse":null}',
       provedor: "groq",
       modelo: "qwen/qwen3.8-27b",
       nomeChave: "DB key 1",

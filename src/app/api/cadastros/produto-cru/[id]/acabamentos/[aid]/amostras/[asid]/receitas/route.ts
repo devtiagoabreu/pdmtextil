@@ -9,7 +9,7 @@ export const dynamic = "force-dynamic"
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string, aid: string, asid: string }> }
+  { params }: { params: Promise<{ id: string; aid: string; asid: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -19,7 +19,9 @@ export async function GET(
     const err = await validateAmostraChain(parseInt(id), parseInt(aid), parseInt(asid))
     if (err) return err
 
-    const lista = await db.select().from(receitas)
+    const lista = await db
+      .select()
+      .from(receitas)
       .where(eq(receitas.amostraId, parseInt(asid)))
       .orderBy(desc(receitas.createdAt))
     return NextResponse.json(lista)
@@ -31,7 +33,7 @@ export async function GET(
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string, aid: string, asid: string }> }
+  { params }: { params: Promise<{ id: string; aid: string; asid: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
@@ -47,11 +49,14 @@ export async function POST(
       return NextResponse.json({ error: "Descrição obrigatória" }, { status: 400 })
     }
 
-    const [nova] = await db.insert(receitas).values({
-      amostraId: parseInt(asid),
-      descricao: body.descricao,
-      instrucoes: body.instrucoes || null,
-    }).returning()
+    const [nova] = await db
+      .insert(receitas)
+      .values({
+        amostraId: parseInt(asid),
+        descricao: body.descricao,
+        instrucoes: body.instrucoes || null,
+      })
+      .returning()
 
     return NextResponse.json(nova)
   } catch (error) {

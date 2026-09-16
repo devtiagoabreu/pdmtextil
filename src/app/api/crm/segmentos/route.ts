@@ -58,7 +58,12 @@ export async function POST(req: NextRequest) {
       usuarioNome: session.user.name,
     })
 
-    await notificar("SEGMENTO_CRIADO", `Segmento criado: ${nova.nome}`, `/comercial/crm/segmentos`, session.user.name)
+    await notificar(
+      "SEGMENTO_CRIADO",
+      `Segmento criado: ${nova.nome}`,
+      `/comercial/crm/segmentos`,
+      session.user.name
+    )
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {

@@ -101,7 +101,7 @@ export default function EstampaFormPage() {
   }
 
   const handleChange = (field: keyof Estampa, value: string | boolean) => {
-    setEstampa(prev => ({ ...prev, [field]: value }))
+    setEstampa((prev) => ({ ...prev, [field]: value }))
   }
 
   if (loading) {
@@ -121,12 +121,12 @@ export default function EstampaFormPage() {
           </Button>
         </Link>
         <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-          {isEditing ? "Editar Estampa" : "Nova Estampa"}
-          {info && <InfoButton content={info} />}
-        </h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            {isEditing ? "Editar Estampa" : "Nova Estampa"}
+            {info && <InfoButton content={info} />}
+          </h1>
+        </div>
       </div>
-    </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
@@ -135,7 +135,7 @@ export default function EstampaFormPage() {
             <Input
               id="codigoDesenho"
               value={estampa.codigoDesenho}
-              onChange={e => handleChange("codigoDesenho", e.target.value)}
+              onChange={(e) => handleChange("codigoDesenho", e.target.value)}
               placeholder="5001"
               maxLength={4}
               required
@@ -146,7 +146,7 @@ export default function EstampaFormPage() {
             <Input
               id="variante"
               value={estampa.variante}
-              onChange={e => handleChange("variante", e.target.value)}
+              onChange={(e) => handleChange("variante", e.target.value)}
               placeholder="01"
               maxLength={2}
             />
@@ -158,7 +158,7 @@ export default function EstampaFormPage() {
           <Input
             id="nome"
             value={estampa.nome}
-            onChange={e => handleChange("nome", e.target.value)}
+            onChange={(e) => handleChange("nome", e.target.value)}
             placeholder="Floral Botânico"
             required
           />
@@ -169,7 +169,7 @@ export default function EstampaFormPage() {
           <Input
             id="tipo"
             value={estampa.tipo || ""}
-            onChange={e => handleChange("tipo", e.target.value)}
+            onChange={(e) => handleChange("tipo", e.target.value)}
             placeholder="FLORAL"
             list="tipos"
           />
@@ -188,19 +188,30 @@ export default function EstampaFormPage() {
           <Input
             id="imagemUrl"
             value={estampa.imagemUrl || ""}
-            onChange={e => handleChange("imagemUrl", e.target.value)}
+            onChange={(e) => handleChange("imagemUrl", e.target.value)}
             placeholder="https://..."
           />
         </div>
 
-<div className="flex items-center gap-2">
-          <input type="checkbox" id="ativo" checked={estampa.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={estampa.ativo}
+            onChange={(e) => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
           <Label htmlFor="ativo">Ativo</Label>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="idIntegracao">ID Integração (ERP/WMS/CRM/OUTROS)</Label>
-          <Input id="idIntegracao" value={estampa.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="Código do sistema externo" />
+          <Input
+            id="idIntegracao"
+            value={estampa.idIntegracao || ""}
+            onChange={(e) => handleChange("idIntegracao", e.target.value)}
+            placeholder="Código do sistema externo"
+          />
         </div>
 
         <div className="flex gap-4">
@@ -209,7 +220,9 @@ export default function EstampaFormPage() {
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
           <Link href="/cadastros/estampas">
-            <Button variant="outline" type="button">Cancelar</Button>
+            <Button variant="outline" type="button">
+              Cancelar
+            </Button>
           </Link>
         </div>
       </form>

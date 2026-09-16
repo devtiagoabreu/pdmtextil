@@ -59,10 +59,14 @@ describe("NovoRepresentantePage", () => {
     vi.stubGlobal("fetch", fetchMock.fn)
 
     renderPage(<NovoRepresentantePage />)
-    fireEvent.change(screen.getByPlaceholderText("00.000.000/0001-00"), { target: { value: "11222333000144" } })
+    fireEvent.change(screen.getByPlaceholderText("00.000.000/0001-00"), {
+      target: { value: "11222333000144" },
+    })
     fireEvent.click(screen.getByRole("button", { name: /Consultar/ }))
 
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Dados preenchidos automaticamente"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Dados preenchidos automaticamente")
+    )
     expect(screen.getByDisplayValue("11.222.333/0001-44")).toBeInTheDocument()
     expect(screen.getByDisplayValue("Tecelagem LTDA")).toBeInTheDocument()
     expect(screen.getByDisplayValue("Rua das Malhas, 100")).toBeInTheDocument()
@@ -73,27 +77,41 @@ describe("NovoRepresentantePage", () => {
   it("cria representante via POST com gerente e clientes vinculados e redireciona para a lista", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
       if (method === "GET" && url === "/api/usuarios/ativos?role=COMERCIAL,ADMIN,SUDO") {
-        return { json: [{ id: 3, name: "Ana Vendas" }, { id: 1, name: "Tiago" }] }
+        return {
+          json: [
+            { id: 3, name: "Ana Vendas" },
+            { id: 1, name: "Tiago" },
+          ],
+        }
       }
       if (method === "GET" && url === "/api/clientes?q=Tecelagem") {
         return { json: [{ id: 9, nome: "Tecelagem Beta", cnpj: "11.222.333/0001-44" }] }
       }
-      if (method === "POST" && url === "/api/representantes") return { status: 201, json: { id: 99 } }
+      if (method === "POST" && url === "/api/representantes")
+        return { status: 201, json: { id: 99 } }
       return { status: 404, json: { error: "Rota não mockada" } }
     })
     vi.stubGlobal("fetch", fetchMock.fn)
 
     renderPage(<NovoRepresentantePage />)
-    fireEvent.change(screen.getByPlaceholderText("Ex: Representações ABC"), { target: { value: "Rep Teste" } })
-    fireEvent.change(screen.getByPlaceholderText("00.000.000/0001-00"), { target: { value: "11.222.333/0001-44" } })
+    fireEvent.change(screen.getByPlaceholderText("Ex: Representações ABC"), {
+      target: { value: "Rep Teste" },
+    })
+    fireEvent.change(screen.getByPlaceholderText("00.000.000/0001-00"), {
+      target: { value: "11.222.333/0001-44" },
+    })
 
-    await waitFor(() => expect(screen.getByRole("option", { name: "Ana Vendas" })).toBeInTheDocument())
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Ana Vendas" })).toBeInTheDocument()
+    )
     const selects = screen.getAllByRole("combobox")
     fireEvent.change(selects[1], { target: { value: "3" } })
 
     const busca = screen.getByPlaceholderText("Buscar cliente pelo nome ou CNPJ...")
     fireEvent.change(busca, { target: { value: "Tecelagem" } })
-    await waitFor(() => expect(screen.getByRole("button", { name: /Tecelagem Beta/ })).toBeInTheDocument())
+    await waitFor(() =>
+      expect(screen.getByRole("button", { name: /Tecelagem Beta/ })).toBeInTheDocument()
+    )
     fireEvent.click(screen.getByRole("button", { name: /Tecelagem Beta/ }))
     expect(screen.getByText("Tecelagem Beta")).toBeInTheDocument()
 
@@ -107,7 +125,9 @@ describe("NovoRepresentantePage", () => {
       expect(call!.body.gerenteId).toBe(3)
       expect(call!.body.clientesIds).toEqual([9])
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Representante cadastrado com sucesso!"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Representante cadastrado com sucesso!")
+    )
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/representantes")
   })
 })

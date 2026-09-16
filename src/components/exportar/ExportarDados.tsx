@@ -45,7 +45,9 @@ export function ExportarDados({ data, columns, filename, title }: Props) {
   function toJSON() {
     const rows = data.map((row: any) => {
       const obj: Record<string, any> = {}
-      columns.forEach((c: any) => { obj[c.label] = row[c.key] ?? "" })
+      columns.forEach((c: any) => {
+        obj[c.label] = row[c.key] ?? ""
+      })
       return obj
     })
     download(JSON.stringify(rows, null, 2), `${filename}.json`, "application/json")
@@ -72,9 +74,11 @@ export function ExportarDados({ data, columns, filename, title }: Props) {
           try {
             const img = await loadImage(empresa.logoUrl)
             if (img) {
-              const maxW = 40; const maxH = 20
+              const maxW = 40
+              const maxH = 20
               const scale = Math.min(maxW / img.width, maxH / img.height, 1)
-              const w = img.width * scale; const h = img.height * scale
+              const w = img.width * scale
+              const h = img.height * scale
               doc.addImage(img, "PNG", 10, 8, w, h)
             }
           } catch {}
@@ -83,10 +87,21 @@ export function ExportarDados({ data, columns, filename, title }: Props) {
         doc.text(empresa.nome || "", 55, 14)
         doc.setFontSize(8).setFont("helvetica", "normal")
         let yOff = 20
-        if (empresa.documento) { doc.text(`CNPJ: ${empresa.documento}`, 55, yOff); yOff += 5 }
-        if (empresa.endereco) { doc.text(empresa.endereco, 55, yOff); yOff += 5 }
-        if (empresa.cidade || empresa.uf) { doc.text([empresa.cidade, empresa.uf].filter(Boolean).join("/"), 55, yOff); yOff += 5 }
-        if (empresa.telefone) { doc.text(`Tel: ${empresa.telefone}`, 55, yOff) }
+        if (empresa.documento) {
+          doc.text(`CNPJ: ${empresa.documento}`, 55, yOff)
+          yOff += 5
+        }
+        if (empresa.endereco) {
+          doc.text(empresa.endereco, 55, yOff)
+          yOff += 5
+        }
+        if (empresa.cidade || empresa.uf) {
+          doc.text([empresa.cidade, empresa.uf].filter(Boolean).join("/"), 55, yOff)
+          yOff += 5
+        }
+        if (empresa.telefone) {
+          doc.text(`Tel: ${empresa.telefone}`, 55, yOff)
+        }
       }
 
       const displayTitle = title || filename
@@ -111,19 +126,23 @@ export function ExportarDados({ data, columns, filename, title }: Props) {
       toast.success("PDF exportado")
     } catch (err) {
       toast.error("Erro ao gerar PDF: " + (err instanceof Error ? err.message : "desconhecido"))
-    } finally { setExporting(false) }
+    } finally {
+      setExporting(false)
+    }
   }
 
   function download(content: string | Blob, name: string, mime: string) {
     const blob = typeof content === "string" ? new Blob([content], { type: mime }) : content
     const url = URL.createObjectURL(blob)
     const a = document.createElement("a")
-    a.href = url; a.download = name; a.click()
+    a.href = url
+    a.download = name
+    a.click()
     URL.revokeObjectURL(url)
   }
 
   function loadImage(url: string): Promise<HTMLImageElement | null> {
-    return new Promise(resolve => {
+    return new Promise((resolve) => {
       const img = new Image()
       img.crossOrigin = "anonymous"
       img.onload = () => resolve(img)
@@ -147,7 +166,13 @@ export function ExportarDados({ data, columns, filename, title }: Props) {
       <Button size="sm" variant="outline" onClick={toJSON} className="gap-1.5 text-xs h-8">
         <FileJson size={14} /> JSON
       </Button>
-      <Button size="sm" variant="outline" onClick={toPDF} disabled={exporting} className="gap-1.5 text-xs h-8">
+      <Button
+        size="sm"
+        variant="outline"
+        onClick={toPDF}
+        disabled={exporting}
+        className="gap-1.5 text-xs h-8"
+      >
         {exporting ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
         PDF
       </Button>

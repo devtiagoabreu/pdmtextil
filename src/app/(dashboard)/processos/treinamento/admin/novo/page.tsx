@@ -4,9 +4,7 @@ import { useQuery } from "@tanstack/react-query"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { Suspense, useState } from "react"
 import Link from "next/link"
-import {
-  ArrowLeft, Save, Loader2, Plus, X, FileText,
-} from "lucide-react"
+import { ArrowLeft, Save, Loader2, Plus, X, FileText } from "lucide-react"
 import { toast } from "sonner"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -32,8 +30,12 @@ function NovaLicaoPageContent() {
     pathnameRelacionado: "",
     ordem: "0",
   })
-  const [linksPop, setLinksPop] = useState<{ label: string; url: string; descricao?: string | null }[]>([])
-  const [linksVideo, setLinksVideo] = useState<{ label: string; url: string; descricao?: string | null }[]>([])
+  const [linksPop, setLinksPop] = useState<
+    { label: string; url: string; descricao?: string | null }[]
+  >([])
+  const [linksVideo, setLinksVideo] = useState<
+    { label: string; url: string; descricao?: string | null }[]
+  >([])
   const [novoPop, setNovoPop] = useState({ label: "", url: "", descricao: "" })
   const [novoVideo, setNovoVideo] = useState({ label: "", url: "", descricao: "" })
   const [saving, setSaving] = useState(false)
@@ -95,7 +97,9 @@ function NovaLicaoPageContent() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Módulo *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Módulo *
+            </label>
             <select
               value={form.moduloId}
               onChange={(e) => setForm({ ...form, moduloId: e.target.value })}
@@ -104,12 +108,16 @@ function NovaLicaoPageContent() {
             >
               <option value="">Selecione...</option>
               {modulos?.map((m) => (
-                <option key={m.id} value={m.id}>{m.titulo}</option>
+                <option key={m.id} value={m.id}>
+                  {m.titulo}
+                </option>
               ))}
             </select>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Título *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Título *
+            </label>
             <input
               value={form.titulo}
               onChange={(e) => setForm({ ...form, titulo: e.target.value })}
@@ -119,7 +127,9 @@ function NovaLicaoPageContent() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Ordem</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Ordem
+            </label>
             <input
               type="number"
               value={form.ordem}
@@ -128,7 +138,9 @@ function NovaLicaoPageContent() {
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Pathname relacionado</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Pathname relacionado
+            </label>
             <input
               value={form.pathnameRelacionado}
               onChange={(e) => setForm({ ...form, pathnameRelacionado: e.target.value })}
@@ -174,10 +186,17 @@ function NovaLicaoPageContent() {
             </label>
             <div className="space-y-2 mb-2">
               {linksPop.map((link, i) => (
-                <div key={link.url} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
+                <div
+                  key={link.url}
+                  className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg"
+                >
                   <div className="flex-1 min-w-0">
                     <span className="block truncate">{link.label}</span>
-                    {link.descricao && <span className="block text-xs text-slate-500 truncate">{link.descricao}</span>}
+                    {link.descricao && (
+                      <span className="block text-xs text-slate-500 truncate">
+                        {link.descricao}
+                      </span>
+                    )}
                   </div>
                   <button
                     type="button"
@@ -229,10 +248,17 @@ function NovaLicaoPageContent() {
             </label>
             <div className="space-y-2 mb-2">
               {linksVideo.map((link, i) => (
-                <div key={link.url} className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg">
+                <div
+                  key={link.url}
+                  className="flex items-center gap-2 text-sm bg-slate-50 dark:bg-slate-800/50 p-2 rounded-lg"
+                >
                   <div className="flex-1 min-w-0">
                     <span className="block truncate">{link.label}</span>
-                    {link.descricao && <span className="block text-xs text-slate-500 truncate">{link.descricao}</span>}
+                    {link.descricao && (
+                      <span className="block text-xs text-slate-500 truncate">
+                        {link.descricao}
+                      </span>
+                    )}
                   </div>
                   <button
                     type="button"
@@ -267,7 +293,10 @@ function NovaLicaoPageContent() {
                 type="button"
                 onClick={() => {
                   if (novoVideo.label && novoVideo.url) {
-                    setLinksVideo([...linksVideo, { ...novoVideo, descricao: novoVideo.descricao || null }])
+                    setLinksVideo([
+                      ...linksVideo,
+                      { ...novoVideo, descricao: novoVideo.descricao || null },
+                    ])
                     setNovoVideo({ label: "", url: "", descricao: "" })
                   }
                 }}

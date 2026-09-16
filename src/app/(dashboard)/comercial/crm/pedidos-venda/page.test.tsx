@@ -29,7 +29,8 @@ const pedidos = [
 
 function buildHandler() {
   return ({ method, url }: { method: string; url: string }) => {
-    if (method === "DELETE" && /^\/api\/crm\/pedidos-venda\/\d+$/.test(url)) return { json: { success: true } }
+    if (method === "DELETE" && /^\/api\/crm\/pedidos-venda\/\d+$/.test(url))
+      return { json: { success: true } }
     if (method !== "GET") return { json: null }
 
     const u = new URL(url, "http://localhost")
@@ -37,9 +38,7 @@ function buildHandler() {
       const q = (u.searchParams.get("q") || "").toLowerCase()
       const status = u.searchParams.get("status")
       const filtered = pedidos.filter(
-        (p) =>
-          (!q || p.numero.toLowerCase().includes(q)) &&
-          (!status || p.status === status)
+        (p) => (!q || p.numero.toLowerCase().includes(q)) && (!status || p.status === status)
       )
       return { json: { data: filtered, total: filtered.length, totalPages: 1 } }
     }
@@ -66,7 +65,10 @@ describe("PedidosVendaPage", () => {
     expect(screen.getAllByText("Faturado").length).toBeGreaterThan(0)
     expect(screen.getByText("R$ 1.250,00")).toBeInTheDocument()
     expect(screen.getByText("1-2 de 2 pedido(s)")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Novo Pedido de Venda" })).toHaveAttribute("href", "/comercial/crm/pedidos-venda/novo")
+    expect(screen.getByRole("link", { name: "Novo Pedido de Venda" })).toHaveAttribute(
+      "href",
+      "/comercial/crm/pedidos-venda/novo"
+    )
   })
 
   it("mostra estado vazio quando a API retorna vazio", async () => {
@@ -82,12 +84,18 @@ describe("PedidosVendaPage", () => {
     renderPage(<PedidosVendaPage />)
     await screen.findByText("PV-001")
 
-    fireEvent.change(screen.getByPlaceholderText("Buscar por número, referência ou oportunidade..."), {
-      target: { value: "PV-002" },
-    })
+    fireEvent.change(
+      screen.getByPlaceholderText("Buscar por número, referência ou oportunidade..."),
+      {
+        target: { value: "PV-002" },
+      }
+    )
 
     await waitFor(
-      () => expect(findCall(fetchMock.calls, "/api/crm/pedidos-venda?page=1&limit=50&q=PV-002", "GET")).toBeDefined(),
+      () =>
+        expect(
+          findCall(fetchMock.calls, "/api/crm/pedidos-venda?page=1&limit=50&q=PV-002", "GET")
+        ).toBeDefined(),
       { timeout: 2000 }
     )
     await waitFor(() => expect(screen.queryByText("PV-001")).not.toBeInTheDocument())
@@ -101,7 +109,10 @@ describe("PedidosVendaPage", () => {
     fireEvent.change(screen.getByLabelText("Filtrar por status"), { target: { value: "FATURADO" } })
 
     await waitFor(
-      () => expect(findCall(fetchMock.calls, "/api/crm/pedidos-venda?page=1&limit=50&status=FATURADO", "GET")).toBeDefined(),
+      () =>
+        expect(
+          findCall(fetchMock.calls, "/api/crm/pedidos-venda?page=1&limit=50&status=FATURADO", "GET")
+        ).toBeDefined(),
       { timeout: 2000 }
     )
   })
@@ -111,14 +122,20 @@ describe("PedidosVendaPage", () => {
     await screen.findByText("PV-001")
 
     const row = screen.getByText("PV-001").closest("tr")!
-    const trash = within(row).getAllByRole("button").find((b) => !b.closest("a"))!
+    const trash = within(row)
+      .getAllByRole("button")
+      .find((b) => !b.closest("a"))!
     fireEvent.click(trash)
 
     const dialog = screen.getByRole("dialog", { name: "Excluir pedido de venda" })
     fireEvent.click(within(dialog).getByRole("button", { name: "Excluir" }))
 
-    await waitFor(() => expect(findCall(fetchMock.calls, "/api/crm/pedidos-venda/1", "DELETE")).toBeDefined())
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Pedido de venda excluído com sucesso"))
+    await waitFor(() =>
+      expect(findCall(fetchMock.calls, "/api/crm/pedidos-venda/1", "DELETE")).toBeDefined()
+    )
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Pedido de venda excluído com sucesso")
+    )
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
   })
 })

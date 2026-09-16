@@ -73,7 +73,8 @@ function makeMock() {
     if (method === "GET" && url === "/api/integracao/1/executar") {
       return { json: { success: true, responseBody: { items: rolos } } }
     }
-    if (method === "POST" && url === "/api/comercial/requisicoes-corte") return { status: 201, json: { id: 33 } }
+    if (method === "POST" && url === "/api/comercial/requisicoes-corte")
+      return { status: 201, json: { id: 33 } }
     return { status: 404, json: { error: "Rota não mockada" } }
   })
 }
@@ -89,10 +90,14 @@ describe("RequisicaoPorRomaneioPage", () => {
 
     renderPage(<RequisicaoPorRomaneioPage />)
 
-    expect(screen.getByRole("heading", { name: /Requisição de Corte por Romaneio/ })).toBeInTheDocument()
+    expect(
+      screen.getByRole("heading", { name: /Requisição de Corte por Romaneio/ })
+    ).toBeInTheDocument()
     expect(await screen.findByRole("button", { name: "ERP Romaneios" })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Carregar Todos/ })).toBeInTheDocument()
-    expect(await screen.findByText("Carregue os romaneios para criar requisições de corte")).toBeInTheDocument()
+    expect(
+      await screen.findByText("Carregue os romaneios para criar requisições de corte")
+    ).toBeInTheDocument()
   })
 
   it("carrega os romaneios e cria uma requisição de corte", async () => {
@@ -122,7 +127,9 @@ describe("RequisicaoPorRomaneioPage", () => {
       expect(call!.body.itens[0].quantidade).toBe("80")
       expect(call!.body.observacoes).toBe("Criado a partir do Romaneio Nº 22742")
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Requisição de corte #33 criada com sucesso!"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Requisição de corte #33 criada com sucesso!")
+    )
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/requisicoes-corte/33")
   })
 })

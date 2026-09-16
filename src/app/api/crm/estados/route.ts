@@ -75,13 +75,13 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Nome do estado é obrigatório" }, { status: 400 })
     }
 
-    const regiao = String(body.regiao || "").toUpperCase().trim() || null
+    const regiao =
+      String(body.regiao || "")
+        .toUpperCase()
+        .trim() || null
     const paisId = body.paisId ? parseInt(body.paisId) : null
 
-    const [novo] = await db
-      .insert(crmEstados)
-      .values({ nome, uf, regiao, paisId })
-      .returning()
+    const [novo] = await db.insert(crmEstados).values({ nome, uf, regiao, paisId }).returning()
 
     return NextResponse.json(novo, { status: 201 })
   } catch (error: any) {

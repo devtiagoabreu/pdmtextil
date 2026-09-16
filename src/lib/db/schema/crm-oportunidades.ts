@@ -1,4 +1,13 @@
-import { pgTable, serial, varchar, text, integer, numeric, timestamp, date } from "drizzle-orm/pg-core"
+import {
+  pgTable,
+  serial,
+  varchar,
+  text,
+  integer,
+  numeric,
+  timestamp,
+  date,
+} from "drizzle-orm/pg-core"
 import { usuarios } from "./usuarios"
 import { crmLeads } from "./crm-leads"
 import { crmPessoas } from "./crm-pessoas"

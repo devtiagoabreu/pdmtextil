@@ -26,13 +26,17 @@ describe("ProcessoAreaFormPage", () => {
       await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Nome é obrigatório"))
       expect(findCall(fetchMock.calls, "/api/processos/areas", "POST")).toBeUndefined()
 
-      fireEvent.change(screen.getByPlaceholderText("Produção / Tecelagem"), { target: { value: "Produção" } })
+      fireEvent.change(screen.getByPlaceholderText("Produção / Tecelagem"), {
+        target: { value: "Produção" },
+      })
       fireEvent.submit(form)
       await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Selecione o site"))
       expect(findCall(fetchMock.calls, "/api/processos/areas", "POST")).toBeUndefined()
 
       fireEvent.change(screen.getByRole("combobox", { name: "Site *" }), { target: { value: "1" } })
-      fireEvent.change(screen.getByPlaceholderText("Produção / Tecelagem"), { target: { value: "Produção" } })
+      fireEvent.change(screen.getByPlaceholderText("Produção / Tecelagem"), {
+        target: { value: "Produção" },
+      })
       fireEvent.submit(form)
 
       await waitFor(() => {
@@ -75,9 +79,13 @@ describe("ProcessoAreaFormPage", () => {
       renderPage(<ProcessoAreaFormPage />)
 
       expect(await screen.findByDisplayValue("Produção")).toBeDefined()
-      expect((screen.getByRole("combobox", { name: "Site *" }) as HTMLSelectElement).value).toBe("1")
+      expect((screen.getByRole("combobox", { name: "Site *" }) as HTMLSelectElement).value).toBe(
+        "1"
+      )
 
-      fireEvent.change(screen.getByDisplayValue("Linha de produção principal"), { target: { value: "Linha nova" } })
+      fireEvent.change(screen.getByDisplayValue("Linha de produção principal"), {
+        target: { value: "Linha nova" },
+      })
       fireEvent.click(screen.getByRole("button", { name: /Atualizar/ }))
 
       await waitFor(() => expect(navMock.router.push).toHaveBeenCalledWith("/processos/areas"))

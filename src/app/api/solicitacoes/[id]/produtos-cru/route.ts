@@ -6,10 +6,7 @@ import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { eq, inArray } from "drizzle-orm"
 export const dynamic = "force-dynamic"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -28,10 +25,7 @@ export async function GET(
   }
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -47,7 +41,10 @@ export async function POST(
     }
 
     const [sol] = await db
-      .select({ status: solicitacoes.status, historicoComunicacao: solicitacoes.historicoComunicacao })
+      .select({
+        status: solicitacoes.status,
+        historicoComunicacao: solicitacoes.historicoComunicacao,
+      })
       .from(solicitacoes)
       .where(eq(solicitacoes.id, solicId))
       .limit(1)
@@ -73,7 +70,11 @@ export async function POST(
         })
         await tx
           .update(solicitacoes)
-          .set({ status: "EM_DESENVOLVIMENTO", historicoComunicacao: historico, updatedAt: new Date() })
+          .set({
+            status: "EM_DESENVOLVIMENTO",
+            historicoComunicacao: historico,
+            updatedAt: new Date(),
+          })
           .where(eq(solicitacoes.id, solicId))
       }
     })
@@ -85,10 +86,7 @@ export async function POST(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth

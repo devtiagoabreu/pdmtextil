@@ -72,7 +72,7 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
   const loading = menusLoading && menus.length === 0
 
   const toggleMenu = (id: number) => {
-    setExpandedMenus(prev => {
+    setExpandedMenus((prev) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
       else next.add(id)
@@ -87,11 +87,18 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
   if (collapsed) {
     return (
       <div className="flex h-full flex-col bg-white dark:bg-slate-950 border-r border-slate-200 dark:border-slate-800 items-center py-3 gap-1 relative">
-        <NavLink href={paginaInicial} onClick={onClose} className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-600 shadow-sm mb-3" title="PDM Pro Moda">
+        <NavLink
+          href={paginaInicial}
+          onClick={onClose}
+          className="flex items-center justify-center w-10 h-10 rounded-lg bg-blue-600 shadow-sm mb-3"
+          title="PDM Pro Moda"
+        >
           <span className="text-sm font-bold text-white">PM</span>
         </NavLink>
         {loading ? (
-          <div className="py-4"><Loader2 size={16} className="animate-spin text-slate-400" /></div>
+          <div className="py-4">
+            <Loader2 size={16} className="animate-spin text-slate-400" />
+          </div>
         ) : (
           menus.map((menu: any) => {
             const menuActive = menu.itens.some((i: MenuItem) => isAtiva(i.url))
@@ -116,12 +123,20 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
         {!loading && isAdminOuSudo && (
           <>
             <div className="w-6 border-t border-slate-200 dark:border-slate-700 my-1" />
-            <NavLink href="/admin/configuracoes" onClick={onClose} title="Configurações"
-              className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all ${isAtiva("/admin/configuracoes") ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"}`}>
+            <NavLink
+              href="/admin/configuracoes"
+              onClick={onClose}
+              title="Configurações"
+              className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all ${isAtiva("/admin/configuracoes") ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"}`}
+            >
               <Settings size={18} />
             </NavLink>
-            <NavLink href="/admin/whatsapp-chat" onClick={onClose} title="Chat WhatsApp"
-              className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all ${isAtiva("/admin/whatsapp-chat") ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"}`}>
+            <NavLink
+              href="/admin/whatsapp-chat"
+              onClick={onClose}
+              title="Chat WhatsApp"
+              className={`flex items-center justify-center w-10 h-10 rounded-lg transition-all ${isAtiva("/admin/whatsapp-chat") ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400" : "text-slate-500 hover:bg-slate-100 dark:text-slate-400 dark:hover:bg-slate-800"}`}
+            >
               <MessageSquare size={18} />
             </NavLink>
           </>
@@ -138,10 +153,16 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
           <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-blue-600 shadow-sm">
             <span className="text-sm font-bold text-white">PM</span>
           </div>
-          <span className="text-base font-semibold text-slate-900 dark:text-slate-50">PDM Pro Moda</span>
+          <span className="text-base font-semibold text-slate-900 dark:text-slate-50">
+            PDM Pro Moda
+          </span>
         </NavLink>
         {onClose && (
-          <button onClick={onClose} aria-label="Fechar menu" className="p-1 rounded-md text-slate-400 hover:text-slate-600 lg:hidden">
+          <button
+            onClick={onClose}
+            aria-label="Fechar menu"
+            className="p-1 rounded-md text-slate-400 hover:text-slate-600 lg:hidden"
+          >
             <X size={18} />
           </button>
         )}
@@ -170,12 +191,27 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
                       : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
                   }`}
                 >
-                  {isExpanded ? <Minus size={16} className="shrink-0 text-slate-400" /> : <Plus size={16} className="shrink-0 text-slate-400" />}
-                  <MenuIcone icone={menu.icone} titulo={menu.titulo} url={firstItem?.url} size={18} className="shrink-0" />
+                  {isExpanded ? (
+                    <Minus size={16} className="shrink-0 text-slate-400" />
+                  ) : (
+                    <Plus size={16} className="shrink-0 text-slate-400" />
+                  )}
+                  <MenuIcone
+                    icone={menu.icone}
+                    titulo={menu.titulo}
+                    url={firstItem?.url}
+                    size={18}
+                    className="shrink-0"
+                  />
                   <span className="flex-1 text-left truncate">{menu.titulo}</span>
-                  {menuActive && <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
+                  {menuActive && (
+                    <span className="w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />
+                  )}
                 </button>
-                <div id={`menu-${menu.id}`} className={`ml-4 mt-0.5 space-y-0.5 border-l border-slate-200 dark:border-slate-700 pl-2 ${isExpanded ? "" : "hidden"}`}>
+                <div
+                  id={`menu-${menu.id}`}
+                  className={`ml-4 mt-0.5 space-y-0.5 border-l border-slate-200 dark:border-slate-700 pl-2 ${isExpanded ? "" : "hidden"}`}
+                >
                   {menu.itens.map((item: any) => (
                     <NavLink
                       key={item.id}
@@ -187,7 +223,12 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
                           : "text-slate-500 hover:text-slate-700 hover:bg-slate-50 dark:text-slate-400 dark:hover:text-slate-200 dark:hover:bg-slate-800/50"
                       }`}
                     >
-                      <MenuIcone url={item.url} titulo={item.titulo} size={14} className="shrink-0" />
+                      <MenuIcone
+                        url={item.url}
+                        titulo={item.titulo}
+                        size={14}
+                        className="shrink-0"
+                      />
                       <span className="truncate">{item.titulo}</span>
                     </NavLink>
                   ))}
@@ -212,9 +253,16 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
               }`}
             >
-              <Settings size={18} className={isAtiva("/admin/configuracoes") ? "text-blue-600 dark:text-blue-400" : ""} />
+              <Settings
+                size={18}
+                className={
+                  isAtiva("/admin/configuracoes") ? "text-blue-600 dark:text-blue-400" : ""
+                }
+              />
               Configurações
-              {isAtiva("/admin/configuracoes") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
+              {isAtiva("/admin/configuracoes") && (
+                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />
+              )}
             </NavLink>
             <NavLink
               href="/admin/whatsapp-monitor"
@@ -225,11 +273,18 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
               }`}
             >
-              <Activity size={18} className={isAtiva("/admin/whatsapp-monitor") ? "text-blue-600 dark:text-blue-400" : ""} />
+              <Activity
+                size={18}
+                className={
+                  isAtiva("/admin/whatsapp-monitor") ? "text-blue-600 dark:text-blue-400" : ""
+                }
+              />
               Monitor WhatsApp
-              {isAtiva("/admin/whatsapp-monitor") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
+              {isAtiva("/admin/whatsapp-monitor") && (
+                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />
+              )}
             </NavLink>
-              <NavLink
+            <NavLink
               href="/admin/whatsapp-catalogos"
               onClick={onClose}
               className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
@@ -238,9 +293,16 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
               }`}
             >
-              <Package size={18} className={isAtiva("/admin/whatsapp-catalogos") ? "text-blue-600 dark:text-blue-400" : ""} />
+              <Package
+                size={18}
+                className={
+                  isAtiva("/admin/whatsapp-catalogos") ? "text-blue-600 dark:text-blue-400" : ""
+                }
+              />
               Catalogos WhatsApp
-              {isAtiva("/admin/whatsapp-catalogos") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
+              {isAtiva("/admin/whatsapp-catalogos") && (
+                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />
+              )}
             </NavLink>
             <NavLink
               href="/admin/whatsapp-dashboard"
@@ -251,9 +313,16 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
               }`}
             >
-              <BarChart3 size={18} className={isAtiva("/admin/whatsapp-dashboard") ? "text-blue-600 dark:text-blue-400" : ""} />
+              <BarChart3
+                size={18}
+                className={
+                  isAtiva("/admin/whatsapp-dashboard") ? "text-blue-600 dark:text-blue-400" : ""
+                }
+              />
               Dashboard WhatsApp
-              {isAtiva("/admin/whatsapp-dashboard") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
+              {isAtiva("/admin/whatsapp-dashboard") && (
+                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />
+              )}
             </NavLink>
             <NavLink
               href="/admin/whatsapp-chat"
@@ -264,9 +333,16 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
                   : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
               }`}
             >
-              <MessageSquare size={18} className={isAtiva("/admin/whatsapp-chat") ? "text-blue-600 dark:text-blue-400" : ""} />
+              <MessageSquare
+                size={18}
+                className={
+                  isAtiva("/admin/whatsapp-chat") ? "text-blue-600 dark:text-blue-400" : ""
+                }
+              />
               Chat WhatsApp
-              {isAtiva("/admin/whatsapp-chat") && <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />}
+              {isAtiva("/admin/whatsapp-chat") && (
+                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />
+              )}
             </NavLink>
           </div>
         )}
@@ -276,7 +352,9 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
       <div className="border-t border-slate-200 dark:border-slate-800 p-4">
         <div className="rounded-lg bg-slate-50 dark:bg-slate-900 p-3">
           <p className="text-xs text-slate-500 dark:text-slate-400">Versão 1.0.0</p>
-          <p className="text-xs text-slate-400 dark:text-slate-500">© 2026 PDM·PRO·TÊXTIL | @devtiagoabreu · Todos os direitos reservados</p>
+          <p className="text-xs text-slate-400 dark:text-slate-500">
+            © 2026 PDM·PRO·TÊXTIL | @devtiagoabreu · Todos os direitos reservados
+          </p>
         </div>
       </div>
     </div>
@@ -287,7 +365,9 @@ export function Sidebar({ isOpen, onClose, collapsed }: SidebarProps) {
   return (
     <>
       {/* Desktop sidebar */}
-      <aside className={`hidden lg:flex flex-col h-screen fixed left-0 top-0 z-30 transition-all duration-200 ${collapsed ? "w-16" : "w-64"}`}>
+      <aside
+        className={`hidden lg:flex flex-col h-screen fixed left-0 top-0 z-30 transition-all duration-200 ${collapsed ? "w-16" : "w-64"}`}
+      >
         <SidebarContent collapsed={collapsed} />
       </aside>
 

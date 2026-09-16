@@ -76,7 +76,9 @@ export function formPageSpec(cfg: FormPageSpecConfig) {
         fireEvent.submit(ui.container.querySelector("form")!)
 
         await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith(cfg.validationToast))
-        expect(findCall(fetchMock.calls, `${cfg.apiPrefix ?? "/api/cadastros"}/${cfg.apiBase}`, "POST")).toBeUndefined()
+        expect(
+          findCall(fetchMock.calls, `${cfg.apiPrefix ?? "/api/cadastros"}/${cfg.apiBase}`, "POST")
+        ).toBeUndefined()
       })
 
       it("cria via POST e redireciona", async () => {
@@ -89,7 +91,11 @@ export function formPageSpec(cfg: FormPageSpecConfig) {
         fireEvent.click(screen.getByRole("button", { name: submitNewLabel }))
 
         await waitFor(() => {
-          const call = findCall(fetchMock.calls, `${cfg.apiPrefix ?? "/api/cadastros"}/${cfg.apiBase}`, "POST")
+          const call = findCall(
+            fetchMock.calls,
+            `${cfg.apiPrefix ?? "/api/cadastros"}/${cfg.apiBase}`,
+            "POST"
+          )
           expect(call).toBeDefined()
           if (cfg.createBodyAssert) cfg.createBodyAssert(call!.body)
         })
@@ -114,7 +120,11 @@ export function formPageSpec(cfg: FormPageSpecConfig) {
         fireEvent.click(screen.getByRole("button", { name: submitEditLabel }))
 
         await waitFor(() => {
-          const call = findCall(fetchMock.calls, `${cfg.apiPrefix ?? "/api/cadastros"}/${cfg.apiBase}/${cfg.editId}`, "PUT")
+          const call = findCall(
+            fetchMock.calls,
+            `${cfg.apiPrefix ?? "/api/cadastros"}/${cfg.apiBase}/${cfg.editId}`,
+            "PUT"
+          )
           expect(call).toBeDefined()
           expect(call!.body.id).toBe(cfg.editId)
         })

@@ -9,10 +9,7 @@ import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 import { normalizarItensVenda } from "@/lib/crm/documento-venda"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -55,10 +52,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -90,7 +84,8 @@ export async function PUT(
     if (body.dataEmissao !== undefined) values.dataEmissao = body.dataEmissao || null
     if (body.status !== undefined) values.status = body.status
     if (body.observacao !== undefined) values.observacao = body.observacao?.trim() || null
-    if (body.referenciaExterna !== undefined) values.referenciaExterna = body.referenciaExterna?.trim() || null
+    if (body.referenciaExterna !== undefined)
+      values.referenciaExterna = body.referenciaExterna?.trim() || null
 
     const itens = body.itens !== undefined ? normalizarItensVenda(body.itens) : null
 
@@ -106,10 +101,12 @@ export async function PUT(
         .returning()
 
       if (itens) {
-        await tx.delete(crmFaturamentoItens).where(eq(crmFaturamentoItens.faturamentoId, faturamentoId))
-        await tx.insert(crmFaturamentoItens).values(
-          itens.map((item: any) => ({ ...item, faturamentoId }))
-        )
+        await tx
+          .delete(crmFaturamentoItens)
+          .where(eq(crmFaturamentoItens.faturamentoId, faturamentoId))
+        await tx
+          .insert(crmFaturamentoItens)
+          .values(itens.map((item: any) => ({ ...item, faturamentoId })))
       }
 
       return [updated]
@@ -124,7 +121,12 @@ export async function PUT(
       usuarioNome: session.user.name,
     })
 
-    await notificar("FATURAMENTO_ATUALIZADO", `Faturamento${atualizado.numero ? ` "${atualizado.numero}"` : ""} atualizado`, `/comercial/crm/faturamentos/${atualizado.id}`, session.user.name)
+    await notificar(
+      "FATURAMENTO_ATUALIZADO",
+      `Faturamento${atualizado.numero ? ` "${atualizado.numero}"` : ""} atualizado`,
+      `/comercial/crm/faturamentos/${atualizado.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(atualizado)
   } catch (error) {
@@ -132,10 +134,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -155,7 +154,9 @@ export async function DELETE(
     }
 
     await db.transaction(async (tx: any) => {
-      await tx.delete(crmFaturamentoItens).where(eq(crmFaturamentoItens.faturamentoId, faturamentoId))
+      await tx
+        .delete(crmFaturamentoItens)
+        .where(eq(crmFaturamentoItens.faturamentoId, faturamentoId))
       await tx.delete(crmFaturamentos).where(eq(crmFaturamentos.id, faturamentoId))
     })
 

@@ -6,7 +6,16 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import { briefingTecelagemSchema, BriefingTecelagem } from "@/types/briefing"
 import { Button } from "@/components/ui/button"
 import { Separator } from "@/components/ui/separator"
-import { SecaoDadosProduto, SecaoAplicacao, SecaoRequisitosTecnicos, SecaoTecnologias, SecaoPerformance, SecaoAcabamento, SecaoCores, SecaoComercial } from "@/components/forms/briefing/sections"
+import {
+  SecaoDadosProduto,
+  SecaoAplicacao,
+  SecaoRequisitosTecnicos,
+  SecaoTecnologias,
+  SecaoPerformance,
+  SecaoAcabamento,
+  SecaoCores,
+  SecaoComercial,
+} from "@/components/forms/briefing/sections"
 
 interface BriefingTecelagemFormProps {
   initialData?: Partial<BriefingTecelagem>
@@ -15,22 +24,30 @@ interface BriefingTecelagemFormProps {
 }
 
 export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingTecelagemFormProps) {
-  const { control, handleSubmit, formState: { errors }, getValues, setValue } = useForm<BriefingTecelagem>({
+  const {
+    control,
+    handleSubmit,
+    formState: { errors },
+    getValues,
+    setValue,
+  } = useForm<BriefingTecelagem>({
     resolver: zodResolver(briefingTecelagemSchema),
-    defaultValues: initialData || {
-      produtoBase: "",
-      codProduto: "",
-      nomeCor: "",
-      pantone: "",
-      amostraDesenvolver: "",
-      observacoes: "",
-      aplicacao: { segmentos: [] },
-      tecnologias: { requeridas: [] },
-      performance: {},
-      acabamento: { tipos: [] },
-      cores: {},
-      comercial: {},
-    } as any,
+    defaultValues:
+      initialData ||
+      ({
+        produtoBase: "",
+        codProduto: "",
+        nomeCor: "",
+        pantone: "",
+        amostraDesenvolver: "",
+        observacoes: "",
+        aplicacao: { segmentos: [] },
+        tecnologias: { requeridas: [] },
+        performance: {},
+        acabamento: { tipos: [] },
+        cores: {},
+        comercial: {},
+      } as any),
   })
 
   useEffect(() => {
@@ -39,40 +56,55 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
     if (initialData.codProduto !== undefined) setValue("codProduto", initialData.codProduto)
     if (initialData.nomeCor !== undefined) setValue("nomeCor", initialData.nomeCor)
     if (initialData.pantone !== undefined) setValue("pantone", initialData.pantone)
-    if (initialData.amostraDesenvolver !== undefined) setValue("amostraDesenvolver", initialData.amostraDesenvolver)
+    if (initialData.amostraDesenvolver !== undefined)
+      setValue("amostraDesenvolver", initialData.amostraDesenvolver)
     if (initialData.observacoes !== undefined) setValue("observacoes", initialData.observacoes)
     if (initialData.aplicacao) {
-      if (initialData.aplicacao.descricaoAplicacao !== undefined) setValue("aplicacao.descricaoAplicacao", initialData.aplicacao.descricaoAplicacao)
-      if (initialData.aplicacao.outrosSegmentos !== undefined) setValue("aplicacao.outrosSegmentos", initialData.aplicacao.outrosSegmentos)
+      if (initialData.aplicacao.descricaoAplicacao !== undefined)
+        setValue("aplicacao.descricaoAplicacao", initialData.aplicacao.descricaoAplicacao)
+      if (initialData.aplicacao.outrosSegmentos !== undefined)
+        setValue("aplicacao.outrosSegmentos", initialData.aplicacao.outrosSegmentos)
     }
     if (initialData.requisitosTecnicos) {
       const rt = initialData.requisitosTecnicos as any
       if (rt.composicao !== undefined) setValue("requisitosTecnicos.composicao", rt.composicao)
-      if (rt.larguraMinima !== undefined) setValue("requisitosTecnicos.larguraMinima", rt.larguraMinima)
-      if (rt.larguraMaxima !== undefined) setValue("requisitosTecnicos.larguraMaxima", rt.larguraMaxima)
-      if (rt.gramaturaMinima !== undefined) setValue("requisitosTecnicos.gramaturaMinima", rt.gramaturaMinima)
-      if (rt.gramaturaMaxima !== undefined) setValue("requisitosTecnicos.gramaturaMaxima", rt.gramaturaMaxima)
-      if (rt.densidadeUrdume !== undefined) setValue("requisitosTecnicos.densidadeUrdume", rt.densidadeUrdume)
-      if (rt.densidadeTrama !== undefined) setValue("requisitosTecnicos.densidadeTrama", rt.densidadeTrama)
+      if (rt.larguraMinima !== undefined)
+        setValue("requisitosTecnicos.larguraMinima", rt.larguraMinima)
+      if (rt.larguraMaxima !== undefined)
+        setValue("requisitosTecnicos.larguraMaxima", rt.larguraMaxima)
+      if (rt.gramaturaMinima !== undefined)
+        setValue("requisitosTecnicos.gramaturaMinima", rt.gramaturaMinima)
+      if (rt.gramaturaMaxima !== undefined)
+        setValue("requisitosTecnicos.gramaturaMaxima", rt.gramaturaMaxima)
+      if (rt.densidadeUrdume !== undefined)
+        setValue("requisitosTecnicos.densidadeUrdume", rt.densidadeUrdume)
+      if (rt.densidadeTrama !== undefined)
+        setValue("requisitosTecnicos.densidadeTrama", rt.densidadeTrama)
     }
     if (initialData.tecnologias) {
-      if (initialData.tecnologias.outrasTecnologias !== undefined) setValue("tecnologias.outrasTecnologias", initialData.tecnologias.outrasTecnologias)
+      if (initialData.tecnologias.outrasTecnologias !== undefined)
+        setValue("tecnologias.outrasTecnologias", initialData.tecnologias.outrasTecnologias)
     }
     if (initialData.performance) {
-      if (initialData.performance.outrasPerformances !== undefined) setValue("performance.outrasPerformances", initialData.performance.outrasPerformances)
+      if (initialData.performance.outrasPerformances !== undefined)
+        setValue("performance.outrasPerformances", initialData.performance.outrasPerformances)
     }
     if (initialData.acabamento) {
-      if (initialData.acabamento.textura !== undefined) setValue("acabamento.textura", initialData.acabamento.textura)
+      if (initialData.acabamento.textura !== undefined)
+        setValue("acabamento.textura", initialData.acabamento.textura)
     }
     if (initialData.cores) {
       const c = initialData.cores as any
-      if (c.paletaPreferencial !== undefined) setValue("cores.paletaPreferencial", c.paletaPreferencial)
+      if (c.paletaPreferencial !== undefined)
+        setValue("cores.paletaPreferencial", c.paletaPreferencial)
       if (c.coresEspecificas !== undefined) setValue("cores.coresEspecificas", c.coresEspecificas)
-      if (c.lavabilidadeCores !== undefined) setValue("cores.lavabilidadeCores", c.lavabilidadeCores)
+      if (c.lavabilidadeCores !== undefined)
+        setValue("cores.lavabilidadeCores", c.lavabilidadeCores)
     }
     if (initialData.comercial) {
       const com = initialData.comercial as any
-      if (com.quantidadeEstimada !== undefined) setValue("comercial.quantidadeEstimada", com.quantidadeEstimada)
+      if (com.quantidadeEstimada !== undefined)
+        setValue("comercial.quantidadeEstimada", com.quantidadeEstimada)
       if (com.prazoEntrega !== undefined) setValue("comercial.prazoEntrega", com.prazoEntrega)
       if (com.observacoes !== undefined) setValue("comercial.observacoes", com.observacoes)
     }
@@ -118,14 +150,33 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
         outrosSegmentos: watch_outrosSegmentos,
       },
       requisitosTecnicos: {
-        tipoTecido: currentValues.requisitosTecnicos?.tipoTecido || data.requisitosTecnicos?.tipoTecido,
-        ligamento: currentValues.requisitosTecnicos?.ligamento || data.requisitosTecnicos?.ligamento,
+        tipoTecido:
+          currentValues.requisitosTecnicos?.tipoTecido || data.requisitosTecnicos?.tipoTecido,
+        ligamento:
+          currentValues.requisitosTecnicos?.ligamento || data.requisitosTecnicos?.ligamento,
         composicao: watch_composicao,
-        tipoFibra: currentValues.requisitosTecnicos?.tipoFibra || data.requisitosTecnicos?.tipoFibra || [],
-        larguraMinima: watch_larguraMin !== undefined ? watch_larguraMin : (currentValues.requisitosTecnicos?.larguraMinima || data.requisitosTecnicos?.larguraMinima),
-        larguraMaxima: watch_larguraMax !== undefined ? watch_larguraMax : (currentValues.requisitosTecnicos?.larguraMaxima || data.requisitosTecnicos?.larguraMaxima),
-        gramaturaMinima: watch_gramaturaMin !== undefined ? watch_gramaturaMin : (currentValues.requisitosTecnicos?.gramaturaMinima || data.requisitosTecnicos?.gramaturaMinima),
-        gramaturaMaxima: watch_gramaturaMax !== undefined ? watch_gramaturaMax : (currentValues.requisitosTecnicos?.gramaturaMaxima || data.requisitosTecnicos?.gramaturaMaxima),
+        tipoFibra:
+          currentValues.requisitosTecnicos?.tipoFibra || data.requisitosTecnicos?.tipoFibra || [],
+        larguraMinima:
+          watch_larguraMin !== undefined
+            ? watch_larguraMin
+            : currentValues.requisitosTecnicos?.larguraMinima ||
+              data.requisitosTecnicos?.larguraMinima,
+        larguraMaxima:
+          watch_larguraMax !== undefined
+            ? watch_larguraMax
+            : currentValues.requisitosTecnicos?.larguraMaxima ||
+              data.requisitosTecnicos?.larguraMaxima,
+        gramaturaMinima:
+          watch_gramaturaMin !== undefined
+            ? watch_gramaturaMin
+            : currentValues.requisitosTecnicos?.gramaturaMinima ||
+              data.requisitosTecnicos?.gramaturaMinima,
+        gramaturaMaxima:
+          watch_gramaturaMax !== undefined
+            ? watch_gramaturaMax
+            : currentValues.requisitosTecnicos?.gramaturaMaxima ||
+              data.requisitosTecnicos?.gramaturaMaxima,
         densidadeUrdume: watch_densidadeUrdume,
         densidadeTrama: watch_densidadeTrama,
       },
@@ -134,10 +185,14 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
         outrasTecnologias: watch_outrasTecnologias,
       },
       performance: {
-        resistenciaAbrasao: currentValues.performance?.resistenciaAbrasao || data.performance?.resistenciaAbrasao,
-        resistenciaLavagem: currentValues.performance?.resistenciaLavagem || data.performance?.resistenciaLavagem,
-        resistenciaSecagem: currentValues.performance?.resistenciaSecagem || data.performance?.resistenciaSecagem,
-        resistenciaPassagem: currentValues.performance?.resistenciaPassagem || data.performance?.resistenciaPassagem,
+        resistenciaAbrasao:
+          currentValues.performance?.resistenciaAbrasao || data.performance?.resistenciaAbrasao,
+        resistenciaLavagem:
+          currentValues.performance?.resistenciaLavagem || data.performance?.resistenciaLavagem,
+        resistenciaSecagem:
+          currentValues.performance?.resistenciaSecagem || data.performance?.resistenciaSecagem,
+        resistenciaPassagem:
+          currentValues.performance?.resistenciaPassagem || data.performance?.resistenciaPassagem,
         outrasPerformances: watch_outrasPerformances,
       },
       acabamento: {
@@ -191,9 +246,7 @@ export function BriefingTecelagemForm({ initialData, onNext, onBack }: BriefingT
         <Button type="button" variant="outline" onClick={onBack}>
           ← Voltar para Dados Comerciais
         </Button>
-        <Button type="submit">
-          Salvar Briefing e Continuar →
-        </Button>
+        <Button type="submit">Salvar Briefing e Continuar →</Button>
       </div>
     </form>
   )

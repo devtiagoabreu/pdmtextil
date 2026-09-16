@@ -1,14 +1,22 @@
 import { NextResponse } from "next/server"
 import { z } from "zod"
 
-export function validateRequest<T>(schema: z.ZodType<T>, data: unknown): { data: T } | { error: NextResponse } {
+export function validateRequest<T>(
+  schema: z.ZodType<T>,
+  data: unknown
+): { data: T } | { error: NextResponse } {
   const result = schema.safeParse(data)
   if (!result.success) {
     const firstError = result.error.errors[0]
     const message = firstError
       ? `${firstError.path.join(".")}: ${firstError.message}`
       : "Dados inválidos"
-    return { error: NextResponse.json({ error: message, details: result.error.flatten() }, { status: 400 }) }
+    return {
+      error: NextResponse.json(
+        { error: message, details: result.error.flatten() },
+        { status: 400 }
+      ),
+    }
   }
   return { data: result.data }
 }
@@ -52,17 +60,20 @@ export const produtoCruSchema = z.object({
   descricao: z.string().trim().min(1, "Descrição é obrigatória").max(500),
   solicitacaoDesenvolvimentoId: z.number().int().positive().optional().nullable(),
   status: z.enum(["DESENVOLVIMENTO", "APROVADO", "REPROVADO", "EM_PRODUCAO"]).optional(),
-  fichaTecnica: z.object({
-    gramatura: z.string().optional(),
-    gramaturaLinear: z.string().optional(),
-    largura: z.string().optional(),
-    passamento: z.string().optional(),
-    batidas: z.string().optional(),
-    densidade: z.string().optional(),
-    ligamento: z.string().optional(),
-    qtdeFiosUrdume: z.string().optional(),
-    observacoes: z.string().optional(),
-  }).optional().nullable(),
+  fichaTecnica: z
+    .object({
+      gramatura: z.string().optional(),
+      gramaturaLinear: z.string().optional(),
+      largura: z.string().optional(),
+      passamento: z.string().optional(),
+      batidas: z.string().optional(),
+      densidade: z.string().optional(),
+      ligamento: z.string().optional(),
+      qtdeFiosUrdume: z.string().optional(),
+      observacoes: z.string().optional(),
+    })
+    .optional()
+    .nullable(),
   links: z.array(linkSchema).optional(),
   ativo: z.boolean().optional(),
   idIntegracaoErpCru: z.string().max(100).optional().nullable(),
@@ -329,7 +340,18 @@ export const ativoTipoVistoriaSchema = z.object({
   areaId: z.number().int().positive("Área é obrigatória"),
   procedimento: z.string().optional().nullable(),
   checklist: z.array(vistoriaItemTemplateSchema).optional(),
-  periodicidade: z.enum(["DIARIA", "SEMANAL", "MENSAL", "TRIMESTRAL", "SEMESTRAL", "ANUAL", "BIENAL", "TRIENAL", "QUINQUENAL", "OUTRA"]),
+  periodicidade: z.enum([
+    "DIARIA",
+    "SEMANAL",
+    "MENSAL",
+    "TRIMESTRAL",
+    "SEMESTRAL",
+    "ANUAL",
+    "BIENAL",
+    "TRIENAL",
+    "QUINQUENAL",
+    "OUTRA",
+  ]),
   diasIntervalo: z.number().int().min(1).optional().nullable(),
   baseLegal: z.string().trim().max(200).optional().nullable(),
   ativo: z.boolean().optional(),
@@ -354,5 +376,3 @@ export const vistoriaConclusaoSchema = z.object({
   custo: z.number().positive().optional().nullable(),
   anexos: z.array(z.object({ url: z.string(), nome: z.string() })).optional(),
 })
-
-

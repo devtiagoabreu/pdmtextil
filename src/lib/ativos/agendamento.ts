@@ -1,9 +1,5 @@
 import { db } from "@/lib/db"
-import {
-  ativosPlanosVistoria,
-  ativosVistorias,
-  ativosTiposVistoria,
-} from "@/lib/db/schema/ativos"
+import { ativosPlanosVistoria, ativosVistorias, ativosTiposVistoria } from "@/lib/db/schema/ativos"
 import { eq, and, gte, lte } from "drizzle-orm"
 
 const PERIODICIDADE_DIAS: Record<string, number> = {
@@ -18,10 +14,7 @@ const PERIODICIDADE_DIAS: Record<string, number> = {
   QUINQUENAL: 1825,
 }
 
-export function diasDaPeriodicidade(
-  periodicidade: string,
-  overrideDias?: number | null,
-): number {
+export function diasDaPeriodicidade(periodicidade: string, overrideDias?: number | null): number {
   if (overrideDias && overrideDias > 0) return overrideDias
   return PERIODICIDADE_DIAS[periodicidade] ?? 30
 }
@@ -56,7 +49,7 @@ export async function gerarOcorrencias(
     responsavelId?: number | null
     ativo?: boolean
   },
-  tx = db,
+  tx = db
 ) {
   const dias = diasDaPeriodicidade(opts.periodicidade, opts.diasIntervalo)
   const base = paraDateLocal(opts.proximaData)
@@ -69,14 +62,16 @@ export async function gerarOcorrencias(
       and(
         eq(ativosVistorias.planoId, planoId),
         gte(ativosVistorias.dataProgramada, paraIsoDate(base)),
-        lte(ativosVistorias.dataProgramada, paraIsoDate(fimJanela)),
-      ),
+        lte(ativosVistorias.dataProgramada, paraIsoDate(fimJanela))
+      )
     )
 
-  const datasExistentes = new Set(existentes.map((r: { dataProgramada: string }) => r.dataProgramada))
+  const datasExistentes = new Set(
+    existentes.map((r: { dataProgramada: string }) => r.dataProgramada)
+  )
 
   let atual = new Date(base)
-  const novas: typeof ativosVistorias.$inferInsert[] = []
+  const novas: (typeof ativosVistorias.$inferInsert)[] = []
 
   while (atual <= fimJanela) {
     const iso = paraIsoDate(atual)
@@ -99,11 +94,7 @@ export async function gerarOcorrencias(
   return novas.length
 }
 
-export async function avancarPlano(
-  planoId: number,
-  dataRealizada: string | Date,
-  tx = db,
-) {
+export async function avancarPlano(planoId: number, dataRealizada: string | Date, tx = db) {
   const plano = await tx
     .select()
     .from(ativosPlanosVistoria)
@@ -121,10 +112,7 @@ export async function avancarPlano(
 
   if (tipo.length === 0) return
 
-  const dias = diasDaPeriodicidade(
-    tipo[0].periodicidade,
-    p.diasIntervalo ?? tipo[0].diasIntervalo,
-  )
+  const dias = diasDaPeriodicidade(tipo[0].periodicidade, p.diasIntervalo ?? tipo[0].diasIntervalo)
   const novaData = adicionarDias(paraDateLocal(dataRealizada), dias)
 
   await tx
@@ -138,8 +126,8 @@ export async function avancarPlano(
     .where(
       and(
         eq(ativosVistorias.planoId, planoId),
-        eq(ativosVistorias.dataProgramada, paraIsoDate(novaData)),
-      ),
+        eq(ativosVistorias.dataProgramada, paraIsoDate(novaData))
+      )
     )
     .limit(1)
 

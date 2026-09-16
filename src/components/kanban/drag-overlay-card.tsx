@@ -12,9 +12,7 @@ export function DragOverlayCard({ card }: { card: Solicitacao }) {
         </div>
       </div>
       <p className="text-sm font-medium text-slate-900 dark:text-slate-100 mt-1">{card.cliente}</p>
-      {card.projeto && (
-        <p className="text-xs text-slate-500 mt-0.5">{card.projeto}</p>
-      )}
+      {card.projeto && <p className="text-xs text-slate-500 mt-0.5">{card.projeto}</p>}
       {card.produtoCodigoPdm && (
         <div className="flex items-center gap-1 mt-1.5 text-[10px] text-slate-500">
           <span className="font-medium">{card.produtoCodigoPdm}</span>
@@ -22,7 +20,9 @@ export function DragOverlayCard({ card }: { card: Solicitacao }) {
             <span className="text-slate-400">({card.produtoIdIntegracao})</span>
           )}
           {card.produtoAmostrasCount !== undefined && card.produtoAmostrasCount > 0 && (
-            <span className="ml-auto text-blue-500">{card.produtoAmostrasCount} amostra{card.produtoAmostrasCount > 1 ? "s" : ""}</span>
+            <span className="ml-auto text-blue-500">
+              {card.produtoAmostrasCount} amostra{card.produtoAmostrasCount > 1 ? "s" : ""}
+            </span>
           )}
         </div>
       )}

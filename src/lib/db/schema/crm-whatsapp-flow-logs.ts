@@ -1,4 +1,13 @@
-import { pgTable, serial, varchar, text, integer, jsonb, timestamp, index } from "drizzle-orm/pg-core"
+import {
+  pgTable,
+  serial,
+  varchar,
+  text,
+  integer,
+  jsonb,
+  timestamp,
+  index,
+} from "drizzle-orm/pg-core"
 
 export const crmWhatsappFlowLogs = pgTable(
   "crm_whatsapp_flow_logs",

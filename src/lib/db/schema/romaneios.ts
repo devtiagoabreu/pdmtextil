@@ -1,4 +1,13 @@
-import { pgTable, serial, integer, varchar, text, timestamp, numeric, uniqueIndex } from "drizzle-orm/pg-core"
+import {
+  pgTable,
+  serial,
+  integer,
+  varchar,
+  text,
+  timestamp,
+  numeric,
+  uniqueIndex,
+} from "drizzle-orm/pg-core"
 
 export const romaneios = pgTable("romaneios", {
   id: serial("id").primaryKey(),
@@ -30,7 +39,9 @@ export const romaneios = pgTable("romaneios", {
 
 export const romaneioPecas = pgTable("romaneio_pecas", {
   id: serial("id").primaryKey(),
-  romaneioId: integer("romaneio_id").references(() => romaneios.id, { onDelete: "cascade" }).notNull(),
+  romaneioId: integer("romaneio_id")
+    .references(() => romaneios.id, { onDelete: "cascade" })
+    .notNull(),
   codigoRolo: integer("codigo_rolo").notNull(),
   produto: varchar("produto", { length: 100 }),
   narrativa: text("narrativa"),

@@ -32,7 +32,10 @@ export type ListFiltersState<T> = {
 const EMPTY: any[] = []
 
 function normalizar(s: string): string {
-  return s.toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+  return s
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
 }
 
 function valorBusca(v: unknown, q: string, vistos: Set<object>): boolean {
@@ -76,14 +79,18 @@ export function useListFilters<T>(config: FilterConfig, data: T[]) {
     if (dateFrom) {
       const from = new Date(dateFrom + "T00:00:00")
       result = result.filter((item) => {
-        const d = (item as Record<string, unknown>)[dateField] ? new Date((item as Record<string, unknown>)[dateField] as string) : null
+        const d = (item as Record<string, unknown>)[dateField]
+          ? new Date((item as Record<string, unknown>)[dateField] as string)
+          : null
         return d && d >= from
       })
     }
     if (dateTo) {
       const to = new Date(dateTo + "T23:59:59")
       result = result.filter((item) => {
-        const d = (item as Record<string, unknown>)[dateField] ? new Date((item as Record<string, unknown>)[dateField] as string) : null
+        const d = (item as Record<string, unknown>)[dateField]
+          ? new Date((item as Record<string, unknown>)[dateField] as string)
+          : null
         return d && d <= to
       })
     }
@@ -91,7 +98,17 @@ export function useListFilters<T>(config: FilterConfig, data: T[]) {
     return result.length === 0 ? EMPTY : result
   }, [data, search, statusFilter, dateFrom, dateTo, config])
 
-  return { filtered, search, setSearch, statusFilter, setStatusFilter, dateFrom, setDateFrom, dateTo, setDateTo }
+  return {
+    filtered,
+    search,
+    setSearch,
+    statusFilter,
+    setStatusFilter,
+    dateFrom,
+    setDateFrom,
+    dateTo,
+    setDateTo,
+  }
 }
 
 type Props<T> = {
@@ -102,7 +119,17 @@ type Props<T> = {
 }
 
 export default function ListFilters<T>({ config, data, filterState, placeholder }: Props<T>) {
-  const { search, setSearch, statusFilter, setStatusFilter, dateFrom, setDateFrom, dateTo, setDateTo, filtered } = filterState
+  const {
+    search,
+    setSearch,
+    statusFilter,
+    setStatusFilter,
+    dateFrom,
+    setDateFrom,
+    dateTo,
+    setDateTo,
+    filtered,
+  } = filterState
 
   const hasActiveFilters = search || statusFilter !== "all" || dateFrom || dateTo
 
@@ -117,7 +144,11 @@ export default function ListFilters<T>({ config, data, filterState, placeholder 
     <div className="flex flex-col gap-3">
       <div className="flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
-          <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" aria-hidden="true" />
+          <Search
+            size={16}
+            className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+            aria-hidden="true"
+          />
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
@@ -139,14 +170,19 @@ export default function ListFilters<T>({ config, data, filterState, placeholder 
 
         {config.statusOptions && config.statusOptions.length > 0 && (
           <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v || "all")}>
-            <SelectTrigger aria-label="Filtrar por status" className="h-9 text-sm w-full sm:w-[180px]">
+            <SelectTrigger
+              aria-label="Filtrar por status"
+              className="h-9 text-sm w-full sm:w-[180px]"
+            >
               <Filter size={14} className="mr-1.5 text-slate-400" />
               <SelectValue placeholder="Status" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">Todos os status</SelectItem>
               {config.statusOptions.map((opt: any) => (
-                <SelectItem key={opt.value} value={opt.value}>{opt.label}</SelectItem>
+                <SelectItem key={opt.value} value={opt.value}>
+                  {opt.label}
+                </SelectItem>
               ))}
             </SelectContent>
           </Select>

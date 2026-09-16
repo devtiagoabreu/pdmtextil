@@ -29,7 +29,8 @@ const notificacoes = [
 
 function buildHandler() {
   return ({ method, url }: { method: string; url: string }) => {
-    if (method === "GET" && url === "/api/crm/notificacoes") return { json: { lista: notificacoes, naoLidas: 2 } }
+    if (method === "GET" && url === "/api/crm/notificacoes")
+      return { json: { lista: notificacoes, naoLidas: 2 } }
     if (method === "GET" && url === "/api/crm/notificacoes?naoLidas=true") {
       return { json: { lista: notificacoes.filter((n) => !n.lida), naoLidas: 2 } }
     }

@@ -36,7 +36,10 @@ export function extrairMensagem(body: EvolutionWebhookBody): string {
 }
 
 export function extrairNumero(remoteJid: string): string {
-  return remoteJid.replace(/@s\.whatsapp\.net$/, "").replace(/@lid$/, "").replace(/\D/g, "")
+  return remoteJid
+    .replace(/@s\.whatsapp\.net$/, "")
+    .replace(/@lid$/, "")
+    .replace(/\D/g, "")
 }
 
 export async function logStep(

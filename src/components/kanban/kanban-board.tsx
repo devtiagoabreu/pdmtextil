@@ -38,11 +38,12 @@ export function KanbanBoard() {
   const [pilotagemLoading, setPilotagemLoading] = useState(false)
   const [pilotagemSubmitting, setPilotagemSubmitting] = useState(false)
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  )
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
-  const { data, isLoading, error } = useQuery<{ statusList: StatusCol[]; solicitacoes: Solicitacao[] }>({
+  const { data, isLoading, error } = useQuery<{
+    statusList: StatusCol[]
+    solicitacoes: Solicitacao[]
+  }>({
     queryKey: ["kanban-board"],
     queryFn: async () => {
       const [statusRes, solRes] = await Promise.all([
@@ -98,14 +99,26 @@ export function KanbanBoard() {
       const lista: AmostraItem[] = []
       if (Array.isArray(data.amostras)) {
         for (const a of data.amostras) {
-          lista.push({ tipo: "Tecido Cru", descricao: a.descricao, status: a.status, id: a.id, scrollId: `amostra-${a.id}` })
+          lista.push({
+            tipo: "Tecido Cru",
+            descricao: a.descricao,
+            status: a.status,
+            id: a.id,
+            scrollId: `amostra-${a.id}`,
+          })
         }
       }
       if (Array.isArray(data.acabamentos)) {
         for (const ac of data.acabamentos) {
           if (Array.isArray(ac.amostras)) {
             for (const a of ac.amostras) {
-              lista.push({ tipo: `Acabamento (${ac.tipoAcabamento || ""})`, descricao: a.descricao, status: a.status, id: a.id, scrollId: `amostra-acab-${ac.id}-${a.id}` })
+              lista.push({
+                tipo: `Acabamento (${ac.tipoAcabamento || ""})`,
+                descricao: a.descricao,
+                status: a.status,
+                id: a.id,
+                scrollId: `amostra-acab-${ac.id}-${a.id}`,
+              })
             }
           }
         }
@@ -156,7 +169,14 @@ export function KanbanBoard() {
         if (Array.isArray(data.amostras)) {
           for (const a of data.amostras) {
             if (a.status !== "EM_PRODUCAO_TEC" && a.status !== "EM_PRODUCAO_BEN") {
-              lista.push({ id: a.id, tipo: "tecido_cru", descricao: a.descricao, status: a.status, produtoCruId: data.id, rotulo: "Tecido Cru" })
+              lista.push({
+                id: a.id,
+                tipo: "tecido_cru",
+                descricao: a.descricao,
+                status: a.status,
+                produtoCruId: data.id,
+                rotulo: "Tecido Cru",
+              })
             }
           }
         }
@@ -165,7 +185,15 @@ export function KanbanBoard() {
             if (Array.isArray(ac.amostras)) {
               for (const a of ac.amostras) {
                 if (a.status !== "EM_PRODUCAO_TEC" && a.status !== "EM_PRODUCAO_BEN") {
-                  lista.push({ id: a.id, tipo: "acabamento", descricao: a.descricao, status: a.status, produtoCruId: data.id, acabamentoId: ac.id, rotulo: `Acabamento (${ac.tipoAcabamento || ""})` })
+                  lista.push({
+                    id: a.id,
+                    tipo: "acabamento",
+                    descricao: a.descricao,
+                    status: a.status,
+                    produtoCruId: data.id,
+                    acabamentoId: ac.id,
+                    rotulo: `Acabamento (${ac.tipoAcabamento || ""})`,
+                  })
                 }
               }
             }
@@ -181,8 +209,8 @@ export function KanbanBoard() {
 
     const statusAntigo = solicitacao.status
 
-    setSolicitacoes(prev =>
-      prev.map((s: any) => s.id === solicitacao.id ? { ...s, status: novoStatus } : s)
+    setSolicitacoes((prev) =>
+      prev.map((s: any) => (s.id === solicitacao.id ? { ...s, status: novoStatus } : s))
     )
 
     try {
@@ -195,10 +223,12 @@ export function KanbanBoard() {
         const err = await res.json()
         throw new Error(err.error || "Erro ao alterar status")
       }
-      toast.success(`Solicitação #${solicitacao.id} movida para ${statusList.find((s: any) => s.nome === novoStatus)?.rotulo || novoStatus}`)
+      toast.success(
+        `Solicitação #${solicitacao.id} movida para ${statusList.find((s: any) => s.nome === novoStatus)?.rotulo || novoStatus}`
+      )
     } catch (err: any) {
-      setSolicitacoes(prev =>
-        prev.map((s: any) => s.id === solicitacao.id ? { ...s, status: statusAntigo } : s)
+      setSolicitacoes((prev) =>
+        prev.map((s: any) => (s.id === solicitacao.id ? { ...s, status: statusAntigo } : s))
       )
       toast.error(err.message)
     }
@@ -211,7 +241,9 @@ export function KanbanBoard() {
       const promises: Promise<any>[] = []
       for (const key of pilotagemSelecionadas) {
         const [tipo, amostraId] = key.split("-")
-        const amostra = pilotagemAmostras.find((a: any) => a.id === parseInt(amostraId) && a.tipo === tipo)
+        const amostra = pilotagemAmostras.find(
+          (a: any) => a.id === parseInt(amostraId) && a.tipo === tipo
+        )
         if (!amostra) continue
         if (tipo === "tecido_cru") {
           promises.push(
@@ -223,11 +255,14 @@ export function KanbanBoard() {
           )
         } else if (tipo === "acabamento" && amostra.acabamentoId) {
           promises.push(
-            fetch(`/api/cadastros/produto-cru/${amostra.produtoCruId}/acabamentos/${amostra.acabamentoId}/amostras/${amostra.id}`, {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ status: "EM_PRODUCAO_BEN" }),
-            })
+            fetch(
+              `/api/cadastros/produto-cru/${amostra.produtoCruId}/acabamentos/${amostra.acabamentoId}/amostras/${amostra.id}`,
+              {
+                method: "PUT",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ status: "EM_PRODUCAO_BEN" }),
+              }
+            )
           )
         }
       }
@@ -239,10 +274,12 @@ export function KanbanBoard() {
         })
       )
       await Promise.all(promises)
-      setSolicitacoes(prev =>
-        prev.map((s: any) => s.id === pilotagemTarget.id ? { ...s, status: "PILOTAGEM" } : s)
+      setSolicitacoes((prev) =>
+        prev.map((s: any) => (s.id === pilotagemTarget.id ? { ...s, status: "PILOTAGEM" } : s))
       )
-      toast.success(`Solicitação #${pilotagemTarget.id} movida para Pilotagem com ${pilotagemSelecionadas.size} amostra(s)`)
+      toast.success(
+        `Solicitação #${pilotagemTarget.id} movida para Pilotagem com ${pilotagemSelecionadas.size} amostra(s)`
+      )
       setPilotagemTarget(null)
     } catch {
       toast.error("Erro ao iniciar pilotagem")
@@ -271,7 +308,13 @@ export function KanbanBoard() {
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto">
           {colunas.map((col: any) => (
-            <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo} cor={col.cor} count={col.cards.length}>
+            <DroppableColumn
+              key={col.nome}
+              id={col.nome}
+              rotulo={col.rotulo}
+              cor={col.cor}
+              count={col.cards.length}
+            >
               {col.cards.map((card: any) => (
                 <DraggableCard
                   key={card.id}
@@ -284,9 +327,7 @@ export function KanbanBoard() {
           ))}
         </div>
 
-        <DragOverlay>
-          {activeCard && <DragOverlayCard card={activeCard} />}
-        </DragOverlay>
+        <DragOverlay>{activeCard && <DragOverlayCard card={activeCard} />}</DragOverlay>
       </DndContext>
 
       <ChatDialog

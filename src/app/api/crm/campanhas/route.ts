@@ -18,7 +18,10 @@ export async function GET(req: NextRequest) {
     if (status) conditions.push(eq(crmCampanhas.status, status))
     if (search) conditions.push(like(crmCampanhas.nome, `%${search}%`))
 
-    const where = conditions.length > 0 ? sql`${conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`)}` : undefined
+    const where =
+      conditions.length > 0
+        ? sql`${conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`)}`
+        : undefined
 
     const lista = await db
       .select({
@@ -83,7 +86,12 @@ export async function POST(req: NextRequest) {
       usuarioNome: session.user.name,
     })
 
-    await notificar("CAMPANHA_CRIADA", `Campanha criada: ${nova.nome}`, `/comercial/crm/campanhas/${nova.id}`, session.user.name)
+    await notificar(
+      "CAMPANHA_CRIADA",
+      `Campanha criada: ${nova.nome}`,
+      `/comercial/crm/campanhas/${nova.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {

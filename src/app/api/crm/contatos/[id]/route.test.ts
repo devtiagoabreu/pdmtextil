@@ -47,7 +47,9 @@ describe("DELETE /api/crm/contatos/[id]", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await del("1")
     expect(res.status).toBe(401)
   })
@@ -82,8 +84,12 @@ describe("PUT /api/crm/contatos/[id]", () => {
     vi.mocked(requireAuth).mockReset()
     resetDb(db)
     vi.mocked(requireAuth).mockResolvedValue(sessionAdmin as any)
-    db.select = vi.fn(() => createQueryBuilder([{ id: 1, nome: "Ana", empresaId: 5, clienteId: null }]))
-    db.update = vi.fn(() => createQueryBuilder([{ id: 1, nome: "Ana", empresaId: 5, clienteId: null }]))
+    db.select = vi.fn(() =>
+      createQueryBuilder([{ id: 1, nome: "Ana", empresaId: 5, clienteId: null }])
+    )
+    db.update = vi.fn(() =>
+      createQueryBuilder([{ id: 1, nome: "Ana", empresaId: 5, clienteId: null }])
+    )
   })
 
   function put(id: string, body: Record<string, unknown>) {
@@ -98,7 +104,9 @@ describe("PUT /api/crm/contatos/[id]", () => {
   }
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await put("1", { nome: "Ana" })
     expect(res.status).toBe(401)
   })

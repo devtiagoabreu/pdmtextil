@@ -88,7 +88,12 @@ describe("POST /api/admin/email-massa/agendados/[id]/enviar", () => {
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ disparoId: 42, total: 4711 })
     expect(criarDisparo).toHaveBeenCalledWith(
-      expect.objectContaining({ nome: "07.08 | Feira Equipotel", para: "todos", assunto: "Promo", criadoPor: 16 }),
+      expect.objectContaining({
+        nome: "07.08 | Feira Equipotel",
+        para: "todos",
+        assunto: "Promo",
+        criadoPor: 16,
+      })
     )
     expect(db.update).toHaveBeenCalled()
   })

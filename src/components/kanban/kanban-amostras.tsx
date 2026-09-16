@@ -5,7 +5,15 @@ import { useSession } from "next-auth/react"
 import { useRouter } from "next/navigation"
 import { useQuery } from "@tanstack/react-query"
 import { toast } from "sonner"
-import { DndContext, DragOverlay, useDraggable, useDroppable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
+import {
+  DndContext,
+  DragOverlay,
+  useDraggable,
+  useDroppable,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
 import { Loader2, Calendar, ExternalLink, Package, AlertTriangle } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
@@ -40,7 +48,19 @@ interface AmostraCard {
   dados: Record<string, string> | null
 }
 
-function DroppableColumn({ id, children, rotulo, cor, count }: { id: string; children: React.ReactNode; rotulo: string; cor: string | null; count: number }) {
+function DroppableColumn({
+  id,
+  children,
+  rotulo,
+  cor,
+  count,
+}: {
+  id: string
+  children: React.ReactNode
+  rotulo: string
+  cor: string | null
+  count: number
+}) {
   const { setNodeRef, isOver } = useDroppable({ id })
 
   return (
@@ -60,9 +80,7 @@ function DroppableColumn({ id, children, rotulo, cor, count }: { id: string; chi
           {count}
         </span>
       </div>
-      <div className="flex-1 min-h-0 p-2 space-y-2 overflow-y-auto">
-        {children}
-      </div>
+      <div className="flex-1 min-h-0 p-2 space-y-2 overflow-y-auto">{children}</div>
     </div>
   )
 }
@@ -74,20 +92,25 @@ function DraggableAmostraCard({ amostra }: { amostra: AmostraCard }) {
     data: { amostra },
   })
 
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    zIndex: 50,
-  } : undefined
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        zIndex: 50,
+      }
+    : undefined
 
   const dataDate = amostra.data ? new Date(amostra.data) : null
 
-  const scrollId = amostra.tipo === "tecido_cru"
-    ? `amostra-${amostra.id}`
-    : `amostra-acab-${amostra.acabamentoId}-${amostra.id}`
+  const scrollId =
+    amostra.tipo === "tecido_cru"
+      ? `amostra-${amostra.id}`
+      : `amostra-acab-${amostra.acabamentoId}-${amostra.id}`
 
   const handleClick = () => {
     if (amostra.produtoCruId) {
-      router.push(`/cadastros/produto-cru/${amostra.produtoCruId}?tab=amostras&amostraId=${scrollId}`)
+      router.push(
+        `/cadastros/produto-cru/${amostra.produtoCruId}?tab=amostras&amostraId=${scrollId}`
+      )
     }
   }
 
@@ -103,11 +126,13 @@ function DraggableAmostraCard({ amostra }: { amostra: AmostraCard }) {
       } ${amostra.produtoCruId ? "cursor-pointer" : "cursor-grab"}`}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${
-          amostra.tipo === "tecido_cru"
-            ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"
-            : "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300"
-        }`}>
+        <span
+          className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${
+            amostra.tipo === "tecido_cru"
+              ? "bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300"
+              : "bg-purple-100 text-purple-700 dark:bg-purple-900/40 dark:text-purple-300"
+          }`}
+        >
           {amostra.tipo === "tecido_cru" ? "Cru" : "Acab."}
         </span>
         <span className="text-[10px] text-slate-400">#{amostra.id}</span>
@@ -150,7 +175,7 @@ function DraggableAmostraCard({ amostra }: { amostra: AmostraCard }) {
               href={link.url}
               target="_blank"
               rel="noopener noreferrer"
-              onClick={e => e.stopPropagation()}
+              onClick={(e) => e.stopPropagation()}
               className="inline-flex items-center gap-1 text-[10px] text-blue-600 dark:text-blue-400 hover:underline truncate"
             >
               <ExternalLink size={10} className="shrink-0" />
@@ -171,43 +196,48 @@ export function KanbanAmostras() {
   const [statusList, setStatusList] = useState<StatusCol[]>([])
   const [amostras, setAmostras] = useState<AmostraCard[]>([])
   const [activeCard, setActiveCard] = useState<AmostraCard | null>(null)
-  const [motivoModal, setMotivoModal] = useState<{ amostra: AmostraCard; novoStatus: string } | null>(null)
+  const [motivoModal, setMotivoModal] = useState<{
+    amostra: AmostraCard
+    novoStatus: string
+  } | null>(null)
   const [motivoText, setMotivoText] = useState("")
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  )
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
-  const { data, isLoading, error } = useQuery<{ statusList: StatusCol[]; amostras: AmostraCard[] }>({
-    queryKey: ["kanban-amostras"],
-    queryFn: async () => {
-      const [statusRes, amostrasRes] = await Promise.all([
-        fetch("/api/admin/status?tipo=AMOSTRA").then((r: any) => r.json()),
-        fetch("/api/amostras").then((r: any) => r.json()),
-      ])
-      let flat: AmostraCard[] = []
-      if (amostrasRes && Array.isArray(amostrasRes.tecidoCru)) {
-        flat = [
-          ...amostrasRes.tecidoCru.map((a: any) => ({
-            ...a,
-            tipo: "tecido_cru" as const,
-            data: a.data || a.createdAt,
-          })),
-          ...(Array.isArray(amostrasRes.acabamento) ? amostrasRes.acabamento.map((a: any) => ({
-            ...a,
-            tipo: "acabamento" as const,
-            data: a.data || a.createdAt,
-          })) : []),
-        ]
-      } else if (Array.isArray(amostrasRes)) {
-        flat = amostrasRes
-      }
-      return {
-        statusList: Array.isArray(statusRes) ? statusRes : [],
-        amostras: flat,
-      }
-    },
-  })
+  const { data, isLoading, error } = useQuery<{ statusList: StatusCol[]; amostras: AmostraCard[] }>(
+    {
+      queryKey: ["kanban-amostras"],
+      queryFn: async () => {
+        const [statusRes, amostrasRes] = await Promise.all([
+          fetch("/api/admin/status?tipo=AMOSTRA").then((r: any) => r.json()),
+          fetch("/api/amostras").then((r: any) => r.json()),
+        ])
+        let flat: AmostraCard[] = []
+        if (amostrasRes && Array.isArray(amostrasRes.tecidoCru)) {
+          flat = [
+            ...amostrasRes.tecidoCru.map((a: any) => ({
+              ...a,
+              tipo: "tecido_cru" as const,
+              data: a.data || a.createdAt,
+            })),
+            ...(Array.isArray(amostrasRes.acabamento)
+              ? amostrasRes.acabamento.map((a: any) => ({
+                  ...a,
+                  tipo: "acabamento" as const,
+                  data: a.data || a.createdAt,
+                }))
+              : []),
+          ]
+        } else if (Array.isArray(amostrasRes)) {
+          flat = amostrasRes
+        }
+        return {
+          statusList: Array.isArray(statusRes) ? statusRes : [],
+          amostras: flat,
+        }
+      },
+    }
+  )
 
   useEffect(() => {
     if (error) toast.error("Erro ao carregar dados")
@@ -222,11 +252,10 @@ export function KanbanAmostras() {
 
   const loading = isLoading && !data
 
-  const colunas = statusList
-    .map((col: any) => ({
-      ...col,
-      cards: amostras.filter((a: any) => a.status === col.nome),
-    }))
+  const colunas = statusList.map((col: any) => ({
+    ...col,
+    cards: amostras.filter((a: any) => a.status === col.nome),
+  }))
 
   const handleDragStart = (event: any) => {
     const card = event.active.data.current?.amostra
@@ -257,11 +286,17 @@ export function KanbanAmostras() {
     await executarMudancaStatus(amostra, novoStatus)
   }
 
-  const executarMudancaStatus = async (amostra: AmostraCard, novoStatus: string, motivo?: string) => {
+  const executarMudancaStatus = async (
+    amostra: AmostraCard,
+    novoStatus: string,
+    motivo?: string
+  ) => {
     const statusAntigo = amostra.status
 
-    setAmostras(prev =>
-      prev.map((a: any) => a.id === amostra.id && a.tipo === amostra.tipo ? { ...a, status: novoStatus } : a)
+    setAmostras((prev) =>
+      prev.map((a: any) =>
+        a.id === amostra.id && a.tipo === amostra.tipo ? { ...a, status: novoStatus } : a
+      )
     )
 
     try {
@@ -281,10 +316,14 @@ export function KanbanAmostras() {
         const err = await res.json()
         throw new Error(err.error || "Erro ao alterar status")
       }
-      toast.success(`Amostra #${amostra.id} movida para ${statusList.find((s: any) => s.nome === novoStatus)?.rotulo || novoStatus}`)
+      toast.success(
+        `Amostra #${amostra.id} movida para ${statusList.find((s: any) => s.nome === novoStatus)?.rotulo || novoStatus}`
+      )
     } catch (err: any) {
-      setAmostras(prev =>
-        prev.map((a: any) => a.id === amostra.id && a.tipo === amostra.tipo ? { ...a, status: statusAntigo } : a)
+      setAmostras((prev) =>
+        prev.map((a: any) =>
+          a.id === amostra.id && a.tipo === amostra.tipo ? { ...a, status: statusAntigo } : a
+        )
       )
       toast.error(err.message)
     }
@@ -311,7 +350,13 @@ export function KanbanAmostras() {
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto">
           {colunas.map((col: any) => (
-            <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo} cor={col.cor} count={col.cards.length}>
+            <DroppableColumn
+              key={col.nome}
+              id={col.nome}
+              rotulo={col.rotulo}
+              cor={col.cor}
+              count={col.cards.length}
+            >
               {col.cards.map((card: any) => (
                 <DraggableAmostraCard key={`${card.tipo}-${card.id}`} amostra={card} />
               ))}
@@ -323,17 +368,21 @@ export function KanbanAmostras() {
           {activeCard && (
             <div className="bg-white dark:bg-slate-800 rounded-lg border border-blue-400 shadow-xl p-3 w-72 opacity-90">
               <div className="flex items-start justify-between gap-2">
-                <span className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${
-                  activeCard.tipo === "tecido_cru"
-                    ? "bg-blue-100 text-blue-700"
-                    : "bg-purple-100 text-purple-700"
-                }`}>
+                <span
+                  className={`text-[10px] font-bold uppercase px-1.5 py-0.5 rounded ${
+                    activeCard.tipo === "tecido_cru"
+                      ? "bg-blue-100 text-blue-700"
+                      : "bg-purple-100 text-purple-700"
+                  }`}
+                >
                   {activeCard.tipo === "tecido_cru" ? "Cru" : "Acab."}
                 </span>
                 <span className="text-[10px] text-slate-400">#{activeCard.id}</span>
               </div>
               <p className="text-xs font-mono text-blue-600 mt-1">{activeCard.produtoCodigo}</p>
-              <p className="text-sm font-medium text-slate-900 mt-0.5">{activeCard.descricao || "Sem descrição"}</p>
+              <p className="text-sm font-medium text-slate-900 mt-0.5">
+                {activeCard.descricao || "Sem descrição"}
+              </p>
               {activeCard.quantidadeProduzida != null && (
                 <div className="flex items-center gap-1 mt-1 text-[10px] text-purple-600">
                   <Package size={10} />
@@ -361,7 +410,7 @@ export function KanbanAmostras() {
             </p>
             <textarea
               value={motivoText}
-              onChange={e => setMotivoText(e.target.value)}
+              onChange={(e) => setMotivoText(e.target.value)}
               className="w-full p-3 rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 text-sm resize-none focus:outline-none focus:ring-2 focus:ring-blue-500"
               rows={4}
               placeholder="Motivo / Observação *"

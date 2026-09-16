@@ -24,7 +24,9 @@ describe("NovaViagemPage", () => {
 
     fireEvent.submit(ui.container.querySelector("form")!)
 
-    await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("O título da viagem é obrigatório"))
+    await waitFor(() =>
+      expect(toastMock.error).toHaveBeenCalledWith("O título da viagem é obrigatório")
+    )
     expect(findCall(fetchMock.calls, "/api/crm/viagens", "POST")).toBeUndefined()
   })
 

@@ -72,9 +72,17 @@ export async function renderRomaneioPage(
     doc.text(empresa.nome || "", isLandscape ? 48 : 42, y + 4)
     doc.setFontSize(isLandscape ? 9 : 8.5).setFont("helvetica", "normal")
     let yOff = y + 8
-    if (empresa.documento) { doc.text(`CNPJ: ${empresa.documento}`, isLandscape ? 48 : 42, yOff); yOff += 3.5 }
-    if (empresa.endereco) { doc.text(empresa.endereco, isLandscape ? 48 : 42, yOff); yOff += 3.5 }
-    if (empresa.cidade || empresa.uf) { doc.text([empresa.cidade, empresa.uf].filter(Boolean).join("/"), isLandscape ? 48 : 42, yOff) }
+    if (empresa.documento) {
+      doc.text(`CNPJ: ${empresa.documento}`, isLandscape ? 48 : 42, yOff)
+      yOff += 3.5
+    }
+    if (empresa.endereco) {
+      doc.text(empresa.endereco, isLandscape ? 48 : 42, yOff)
+      yOff += 3.5
+    }
+    if (empresa.cidade || empresa.uf) {
+      doc.text([empresa.cidade, empresa.uf].filter(Boolean).join("/"), isLandscape ? 48 : 42, yOff)
+    }
     doc.setTextColor(0, 0, 0)
     y = headerH + (isLandscape ? 6 : 5)
   } else {
@@ -160,15 +168,30 @@ export async function renderRomaneioPage(
     if (!lotesMap.has(loteNome)) lotesMap.set(loteNome, [])
     lotesMap.get(loteNome)!.push(r)
   }
-  const produtosOrdenados = Array.from(produtosMap.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0]))
+  const produtosOrdenados = Array.from(produtosMap.entries()).sort((a: any, b: any) =>
+    a[0].localeCompare(b[0])
+  )
 
   const head = [
-    ["#", "Cód. Rolo", "Produto", "Narrativa", "Lote", "Metragem", "P. Bruto", "P. Líquido", "Largura", "Endereço"],
+    [
+      "#",
+      "Cód. Rolo",
+      "Produto",
+      "Narrativa",
+      "Lote",
+      "Metragem",
+      "P. Bruto",
+      "P. Líquido",
+      "Largura",
+      "Endereço",
+    ],
   ]
   const body: any[] = []
 
   for (const [prodNome, lotesMap] of produtosOrdenados) {
-    const lotesOrdenados = Array.from(lotesMap.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0]))
+    const lotesOrdenados = Array.from(lotesMap.entries()).sort((a: any, b: any) =>
+      a[0].localeCompare(b[0])
+    )
 
     let prodRolos = 0
     let prodMetragem = 0
@@ -179,7 +202,12 @@ export async function renderRomaneioPage(
       {
         content: `PRODUTO: ${prodNome}`,
         colSpan: 10,
-        styles: { fillColor: [233, 213, 255], fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, halign: "left" },
+        styles: {
+          fillColor: [233, 213, 255],
+          fontStyle: "bold",
+          fontSize: isLandscape ? 6.5 : 6,
+          halign: "left",
+        },
       },
     ])
 
@@ -203,7 +231,12 @@ export async function renderRomaneioPage(
         {
           content: `LOTE ${loteNome}`,
           colSpan: 10,
-          styles: { fillColor: [219, 234, 254], fontStyle: "bold", fontSize: isLandscape ? 6.5 : 6, halign: "left" },
+          styles: {
+            fillColor: [219, 234, 254],
+            fontStyle: "bold",
+            fontSize: isLandscape ? 6.5 : 6,
+            halign: "left",
+          },
         },
       ])
 
@@ -224,29 +257,117 @@ export async function renderRomaneioPage(
 
       body.push([
         { content: "", colSpan: 3, styles: { fillColor: [245, 247, 250] } },
-        { content: `${subRolos} rolo(s)`, styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 7 : 6.5, halign: "left" } },
+        {
+          content: `${subRolos} rolo(s)`,
+          styles: {
+            fillColor: [245, 247, 250],
+            fontStyle: "bold",
+            fontSize: isLandscape ? 7 : 6.5,
+            halign: "left",
+          },
+        },
         { content: "", styles: { fillColor: [245, 247, 250] } },
-        { content: formatarMetragem(subMetragem), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 7 : 6.5, halign: "right" } },
-        { content: formatarPeso(subPesoBruto), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 7 : 6.5, halign: "right" } },
-        { content: formatarPeso(subPesoLiquido), styles: { fillColor: [245, 247, 250], fontStyle: "bold", fontSize: isLandscape ? 7 : 6.5, halign: "right" } },
+        {
+          content: formatarMetragem(subMetragem),
+          styles: {
+            fillColor: [245, 247, 250],
+            fontStyle: "bold",
+            fontSize: isLandscape ? 7 : 6.5,
+            halign: "right",
+          },
+        },
+        {
+          content: formatarPeso(subPesoBruto),
+          styles: {
+            fillColor: [245, 247, 250],
+            fontStyle: "bold",
+            fontSize: isLandscape ? 7 : 6.5,
+            halign: "right",
+          },
+        },
+        {
+          content: formatarPeso(subPesoLiquido),
+          styles: {
+            fillColor: [245, 247, 250],
+            fontStyle: "bold",
+            fontSize: isLandscape ? 7 : 6.5,
+            halign: "right",
+          },
+        },
         { content: "", colSpan: 2, styles: { fillColor: [245, 247, 250] } },
       ])
     }
 
     body.push([
-      { content: `SUBTOTAL ${prodNome}: ${prodRolos} rolo(s)`, colSpan: 5, styles: { fontStyle: "bold", fontSize: isLandscape ? 7.5 : 7, fillColor: [233, 213, 255] } },
-      { content: formatarMetragem(prodMetragem), styles: { fontStyle: "bold", fontSize: isLandscape ? 7.5 : 7, fillColor: [233, 213, 255], halign: "right" } },
-      { content: formatarPeso(prodPesoBruto), styles: { fontStyle: "bold", fontSize: isLandscape ? 7.5 : 7, fillColor: [233, 213, 255], halign: "right" } },
-      { content: formatarPeso(prodPesoLiquido), styles: { fontStyle: "bold", fontSize: isLandscape ? 7.5 : 7, fillColor: [233, 213, 255], halign: "right" } },
+      {
+        content: `SUBTOTAL ${prodNome}: ${prodRolos} rolo(s)`,
+        colSpan: 5,
+        styles: { fontStyle: "bold", fontSize: isLandscape ? 7.5 : 7, fillColor: [233, 213, 255] },
+      },
+      {
+        content: formatarMetragem(prodMetragem),
+        styles: {
+          fontStyle: "bold",
+          fontSize: isLandscape ? 7.5 : 7,
+          fillColor: [233, 213, 255],
+          halign: "right",
+        },
+      },
+      {
+        content: formatarPeso(prodPesoBruto),
+        styles: {
+          fontStyle: "bold",
+          fontSize: isLandscape ? 7.5 : 7,
+          fillColor: [233, 213, 255],
+          halign: "right",
+        },
+      },
+      {
+        content: formatarPeso(prodPesoLiquido),
+        styles: {
+          fontStyle: "bold",
+          fontSize: isLandscape ? 7.5 : 7,
+          fillColor: [233, 213, 255],
+          halign: "right",
+        },
+      },
       { content: "", colSpan: 2, styles: { fillColor: [233, 213, 255] } },
     ])
   }
 
   body.push([
-    { content: `TOTAL GERAL: ${grupo.totalRolos} rolo(s)`, colSpan: 5, styles: { fontStyle: "bold", fontSize: isLandscape ? 9 : 8, fillColor: [191, 219, 254] } },
-    { content: formatarMetragem(grupo.totalMetragem), styles: { fontStyle: "bold", fontSize: isLandscape ? 9 : 8, fillColor: [191, 219, 254], halign: "right" } },
-    { content: formatarPeso(grupo.totalPesoBruto), styles: { fontStyle: "bold", fontSize: isLandscape ? 9 : 8, fillColor: [191, 219, 254], halign: "right" } },
-    { content: formatarPeso(grupo.totalPesoLiquido), styles: { fontStyle: "bold", fontSize: isLandscape ? 9 : 8, fillColor: [191, 219, 254], halign: "right" } },
+    {
+      content: `TOTAL GERAL: ${grupo.totalRolos} rolo(s)`,
+      colSpan: 5,
+      styles: { fontStyle: "bold", fontSize: isLandscape ? 9 : 8, fillColor: [191, 219, 254] },
+    },
+    {
+      content: formatarMetragem(grupo.totalMetragem),
+      styles: {
+        fontStyle: "bold",
+        fontSize: isLandscape ? 9 : 8,
+        fillColor: [191, 219, 254],
+        halign: "right",
+      },
+    },
+    {
+      content: formatarPeso(grupo.totalPesoBruto),
+      styles: {
+        fontStyle: "bold",
+        fontSize: isLandscape ? 9 : 8,
+        fillColor: [191, 219, 254],
+        halign: "right",
+      },
+    },
+    {
+      content: formatarPeso(grupo.totalPesoLiquido),
+      styles: {
+        fontStyle: "bold",
+        fontSize: isLandscape ? 9 : 8,
+        fillColor: [191, 219, 254],
+        halign: "right",
+      },
+    },
     { content: "", colSpan: 2, styles: { fillColor: [191, 219, 254] } },
   ])
 
@@ -272,7 +393,9 @@ export async function renderRomaneioPage(
       doc.setFontSize(isLandscape ? 6.5 : 6).setFont("helvetica", "normal")
       doc.setTextColor(0, 0, 0)
       doc.text(`Romaneio Nº ${numero}`, margin, pageH - (isLandscape ? 6 : 5))
-      doc.text(`Página ${data.pageNumber}`, pageWidth - margin, pageH - (isLandscape ? 6 : 5), { align: "right" })
+      doc.text(`Página ${data.pageNumber}`, pageWidth - margin, pageH - (isLandscape ? 6 : 5), {
+        align: "right",
+      })
       doc.setTextColor(0, 0, 0)
     },
   })

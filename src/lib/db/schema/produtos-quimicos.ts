@@ -1,4 +1,13 @@
-import { pgTable, serial, varchar, text, boolean, timestamp, numeric, integer } from "drizzle-orm/pg-core"
+import {
+  pgTable,
+  serial,
+  varchar,
+  text,
+  boolean,
+  timestamp,
+  numeric,
+  integer,
+} from "drizzle-orm/pg-core"
 import { usuarios } from "./usuarios"
 
 export const produtosQuimicos = pgTable("produtos_quimicos", {

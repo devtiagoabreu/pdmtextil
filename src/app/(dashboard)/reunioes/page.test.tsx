@@ -66,7 +66,13 @@ const detalhe = {
   pautas: [{ id: 1, descricao: "Itens da release", ordem: 1 }],
   participantes: [{ id: 1, nome: "Jean", empresa: "PDM", papel: "Dev" }],
   encaminhamentos: [
-    { id: 1, descricao: "Documentar release", responsavel: "Maria", prazo: "2026-09-30T12:00:00.000Z", status: "PENDENTE" },
+    {
+      id: 1,
+      descricao: "Documentar release",
+      responsavel: "Maria",
+      prazo: "2026-09-30T12:00:00.000Z",
+      status: "PENDENTE",
+    },
   ],
   links: [{ id: 1, rotulo: "Docs", url: "https://docs.example.com", descricao: null, ordem: 1 }],
 }
@@ -76,7 +82,8 @@ function fetchSucesso() {
     if (url === "/api/reunioes" && method === "GET") return { json: { reunioes: lista } }
     if (url === "/api/reunioes/projetos" && method === "GET") return { json: { projetos } }
     if (url === "/api/reunioes/1" && method === "GET") return { json: { reuniao: detalhe } }
-    if (url === "/api/reunioes" && method === "POST") return { status: 201, json: { reuniao: detalhe } }
+    if (url === "/api/reunioes" && method === "POST")
+      return { status: 201, json: { reuniao: detalhe } }
     if (url === "/api/reunioes/1" && method === "PUT") return { json: { reuniao: detalhe } }
     if (url === "/api/reunioes/1" && method === "DELETE") return { json: { ok: true } }
     return { status: 404, json: { error: "Rota não mockada" } }
@@ -140,7 +147,9 @@ describe("ReunioesPage", () => {
     expect(await screen.findByRole("heading", { name: "Nova reunião" })).toBeInTheDocument()
 
     fireEvent.change(screen.getByLabelText("Título *"), { target: { value: "Rodada de release" } })
-    fireEvent.change(screen.getByLabelText("Data/hora *"), { target: { value: "2026-09-11T15:00" } })
+    fireEvent.change(screen.getByLabelText("Data/hora *"), {
+      target: { value: "2026-09-11T15:00" },
+    })
 
     fireEvent.submit(document.querySelector("form")!)
 
@@ -151,7 +160,9 @@ describe("ReunioesPage", () => {
       expect(chamada?.body?.projetoId).toBe(2)
       expect(chamada?.body?.status).toBe("AGENDADA")
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Reunião criada com sucesso."))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Reunião criada com sucesso.")
+    )
   })
 
   it("edita reunião via modal (PUT)", async () => {
@@ -168,7 +179,9 @@ describe("ReunioesPage", () => {
       expect(chamada).toBeDefined()
       expect(chamada?.body?.titulo).toBe("Rodada de release")
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Reunião atualizada com sucesso."))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Reunião atualizada com sucesso.")
+    )
   })
 
   it("exclui reunião após confirmação (DELETE)", async () => {
@@ -179,7 +192,9 @@ describe("ReunioesPage", () => {
 
     fireEvent.click(screen.getAllByRole("button", { name: "Excluir" }).at(-1)!)
 
-    await waitFor(() => expect(findCall(fetchMock.calls, "/api/reunioes/1", "DELETE")).toBeDefined())
+    await waitFor(() =>
+      expect(findCall(fetchMock.calls, "/api/reunioes/1", "DELETE")).toBeDefined()
+    )
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Reunião excluída."))
   })
 

@@ -3,10 +3,30 @@ import { Send, Calculator, Wrench, Repeat, Search } from "lucide-react"
 import { PageInfoButton } from "@/components/ui/page-info-button"
 
 const ferramentas = [
-  { href: "/ferramentas/consulta-cnpj", label: "Consulta CNPJ", desc: "Consultar dados de CNPJ na Receita Federal, comparar com registros locais e sincronizar", icon: Search },
-  { href: "/ferramentas/regra-de-tres", label: "Calculadora de Regra de Três", desc: "Resolve regra de três simples (direta/inversa) e composta", icon: Calculator },
-  { href: "/ferramentas/conversores", label: "Numeração de Fio", desc: "Conversão entre Ne, Nm, Tex, Dtex e Denier", icon: Repeat },
-  { href: "/admin/email-massa", label: "Email em Massa", desc: "Enviar email para múltiplos destinatários", icon: Send },
+  {
+    href: "/ferramentas/consulta-cnpj",
+    label: "Consulta CNPJ",
+    desc: "Consultar dados de CNPJ na Receita Federal, comparar com registros locais e sincronizar",
+    icon: Search,
+  },
+  {
+    href: "/ferramentas/regra-de-tres",
+    label: "Calculadora de Regra de Três",
+    desc: "Resolve regra de três simples (direta/inversa) e composta",
+    icon: Calculator,
+  },
+  {
+    href: "/ferramentas/conversores",
+    label: "Numeração de Fio",
+    desc: "Conversão entre Ne, Nm, Tex, Dtex e Denier",
+    icon: Repeat,
+  },
+  {
+    href: "/admin/email-massa",
+    label: "Email em Massa",
+    desc: "Enviar email para múltiplos destinatários",
+    icon: Send,
+  },
 ]
 
 export default function FerramentasHubPage() {
@@ -15,7 +35,10 @@ export default function FerramentasHubPage() {
       <div>
         <div className="flex items-center gap-2">
           <Wrench className="text-blue-600" size={24} />
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Ferramentas<PageInfoButton /></h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Ferramentas
+            <PageInfoButton />
+          </h1>
         </div>
         <p className="text-sm text-slate-500 mt-1">Ferramentas auxiliares do sistema</p>
       </div>
@@ -32,7 +55,9 @@ export default function FerramentasHubPage() {
               <div className="inline-flex p-3 rounded-lg text-blue-600 bg-blue-50 dark:bg-blue-950/50 mb-3">
                 <Icon size={22} />
               </div>
-              <h3 className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 transition-colors">{f.label}</h3>
+              <h3 className="font-semibold text-slate-900 dark:text-slate-100 group-hover:text-blue-600 transition-colors">
+                {f.label}
+              </h3>
               <p className="text-sm text-slate-500 mt-1 leading-relaxed">{f.desc}</p>
             </Link>
           )

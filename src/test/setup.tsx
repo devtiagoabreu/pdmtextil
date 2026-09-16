@@ -10,7 +10,7 @@ vi.mock("next/navigation", () => ({
 
 vi.mock("next/link", () => ({
   default: ({ href, children, ...props }: any) => (
-    <a href={typeof href === "string" ? href : href?.pathname ?? "#"} {...props}>
+    <a href={typeof href === "string" ? href : (href?.pathname ?? "#")} {...props}>
       {children}
     </a>
   ),

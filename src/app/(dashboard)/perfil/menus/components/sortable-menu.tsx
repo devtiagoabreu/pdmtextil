@@ -43,7 +43,9 @@ export function SortableMenu({
   onCancelEdit,
   children,
 }: SortableMenuProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: menu.id })
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: menu.id,
+  })
 
   const style = {
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
@@ -75,12 +77,18 @@ export function SortableMenu({
           >
             {isExpanded ? <Minus size={16} /> : <Plus size={16} />}
           </button>
-          <MenuIcone icone={menu.icone} titulo={menu.titulo} url={menu.itens?.[0]?.url} size={16} className="text-slate-500" />
+          <MenuIcone
+            icone={menu.icone}
+            titulo={menu.titulo}
+            url={menu.itens?.[0]?.url}
+            size={16}
+            className="text-slate-500"
+          />
           {isEditing ? (
             <div className="flex items-center gap-2 flex-1">
               <Input
                 value={editValue}
-                onChange={e => onChangeEdit(e.target.value)}
+                onChange={(e) => onChangeEdit(e.target.value)}
                 className="h-8 text-sm max-w-[180px]"
                 placeholder="Título do menu"
                 autoFocus
@@ -95,7 +103,7 @@ export function SortableMenu({
                   <SelectValue placeholder="Ícone do menu" />
                 </SelectTrigger>
                 <SelectContent>
-                  {ICONE_OPCOES.map(op => (
+                  {ICONE_OPCOES.map((op) => (
                     <SelectItem key={op.valor} value={op.valor}>
                       <span className="inline-flex items-center gap-2">
                         <op.Icone size={14} />
@@ -114,7 +122,9 @@ export function SortableMenu({
             </div>
           ) : (
             <>
-              <span className="text-sm font-medium text-slate-900 dark:text-slate-100">{menu.titulo}</span>
+              <span className="text-sm font-medium text-slate-900 dark:text-slate-100">
+                {menu.titulo}
+              </span>
               <span className="text-xs text-slate-400">{menu.itens.length} item(ns)</span>
             </>
           )}

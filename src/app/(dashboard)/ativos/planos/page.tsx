@@ -39,7 +39,11 @@ export default function AtivosPlanosPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
 
-  const { data: planos = [], isLoading, refetch } = useQuery({
+  const {
+    data: planos = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["ativos-planos"],
     queryFn: async () => {
       const res = await fetch("/api/ativos/planos")
@@ -113,19 +117,29 @@ export default function AtivosPlanosPage() {
             <Loader2 className="animate-spin text-slate-400" size={24} />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
-            Nenhum plano encontrado
-          </div>
+          <div className="p-8 text-center text-slate-500">Nenhum plano encontrado</div>
         ) : (
           <table className="w-full">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ativo</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Tipo de Vistoria</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Periodicidade</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Responsável</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Próxima Data</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Ativo
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Tipo de Vistoria
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Periodicidade
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Responsável
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Próxima Data
+                </th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -146,7 +160,10 @@ export default function AtivosPlanosPage() {
                   <td className="p-4 text-sm text-slate-500">{formatarData(plano.proximaData)}</td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/ativos/planos/${plano.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Link
+                        href={`/ativos/planos/${plano.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
@@ -175,12 +192,16 @@ export default function AtivosPlanosPage() {
       <ConfirmModal
         open={deleteTarget !== null}
         title={deleteBlocked ? "Exclusão não permitida" : "Excluir plano?"}
-        message={deleteBlocked
-          ? "Este plano possui vistorias vinculadas e não pode ser excluído."
-          : "Tem certeza que deseja excluir?"}
-        subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir."
-          : undefined}
+        message={
+          deleteBlocked
+            ? "Este plano possui vistorias vinculadas e não pode ser excluído."
+            : "Tem certeza que deseja excluir?"
+        }
+        subMessage={
+          deleteBlocked
+            ? "Remova ou desvincule os registros associados antes de excluir."
+            : undefined
+        }
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}
         loading={deleteLoading}

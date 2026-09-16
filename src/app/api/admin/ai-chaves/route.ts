@@ -33,7 +33,8 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    if (!precisaAdmin(session)) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    if (!precisaAdmin(session))
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
     const { provedor, nome, chaveApi, urlBase, modelo, ordem, ativo } = await req.json()
     if (!nome || !chaveApi) {
@@ -63,9 +64,11 @@ export async function POST(req: NextRequest) {
 export async function PUT(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    if (!precisaAdmin(session)) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    if (!precisaAdmin(session))
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
-    const { id, provedor, nome, chaveApi, urlBase, modelo, ordem, ativo, failCount, ultimaFalha } = await req.json()
+    const { id, provedor, nome, chaveApi, urlBase, modelo, ordem, ativo, failCount, ultimaFalha } =
+      await req.json()
     if (!id) return NextResponse.json({ error: "id é obrigatório" }, { status: 400 })
 
     const updateData: Record<string, unknown> = { updatedAt: new Date() }
@@ -90,7 +93,8 @@ export async function PUT(req: NextRequest) {
 export async function DELETE(req: NextRequest) {
   try {
     const session = await getServerSession(authOptions)
-    if (!precisaAdmin(session)) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
+    if (!precisaAdmin(session))
+      return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
     const { id } = await req.json()
     if (!id) return NextResponse.json({ error: "id é obrigatório" }, { status: 400 })

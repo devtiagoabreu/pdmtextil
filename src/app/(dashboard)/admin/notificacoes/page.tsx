@@ -14,7 +14,17 @@ interface Regra {
   roles: string[]
 }
 
-const ALL_ROLES = ["COMERCIAL", "CRM", "DESENVOLVIMENTO", "ADMIN", "SUDO", "QUALIDADE", "TECELAGEM", "BENEFICIAMENTO", "PCP"]
+const ALL_ROLES = [
+  "COMERCIAL",
+  "CRM",
+  "DESENVOLVIMENTO",
+  "ADMIN",
+  "SUDO",
+  "QUALIDADE",
+  "TECELAGEM",
+  "BENEFICIAMENTO",
+  "PCP",
+]
 
 const TIPO_LABEL: Record<string, string> = {
   SOLICITACAO_CRIADA: "Solicitação Criada",
@@ -63,7 +73,11 @@ export default function NotificacoesAdminPage() {
   const [saving, setSaving] = useState(false)
   const [dirty, setDirty] = useState(false)
 
-  const { data: regrasData, isLoading: loading, isError } = useQuery<{ regras: Regra[] }>({
+  const {
+    data: regrasData,
+    isLoading: loading,
+    isError,
+  } = useQuery<{ regras: Regra[] }>({
     queryKey: ["admin-notificacao-regras"],
     queryFn: async () => {
       const res = await fetch("/api/admin/notificacao-regras")
@@ -81,21 +95,25 @@ export default function NotificacoesAdminPage() {
   }, [isError])
 
   function toggleRole(tipo: string, role: string) {
-    setRegras(prev => prev.map((r: any) => {
-      if (r.tipo !== tipo) return r
-      const next = r.roles.includes(role)
-        ? r.roles.filter((x: any) => x !== role)
-        : [...r.roles, role]
-      return { ...r, roles: next }
-    }))
+    setRegras((prev) =>
+      prev.map((r: any) => {
+        if (r.tipo !== tipo) return r
+        const next = r.roles.includes(role)
+          ? r.roles.filter((x: any) => x !== role)
+          : [...r.roles, role]
+        return { ...r, roles: next }
+      })
+    )
     setDirty(true)
   }
 
   function selectAll(tipo: string, checked: boolean) {
-    setRegras(prev => prev.map((r: any) => {
-      if (r.tipo !== tipo) return r
-      return { ...r, roles: checked ? [...ALL_ROLES] : [] }
-    }))
+    setRegras((prev) =>
+      prev.map((r: any) => {
+        if (r.tipo !== tipo) return r
+        return { ...r, roles: checked ? [...ALL_ROLES] : [] }
+      })
+    )
     setDirty(true)
   }
 
@@ -130,15 +148,22 @@ export default function NotificacoesAdminPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link href="/admin/configuracoes" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link
+          href="/admin/configuracoes"
+          className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={20} />
         </Link>
         <div>
           <div className="flex items-center gap-2">
             <Bell className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Notificações por Tipo{info && <InfoButton content={info} />}</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+              Notificações por Tipo{info && <InfoButton content={info} />}
+            </h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">Selecione quais perfis recebem notificação para cada tipo de evento</p>
+          <p className="text-sm text-slate-500 mt-1">
+            Selecione quais perfis recebem notificação para cada tipo de evento
+          </p>
         </div>
       </div>
 
@@ -146,9 +171,14 @@ export default function NotificacoesAdminPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
-              <th className="p-3 text-left font-semibold text-slate-700 dark:text-slate-300 min-w-[180px]">Tipo de Notificação</th>
+              <th className="p-3 text-left font-semibold text-slate-700 dark:text-slate-300 min-w-[180px]">
+                Tipo de Notificação
+              </th>
               {ALL_ROLES.map((role: any) => (
-                <th key={role} className="p-3 text-center font-semibold text-slate-700 dark:text-slate-300 text-xs">
+                <th
+                  key={role}
+                  className="p-3 text-center font-semibold text-slate-700 dark:text-slate-300 text-xs"
+                >
                   {role}
                 </th>
               ))}
@@ -156,14 +186,17 @@ export default function NotificacoesAdminPage() {
           </thead>
           <tbody>
             {regras.map((regra: any) => (
-              <tr key={regra.tipo} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
+              <tr
+                key={regra.tipo}
+                className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+              >
                 <td className="p-3 font-medium text-slate-800 dark:text-slate-200">
                   <div className="flex items-center gap-2">
                     <span>{TIPO_LABEL[regra.tipo] || regra.tipo}</span>
                     <input
                       type="checkbox"
                       checked={regra.roles.length === ALL_ROLES.length}
-                      onChange={e => selectAll(regra.tipo, e.target.checked)}
+                      onChange={(e) => selectAll(regra.tipo, e.target.checked)}
                       title="Marcar/desmarcar todas"
                       className="h-3.5 w-3.5 accent-blue-600 ml-2"
                     />

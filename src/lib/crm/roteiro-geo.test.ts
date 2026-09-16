@@ -13,7 +13,10 @@ describe("haversineKm", () => {
   })
 
   it("retorna 0 para pontos idênticos", () => {
-    const km = haversineKm({ latitude: -23.55, longitude: -46.63 }, { latitude: -23.55, longitude: -46.63 })
+    const km = haversineKm(
+      { latitude: -23.55, longitude: -46.63 },
+      { latitude: -23.55, longitude: -46.63 }
+    )
     expect(km).toBe(0)
   })
 })
@@ -32,7 +35,9 @@ describe("calcularTrajeto", () => {
   })
 
   it("retorna vazio e zero para ponto único", () => {
-    const { kmEntrePontos, totalKm } = calcularTrajeto([{ id: 1, latitude: -23.55, longitude: -46.63 }])
+    const { kmEntrePontos, totalKm } = calcularTrajeto([
+      { id: 1, latitude: -23.55, longitude: -46.63 },
+    ])
     expect(kmEntrePontos).toEqual([])
     expect(totalKm).toBe(0)
   })

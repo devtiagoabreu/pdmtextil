@@ -6,8 +6,26 @@ import { createFetchMock, renderPage, findCall } from "@/test/harness"
 import { listSmokeSpec } from "@/test/list-smoke-spec"
 
 const estados = [
-  { id: 1, nome: "São Paulo", uf: "SP", regiao: "SE", gerenteId: 2, gerenteNome: null, paisId: 1, paisNome: "Brasil" },
-  { id: 2, nome: "Paraná", uf: "PR", regiao: "S", gerenteId: null, gerenteNome: null, paisId: null, paisNome: null },
+  {
+    id: 1,
+    nome: "São Paulo",
+    uf: "SP",
+    regiao: "SE",
+    gerenteId: 2,
+    gerenteNome: null,
+    paisId: 1,
+    paisNome: "Brasil",
+  },
+  {
+    id: 2,
+    nome: "Paraná",
+    uf: "PR",
+    regiao: "S",
+    gerenteId: null,
+    gerenteNome: null,
+    paisId: null,
+    paisNome: null,
+  },
 ]
 
 const usuarios = [{ id: 2, name: "Tiago" }]
@@ -50,7 +68,9 @@ describe("EstadosConfigPage busca e edição inline", () => {
     renderPage(<EstadosPage />)
     await screen.findByText("São Paulo")
 
-    fireEvent.change(screen.getByPlaceholderText("Buscar estado..."), { target: { value: "Paraná" } })
+    fireEvent.change(screen.getByPlaceholderText("Buscar estado..."), {
+      target: { value: "Paraná" },
+    })
 
     expect(screen.getByText("Paraná")).toBeInTheDocument()
     expect(screen.queryByText("São Paulo")).not.toBeInTheDocument()

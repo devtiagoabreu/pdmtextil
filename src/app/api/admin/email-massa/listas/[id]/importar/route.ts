@@ -75,7 +75,10 @@ function parseJSON(texto: string): ContatoImport[] {
 export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
+    if (
+      !session ||
+      (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")
+    ) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -104,11 +107,17 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     } else if (nomeArquivo.endsWith(".json")) {
       registros = parseJSON(texto)
     } else {
-      return NextResponse.json({ error: "Formato não suportado. Use CSV ou JSON." }, { status: 400 })
+      return NextResponse.json(
+        { error: "Formato não suportado. Use CSV ou JSON." },
+        { status: 400 }
+      )
     }
 
     if (registros.length === 0) {
-      return NextResponse.json({ error: "Nenhum registro válido encontrado no arquivo" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Nenhum registro válido encontrado no arquivo" },
+        { status: 400 }
+      )
     }
 
     const resultados = {

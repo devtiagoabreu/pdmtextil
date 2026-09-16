@@ -9,9 +9,21 @@ describe("ConfiguracoesHubPage", () => {
     renderPage(<ConfiguracoesHubPage />)
 
     expect(screen.getByRole("heading", { name: "Configurações" })).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: /Banco de Dados/ })).toHaveAttribute("href", "/admin/configuracoes/banco-dados")
-    expect(screen.getByRole("link", { name: /Usuários/ })).toHaveAttribute("href", "/admin/usuarios")
-    expect(screen.getByRole("link", { name: /Chaves de IA/ })).toHaveAttribute("href", "/admin/configuracoes/ai")
-    expect(screen.getByRole("link", { name: /Notificações/ })).toHaveAttribute("href", "/admin/notificacoes")
+    expect(screen.getByRole("link", { name: /Banco de Dados/ })).toHaveAttribute(
+      "href",
+      "/admin/configuracoes/banco-dados"
+    )
+    expect(screen.getByRole("link", { name: /Usuários/ })).toHaveAttribute(
+      "href",
+      "/admin/usuarios"
+    )
+    expect(screen.getByRole("link", { name: /Chaves de IA/ })).toHaveAttribute(
+      "href",
+      "/admin/configuracoes/ai"
+    )
+    expect(screen.getByRole("link", { name: /Notificações/ })).toHaveAttribute(
+      "href",
+      "/admin/notificacoes"
+    )
   })
 })

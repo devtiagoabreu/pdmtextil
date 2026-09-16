@@ -98,7 +98,7 @@ export default function CorFormPage() {
   }
 
   const handleChange = (field: keyof Cor, value: string | boolean) => {
-    setCor(prev => ({ ...prev, [field]: value }))
+    setCor((prev) => ({ ...prev, [field]: value }))
   }
 
   if (loading) {
@@ -118,12 +118,12 @@ export default function CorFormPage() {
           </Button>
         </Link>
         <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-          {isEditing ? "Editar Cor" : "Nova Cor Sólida"}
-          {info && <InfoButton content={info} />}
-        </h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            {isEditing ? "Editar Cor" : "Nova Cor Sólida"}
+            {info && <InfoButton content={info} />}
+          </h1>
+        </div>
       </div>
-    </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
@@ -132,7 +132,7 @@ export default function CorFormPage() {
             <Input
               id="codigo"
               value={cor.codigo}
-              onChange={e => handleChange("codigo", e.target.value)}
+              onChange={(e) => handleChange("codigo", e.target.value)}
               placeholder="0001A1"
               maxLength={6}
               required
@@ -143,7 +143,7 @@ export default function CorFormPage() {
             <Input
               id="nome"
               value={cor.nome}
-              onChange={e => handleChange("nome", e.target.value)}
+              onChange={(e) => handleChange("nome", e.target.value)}
               placeholder="Azul Marinho"
               required
             />
@@ -156,7 +156,7 @@ export default function CorFormPage() {
             <Input
               id="pantone"
               value={cor.pantone || ""}
-              onChange={e => handleChange("pantone", e.target.value)}
+              onChange={(e) => handleChange("pantone", e.target.value)}
               placeholder="2955C"
             />
           </div>
@@ -165,7 +165,7 @@ export default function CorFormPage() {
             <Input
               id="familia"
               value={cor.familia || ""}
-              onChange={e => handleChange("familia", e.target.value)}
+              onChange={(e) => handleChange("familia", e.target.value)}
               placeholder="AZUL"
               list="familias"
             />
@@ -182,14 +182,25 @@ export default function CorFormPage() {
           </div>
         </div>
 
-<div className="flex items-center gap-2">
-          <input type="checkbox" id="ativo" checked={cor.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={cor.ativo}
+            onChange={(e) => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
           <Label htmlFor="ativo">Ativo</Label>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="idIntegracao">ID Integração (ERP/WMS/CRM/OUTROS)</Label>
-          <Input id="idIntegracao" value={cor.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="Código do sistema externo" />
+          <Input
+            id="idIntegracao"
+            value={cor.idIntegracao || ""}
+            onChange={(e) => handleChange("idIntegracao", e.target.value)}
+            placeholder="Código do sistema externo"
+          />
         </div>
 
         <div className="flex gap-4">
@@ -198,7 +209,9 @@ export default function CorFormPage() {
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
           <Link href="/cadastros/cores">
-            <Button variant="outline" type="button">Cancelar</Button>
+            <Button variant="outline" type="button">
+              Cancelar
+            </Button>
           </Link>
         </div>
       </form>

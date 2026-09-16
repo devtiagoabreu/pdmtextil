@@ -11,7 +11,10 @@ import { getInfoContent } from "@/lib/info-content"
 import { exportCSV, exportPDFRelatorio } from "@/lib/export-utils"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 
-const AmostrasPorStatusCharts = dynamic(() => import("./charts").then((m) => m.AmostrasPorStatusCharts), { ssr: false })
+const AmostrasPorStatusCharts = dynamic(
+  () => import("./charts").then((m) => m.AmostrasPorStatusCharts),
+  { ssr: false }
+)
 
 export default function RelatorioAmostrasPorStatus() {
   const { statuses, getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("AMOSTRA")
@@ -22,7 +25,12 @@ export default function RelatorioAmostrasPorStatus() {
   const [aplicadoDataFim, setAplicadoDataFim] = useState("")
 
   const { data, isLoading: loading } = useQuery<any>({
-    queryKey: ["relatorio-amostras-por-status", selectedStatus, aplicadoDataInicio, aplicadoDataFim],
+    queryKey: [
+      "relatorio-amostras-por-status",
+      selectedStatus,
+      aplicadoDataInicio,
+      aplicadoDataFim,
+    ],
     enabled: !!selectedStatus,
     queryFn: async () => {
       const params = new URLSearchParams()
@@ -51,14 +59,18 @@ export default function RelatorioAmostrasPorStatus() {
 
   function handleExportCSV() {
     setTimeout(() => {
-      exportCSV(`amostras-${selectedStatus.toLowerCase()}`, ["#", "Tipo", "Produto", "Descrição", "Data", "Criado em"], lista.map((r: any) => [
-        r.id,
-        r.tipoAmostra === "TECIDO_CRU" ? "Cru" : "Acab.",
-        r.produtoCodigo,
-        r.descricao || "-",
-        r.data ? new Date(r.data).toLocaleDateString("pt-BR") : "-",
-        r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
-      ]))
+      exportCSV(
+        `amostras-${selectedStatus.toLowerCase()}`,
+        ["#", "Tipo", "Produto", "Descrição", "Data", "Criado em"],
+        lista.map((r: any) => [
+          r.id,
+          r.tipoAmostra === "TECIDO_CRU" ? "Cru" : "Acab.",
+          r.produtoCodigo,
+          r.descricao || "-",
+          r.data ? new Date(r.data).toLocaleDateString("pt-BR") : "-",
+          r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
+        ])
+      )
     }, 200)
   }
 
@@ -66,21 +78,26 @@ export default function RelatorioAmostrasPorStatus() {
     const rotulo = getStatusLabel(selectedStatus)
     await exportPDFRelatorio({
       title: `Relatório: Amostras ${rotulo}`,
-      stats: stats ? {
-        "Total": stats.total,
-        "Tecido Cru": stats.tecidoCru,
-        "Acabamento": stats.acabamento,
-      } : undefined,
+      stats: stats
+        ? {
+            Total: stats.total,
+            "Tecido Cru": stats.tecidoCru,
+            Acabamento: stats.acabamento,
+          }
+        : undefined,
       tables: [
         { headers: ["Mês", "Total"], rows: porMes.map((m: any) => [m.mes, m.total]) },
-        { headers: ["#", "Tipo", "Produto", "Descrição", "Data", "Criado em"], rows: lista.map((r: any) => [
-          r.id,
-          r.tipoAmostra === "TECIDO_CRU" ? "Cru" : "Acab.",
-          r.produtoCodigo,
-          r.descricao || "-",
-          r.data ? new Date(r.data).toLocaleDateString("pt-BR") : "-",
-          r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
-        ])},
+        {
+          headers: ["#", "Tipo", "Produto", "Descrição", "Data", "Criado em"],
+          rows: lista.map((r: any) => [
+            r.id,
+            r.tipoAmostra === "TECIDO_CRU" ? "Cru" : "Acab.",
+            r.produtoCodigo,
+            r.descricao || "-",
+            r.data ? new Date(r.data).toLocaleDateString("pt-BR") : "-",
+            r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
+          ]),
+        },
       ],
     })
   }
@@ -91,7 +108,9 @@ export default function RelatorioAmostrasPorStatus() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Amostras de Desenvolvimento por Status{info && <InfoButton content={info} />}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+          Relatório: Amostras de Desenvolvimento por Status{info && <InfoButton content={info} />}
+        </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
           Filtre amostras de desenvolvimento por status — total, tipo e detalhamento
         </p>
@@ -109,7 +128,9 @@ export default function RelatorioAmostrasPorStatus() {
             className="h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm min-w-[200px]"
           >
             {statuses.map((s: any) => (
-              <option key={s.nome} value={s.nome}>{s.rotulo}</option>
+              <option key={s.nome} value={s.nome}>
+                {s.rotulo}
+              </option>
             ))}
           </select>
         </div>
@@ -140,10 +161,16 @@ export default function RelatorioAmostrasPorStatus() {
         <div className="flex-1" />
         {selectedStatus && (
           <>
-            <button onClick={handleExportCSV} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+            <button
+              onClick={handleExportCSV}
+              className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
+            >
               CSV
             </button>
-            <button onClick={handleExportPDF} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+            <button
+              onClick={handleExportPDF}
+              className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
+            >
               PDF
             </button>
           </>
@@ -154,20 +181,30 @@ export default function RelatorioAmostrasPorStatus() {
         <div className="grid grid-cols-3 gap-4">
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total</p>
-            <p className="text-3xl font-bold text-slate-700 dark:text-slate-200 mt-1">{stats.total}</p>
+            <p className="text-3xl font-bold text-slate-700 dark:text-slate-200 mt-1">
+              {stats.total}
+            </p>
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-blue-50 dark:bg-blue-950/50 p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Tecido Cru</p>
-            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1">{stats.tecidoCru}</p>
+            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1">
+              {stats.tecidoCru}
+            </p>
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-purple-50 dark:bg-purple-950/50 p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Acabamento</p>
-            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-1">{stats.acabamento}</p>
+            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-1">
+              {stats.acabamento}
+            </p>
           </div>
         </div>
       )}
 
-      <AmostrasPorStatusCharts porMes={porMes} getStatusLabel={getStatusLabel} selectedStatus={selectedStatus} />
+      <AmostrasPorStatusCharts
+        porMes={porMes}
+        getStatusLabel={getStatusLabel}
+        selectedStatus={selectedStatus}
+      />
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800">
@@ -180,12 +217,16 @@ export default function RelatorioAmostrasPorStatus() {
         ) : !selectedStatus ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <BarChart3 className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Selecione um status para visualizar</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Selecione um status para visualizar
+            </p>
           </div>
         ) : lista.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <BarChart3 className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma amostra encontrada</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Nenhuma amostra encontrada
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -193,21 +234,38 @@ export default function RelatorioAmostrasPorStatus() {
               <thead>
                 <tr className="border-b border-slate-100 dark:border-slate-800">
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">#</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Tipo</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Produto</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Descrição</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Data</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Criado em</th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Tipo
+                  </th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Produto
+                  </th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Descrição
+                  </th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Data
+                  </th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Criado em
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {lista.map((r: any) => (
-                  <tr key={`${r.tipoAmostra}-${r.id}`} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                  <tr
+                    key={`${r.tipoAmostra}-${r.id}`}
+                    className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30"
+                  >
                     <td className="p-3 font-medium text-slate-700 dark:text-slate-300">#{r.id}</td>
                     <td className="p-3">
-                      <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                      <span
+                        className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
                         style={{
-                          backgroundColor: r.tipoAmostra === "TECIDO_CRU" ? hexToRgba("#3b82f6", 0.12) : hexToRgba("#a855f7", 0.12),
+                          backgroundColor:
+                            r.tipoAmostra === "TECIDO_CRU"
+                              ? hexToRgba("#3b82f6", 0.12)
+                              : hexToRgba("#a855f7", 0.12),
                           color: r.tipoAmostra === "TECIDO_CRU" ? "#3b82f6" : "#a855f7",
                         }}
                       >
@@ -215,8 +273,12 @@ export default function RelatorioAmostrasPorStatus() {
                       </span>
                     </td>
                     <td className="p-3">
-                      <div className="text-sm font-medium text-slate-700 dark:text-slate-300">{r.produtoCodigo}</div>
-                      <div className="text-xs text-slate-400 line-clamp-1">{r.produtoDescricao}</div>
+                      <div className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {r.produtoCodigo}
+                      </div>
+                      <div className="text-xs text-slate-400 line-clamp-1">
+                        {r.produtoDescricao}
+                      </div>
                     </td>
                     <td className="p-3 text-sm text-slate-600 dark:text-slate-400 max-w-[200px] truncate">
                       {r.descricao || <span className="text-slate-300 italic">Sem descrição</span>}

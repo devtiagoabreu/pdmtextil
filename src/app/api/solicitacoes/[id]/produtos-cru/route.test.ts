@@ -43,7 +43,9 @@ describe("GET /api/solicitacoes/[id]/produtos-cru", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await GET(req("GET"), params as any)
     expect(res.status).toBe(401)
   })
@@ -62,7 +64,9 @@ describe("POST /api/solicitacoes/[id]/produtos-cru", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await POST(req("POST", { produtos: [1] }), params as any)
     expect(res.status).toBe(401)
   })
@@ -81,9 +85,7 @@ describe("POST /api/solicitacoes/[id]/produtos-cru", () => {
   })
 
   it("vincula produtos e muda status PENDENTE para EM_DESENVOLVIMENTO", async () => {
-    db.select = vi.fn(() =>
-      createQueryBuilder([{ status: "PENDENTE", historicoComunicacao: [] }])
-    )
+    db.select = vi.fn(() => createQueryBuilder([{ status: "PENDENTE", historicoComunicacao: [] }]))
     const tx = mockTransaction()
 
     const res = await POST(req("POST", { produtos: [1, 2] }), params as any)
@@ -100,7 +102,11 @@ describe("POST /api/solicitacoes/[id]/produtos-cru", () => {
       expect.objectContaining({ status: "EM_DESENVOLVIMENTO" })
     )
     const historico = builders[1].set.mock.calls[0][0].historicoComunicacao
-    expect(historico[0]).toMatchObject({ acao: "MUDANCA_STATUS", de: "PENDENTE", para: "EM_DESENVOLVIMENTO" })
+    expect(historico[0]).toMatchObject({
+      acao: "MUDANCA_STATUS",
+      de: "PENDENTE",
+      para: "EM_DESENVOLVIMENTO",
+    })
   })
 
   it("mantém o status quando a solicitação não está PENDENTE", async () => {
@@ -125,7 +131,9 @@ describe("DELETE /api/solicitacoes/[id]/produtos-cru", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await DELETE(req("DELETE", { produtos: [1] }), params as any)
     expect(res.status).toBe(401)
   })

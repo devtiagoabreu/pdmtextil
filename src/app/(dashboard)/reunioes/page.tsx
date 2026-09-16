@@ -78,7 +78,13 @@ type ReuniaoDetalhe = {
   ata: { conteudo: string; criadoPor: string | null } | null
   pautas: { id: number; descricao: string; ordem: number }[]
   participantes: { id: number; nome: string; empresa: string | null; papel: string | null }[]
-  encaminhamentos: { id: number; descricao: string; responsavel: string | null; prazo: string | null; status: string }[]
+  encaminhamentos: {
+    id: number
+    descricao: string
+    responsavel: string | null
+    prazo: string | null
+    status: string
+  }[]
   links: { id: number; rotulo: string; url: string; descricao: string | null; ordem: number }[]
 }
 
@@ -207,7 +213,8 @@ export default function ReunioesPage() {
     return base.filter((r) => {
       if (filtroProjetoNum && r.projetoId !== filtroProjetoNum) return false
       if (filtroStatus && r.status !== filtroStatus) return false
-      if (q && !r.titulo.toLowerCase().includes(q) && !(r.local ?? "").toLowerCase().includes(q)) return false
+      if (q && !r.titulo.toLowerCase().includes(q) && !(r.local ?? "").toLowerCase().includes(q))
+        return false
       return true
     })
   }, [lista, filtroTexto, filtroProjeto, filtroStatus])
@@ -222,7 +229,8 @@ export default function ReunioesPage() {
         body: JSON.stringify(payload),
       })
       const json = await res.json().catch(() => null)
-      if (!res.ok) throw new Error((json as { error?: string })?.error ?? "Falha ao salvar a reunião.")
+      if (!res.ok)
+        throw new Error((json as { error?: string })?.error ?? "Falha ao salvar a reunião.")
       return json
     },
     onSuccess: () => {
@@ -241,7 +249,8 @@ export default function ReunioesPage() {
     mutationFn: async (id: number) => {
       const res = await fetch(`/api/reunioes/${id}`, { method: "DELETE" })
       const json = await res.json().catch(() => null)
-      if (!res.ok) throw new Error((json as { error?: string })?.error ?? "Falha ao excluir a reunião.")
+      if (!res.ok)
+        throw new Error((json as { error?: string })?.error ?? "Falha ao excluir a reunião.")
       return id
     },
     onSuccess: (id) => {
@@ -263,7 +272,8 @@ export default function ReunioesPage() {
     try {
       const res = await fetch(`/api/reunioes/${id}`)
       const json = await res.json().catch(() => null)
-      if (!res.ok) throw new Error((json as { error?: string })?.error ?? "Falha ao carregar a reunião.")
+      if (!res.ok)
+        throw new Error((json as { error?: string })?.error ?? "Falha ao carregar a reunião.")
       setDetalhe((json as { reuniao: ReuniaoDetalhe }).reuniao)
     } catch (erro) {
       toast.error(erro instanceof Error ? erro.message : "Falha ao carregar a reunião.")
@@ -277,7 +287,8 @@ export default function ReunioesPage() {
     try {
       const res = await fetch(`/api/reunioes/${id}`)
       const json = await res.json().catch(() => null)
-      if (!res.ok) throw new Error((json as { error?: string })?.error ?? "Falha ao carregar a reunião.")
+      if (!res.ok)
+        throw new Error((json as { error?: string })?.error ?? "Falha ao carregar a reunião.")
       const r = (json as { reuniao: ReuniaoDetalhe }).reuniao
       setFormulario({
         titulo: r.titulo,
@@ -292,7 +303,11 @@ export default function ReunioesPage() {
         ata: r.ata?.conteudo ?? "",
         transcricao: r.transcricao ?? "",
         pautas: r.pautas.map((p) => ({ descricao: p.descricao })),
-        participantes: r.participantes.map((p) => ({ nome: p.nome, empresa: p.empresa ?? "", papel: p.papel ?? "" })),
+        participantes: r.participantes.map((p) => ({
+          nome: p.nome,
+          empresa: p.empresa ?? "",
+          papel: p.papel ?? "",
+        })),
         encaminhamentos: r.encaminhamentos.map((e) => ({
           descricao: e.descricao,
           responsavel: e.responsavel ?? "",
@@ -353,13 +368,20 @@ export default function ReunioesPage() {
       ata: formulario.ata || null,
       transcricao: formulario.transcricao || null,
       videoUrl: formulario.videoUrl || null,
-      pautas: formulario.pautas.filter((p) => p.descricao.trim()).map((p) => ({ descricao: p.descricao })),
+      pautas: formulario.pautas
+        .filter((p) => p.descricao.trim())
+        .map((p) => ({ descricao: p.descricao })),
       participantes: formulario.participantes
         .filter((p) => p.nome.trim())
         .map((p) => ({ nome: p.nome, empresa: p.empresa || null, papel: p.papel || null })),
       encaminhamentos: formulario.encaminhamentos
         .filter((e) => e.descricao.trim())
-        .map((e) => ({ descricao: e.descricao, responsavel: e.responsavel || null, prazo: e.prazo || null, status: e.status })),
+        .map((e) => ({
+          descricao: e.descricao,
+          responsavel: e.responsavel || null,
+          prazo: e.prazo || null,
+          status: e.status,
+        })),
       links: formulario.links
         .filter((l) => l.url.trim())
         .map((l) => ({ rotulo: l.rotulo || null, url: l.url, descricao: l.descricao || null })),
@@ -375,7 +397,8 @@ export default function ReunioesPage() {
           {info && <InfoButton content={info} />}
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Registre e acompanhe reuniões internas e de projetos, com pauta, participantes, encaminhamentos, links e ata.
+          Registre e acompanhe reuniões internas e de projetos, com pauta, participantes,
+          encaminhamentos, links e ata.
         </p>
       </div>
 
@@ -447,13 +470,16 @@ export default function ReunioesPage() {
               <div className="flex flex-wrap items-start justify-between gap-3">
                 <div className="min-w-0">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="font-semibold text-slate-900 dark:text-slate-50">{r.titulo}</span>
+                    <span className="font-semibold text-slate-900 dark:text-slate-50">
+                      {r.titulo}
+                    </span>
                     <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs font-medium text-slate-600 dark:bg-slate-800 dark:text-slate-300">
                       {r.projetoNome ?? "—"}
                     </span>
                     <span
                       className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                        STATUS_CORES[r.status] ?? "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                        STATUS_CORES[r.status] ??
+                        "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
                       }`}
                     >
                       {labelStatusReuniao(r.status)}
@@ -490,7 +516,10 @@ export default function ReunioesPage() {
                   )}
                 </div>
               </div>
-              {(r._count.pautas > 0 || r._count.participantes > 0 || r._count.encaminhamentos > 0 || r._count.links > 0) && (
+              {(r._count.pautas > 0 ||
+                r._count.participantes > 0 ||
+                r._count.encaminhamentos > 0 ||
+                r._count.links > 0) && (
                 <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                   {r._count.pautas > 0 && (
                     <span className="inline-flex items-center gap-1">
@@ -507,7 +536,8 @@ export default function ReunioesPage() {
                   {r._count.encaminhamentos > 0 && (
                     <span className="inline-flex items-center gap-1">
                       <CheckCircle2 size={14} />
-                      {r._count.encaminhamentos} encaminhamento{r._count.encaminhamentos > 1 ? "s" : ""}
+                      {r._count.encaminhamentos} encaminhamento
+                      {r._count.encaminhamentos > 1 ? "s" : ""}
                     </span>
                   )}
                   {r._count.links > 0 && (
@@ -523,7 +553,12 @@ export default function ReunioesPage() {
         </div>
       )}
 
-      <Dialog open={formAberto} onOpenChange={(next) => { if (!next) fecharFormulario() }}>
+      <Dialog
+        open={formAberto}
+        onOpenChange={(next) => {
+          if (!next) fecharFormulario()
+        }}
+      >
         <DialogContent className="max-w-7xl sm:max-w-7xl">
           <form onSubmit={aoSubmeter} className="max-h-[75vh] overflow-y-auto pr-1">
             <DialogHeader>
@@ -546,9 +581,13 @@ export default function ReunioesPage() {
                   id="reu-projeto"
                   className={SELECT_CLASS}
                   value={String(formulario.projetoId)}
-                  onChange={(e) => setFormulario((f) => ({ ...f, projetoId: Number(e.target.value) }))}
+                  onChange={(e) =>
+                    setFormulario((f) => ({ ...f, projetoId: Number(e.target.value) }))
+                  }
                 >
-                  {projetosOrdenados.length === 0 && <option value="0">Selecione um projeto</option>}
+                  {projetosOrdenados.length === 0 && (
+                    <option value="0">Selecione um projeto</option>
+                  )}
                   {projetosOrdenados.map((p) => (
                     <option key={p.id} value={String(p.id)}>
                       {p.nome}
@@ -641,12 +680,16 @@ export default function ReunioesPage() {
 
             <div className="mt-5 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Participantes</h2>
+                <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  Participantes
+                </h2>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => adicionarFilho("participantes", { nome: "", empresa: "", papel: "" })}
+                  onClick={() =>
+                    adicionarFilho("participantes", { nome: "", empresa: "", papel: "" })
+                  }
                 >
                   <Plus />
                   Adicionar participante
@@ -695,13 +738,20 @@ export default function ReunioesPage() {
 
             <div className="mt-5 rounded-xl border border-slate-200 dark:border-slate-800 p-4">
               <div className="flex items-center justify-between">
-                <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Encaminhamentos</h2>
+                <h2 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  Encaminhamentos
+                </h2>
                 <Button
                   type="button"
                   variant="outline"
                   size="sm"
                   onClick={() =>
-                    adicionarFilho("encaminhamentos", { descricao: "", responsavel: "", prazo: "", status: "PENDENTE" })
+                    adicionarFilho("encaminhamentos", {
+                      descricao: "",
+                      responsavel: "",
+                      prazo: "",
+                      status: "PENDENTE",
+                    })
                   }
                 >
                   <Plus />
@@ -718,14 +768,18 @@ export default function ReunioesPage() {
                       aria-label={`Descrição do encaminhamento ${i + 1}`}
                       className="w-56"
                       value={e.descricao}
-                      onChange={(ev) => setFilho("encaminhamentos", i, { descricao: ev.target.value })}
+                      onChange={(ev) =>
+                        setFilho("encaminhamentos", i, { descricao: ev.target.value })
+                      }
                       placeholder="Ação / tarefa"
                     />
                     <Input
                       aria-label={`Responsável do encaminhamento ${i + 1}`}
                       className="w-36"
                       value={e.responsavel}
-                      onChange={(ev) => setFilho("encaminhamentos", i, { responsavel: ev.target.value })}
+                      onChange={(ev) =>
+                        setFilho("encaminhamentos", i, { responsavel: ev.target.value })
+                      }
                       placeholder="Responsável"
                     />
                     <Input
@@ -832,7 +886,9 @@ export default function ReunioesPage() {
                   id="reu-resumo-detalhado"
                   rows={3}
                   value={formulario.resumoDetalhado}
-                  onChange={(e) => setFormulario((f) => ({ ...f, resumoDetalhado: e.target.value }))}
+                  onChange={(e) =>
+                    setFormulario((f) => ({ ...f, resumoDetalhado: e.target.value }))
+                  }
                   placeholder="Descreva o que foi discutido"
                 />
               </div>
@@ -842,7 +898,9 @@ export default function ReunioesPage() {
                   id="reu-itens-acao"
                   rows={2}
                   value={formulario.resumoItensAcao}
-                  onChange={(e) => setFormulario((f) => ({ ...f, resumoItensAcao: e.target.value }))}
+                  onChange={(e) =>
+                    setFormulario((f) => ({ ...f, resumoItensAcao: e.target.value }))
+                  }
                   placeholder="Tarefas e responsáveis definidos"
                 />
               </div>
@@ -869,7 +927,12 @@ export default function ReunioesPage() {
             </div>
 
             <DialogFooter className="mt-5">
-              <Button type="button" variant="outline" onClick={fecharFormulario} disabled={mutationSalvar.isPending}>
+              <Button
+                type="button"
+                variant="outline"
+                onClick={fecharFormulario}
+                disabled={mutationSalvar.isPending}
+              >
                 Cancelar
               </Button>
               <Button type="submit" disabled={mutationSalvar.isPending}>
@@ -889,7 +952,12 @@ export default function ReunioesPage() {
         </DialogContent>
       </Dialog>
 
-      <Dialog open={!!detalhe} onOpenChange={(next) => { if (!next) setDetalhe(null) }}>
+      <Dialog
+        open={!!detalhe}
+        onOpenChange={(next) => {
+          if (!next) setDetalhe(null)
+        }}
+      >
         <DialogContent className="max-w-2xl">
           <DialogHeader>
             <DialogTitle>{detalhe?.titulo ?? "Reunião"}</DialogTitle>
@@ -906,7 +974,8 @@ export default function ReunioesPage() {
                 </span>
                 <span
                   className={`rounded-full px-2 py-0.5 text-xs font-medium ${
-                    STATUS_CORES[detalhe.status] ?? "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
+                    STATUS_CORES[detalhe.status] ??
+                    "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300"
                   }`}
                 >
                   {labelStatusReuniao(detalhe.status)}
@@ -917,7 +986,9 @@ export default function ReunioesPage() {
                 </span>
               </div>
 
-              {detalhe.resumoCurto && <p className="text-slate-700 dark:text-slate-300">{detalhe.resumoCurto}</p>}
+              {detalhe.resumoCurto && (
+                <p className="text-slate-700 dark:text-slate-300">{detalhe.resumoCurto}</p>
+              )}
 
               {detalhe.pautas.length > 0 && (
                 <section>
@@ -956,7 +1027,10 @@ export default function ReunioesPage() {
                   </h3>
                   <ul className="mt-2 space-y-2 text-slate-700 dark:text-slate-300">
                     {detalhe.encaminhamentos.map((e) => (
-                      <li key={e.id} className="rounded-lg border border-slate-200 dark:border-slate-800 p-2.5">
+                      <li
+                        key={e.id}
+                        className="rounded-lg border border-slate-200 dark:border-slate-800 p-2.5"
+                      >
                         <div className="flex items-center justify-between gap-2">
                           <span className="font-medium">{e.descricao}</span>
                           <span className="rounded-full bg-slate-100 px-2 py-0.5 text-xs dark:bg-slate-800 dark:text-slate-300">
@@ -990,7 +1064,12 @@ export default function ReunioesPage() {
                           <ExternalLink size={14} />
                           {l.rotulo} — {l.url}
                         </a>
-                        {l.descricao && <span className="text-slate-500 dark:text-slate-400"> ({l.descricao})</span>}
+                        {l.descricao && (
+                          <span className="text-slate-500 dark:text-slate-400">
+                            {" "}
+                            ({l.descricao})
+                          </span>
+                        )}
                       </li>
                     ))}
                   </ul>
@@ -1002,7 +1081,9 @@ export default function ReunioesPage() {
                   <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Resumo detalhado
                   </h3>
-                  <p className="mt-1 whitespace-pre-wrap text-slate-700 dark:text-slate-300">{detalhe.resumoDetalhado}</p>
+                  <p className="mt-1 whitespace-pre-wrap text-slate-700 dark:text-slate-300">
+                    {detalhe.resumoDetalhado}
+                  </p>
                 </section>
               )}
 
@@ -1011,14 +1092,20 @@ export default function ReunioesPage() {
                   <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Itens de ação
                   </h3>
-                  <p className="mt-1 whitespace-pre-wrap text-slate-700 dark:text-slate-300">{detalhe.resumoItensAcao}</p>
+                  <p className="mt-1 whitespace-pre-wrap text-slate-700 dark:text-slate-300">
+                    {detalhe.resumoItensAcao}
+                  </p>
                 </section>
               )}
 
               {detalhe.ata && (
                 <section>
-                  <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">Ata</h3>
-                  <p className="mt-1 whitespace-pre-wrap text-slate-700 dark:text-slate-300">{detalhe.ata.conteudo}</p>
+                  <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
+                    Ata
+                  </h3>
+                  <p className="mt-1 whitespace-pre-wrap text-slate-700 dark:text-slate-300">
+                    {detalhe.ata.conteudo}
+                  </p>
                 </section>
               )}
 
@@ -1027,7 +1114,9 @@ export default function ReunioesPage() {
                   <h3 className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-slate-400">
                     Transcrição
                   </h3>
-                  <p className="mt-1 whitespace-pre-wrap text-slate-700 dark:text-slate-300">{detalhe.transcricao}</p>
+                  <p className="mt-1 whitespace-pre-wrap text-slate-700 dark:text-slate-300">
+                    {detalhe.transcricao}
+                  </p>
                 </section>
               )}
 
@@ -1047,7 +1136,11 @@ export default function ReunioesPage() {
 
           {detalhe && (
             <DialogFooter className="mt-5">
-              {podeCriar && <Button variant="outline" onClick={() => abrirEdicao(detalhe.id)}><Pencil /> Editar</Button>}
+              {podeCriar && (
+                <Button variant="outline" onClick={() => abrirEdicao(detalhe.id)}>
+                  <Pencil /> Editar
+                </Button>
+              )}
               {podeApagar && (
                 <Button
                   variant="destructive"
@@ -1060,7 +1153,9 @@ export default function ReunioesPage() {
                   Excluir
                 </Button>
               )}
-              <Button variant="outline" onClick={() => setDetalhe(null)}>Fechar</Button>
+              <Button variant="outline" onClick={() => setDetalhe(null)}>
+                Fechar
+              </Button>
             </DialogFooter>
           )}
         </DialogContent>
@@ -1069,7 +1164,11 @@ export default function ReunioesPage() {
       <ConfirmModal
         open={confirmandoExcluir}
         title="Excluir reunião"
-        message={excluindo ? `Deseja excluir a reunião "${excluindo.titulo}"?` : "Deseja excluir esta reunião?"}
+        message={
+          excluindo
+            ? `Deseja excluir a reunião "${excluindo.titulo}"?`
+            : "Deseja excluir esta reunião?"
+        }
         subMessage="Pauta, participantes, encaminhamentos e links vinculados também serão excluídos."
         confirmLabel="Excluir"
         loading={mutationExcluir.isPending}

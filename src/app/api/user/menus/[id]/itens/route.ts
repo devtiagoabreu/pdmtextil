@@ -14,7 +14,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     if (isNaN(menuId)) return NextResponse.json({ error: "Menu inválido" }, { status: 400 })
 
     const body = await req.json()
-    if (!body.titulo || !body.url) return NextResponse.json({ error: "Título e URL são obrigatórios" }, { status: 400 })
+    if (!body.titulo || !body.url)
+      return NextResponse.json({ error: "Título e URL são obrigatórios" }, { status: 400 })
 
     const role = auth.session?.user?.role
     const erroUrl = validarUrlRotina(body.url, role === "ADMIN" || role === "SUDO")

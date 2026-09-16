@@ -100,16 +100,18 @@ class TreinamentoPdfRenderer {
   private tocY: number[] = []
   private contexto: TreinamentoContexto
 
-  constructor(contexto: TreinamentoContexto = {
-    titulo: "CRM",
-    brand: "PDM Têxtil — Treinamento CRM",
-    descricao: "Documento completo de treinamento do modulo CRM.",
-    citacao: "CRM não é sobre tecnologia, é sobre pessoas.",
-    citacao2: "Pessoas atendendo melhor outras pessoas.",
-    areaTag: "Treinamento CRM",
-    filenameBase: "Treinamento_CRM_Completo",
-    moduloTituloHeader: "Treinamento CRM",
-  }) {
+  constructor(
+    contexto: TreinamentoContexto = {
+      titulo: "CRM",
+      brand: "PDM Têxtil — Treinamento CRM",
+      descricao: "Documento completo de treinamento do modulo CRM.",
+      citacao: "CRM não é sobre tecnologia, é sobre pessoas.",
+      citacao2: "Pessoas atendendo melhor outras pessoas.",
+      areaTag: "Treinamento CRM",
+      filenameBase: "Treinamento_CRM_Completo",
+      moduloTituloHeader: "Treinamento CRM",
+    }
+  ) {
     this.contexto = contexto
     this.doc = new jsPDF("p", "mm", "a4")
     this.pw = this.doc.internal.pageSize.getWidth()
@@ -147,7 +149,9 @@ class TreinamentoPdfRenderer {
 
     this.doc.line(MARGIN_LEFT, headerY + 4, this.pw - MARGIN_RIGHT, headerY + 4)
 
-    this.doc.text(this.contexto.brand || "PDM Têxtil — Treinamento CRM", MARGIN_LEFT, headerY, { align: "left" })
+    this.doc.text(this.contexto.brand || "PDM Têxtil — Treinamento CRM", MARGIN_LEFT, headerY, {
+      align: "left",
+    })
 
     if (this.headerRight) {
       this.doc.text(this.headerRight, this.pw - MARGIN_RIGHT, headerY, { align: "right" })
@@ -185,12 +189,18 @@ class TreinamentoPdfRenderer {
       .replace(/\[(.+?)\]\(.+?\)/g, "$1")
   }
 
-  private renderInlineText(text: string, x: number, y: number, maxWidth?: number, opts?: {
-    fontSize?: number
-    bold?: boolean
-    italic?: boolean
-    color?: [number, number, number]
-  }) {
+  private renderInlineText(
+    text: string,
+    x: number,
+    y: number,
+    maxWidth?: number,
+    opts?: {
+      fontSize?: number
+      bold?: boolean
+      italic?: boolean
+      color?: [number, number, number]
+    }
+  ) {
     const w = maxWidth || this.cw
     const fs = opts?.fontSize || FONT_SIZE_BODY
     this.doc.setFontSize(fs)
@@ -287,9 +297,7 @@ class TreinamentoPdfRenderer {
 
     const clean = (s: string) => sanitizeText(this.stripMarkdown(s.trim()))
     const headerCells = mdLines[0].split("|").filter(Boolean).map(clean)
-    const dataRows = mdLines.slice(2).map((line: any) =>
-      line.split("|").filter(Boolean).map(clean)
-    )
+    const dataRows = mdLines.slice(2).map((line: any) => line.split("|").filter(Boolean).map(clean))
 
     if (headerCells.length === 0) return
 
@@ -561,7 +569,8 @@ class TreinamentoPdfRenderer {
     this.doc.setFont("helvetica", "normal")
 
     const lines = [
-      this.contexto.descricao || `Documento completo de treinamento do modulo ${this.contexto.titulo}.`,
+      this.contexto.descricao ||
+        `Documento completo de treinamento do modulo ${this.contexto.titulo}.`,
       `Total: ${modulosCount} modulos, ${licoesCount} licoes.`,
       "",
       "Conteudo didatico desenvolvido para capacitacao",
@@ -577,13 +586,25 @@ class TreinamentoPdfRenderer {
     ty += 10
     this.doc.setFontSize(9)
     this.doc.setTextColor(120, 120, 130)
-    this.doc.text(`Gerado em ${new Date().toLocaleDateString("pt-BR")}`, this.pw / 2, ty, { align: "center" })
+    this.doc.text(`Gerado em ${new Date().toLocaleDateString("pt-BR")}`, this.pw / 2, ty, {
+      align: "center",
+    })
 
     ty += 20
     this.doc.setFontSize(9)
     this.doc.setFont("helvetica", "italic")
-    this.doc.text(this.contexto.citacao || "CRM não é sobre tecnologia, é sobre pessoas.", this.pw / 2, ty, { align: "center" })
-    this.doc.text(this.contexto.citacao2 || "Pessoas atendendo melhor outras pessoas.", this.pw / 2, ty + 6, { align: "center" })
+    this.doc.text(
+      this.contexto.citacao || "CRM não é sobre tecnologia, é sobre pessoas.",
+      this.pw / 2,
+      ty,
+      { align: "center" }
+    )
+    this.doc.text(
+      this.contexto.citacao2 || "Pessoas atendendo melhor outras pessoas.",
+      this.pw / 2,
+      ty + 6,
+      { align: "center" }
+    )
     this.doc.text("— ", this.pw / 2, ty + 12, { align: "center" })
 
     this.doc.setTextColor(0, 0, 0)
@@ -615,12 +636,27 @@ class TreinamentoPdfRenderer {
 
       const label = sanitizeText(item.titulo)
       const pageLabel = `p. ${item.pageNum}`
-      const dots = ".".repeat(Math.max(1, Math.floor((this.cw - this.doc.getStringUnitWidth(label) * 11 * 0.3528 - this.doc.getStringUnitWidth(pageLabel) * 11 * 0.3528 - 4) / 0.5)))
+      const dots = ".".repeat(
+        Math.max(
+          1,
+          Math.floor(
+            (this.cw -
+              this.doc.getStringUnitWidth(label) * 11 * 0.3528 -
+              this.doc.getStringUnitWidth(pageLabel) * 11 * 0.3528 -
+              4) /
+              0.5
+          )
+        )
+      )
 
       this.doc.text(label, MARGIN_LEFT, this.y)
       this.doc.setFont("helvetica", "normal")
       this.doc.setTextColor(160, 160, 170)
-      this.doc.text(dots, MARGIN_LEFT + this.doc.getStringUnitWidth(label) * 11 * 0.3528 + 1, this.y)
+      this.doc.text(
+        dots,
+        MARGIN_LEFT + this.doc.getStringUnitWidth(label) * 11 * 0.3528 + 1,
+        this.y
+      )
       this.doc.text(pageLabel, this.pw - MARGIN_RIGHT, this.y, { align: "right" })
       this.y += 6
     }
@@ -686,7 +722,12 @@ class TreinamentoPdfRenderer {
     }
   }
 
-  renderLicaoIndividual(licao: LicaoData, moduloTitulo: string, moduloIndex: number, licaoIndex: number) {
+  renderLicaoIndividual(
+    licao: LicaoData,
+    moduloTitulo: string,
+    moduloIndex: number,
+    licaoIndex: number
+  ) {
     this.y = MARGIN_TOP
     this.pageNum = 1
 
@@ -719,12 +760,20 @@ class TreinamentoPdfRenderer {
     this.doc.save(filename)
   }
 
-  getPageNum() { return this.pageNum }
+  getPageNum() {
+    return this.pageNum
+  }
 }
 
-export async function exportTreinamentoCompletoPdf(modulos: ModuloData[], contexto?: TreinamentoContexto) {
+export async function exportTreinamentoCompletoPdf(
+  modulos: ModuloData[],
+  contexto?: TreinamentoContexto
+) {
   const modulosAtivos = modulos.filter((m: any) => m.ativo)
-  const totalLicoes = modulosAtivos.reduce((acc: any, m: any) => acc + m.licoes.filter((l: any) => l.ativo).length, 0)
+  const totalLicoes = modulosAtivos.reduce(
+    (acc: any, m: any) => acc + m.licoes.filter((l: any) => l.ativo).length,
+    0
+  )
 
   const renderer = new TreinamentoPdfRenderer(contexto)
 
@@ -753,11 +802,19 @@ export async function exportTreinamentoCompletoPdf(modulos: ModuloData[], contex
   renderer.save(contexto?.filenameBase || "Treinamento_CRM_Completo.pdf")
 }
 
-export async function exportLicaoPdf(licao: LicaoData, moduloTitulo: string, moduloIndex: number, licaoIndex: number, contexto?: TreinamentoContexto) {
+export async function exportLicaoPdf(
+  licao: LicaoData,
+  moduloTitulo: string,
+  moduloIndex: number,
+  licaoIndex: number,
+  contexto?: TreinamentoContexto
+) {
   const renderer = new TreinamentoPdfRenderer(contexto)
   const cleanMod = removerAcentos(sanitizeText(moduloTitulo))
   const cleanLic = removerAcentos(sanitizeText(licao.titulo))
-  const prefixo = contexto?.titulo ? removerAcentos(sanitizeText(contexto.titulo)).replace(/[^a-zA-Z0-9]/g, "") : "CRM"
+  const prefixo = contexto?.titulo
+    ? removerAcentos(sanitizeText(contexto.titulo)).replace(/[^a-zA-Z0-9]/g, "")
+    : "CRM"
   const filename = `${prefixo}-${cleanMod}-${cleanLic}.pdf`.replace(/[^a-zA-Z0-9-_.]/g, "_")
 
   renderer.renderLicaoIndividual(licao, moduloTitulo, moduloIndex, licaoIndex)

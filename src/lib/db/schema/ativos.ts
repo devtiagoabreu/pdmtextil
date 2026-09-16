@@ -1,4 +1,16 @@
-import { pgTable, serial, varchar, text, boolean, integer, numeric, timestamp, date, jsonb, uniqueIndex } from "drizzle-orm/pg-core"
+import {
+  pgTable,
+  serial,
+  varchar,
+  text,
+  boolean,
+  integer,
+  numeric,
+  timestamp,
+  date,
+  jsonb,
+  uniqueIndex,
+} from "drizzle-orm/pg-core"
 import { maquinas } from "./maqoper"
 import { usuarios } from "./usuarios"
 import { procAreas } from "./processos"
@@ -6,13 +18,30 @@ import { procAreas } from "./processos"
 export const ATIVO_STATUS = ["ATIVO", "MANUTENCAO", "INATIVO", "BAIXADO"] as const
 export type AtivoStatus = (typeof ATIVO_STATUS)[number]
 
-export const VISTORIA_PERIODICIDADE = ["DIARIA", "SEMANAL", "MENSAL", "TRIMESTRAL", "SEMESTRAL", "ANUAL", "BIENAL", "TRIENAL", "QUINQUENAL", "OUTRA"] as const
+export const VISTORIA_PERIODICIDADE = [
+  "DIARIA",
+  "SEMANAL",
+  "MENSAL",
+  "TRIMESTRAL",
+  "SEMESTRAL",
+  "ANUAL",
+  "BIENAL",
+  "TRIENAL",
+  "QUINQUENAL",
+  "OUTRA",
+] as const
 export type VistoriaPeriodicidade = (typeof VISTORIA_PERIODICIDADE)[number]
 
 export const VISTORIA_ITEM_TIPO = ["SIM_NAO", "OK_OBS", "VALOR", "TEXTO"] as const
 export type VistoriaItemTipo = (typeof VISTORIA_ITEM_TIPO)[number]
 
-export const VISTORIA_STATUS = ["PENDENTE", "EM_ANDAMENTO", "CONCLUIDA", "NAO_CONFORME", "CANCELADA"] as const
+export const VISTORIA_STATUS = [
+  "PENDENTE",
+  "EM_ANDAMENTO",
+  "CONCLUIDA",
+  "NAO_CONFORME",
+  "CANCELADA",
+] as const
 export type VistoriaStatus = (typeof VISTORIA_STATUS)[number]
 
 export const VISTORIA_RESULTADO = ["CONFORME", "PARCIAL", "NAO_CONFORME"] as const
@@ -36,7 +65,9 @@ export type VistoriaResposta = {
 export const ativoCategorias = pgTable("ativos_categorias", {
   id: serial("id").primaryKey(),
   nome: varchar("nome", { length: 100 }).notNull(),
-  areaId: integer("area_id").notNull().references(() => procAreas.id, { onDelete: "no action" }),
+  areaId: integer("area_id")
+    .notNull()
+    .references(() => procAreas.id, { onDelete: "no action" }),
   descricao: text("descricao"),
   cor: varchar("cor", { length: 20 }),
   icone: varchar("icone", { length: 50 }),
@@ -52,7 +83,9 @@ export const ativos = pgTable("ativos", {
   id: serial("id").primaryKey(),
   codigo: varchar("codigo", { length: 40 }).notNull().unique(),
   nome: varchar("nome", { length: 200 }).notNull(),
-  categoriaId: integer("categoria_id").notNull().references(() => ativoCategorias.id, { onDelete: "cascade" }),
+  categoriaId: integer("categoria_id")
+    .notNull()
+    .references(() => ativoCategorias.id, { onDelete: "cascade" }),
   localizacao: varchar("localizacao", { length: 200 }),
   fabricante: varchar("fabricante", { length: 150 }),
   modelo: varchar("modelo", { length: 150 }),
@@ -78,8 +111,12 @@ export type NewAtivo = typeof ativos.$inferInsert
 export const ativosTiposVistoria = pgTable("ativos_tipos_vistoria", {
   id: serial("id").primaryKey(),
   nome: varchar("nome", { length: 200 }).notNull(),
-  categoriaId: integer("categoria_id").references(() => ativoCategorias.id, { onDelete: "set null" }),
-  areaId: integer("area_id").notNull().references(() => procAreas.id, { onDelete: "no action" }),
+  categoriaId: integer("categoria_id").references(() => ativoCategorias.id, {
+    onDelete: "set null",
+  }),
+  areaId: integer("area_id")
+    .notNull()
+    .references(() => procAreas.id, { onDelete: "no action" }),
   procedimento: text("procedimento"),
   checklist: jsonb("checklist").$type<VistoriaItemTemplate[]>().default([]),
   periodicidade: varchar("periodicidade", { length: 20 }).notNull(),
@@ -93,17 +130,27 @@ export const ativosTiposVistoria = pgTable("ativos_tipos_vistoria", {
 export type AtivoTipoVistoria = typeof ativosTiposVistoria.$inferSelect
 export type NewAtivoTipoVistoria = typeof ativosTiposVistoria.$inferInsert
 
-export const ativosPlanosVistoria = pgTable("ativos_planos_vistoria", {
-  id: serial("id").primaryKey(),
-  ativoId: integer("ativo_id").notNull().references(() => ativos.id, { onDelete: "cascade" }),
-  tipoVistoriaId: integer("tipo_vistoria_id").notNull().references(() => ativosTiposVistoria.id, { onDelete: "cascade" }),
-  responsavelId: integer("responsavel_id").references(() => usuarios.id, { onDelete: "set null" }),
-  diasIntervalo: integer("dias_intervalo"),
-  proximaData: date("proxima_data"),
-  ativo: boolean("ativo").default(true),
-  createdAt: timestamp("created_at").defaultNow(),
-  updatedAt: timestamp("updated_at").defaultNow(),
-}, (t: any) => [uniqueIndex("ativos_planos_ativo_tipo_unique").on(t.ativoId, t.tipoVistoriaId)])
+export const ativosPlanosVistoria = pgTable(
+  "ativos_planos_vistoria",
+  {
+    id: serial("id").primaryKey(),
+    ativoId: integer("ativo_id")
+      .notNull()
+      .references(() => ativos.id, { onDelete: "cascade" }),
+    tipoVistoriaId: integer("tipo_vistoria_id")
+      .notNull()
+      .references(() => ativosTiposVistoria.id, { onDelete: "cascade" }),
+    responsavelId: integer("responsavel_id").references(() => usuarios.id, {
+      onDelete: "set null",
+    }),
+    diasIntervalo: integer("dias_intervalo"),
+    proximaData: date("proxima_data"),
+    ativo: boolean("ativo").default(true),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (t: any) => [uniqueIndex("ativos_planos_ativo_tipo_unique").on(t.ativoId, t.tipoVistoriaId)]
+)
 
 export type AtivoPlanoVistoria = typeof ativosPlanosVistoria.$inferSelect
 export type NewAtivoPlanoVistoria = typeof ativosPlanosVistoria.$inferInsert
@@ -111,12 +158,18 @@ export type NewAtivoPlanoVistoria = typeof ativosPlanosVistoria.$inferInsert
 export const ativosVistorias = pgTable("ativos_vistorias", {
   id: serial("id").primaryKey(),
   planoId: integer("plano_id").references(() => ativosPlanosVistoria.id, { onDelete: "set null" }),
-  ativoId: integer("ativo_id").notNull().references(() => ativos.id, { onDelete: "cascade" }),
-  tipoVistoriaId: integer("tipo_vistoria_id").notNull().references(() => ativosTiposVistoria.id, { onDelete: "cascade" }),
+  ativoId: integer("ativo_id")
+    .notNull()
+    .references(() => ativos.id, { onDelete: "cascade" }),
+  tipoVistoriaId: integer("tipo_vistoria_id")
+    .notNull()
+    .references(() => ativosTiposVistoria.id, { onDelete: "cascade" }),
   status: varchar("status", { length: 20 }).notNull().default("PENDENTE"),
   dataProgramada: date("data_programada").notNull(),
   dataRealizada: date("data_realizada"),
-  executadoPorId: integer("executado_por_id").references(() => usuarios.id, { onDelete: "set null" }),
+  executadoPorId: integer("executado_por_id").references(() => usuarios.id, {
+    onDelete: "set null",
+  }),
   resultado: varchar("resultado", { length: 20 }),
   checklistResposta: jsonb("checklist_resposta").$type<VistoriaResposta[]>().default([]),
   observacoes: text("observacoes"),

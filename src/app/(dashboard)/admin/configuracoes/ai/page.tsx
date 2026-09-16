@@ -2,19 +2,54 @@
 
 import { useEffect, useState } from "react"
 import { toast } from "sonner"
-import { Loader2, Plus, Trash2, Edit3, ArrowLeft, Check, X, Eye, EyeOff, Bot, Play, Key, RefreshCw, ArrowUpDown } from "lucide-react"
+import {
+  Loader2,
+  Plus,
+  Trash2,
+  Edit3,
+  ArrowLeft,
+  Check,
+  X,
+  Eye,
+  EyeOff,
+  Bot,
+  Play,
+  Key,
+  RefreshCw,
+  ArrowUpDown,
+} from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 
 const PROVEDORES: Record<string, { label: string; defaultModel: string; defaultUrl: string }> = {
-  groq: { label: "Groq", defaultModel: "qwen/qwen3.8-27b", defaultUrl: "https://api.groq.com/openai/v1" },
+  groq: {
+    label: "Groq",
+    defaultModel: "qwen/qwen3.8-27b",
+    defaultUrl: "https://api.groq.com/openai/v1",
+  },
   openai: { label: "OpenAI", defaultModel: "gpt-4o-mini", defaultUrl: "https://api.openai.com/v1" },
-  anthropic: { label: "Anthropic (Claude)", defaultModel: "claude-3-5-sonnet-latest", defaultUrl: "https://api.anthropic.com/v1" },
-  gemini: { label: "Google Gemini", defaultModel: "gemini-3.6-flash", defaultUrl: "https://generativelanguage.googleapis.com/v1beta" },
-  deepseek: { label: "DeepSeek", defaultModel: "deepseek-chat", defaultUrl: "https://api.deepseek.com/v1" },
-  openrouter: { label: "OpenRouter", defaultModel: "openai/gpt-4o-mini", defaultUrl: "https://openrouter.ai/api/v1" },
+  anthropic: {
+    label: "Anthropic (Claude)",
+    defaultModel: "claude-3-5-sonnet-latest",
+    defaultUrl: "https://api.anthropic.com/v1",
+  },
+  gemini: {
+    label: "Google Gemini",
+    defaultModel: "gemini-3.6-flash",
+    defaultUrl: "https://generativelanguage.googleapis.com/v1beta",
+  },
+  deepseek: {
+    label: "DeepSeek",
+    defaultModel: "deepseek-chat",
+    defaultUrl: "https://api.deepseek.com/v1",
+  },
+  openrouter: {
+    label: "OpenRouter",
+    defaultModel: "openai/gpt-4o-mini",
+    defaultUrl: "https://openrouter.ai/api/v1",
+  },
   openai_compatible: { label: "OpenAI Compatível (URL custom)", defaultModel: "", defaultUrl: "" },
 }
 
@@ -64,7 +99,7 @@ export default function AiChavesPage() {
 
   useEffect(() => {
     fetch("/api/admin/ai-chaves")
-      .then(res => res.json())
+      .then((res) => res.json())
       .then(setLista)
       .catch(() => toast.error("Erro ao carregar chaves de IA"))
       .finally(() => setLoading(false))
@@ -99,7 +134,7 @@ export default function AiChavesPage() {
 
   function onProvedorChange(prov: string) {
     const p = PROVEDORES[prov] || PROVEDORES.groq
-    setForm(f => ({ ...f, provedor: prov, urlBase: p.defaultUrl, modelo: p.defaultModel }))
+    setForm((f) => ({ ...f, provedor: prov, urlBase: p.defaultUrl, modelo: p.defaultModel }))
   }
 
   async function handleSave() {
@@ -132,7 +167,7 @@ export default function AiChavesPage() {
       } else {
         toast.success("Chave adicionada!")
       }
-      const novaLista = await fetch("/api/admin/ai-chaves").then(r => r.json())
+      const novaLista = await fetch("/api/admin/ai-chaves").then((r) => r.json())
       setLista(novaLista)
       resetForm()
     } catch {
@@ -150,7 +185,7 @@ export default function AiChavesPage() {
         body: JSON.stringify({ id: item.id, ativo: !item.ativo }),
       })
       if (!res.ok) throw new Error()
-      setLista(prev => prev.map(i => (i.id === item.id ? { ...i, ativo: !i.ativo } : i)))
+      setLista((prev) => prev.map((i) => (i.id === item.id ? { ...i, ativo: !i.ativo } : i)))
       toast.success(item.ativo ? "Chave desativada" : "Chave ativada")
     } catch {
       toast.error("Erro ao alterar status")
@@ -166,7 +201,7 @@ export default function AiChavesPage() {
         body: JSON.stringify({ id }),
       })
       if (!res.ok) throw new Error()
-      setLista(prev => prev.filter(c => c.id !== id))
+      setLista((prev) => prev.filter((c) => c.id !== id))
       toast.success("Chave removida")
     } catch {
       toast.error("Erro ao remover chave")
@@ -202,7 +237,9 @@ export default function AiChavesPage() {
         body: JSON.stringify({ id, failCount: 0, ultimaFalha: null }),
       })
       if (!res.ok) throw new Error()
-      setLista(prev => prev.map(i => (i.id === id ? { ...i, failCount: 0, ultimaFalha: null } : i)))
+      setLista((prev) =>
+        prev.map((i) => (i.id === id ? { ...i, failCount: 0, ultimaFalha: null } : i))
+      )
       toast.success("Contador de falhas zerado")
     } catch {
       toast.error("Erro ao resetar falhas")
@@ -210,13 +247,20 @@ export default function AiChavesPage() {
   }
 
   if (loading) {
-    return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-400" size={24} /></div>
+    return (
+      <div className="flex justify-center p-8">
+        <Loader2 className="animate-spin text-slate-400" size={24} />
+      </div>
+    )
   }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/admin/configuracoes" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link
+          href="/admin/configuracoes"
+          className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={20} />
         </Link>
         <div>
@@ -224,13 +268,23 @@ export default function AiChavesPage() {
             <Bot className="text-purple-600" size={24} />
             <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Chaves de IA</h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">Cadastre várias chaves de IA. Se a principal falhar, o sistema tenta automaticamente as próximas.</p>
+          <p className="text-sm text-slate-500 mt-1">
+            Cadastre várias chaves de IA. Se a principal falhar, o sistema tenta automaticamente as
+            próximas.
+          </p>
         </div>
       </div>
 
       <div className="rounded-xl border border-purple-200 dark:border-purple-900 bg-purple-50 dark:bg-purple-950/30 p-4 text-sm text-purple-700 dark:text-purple-300 space-y-1">
-        <p className="font-medium flex items-center gap-2"><ArrowUpDown size={14} /> Como funciona o fallback</p>
-        <p>A ordem das chaves (menor número primeiro) define a prioridade. Em cada mensagem, o sistema tenta a primeira chave ativa; se ela falhar ou não responder, avança automaticamente para a próxima — sem perder o histórico da conversa. Após 5 falhas seguidas, a chave sai da rotação por 10 minutos.</p>
+        <p className="font-medium flex items-center gap-2">
+          <ArrowUpDown size={14} /> Como funciona o fallback
+        </p>
+        <p>
+          A ordem das chaves (menor número primeiro) define a prioridade. Em cada mensagem, o
+          sistema tenta a primeira chave ativa; se ela falhar ou não responder, avança
+          automaticamente para a próxima — sem perder o histórico da conversa. Após 5 falhas
+          seguidas, a chave sai da rotação por 10 minutos.
+        </p>
       </div>
 
       <div className="grid gap-4">
@@ -238,73 +292,136 @@ export default function AiChavesPage() {
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-10 text-center">
             <Bot size={40} className="mx-auto text-slate-300 mb-3" />
             <p className="text-sm text-slate-500">Nenhuma chave de IA cadastrada</p>
-            <p className="text-xs text-slate-400 mt-1">Enquanto isso, o sistema usa a chave do Groq configurada nas variáveis de ambiente.</p>
+            <p className="text-xs text-slate-400 mt-1">
+              Enquanto isso, o sistema usa a chave do Groq configurada nas variáveis de ambiente.
+            </p>
           </div>
         ) : (
-          [...lista].sort((a, b) => a.ordem - b.ordem).map(item => {
-            const prov = PROVEDORES[item.provedor] || PROVEDORES.groq
-            return (
-              <div key={item.id} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 hover:shadow-sm transition-shadow">
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex items-start gap-4 min-w-0 flex-1">
-                    <div className={`shrink-0 inline-flex p-2.5 rounded-lg ${PROVEDOR_COLORS[item.provedor] || PROVEDOR_COLORS.groq}`}>
-                      <Key size={18} />
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="text-xs font-mono bg-slate-100 dark:bg-slate-800 text-slate-500 rounded px-1.5 py-0.5">#{item.ordem}</span>
-                        <h3 className="font-semibold text-slate-900 dark:text-slate-100">{item.nome}</h3>
-                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-medium">
-                          {prov.label}
-                        </span>
-                        <span className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${item.ativo ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-400"}`}>
-                          {item.ativo ? "Ativo" : "Inativo"}
-                        </span>
-                        {item.failCount > 0 && (
-                          <span className="text-[11px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400 font-medium">
-                            {item.failCount} falha{item.failCount > 1 ? "s" : ""}
+          [...lista]
+            .sort((a, b) => a.ordem - b.ordem)
+            .map((item) => {
+              const prov = PROVEDORES[item.provedor] || PROVEDORES.groq
+              return (
+                <div
+                  key={item.id}
+                  className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 hover:shadow-sm transition-shadow"
+                >
+                  <div className="flex items-start justify-between gap-4">
+                    <div className="flex items-start gap-4 min-w-0 flex-1">
+                      <div
+                        className={`shrink-0 inline-flex p-2.5 rounded-lg ${PROVEDOR_COLORS[item.provedor] || PROVEDOR_COLORS.groq}`}
+                      >
+                        <Key size={18} />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="text-xs font-mono bg-slate-100 dark:bg-slate-800 text-slate-500 rounded px-1.5 py-0.5">
+                            #{item.ordem}
                           </span>
+                          <h3 className="font-semibold text-slate-900 dark:text-slate-100">
+                            {item.nome}
+                          </h3>
+                          <span className="text-[11px] px-2 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-500 font-medium">
+                            {prov.label}
+                          </span>
+                          <span
+                            className={`text-[11px] px-2 py-0.5 rounded-full font-medium ${item.ativo ? "bg-green-100 text-green-700" : "bg-slate-100 text-slate-400"}`}
+                          >
+                            {item.ativo ? "Ativo" : "Inativo"}
+                          </span>
+                          {item.failCount > 0 && (
+                            <span className="text-[11px] px-2 py-0.5 rounded-full bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400 font-medium">
+                              {item.failCount} falha{item.failCount > 1 ? "s" : ""}
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1.5 text-sm text-slate-500">
+                          <span className="font-mono">{item.chaveApi}</span>
+                          {item.modelo && (
+                            <span className="text-xs">
+                              Modelo: <span className="font-mono">{item.modelo}</span>
+                            </span>
+                          )}
+                          {item.urlBase && (
+                            <span className="text-xs font-mono">{item.urlBase}</span>
+                          )}
+                        </div>
+                        {item.ultimaFalha && (
+                          <p className="text-xs text-slate-400 mt-1">
+                            Última falha: {new Date(item.ultimaFalha).toLocaleString("pt-BR")}
+                          </p>
                         )}
                       </div>
-                      <div className="flex flex-wrap gap-x-4 gap-y-1 mt-1.5 text-sm text-slate-500">
-                        <span className="font-mono">{item.chaveApi}</span>
-                        {item.modelo && <span className="text-xs">Modelo: <span className="font-mono">{item.modelo}</span></span>}
-                        {item.urlBase && <span className="text-xs font-mono">{item.urlBase}</span>}
-                      </div>
-                      {item.ultimaFalha && (
-                        <p className="text-xs text-slate-400 mt-1">Última falha: {new Date(item.ultimaFalha).toLocaleString("pt-BR")}</p>
+                    </div>
+                    <div className="flex items-center gap-1 shrink-0">
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleTest(item)}
+                        disabled={testingId === item.id}
+                        title="Testar chave"
+                        className="gap-1 text-blue-600"
+                      >
+                        {testingId === item.id ? (
+                          <Loader2 size={14} className="animate-spin" />
+                        ) : (
+                          <Play size={14} />
+                        )}
+                      </Button>
+                      {item.failCount > 0 && (
+                        <Button
+                          size="sm"
+                          variant="ghost"
+                          onClick={() => handleResetFalhas(item.id)}
+                          title="Zerar contador de falhas"
+                          className="gap-1 text-amber-600"
+                        >
+                          <RefreshCw size={14} />
+                        </Button>
                       )}
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => openForm(item)}
+                        className="gap-1"
+                        title="Editar"
+                        aria-label="Editar"
+                      >
+                        <Edit3 size={14} />
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleToggle(item)}
+                        className="gap-1"
+                      >
+                        {item.ativo ? (
+                          <X size={14} className="text-amber-500" />
+                        ) : (
+                          <Check size={14} className="text-green-500" />
+                        )}
+                      </Button>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        onClick={() => handleDelete(item.id)}
+                        className="gap-1 text-red-500"
+                      >
+                        <Trash2 size={14} />
+                      </Button>
                     </div>
                   </div>
-                  <div className="flex items-center gap-1 shrink-0">
-                    <Button size="sm" variant="ghost" onClick={() => handleTest(item)} disabled={testingId === item.id} title="Testar chave" className="gap-1 text-blue-600">
-                      {testingId === item.id ? <Loader2 size={14} className="animate-spin" /> : <Play size={14} />}
-                    </Button>
-                    {item.failCount > 0 && (
-                      <Button size="sm" variant="ghost" onClick={() => handleResetFalhas(item.id)} title="Zerar contador de falhas" className="gap-1 text-amber-600">
-                        <RefreshCw size={14} />
-                      </Button>
-                    )}
-                    <Button size="sm" variant="ghost" onClick={() => openForm(item)} className="gap-1" title="Editar" aria-label="Editar">
-                      <Edit3 size={14} />
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => handleToggle(item)} className="gap-1">
-                      {item.ativo ? <X size={14} className="text-amber-500" /> : <Check size={14} className="text-green-500" />}
-                    </Button>
-                    <Button size="sm" variant="ghost" onClick={() => handleDelete(item.id)} className="gap-1 text-red-500">
-                      <Trash2 size={14} />
-                    </Button>
-                  </div>
                 </div>
-              </div>
-            )
-          })
+              )
+            })
         )}
       </div>
 
       {showForm && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 bg-white dark:bg-slate-900">
-          <h2 className="text-lg font-semibold">{editItem ? "Editar Chave de IA" : "Nova Chave de IA"}</h2>
+          <h2 className="text-lg font-semibold">
+            {editItem ? "Editar Chave de IA" : "Nova Chave de IA"}
+          </h2>
 
           <div className="space-y-2">
             <Label>Provedor</Label>
@@ -329,11 +446,20 @@ export default function AiChavesPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Nome *</Label>
-              <Input value={form.nome} onChange={e => setForm({ ...form, nome: e.target.value })} placeholder="Ex: Groq Principal" />
+              <Input
+                value={form.nome}
+                onChange={(e) => setForm({ ...form, nome: e.target.value })}
+                placeholder="Ex: Groq Principal"
+              />
             </div>
             <div className="space-y-2">
               <Label>Ordem (prioridade)</Label>
-              <Input type="number" min={1} value={form.ordem} onChange={e => setForm({ ...form, ordem: Number(e.target.value) })} />
+              <Input
+                type="number"
+                min={1}
+                value={form.ordem}
+                onChange={(e) => setForm({ ...form, ordem: Number(e.target.value) })}
+              />
             </div>
           </div>
 
@@ -343,27 +469,41 @@ export default function AiChavesPage() {
               <Input
                 type={showKey ? "text" : "password"}
                 value={form.chaveApi}
-                onChange={e => setForm({ ...form, chaveApi: e.target.value })}
+                onChange={(e) => setForm({ ...form, chaveApi: e.target.value })}
                 placeholder={editItem ? "Deixe em branco para manter a chave atual" : "sk-..."}
                 className="pr-10"
               />
-              <button type="button" onClick={() => setShowKey(!showKey)} className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600">
+              <button
+                type="button"
+                onClick={() => setShowKey(!showKey)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
                 {showKey ? <EyeOff size={16} /> : <Eye size={16} />}
               </button>
             </div>
             {editItem && (
-              <p className="text-xs text-slate-400">Chave atual: <span className="font-mono">{editItem.chaveApi}</span></p>
+              <p className="text-xs text-slate-400">
+                Chave atual: <span className="font-mono">{editItem.chaveApi}</span>
+              </p>
             )}
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Modelo</Label>
-              <Input value={form.modelo} onChange={e => setForm({ ...form, modelo: e.target.value })} placeholder={PROVEDORES[form.provedor]?.defaultModel || "modelo"} />
+              <Input
+                value={form.modelo}
+                onChange={(e) => setForm({ ...form, modelo: e.target.value })}
+                placeholder={PROVEDORES[form.provedor]?.defaultModel || "modelo"}
+              />
             </div>
             <div className="space-y-2">
               <Label>URL Base</Label>
-              <Input value={form.urlBase} onChange={e => setForm({ ...form, urlBase: e.target.value })} placeholder={PROVEDORES[form.provedor]?.defaultUrl || "https://..."} />
+              <Input
+                value={form.urlBase}
+                onChange={(e) => setForm({ ...form, urlBase: e.target.value })}
+                placeholder={PROVEDORES[form.provedor]?.defaultUrl || "https://..."}
+              />
             </div>
           </div>
 
@@ -386,7 +526,9 @@ export default function AiChavesPage() {
               {saving && <Loader2 size={16} className="animate-spin" />}
               {editItem ? "Salvar" : "Adicionar"}
             </Button>
-            <Button variant="outline" onClick={resetForm}>Cancelar</Button>
+            <Button variant="outline" onClick={resetForm}>
+              Cancelar
+            </Button>
           </div>
         </div>
       )}
@@ -398,19 +540,30 @@ export default function AiChavesPage() {
       )}
 
       {testResult && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50" onClick={() => setTestResult(null)}>
-          <div className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xl w-[90vw] max-w-md" onClick={e => e.stopPropagation()}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/50"
+          onClick={() => setTestResult(null)}
+        >
+          <div
+            className="bg-white dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shadow-2xl w-[90vw] max-w-md"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
               <h2 className="text-lg font-semibold flex items-center gap-2">
                 <Play size={18} className={testResult.ok ? "text-green-500" : "text-red-500"} />
                 Resultado do Teste
               </h2>
-              <button onClick={() => setTestResult(null)} className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+              <button
+                onClick={() => setTestResult(null)}
+                className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
                 <X size={18} />
               </button>
             </div>
             <div className="p-5">
-              <div className={`rounded-lg p-4 text-sm ${testResult.ok ? "bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900 text-green-700 dark:text-green-300" : "bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300"}`}>
+              <div
+                className={`rounded-lg p-4 text-sm ${testResult.ok ? "bg-green-50 dark:bg-green-950/30 border border-green-200 dark:border-green-900 text-green-700 dark:text-green-300" : "bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 text-red-700 dark:text-red-300"}`}
+              >
                 {testResult.mensagem}
               </div>
             </div>

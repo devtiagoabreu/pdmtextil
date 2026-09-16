@@ -128,7 +128,7 @@ export default function AtivoCategoriaFormPage() {
   }
 
   const handleChange = (field: keyof CategoriaAtivo, value: string | boolean | number | null) => {
-    setCategoria(prev => ({ ...prev, [field]: value }))
+    setCategoria((prev) => ({ ...prev, [field]: value }))
   }
 
   if (loading) {
@@ -157,60 +157,78 @@ export default function AtivoCategoriaFormPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
-          <Label htmlFor="nome" className="font-medium">Nome</Label>
+          <Label htmlFor="nome" className="font-medium">
+            Nome
+          </Label>
           <Input
             id="nome"
             value={categoria.nome}
-            onChange={e => handleChange("nome", e.target.value)}
+            onChange={(e) => handleChange("nome", e.target.value)}
             placeholder="Segurança Contra Incêndio"
             required
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="areaId" className="font-medium">Área</Label>
+          <Label htmlFor="areaId" className="font-medium">
+            Área
+          </Label>
           <select
             id="areaId"
             value={categoria.areaId ?? ""}
-            onChange={e => handleChange("areaId", e.target.value ? parseInt(e.target.value) : null)}
+            onChange={(e) =>
+              handleChange("areaId", e.target.value ? parseInt(e.target.value) : null)
+            }
             className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
           >
             {areas.map((area) => (
-              <option key={area.id} value={area.id}>{area.nome}</option>
+              <option key={area.id} value={area.id}>
+                {area.nome}
+              </option>
             ))}
           </select>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="descricao" className="font-medium">Descrição</Label>
+          <Label htmlFor="descricao" className="font-medium">
+            Descrição
+          </Label>
           <Textarea
             id="descricao"
             value={categoria.descricao || ""}
-            onChange={e => handleChange("descricao", e.target.value)}
+            onChange={(e) => handleChange("descricao", e.target.value)}
             placeholder="Descrição da categoria"
           />
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="cor" className="font-medium">Cor</Label>
+          <Label htmlFor="cor" className="font-medium">
+            Cor
+          </Label>
           <div className="flex items-center gap-2">
             <input
               type="color"
               id="cor"
               value={categoria.cor}
-              onChange={e => handleChange("cor", e.target.value)}
+              onChange={(e) => handleChange("cor", e.target.value)}
               className="h-9 w-14 cursor-pointer rounded border border-slate-300 dark:border-slate-600"
             />
             <Input
               value={categoria.cor}
-              onChange={e => handleChange("cor", e.target.value)}
+              onChange={(e) => handleChange("cor", e.target.value)}
               className="w-32"
             />
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <input type="checkbox" id="ativo" checked={categoria.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={categoria.ativo}
+            onChange={(e) => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
           <Label htmlFor="ativo">Ativo</Label>
         </div>
 
@@ -220,7 +238,9 @@ export default function AtivoCategoriaFormPage() {
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
           <Link href="/ativos/categorias">
-            <Button variant="outline" type="button">Cancelar</Button>
+            <Button variant="outline" type="button">
+              Cancelar
+            </Button>
           </Link>
         </div>
       </form>

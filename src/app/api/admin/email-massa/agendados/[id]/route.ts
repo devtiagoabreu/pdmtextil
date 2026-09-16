@@ -15,7 +15,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const { id: idStr } = await params
     const id = Number(idStr)
     const body = await req.json()
-    const { nome, para, assunto, html, listas, modoEnvio, remetente, agendadoPara, status, preheader } = body
+    const {
+      nome,
+      para,
+      assunto,
+      html,
+      listas,
+      modoEnvio,
+      remetente,
+      agendadoPara,
+      status,
+      preheader,
+    } = body
 
     const updates: Record<string, any> = { updatedAt: new Date() }
     if (nome !== undefined) updates.nome = nome
@@ -26,10 +37,15 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     if (listas !== undefined) updates.listas = listas
     if (modoEnvio !== undefined) updates.modoEnvio = modoEnvio
     if (remetente !== undefined) updates.remetente = remetente
-    if (agendadoPara !== undefined) updates.agendadoPara = agendadoPara ? new Date(agendadoPara) : null
+    if (agendadoPara !== undefined)
+      updates.agendadoPara = agendadoPara ? new Date(agendadoPara) : null
     if (status !== undefined) updates.status = status
 
-    const [result] = await db.update(emailAgendados).set(updates).where(eq(emailAgendados.id, id)).returning()
+    const [result] = await db
+      .update(emailAgendados)
+      .set(updates)
+      .where(eq(emailAgendados.id, id))
+      .returning()
     if (!result) return NextResponse.json({ error: "Agendamento não encontrado" }, { status: 404 })
 
     return NextResponse.json(result)

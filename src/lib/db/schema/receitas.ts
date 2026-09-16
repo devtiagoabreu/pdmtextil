@@ -4,7 +4,9 @@ import { produtosQuimicos } from "./produtos-quimicos"
 
 export const produtoCruReceita = pgTable("produto_cru_receita", {
   id: serial("id").primaryKey(),
-  amostraId: integer("amostra_id").notNull().references(() => produtoCruAcabamentoAmostra.id, { onDelete: "cascade" }),
+  amostraId: integer("amostra_id")
+    .notNull()
+    .references(() => produtoCruAcabamentoAmostra.id, { onDelete: "cascade" }),
   descricao: varchar("descricao", { length: 500 }).notNull(),
   instrucoes: text("instrucoes"),
   versao: integer("versao").notNull().default(1),
@@ -15,7 +17,9 @@ export const produtoCruReceita = pgTable("produto_cru_receita", {
 
 export const produtoCruReceitaItem = pgTable("produto_cru_receita_item", {
   id: serial("id").primaryKey(),
-  receitaId: integer("receita_id").notNull().references(() => produtoCruReceita.id, { onDelete: "cascade" }),
+  receitaId: integer("receita_id")
+    .notNull()
+    .references(() => produtoCruReceita.id, { onDelete: "cascade" }),
   quimicoId: integer("quimico_id").references(() => produtosQuimicos.id, { onDelete: "set null" }),
   descricao: varchar("descricao", { length: 300 }),
   unidade: varchar("unidade", { length: 20 }).notNull().default("g/L"),

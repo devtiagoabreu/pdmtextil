@@ -11,10 +11,17 @@ import { getInfoContent } from "@/lib/info-content"
 import { exportCSV, exportPDFRelatorio } from "@/lib/export-utils"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 
-const AmostraComercialPorStatusCharts = dynamic(() => import("./charts").then((m) => m.AmostraComercialPorStatusCharts), { ssr: false })
+const AmostraComercialPorStatusCharts = dynamic(
+  () => import("./charts").then((m) => m.AmostraComercialPorStatusCharts),
+  { ssr: false }
+)
 
 export default function RelatorioAmostraComercialPorStatus() {
-  const { statuses, getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("AMOSTRA_COMERCIAL")
+  const {
+    statuses,
+    getLabel: getStatusLabel,
+    getColor: getStatusColor,
+  } = useStatuses("AMOSTRA_COMERCIAL")
   const [selectedStatus, setSelectedStatus] = useState("")
   const [filtroDataInicio, setFiltroDataInicio] = useState("")
   const [filtroDataFim, setFiltroDataFim] = useState("")
@@ -22,7 +29,12 @@ export default function RelatorioAmostraComercialPorStatus() {
   const [aplicadoDataFim, setAplicadoDataFim] = useState("")
 
   const { data, isLoading: loading } = useQuery<any>({
-    queryKey: ["relatorio-amostra-comercial-por-status", selectedStatus, aplicadoDataInicio, aplicadoDataFim],
+    queryKey: [
+      "relatorio-amostra-comercial-por-status",
+      selectedStatus,
+      aplicadoDataInicio,
+      aplicadoDataFim,
+    ],
     enabled: !!selectedStatus,
     queryFn: async () => {
       const params = new URLSearchParams()
@@ -51,13 +63,17 @@ export default function RelatorioAmostraComercialPorStatus() {
 
   function handleExportCSV() {
     setTimeout(() => {
-      exportCSV(`amostra-comercial-${selectedStatus.toLowerCase()}`, ["#", "Título", "Cliente", "Produto", "Criado em"], lista.map((r: any) => [
-        r.id,
-        r.titulo || "-",
-        r.cliente || "-",
-        r.produtoCodigo || "-",
-        r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
-      ]))
+      exportCSV(
+        `amostra-comercial-${selectedStatus.toLowerCase()}`,
+        ["#", "Título", "Cliente", "Produto", "Criado em"],
+        lista.map((r: any) => [
+          r.id,
+          r.titulo || "-",
+          r.cliente || "-",
+          r.produtoCodigo || "-",
+          r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
+        ])
+      )
     }, 200)
   }
 
@@ -65,18 +81,23 @@ export default function RelatorioAmostraComercialPorStatus() {
     const rotulo = getStatusLabel(selectedStatus)
     await exportPDFRelatorio({
       title: `Relatório: Amostras Comerciais ${rotulo}`,
-      stats: stats ? {
-        "Total": stats.total,
-      } : undefined,
+      stats: stats
+        ? {
+            Total: stats.total,
+          }
+        : undefined,
       tables: [
         { headers: ["Mês", "Total"], rows: porMes.map((m: any) => [m.mes, m.total]) },
-        { headers: ["#", "Título", "Cliente", "Produto", "Criado em"], rows: lista.map((r: any) => [
-          r.id,
-          r.titulo || "-",
-          r.cliente || "-",
-          r.produtoCodigo || "-",
-          r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
-        ])},
+        {
+          headers: ["#", "Título", "Cliente", "Produto", "Criado em"],
+          rows: lista.map((r: any) => [
+            r.id,
+            r.titulo || "-",
+            r.cliente || "-",
+            r.produtoCodigo || "-",
+            r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
+          ]),
+        },
       ],
       orientation: "landscape",
     })
@@ -88,7 +109,9 @@ export default function RelatorioAmostraComercialPorStatus() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Amostras Comerciais por Status{info && <InfoButton content={info} />}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+          Relatório: Amostras Comerciais por Status{info && <InfoButton content={info} />}
+        </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
           Filtre requisições de amostra comercial por status — total e detalhamento
         </p>
@@ -106,7 +129,9 @@ export default function RelatorioAmostraComercialPorStatus() {
             className="h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm min-w-[200px]"
           >
             {statuses.map((s: any) => (
-              <option key={s.nome} value={s.nome}>{s.rotulo}</option>
+              <option key={s.nome} value={s.nome}>
+                {s.rotulo}
+              </option>
             ))}
           </select>
         </div>
@@ -137,10 +162,16 @@ export default function RelatorioAmostraComercialPorStatus() {
         <div className="flex-1" />
         {selectedStatus && (
           <>
-            <button onClick={handleExportCSV} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+            <button
+              onClick={handleExportCSV}
+              className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
+            >
               CSV
             </button>
-            <button onClick={handleExportPDF} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+            <button
+              onClick={handleExportPDF}
+              className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
+            >
               PDF
             </button>
           </>
@@ -151,12 +182,18 @@ export default function RelatorioAmostraComercialPorStatus() {
         <div className="grid grid-cols-3 gap-4">
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total</p>
-            <p className="text-3xl font-bold text-slate-700 dark:text-slate-200 mt-1">{stats.total}</p>
+            <p className="text-3xl font-bold text-slate-700 dark:text-slate-200 mt-1">
+              {stats.total}
+            </p>
           </div>
         </div>
       )}
 
-      <AmostraComercialPorStatusCharts porMes={porMes} getStatusLabel={getStatusLabel} selectedStatus={selectedStatus} />
+      <AmostraComercialPorStatusCharts
+        porMes={porMes}
+        getStatusLabel={getStatusLabel}
+        selectedStatus={selectedStatus}
+      />
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800">
@@ -169,12 +206,16 @@ export default function RelatorioAmostraComercialPorStatus() {
         ) : !selectedStatus ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <BarChart3 className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Selecione um status para visualizar</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Selecione um status para visualizar
+            </p>
           </div>
         ) : lista.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <BarChart3 className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma requisição encontrada</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Nenhuma requisição encontrada
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -182,22 +223,41 @@ export default function RelatorioAmostraComercialPorStatus() {
               <thead>
                 <tr className="border-b border-slate-100 dark:border-slate-800">
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">#</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Título</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Cliente</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Produto</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Criado em</th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Título
+                  </th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Cliente
+                  </th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Produto
+                  </th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Criado em
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {lista.map((r: any) => (
-                  <tr key={r.id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                  <tr
+                    key={r.id}
+                    className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30"
+                  >
                     <td className="p-3 font-medium text-slate-700 dark:text-slate-300">#{r.id}</td>
-                    <td className="p-3 text-sm text-slate-600 dark:text-slate-400">{r.titulo || "—"}</td>
-                    <td className="p-3 text-sm text-slate-600 dark:text-slate-400">{r.cliente || "—"}</td>
+                    <td className="p-3 text-sm text-slate-600 dark:text-slate-400">
+                      {r.titulo || "—"}
+                    </td>
+                    <td className="p-3 text-sm text-slate-600 dark:text-slate-400">
+                      {r.cliente || "—"}
+                    </td>
                     <td className="p-3">
-                      <div className="text-sm font-medium text-slate-700 dark:text-slate-300">{r.produtoCodigo || "—"}</div>
+                      <div className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        {r.produtoCodigo || "—"}
+                      </div>
                       {r.produtoDescricao && (
-                        <div className="text-xs text-slate-400 line-clamp-1">{r.produtoDescricao}</div>
+                        <div className="text-xs text-slate-400 line-clamp-1">
+                          {r.produtoDescricao}
+                        </div>
                       )}
                     </td>
                     <td className="p-3 text-xs text-slate-500">

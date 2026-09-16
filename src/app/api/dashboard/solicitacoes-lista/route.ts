@@ -20,13 +20,15 @@ export async function GET(req: NextRequest) {
         ORDER BY created_at DESC
         LIMIT 500
       `)
-      const lista = Array.isArray(rows) ? rows.map((r: any) => ({
-        id: r.id,
-        codigoPdm: r.codigo_pdm,
-        descricao: r.descricao,
-        status: r.status,
-        createdAt: r.created_at,
-      })) : []
+      const lista = Array.isArray(rows)
+        ? rows.map((r: any) => ({
+            id: r.id,
+            codigoPdm: r.codigo_pdm,
+            descricao: r.descricao,
+            status: r.status,
+            createdAt: r.created_at,
+          }))
+        : []
       return NextResponse.json(lista)
     }
 
@@ -46,14 +48,16 @@ export async function GET(req: NextRequest) {
       LIMIT 500
     `)
 
-    const lista = Array.isArray(rows) ? rows.map((r: any) => ({
-      id: r.id,
-      tipo: r.tipo,
-      cliente: r.cliente,
-      projeto: r.projeto,
-      status: r.status,
-      createdAt: r.created_at,
-    })) : []
+    const lista = Array.isArray(rows)
+      ? rows.map((r: any) => ({
+          id: r.id,
+          tipo: r.tipo,
+          cliente: r.cliente,
+          projeto: r.projeto,
+          status: r.status,
+          createdAt: r.created_at,
+        }))
+      : []
 
     return NextResponse.json(lista)
   } catch (error) {

@@ -81,13 +81,15 @@ export function ClienteAutocomplete({
 
   const searchQuery = useQuery({
     queryKey: ["clientes-autocomplete", debouncedQuery],
-    queryFn: () => fetch(`/api/clientes?q=${encodeURIComponent(debouncedQuery)}`).then((r: any) => r.json()),
+    queryFn: () =>
+      fetch(`/api/clientes?q=${encodeURIComponent(debouncedQuery)}`).then((r: any) => r.json()),
     enabled: !!debouncedQuery,
   })
 
   const cnpjSearchQuery = useQuery({
     queryKey: ["clientes-autocomplete-cnpj", debouncedCnpj],
-    queryFn: () => fetch(`/api/clientes?q=${encodeURIComponent(debouncedCnpj)}`).then((r: any) => r.json()),
+    queryFn: () =>
+      fetch(`/api/clientes?q=${encodeURIComponent(debouncedCnpj)}`).then((r: any) => r.json()),
     enabled: !!debouncedCnpj,
   })
 
@@ -156,7 +158,10 @@ export function ClienteAutocomplete({
               </button>
             )}
             {isLoading && (
-              <Loader2 className="absolute right-8 top-1/2 -translate-y-1/2 text-slate-400 animate-spin" size={14} />
+              <Loader2
+                className="absolute right-8 top-1/2 -translate-y-1/2 text-slate-400 animate-spin"
+                size={14}
+              />
             )}
           </div>
           {onNovoCliente && (
@@ -168,7 +173,12 @@ export function ClienteAutocomplete({
         </div>
 
         {isOpen && results.length > 0 && (
-          <div id="cliente-autocomplete-listbox" role="listbox" aria-label="Clientes encontrados" className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-60 overflow-auto">
+          <div
+            id="cliente-autocomplete-listbox"
+            role="listbox"
+            aria-label="Clientes encontrados"
+            className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-60 overflow-auto"
+          >
             {results.map((cliente: any) => (
               <button
                 key={cliente.id}
@@ -176,7 +186,9 @@ export function ClienteAutocomplete({
                 onClick={() => handleSelect(cliente)}
                 className="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 flex justify-between items-center"
               >
-                <span className="font-medium text-slate-900 dark:text-slate-100">{cliente.nome}</span>
+                <span className="font-medium text-slate-900 dark:text-slate-100">
+                  {cliente.nome}
+                </span>
                 <span className="text-xs text-slate-500 font-mono">{cliente.cnpj}</span>
               </button>
             ))}
@@ -185,9 +197,7 @@ export function ClienteAutocomplete({
       </div>
 
       <div className="space-y-1">
-        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
-          CNPJ
-        </label>
+        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">CNPJ</label>
         <div className="relative">
           <Input
             value={cnpjQuery}
@@ -202,12 +212,20 @@ export function ClienteAutocomplete({
             className="font-mono"
           />
           {isCnpjLoading && (
-            <Loader2 className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 animate-spin" size={14} />
+            <Loader2
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 animate-spin"
+              size={14}
+            />
           )}
         </div>
 
         {isCnpjOpen && cnpjResults.length > 0 && (
-          <div id="cliente-cnpj-listbox" role="listbox" aria-label="Clientes encontrados por CNPJ" className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-60 overflow-auto">
+          <div
+            id="cliente-cnpj-listbox"
+            role="listbox"
+            aria-label="Clientes encontrados por CNPJ"
+            className="absolute z-50 w-full mt-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg shadow-lg max-h-60 overflow-auto"
+          >
             {cnpjResults.map((cliente: any) => (
               <button
                 key={cliente.id}
@@ -215,7 +233,9 @@ export function ClienteAutocomplete({
                 onClick={() => handleSelect(cliente)}
                 className="w-full text-left px-3 py-2 hover:bg-slate-100 dark:hover:bg-slate-700 flex justify-between items-center"
               >
-                <span className="font-medium text-slate-900 dark:text-slate-100">{cliente.nome}</span>
+                <span className="font-medium text-slate-900 dark:text-slate-100">
+                  {cliente.nome}
+                </span>
                 <span className="text-xs text-slate-500 font-mono">{cliente.cnpj}</span>
               </button>
             ))}

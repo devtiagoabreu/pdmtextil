@@ -25,7 +25,8 @@ export async function GET() {
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
     const [monthlyRaw, aggRaw, geralMesRaw] = await Promise.all([
-      query(sql`
+      query(
+        sql`
         SELECT
           to_char(created_at, 'YYYY-MM') AS mes,
           status,
@@ -34,7 +35,9 @@ export async function GET() {
         WHERE created_at >= date_trunc('month', now()) - INTERVAL '5 months'
         GROUP BY to_char(created_at, 'YYYY-MM'), status
         ORDER BY mes
-      `, []),
+      `,
+        []
+      ),
       query(sql`
         SELECT
           (SELECT json_agg(json_build_object('status', status, 'total', cnt))
@@ -51,19 +54,45 @@ export async function GET() {
     ])
 
     const monthlyRows = Array.isArray(monthlyRaw) ? monthlyRaw : []
-    const agg = Array.isArray(aggRaw) ? aggRaw[0] : aggRaw ?? {}
-    const geralMes = Array.isArray(geralMesRaw) ? geralMesRaw[0] : geralMesRaw ?? {}
+    const agg = Array.isArray(aggRaw) ? aggRaw[0] : (aggRaw ?? {})
+    const geralMes = Array.isArray(geralMesRaw) ? geralMesRaw[0] : (geralMesRaw ?? {})
     const statusRows = parseJson(agg?.status_rows)
     const tipoRows = parseJson(agg?.tipo_rows)
     const totalProdutosCru = Number(agg?.pc_total ?? 0)
     const totalGeral = Number(geralMes?.total_geral ?? 0)
     const totalEsteMes = Number(geralMes?.total_mes ?? 0)
 
-    const monthMap = new Map<string, { pendentes: number; emDesenvolvimento: number; pilotagem: number; concluidoDev: number; aprovadoCliente: number; concluidas: number; total: number }>()
-    let geralPendentes = 0, geralEmDesenvolvimento = 0, geralPilotagem = 0, geralConcluidoDev = 0, geralAprovadoCliente = 0, geralConcluidas = 0, geralTotal = 0
+    const monthMap = new Map<
+      string,
+      {
+        pendentes: number
+        emDesenvolvimento: number
+        pilotagem: number
+        concluidoDev: number
+        aprovadoCliente: number
+        concluidas: number
+        total: number
+      }
+    >()
+    let geralPendentes = 0,
+      geralEmDesenvolvimento = 0,
+      geralPilotagem = 0,
+      geralConcluidoDev = 0,
+      geralAprovadoCliente = 0,
+      geralConcluidas = 0,
+      geralTotal = 0
 
     for (const r of monthlyRows) {
-      if (!monthMap.has(r.mes)) monthMap.set(r.mes, { pendentes: 0, emDesenvolvimento: 0, pilotagem: 0, concluidoDev: 0, aprovadoCliente: 0, concluidas: 0, total: 0 })
+      if (!monthMap.has(r.mes))
+        monthMap.set(r.mes, {
+          pendentes: 0,
+          emDesenvolvimento: 0,
+          pilotagem: 0,
+          concluidoDev: 0,
+          aprovadoCliente: 0,
+          concluidas: 0,
+          total: 0,
+        })
       const entry = monthMap.get(r.mes)!
       const t = Number(r.total)
       entry.total += t
@@ -90,29 +119,38 @@ export async function GET() {
       trendData.push({ mes: label, total: entry.total })
     }
 
-    return NextResponse.json({
-      totalGeral,
-      totalEsteMes,
-      pendentes: geralPendentes,
-      emDesenvolvimento: geralEmDesenvolvimento,
-      pilotagem: geralPilotagem,
-      concluidoDev: geralConcluidoDev,
-      aprovadoCliente: geralAprovadoCliente,
-      concluidas: geralConcluidas,
-      monthlyTrend: trendData,
-      statusDistribution: statusRows.map((r: any) => ({ status: r.status, total: Number(r.total) })),
-      tipoDistribution: tipoRows.map((r: any) => ({ tipo: r.tipo, total: Number(r.total) })),
-      totalProdutosCru,
-    }, {
-      headers: {
-        "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+    return NextResponse.json(
+      {
+        totalGeral,
+        totalEsteMes,
+        pendentes: geralPendentes,
+        emDesenvolvimento: geralEmDesenvolvimento,
+        pilotagem: geralPilotagem,
+        concluidoDev: geralConcluidoDev,
+        aprovadoCliente: geralAprovadoCliente,
+        concluidas: geralConcluidas,
+        monthlyTrend: trendData,
+        statusDistribution: statusRows.map((r: any) => ({
+          status: r.status,
+          total: Number(r.total),
+        })),
+        tipoDistribution: tipoRows.map((r: any) => ({ tipo: r.tipo, total: Number(r.total) })),
+        totalProdutosCru,
       },
-    })
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=300",
+        },
+      }
+    )
   } catch (error) {
     console.error("[GET /api/dashboard/stats]", error)
-    return NextResponse.json({
-      error: "Erro interno do servidor",
-      detail: error instanceof Error ? error.message : String(error),
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Erro interno do servidor",
+        detail: error instanceof Error ? error.message : String(error),
+      },
+      { status: 500 }
+    )
   }
 }

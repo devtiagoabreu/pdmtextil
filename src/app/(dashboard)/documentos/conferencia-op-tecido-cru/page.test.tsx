@@ -94,9 +94,11 @@ describe("ConferenciaOpTecidoCruPage", () => {
     renderPage(<ConferenciaOpTecidoCruPage />)
 
     expect(
-      screen.getByRole("heading", { name: /Conferência de OPs de Tecido Cru/ }),
+      screen.getByRole("heading", { name: /Conferência de OPs de Tecido Cru/ })
     ).toBeInTheDocument()
-    expect(await screen.findByRole("button", { name: "Estoques Rolos Nível 2" })).toBeInTheDocument()
+    expect(
+      await screen.findByRole("button", { name: "Estoques Rolos Nível 2" })
+    ).toBeInTheDocument()
     expect(screen.getByRole("button", { name: /Ler código de barras/ })).toBeEnabled()
     expect(screen.getByRole("button", { name: /Carregar Todas/ })).toBeEnabled()
   })
@@ -124,7 +126,9 @@ describe("ConferenciaOpTecidoCruPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /Carregar Todas/ }))
     await screen.findByRole("heading", { name: /OP 12345/ })
 
-    fireEvent.change(screen.getByPlaceholderText(/OP 12345 ou rolo 1001/), { target: { value: "99999" } })
+    fireEvent.change(screen.getByPlaceholderText(/OP 12345 ou rolo 1001/), {
+      target: { value: "99999" },
+    })
     fireEvent.click(screen.getByRole("button", { name: /Buscar/ }))
 
     expect(await screen.findByRole("heading", { name: /OP 99999/ })).toBeInTheDocument()
@@ -141,7 +145,9 @@ describe("ConferenciaOpTecidoCruPage", () => {
     fireEvent.click(screen.getByRole("button", { name: /Carregar Todas/ }))
     await screen.findByRole("heading", { name: /OP 12345/ })
 
-    fireEvent.change(screen.getByPlaceholderText(/OP 12345 ou rolo 1001/), { target: { value: "1002" } })
+    fireEvent.change(screen.getByPlaceholderText(/OP 12345 ou rolo 1001/), {
+      target: { value: "1002" },
+    })
     fireEvent.click(screen.getByRole("button", { name: /Buscar/ }))
 
     expect(await screen.findByRole("heading", { name: /OP 12345/ })).toBeInTheDocument()
@@ -229,7 +235,7 @@ describe("ConferenciaOpTecidoCruPage", () => {
     renderPage(<ConferenciaOpTecidoCruPage />)
 
     expect(
-      await screen.findByText("Nenhuma integração configurada para conferência de OP"),
+      await screen.findByText("Nenhuma integração configurada para conferência de OP")
     ).toBeInTheDocument()
   })
 })

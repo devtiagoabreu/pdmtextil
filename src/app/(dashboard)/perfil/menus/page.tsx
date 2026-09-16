@@ -46,11 +46,13 @@ export default function ConfigurarMenusPage() {
   const [showNovoMenu, setShowNovoMenu] = useState(false)
   const [novoMenuTitulo, setNovoMenuTitulo] = useState("")
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  )
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
-  const { data: menusData, isLoading: loading, isError: menusError } = useQuery<Menu[]>({
+  const {
+    data: menusData,
+    isLoading: loading,
+    isError: menusError,
+  } = useQuery<Menu[]>({
     queryKey: ["user-menus"],
     queryFn: async () => {
       const res = await fetch("/api/user/menus")
@@ -85,7 +87,8 @@ export default function ConfigurarMenusPage() {
   }, [telasData])
 
   useEffect(() => {
-    if (paginaInicialData?.paginaInicial) setPaginaInicial(paginaInicialData.paginaInicial || "/dashboard")
+    if (paginaInicialData?.paginaInicial)
+      setPaginaInicial(paginaInicialData.paginaInicial || "/dashboard")
   }, [paginaInicialData])
 
   useEffect(() => {
@@ -159,7 +162,7 @@ export default function ConfigurarMenusPage() {
       })
       if (!res.ok) throw new Error()
       const novo = await res.json()
-      setMenus(prev => [...prev, { ...novo, itens: [] }])
+      setMenus((prev) => [...prev, { ...novo, itens: [] }])
       setShowNovoMenu(false)
       setNovoMenuTitulo("")
       toast.success("Menu criado")
@@ -201,7 +204,10 @@ export default function ConfigurarMenusPage() {
 
   async function criarItem(menuId: number) {
     const telaId = editForm[`novo-item-${menuId}`]
-    if (!telaId) { toast.error("Selecione uma tela"); return }
+    if (!telaId) {
+      toast.error("Selecione uma tela")
+      return
+    }
     const tela = telas.find((t: any) => t.id === telaId)
     if (!tela) return
     try {
@@ -212,8 +218,10 @@ export default function ConfigurarMenusPage() {
       })
       if (!res.ok) throw new Error()
       const item = await res.json()
-      setMenus(prev => prev.map((m: any) => m.id === menuId ? { ...m, itens: [...m.itens, item] } : m))
-      setEditForm(prev => ({ ...prev, [`novo-item-${menuId}`]: "" }))
+      setMenus((prev) =>
+        prev.map((m: any) => (m.id === menuId ? { ...m, itens: [...m.itens, item] } : m))
+      )
+      setEditForm((prev) => ({ ...prev, [`novo-item-${menuId}`]: "" }))
       toast.success("Item adicionado")
     } catch {
       toast.error("Erro ao adicionar item")
@@ -224,7 +232,11 @@ export default function ConfigurarMenusPage() {
     try {
       const res = await fetch(`/api/user/menus/${menuId}/itens/${itemId}`, { method: "DELETE" })
       if (!res.ok) throw new Error()
-      setMenus(prev => prev.map((m: any) => m.id === menuId ? { ...m, itens: m.itens.filter((i: any) => i.id !== itemId) } : m))
+      setMenus((prev) =>
+        prev.map((m: any) =>
+          m.id === menuId ? { ...m, itens: m.itens.filter((i: any) => i.id !== itemId) } : m
+        )
+      )
       toast.success("Item excluído")
     } catch {
       toast.error("Erro ao excluir item")
@@ -242,7 +254,13 @@ export default function ConfigurarMenusPage() {
       })
       if (!res.ok) throw new Error()
       const updated = await res.json()
-      setMenus(prev => prev.map((m: any) => m.id === menuId ? { ...m, itens: m.itens.map((i: any) => i.id === itemId ? { ...i, ...updated } : i) } : m))
+      setMenus((prev) =>
+        prev.map((m: any) =>
+          m.id === menuId
+            ? { ...m, itens: m.itens.map((i: any) => (i.id === itemId ? { ...i, ...updated } : i)) }
+            : m
+        )
+      )
       setEditingItemId(null)
       toast.success("Item atualizado")
     } catch {
@@ -254,8 +272,8 @@ export default function ConfigurarMenusPage() {
     const { active, over } = event
     if (!over || active.id === over.id) return
 
-    const oldIndex = menus.findIndex(m => m.id === active.id)
-    const newIndex = menus.findIndex(m => m.id === over.id)
+    const oldIndex = menus.findIndex((m) => m.id === active.id)
+    const newIndex = menus.findIndex((m) => m.id === over.id)
     if (oldIndex === -1 || newIndex === -1) return
 
     setReordering(true)
@@ -287,12 +305,12 @@ export default function ConfigurarMenusPage() {
     const menu = menus.find((m: any) => m.id === menuId)
     if (!menu) return
 
-    const oldIndex = menu.itens.findIndex(i => i.id === active.id)
-    const newIndex = menu.itens.findIndex(i => i.id === over.id)
+    const oldIndex = menu.itens.findIndex((i) => i.id === active.id)
+    const newIndex = menu.itens.findIndex((i) => i.id === over.id)
     if (oldIndex === -1 || newIndex === -1) return
 
     const reordered = arrayMove(menu.itens, oldIndex, newIndex)
-    setMenus(prev => prev.map((m: any) => m.id === menuId ? { ...m, itens: reordered } : m))
+    setMenus((prev) => prev.map((m: any) => (m.id === menuId ? { ...m, itens: reordered } : m)))
 
     try {
       const res = await fetch(`/api/user/menus/${menuId}/itens/reorder`, {
@@ -303,11 +321,15 @@ export default function ConfigurarMenusPage() {
       if (!res.ok) throw new Error()
       const data = await res.json()
       if (Array.isArray(data)) {
-        setMenus(prev => prev.map((m: any) => m.id === menuId ? { ...m, itens: data } : m))
+        setMenus((prev) => prev.map((m: any) => (m.id === menuId ? { ...m, itens: data } : m)))
       }
     } catch {
       toast.error("Erro ao reordenar itens")
-      setMenus(prev => prev.map((m: any) => m.id === menuId ? { ...m, itens: arrayMove(reordered, newIndex, oldIndex) } : m))
+      setMenus((prev) =>
+        prev.map((m: any) =>
+          m.id === menuId ? { ...m, itens: arrayMove(reordered, newIndex, oldIndex) } : m
+        )
+      )
     }
   }
 
@@ -332,17 +354,26 @@ export default function ConfigurarMenusPage() {
 
       {/* Página Inicial */}
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
-        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-4">Página Inicial</h2>
+        <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50 mb-4">
+          Página Inicial
+        </h2>
         <div className="flex items-end gap-3">
           <div className="flex-1 space-y-2">
             <Label>Escolha a tela que abre ao clicar no logo ou na home</Label>
-            <Select value={paginaInicial} onValueChange={(v: string | null) => { if (v) setPaginaInicial(v) }}>
+            <Select
+              value={paginaInicial}
+              onValueChange={(v: string | null) => {
+                if (v) setPaginaInicial(v)
+              }}
+            >
               <SelectTrigger>
                 <SelectValue placeholder="Selecione a página inicial" />
               </SelectTrigger>
               <SelectContent>
                 {telas.map((t: any) => (
-                  <SelectItem key={t.id} value={t.href}>{t.label}</SelectItem>
+                  <SelectItem key={t.id} value={t.href}>
+                    {t.label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -359,14 +390,21 @@ export default function ConfigurarMenusPage() {
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Menus</h2>
           <div className="flex items-center gap-2">
-            <Button onClick={abrirCopyDialog} size="sm" variant="outline" className="gap-1" disabled={reordering}>
+            <Button
+              onClick={abrirCopyDialog}
+              size="sm"
+              variant="outline"
+              className="gap-1"
+              disabled={reordering}
+            >
               <Copy size={14} />
               Copiar menus
             </Button>
             <Button onClick={abrirNovoMenu} size="sm" className="gap-1" disabled={reordering}>
               <Plus size={14} />
               Novo Menu
-            </Button>          </div>
+            </Button>{" "}
+          </div>
         </div>
 
         {menus.length === 0 ? (
@@ -379,7 +417,10 @@ export default function ConfigurarMenusPage() {
             collisionDetection={closestCenter}
             onDragEnd={handleMenuDragEnd}
           >
-            <SortableContext items={menus.map((m: any) => m.id)} strategy={verticalListSortingStrategy}>
+            <SortableContext
+              items={menus.map((m: any) => m.id)}
+              strategy={verticalListSortingStrategy}
+            >
               <div className="space-y-3">
                 {menus.map((menu: any) => (
                   <SortableMenu
@@ -389,14 +430,31 @@ export default function ConfigurarMenusPage() {
                     isEditing={editingMenuId === menu.id}
                     editValue={editForm[`menu-${menu.id}`]?.titulo || ""}
                     editIcone={editForm[`menu-${menu.id}`]?.icone || ""}
-                    onChangeIcone={v => setEditForm(prev => ({ ...prev, [`menu-${menu.id}`]: { ...prev[`menu-${menu.id}`], icone: v } }))}
+                    onChangeIcone={(v) =>
+                      setEditForm((prev) => ({
+                        ...prev,
+                        [`menu-${menu.id}`]: { ...prev[`menu-${menu.id}`], icone: v },
+                      }))
+                    }
                     onToggle={() => setExpandedMenu(expandedMenu === menu.id ? null : menu.id)}
                     onStartEdit={() => {
                       setEditingMenuId(menu.id)
-                      setEditForm(prev => ({ ...prev, [`menu-${menu.id}`]: { titulo: menu.titulo, icone: menu.icone, ordem: menu.ordem } }))
+                      setEditForm((prev) => ({
+                        ...prev,
+                        [`menu-${menu.id}`]: {
+                          titulo: menu.titulo,
+                          icone: menu.icone,
+                          ordem: menu.ordem,
+                        },
+                      }))
                     }}
                     onDelete={() => setMenuToDelete(menu.id)}
-                    onChangeEdit={v => setEditForm(prev => ({ ...prev, [`menu-${menu.id}`]: { ...prev[`menu-${menu.id}`], titulo: v } }))}
+                    onChangeEdit={(v) =>
+                      setEditForm((prev) => ({
+                        ...prev,
+                        [`menu-${menu.id}`]: { ...prev[`menu-${menu.id}`], titulo: v },
+                      }))
+                    }
                     onSave={() => salvarMenu(menu.id)}
                     onCancelEdit={() => setEditingMenuId(null)}
                   >
@@ -407,7 +465,10 @@ export default function ConfigurarMenusPage() {
                           collisionDetection={closestCenter}
                           onDragEnd={(event) => handleItemDragEnd(event, menu.id)}
                         >
-                          <SortableContext items={menu.itens.map((i: any) => i.id)} strategy={verticalListSortingStrategy}>
+                          <SortableContext
+                            items={menu.itens.map((i: any) => i.id)}
+                            strategy={verticalListSortingStrategy}
+                          >
                             {menu.itens.map((item: any) => (
                               <SortableItem
                                 key={item.id}
@@ -416,15 +477,34 @@ export default function ConfigurarMenusPage() {
                                 isEditing={editingItemId === `item-${item.id}`}
                                 editTitulo={editForm[`item-${item.id}`]?.titulo || ""}
                                 editUrl={editForm[`item-${item.id}`]?.url || ""}
-                                onChangeTitulo={v => setEditForm(prev => ({ ...prev, [`item-${item.id}`]: { ...prev[`item-${item.id}`], titulo: v } }))}
-                                onChangeUrl={v => setEditForm(prev => ({ ...prev, [`item-${item.id}`]: { ...prev[`item-${item.id}`], url: v } }))}
+                                onChangeTitulo={(v) =>
+                                  setEditForm((prev) => ({
+                                    ...prev,
+                                    [`item-${item.id}`]: { ...prev[`item-${item.id}`], titulo: v },
+                                  }))
+                                }
+                                onChangeUrl={(v) =>
+                                  setEditForm((prev) => ({
+                                    ...prev,
+                                    [`item-${item.id}`]: { ...prev[`item-${item.id}`], url: v },
+                                  }))
+                                }
                                 onStartEdit={() => {
                                   setEditingItemId(`item-${item.id}`)
-                                  setEditForm(prev => ({ ...prev, [`item-${item.id}`]: { titulo: item.titulo, url: item.url, ordem: item.ordem } }))
+                                  setEditForm((prev) => ({
+                                    ...prev,
+                                    [`item-${item.id}`]: {
+                                      titulo: item.titulo,
+                                      url: item.url,
+                                      ordem: item.ordem,
+                                    },
+                                  }))
                                 }}
                                 onSaveEdit={() => salvarItem(menu.id, item.id)}
                                 onCancelEdit={() => setEditingItemId(null)}
-                                onDelete={() => setItemToDelete({ menuId: menu.id, itemId: item.id })}
+                                onDelete={() =>
+                                  setItemToDelete({ menuId: menu.id, itemId: item.id })
+                                }
                               />
                             ))}
                           </SortableContext>
@@ -435,7 +515,8 @@ export default function ConfigurarMenusPage() {
                             <Select
                               value={editForm[`novo-item-${menu.id}`] || ""}
                               onValueChange={(v: string | null) => {
-                                if (v) setEditForm(prev => ({ ...prev, [`novo-item-${menu.id}`]: v }))
+                                if (v)
+                                  setEditForm((prev) => ({ ...prev, [`novo-item-${menu.id}`]: v }))
                               }}
                             >
                               <SelectTrigger className="h-8 text-sm">
@@ -443,12 +524,19 @@ export default function ConfigurarMenusPage() {
                               </SelectTrigger>
                               <SelectContent>
                                 {telas.map((t: any) => (
-                                  <SelectItem key={t.id} value={t.id}>{t.label}</SelectItem>
+                                  <SelectItem key={t.id} value={t.id}>
+                                    {t.label}
+                                  </SelectItem>
                                 ))}
                               </SelectContent>
                             </Select>
                           </div>
-                          <Button size="sm" variant="outline" onClick={() => criarItem(menu.id)} className="h-8 gap-1">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => criarItem(menu.id)}
+                            className="h-8 gap-1"
+                          >
                             <Plus size={12} />
                             Adicionar
                           </Button>

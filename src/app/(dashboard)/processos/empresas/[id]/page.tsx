@@ -97,7 +97,7 @@ export default function ProcessoEmpresaFormPage() {
   }
 
   const handleChange = (field: keyof Empresa, value: string | boolean) => {
-    setEmpresa(prev => ({ ...prev, [field]: value }))
+    setEmpresa((prev) => ({ ...prev, [field]: value }))
   }
 
   if (loading) {
@@ -131,7 +131,7 @@ export default function ProcessoEmpresaFormPage() {
             <Input
               id="nome"
               value={empresa.nome}
-              onChange={e => handleChange("nome", e.target.value)}
+              onChange={(e) => handleChange("nome", e.target.value)}
               placeholder="PDM Têxtil"
               required
             />
@@ -141,7 +141,7 @@ export default function ProcessoEmpresaFormPage() {
             <Input
               id="cnpj"
               value={empresa.cnpj || ""}
-              onChange={e => handleChange("cnpj", e.target.value)}
+              onChange={(e) => handleChange("cnpj", e.target.value)}
               placeholder="00.000.000/0001-00"
             />
           </div>
@@ -152,7 +152,7 @@ export default function ProcessoEmpresaFormPage() {
           <Input
             id="segmento"
             value={empresa.segmento || ""}
-            onChange={e => handleChange("segmento", e.target.value)}
+            onChange={(e) => handleChange("segmento", e.target.value)}
             placeholder="Têxtil, Confecção..."
           />
         </div>
@@ -162,13 +162,19 @@ export default function ProcessoEmpresaFormPage() {
           <Input
             id="observacoes"
             value={empresa.observacoes || ""}
-            onChange={e => handleChange("observacoes", e.target.value)}
+            onChange={(e) => handleChange("observacoes", e.target.value)}
             placeholder="Observações gerais"
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <input type="checkbox" id="ativo" checked={empresa.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={empresa.ativo}
+            onChange={(e) => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
           <Label htmlFor="ativo">Ativo</Label>
           <InfoButton content={empresaCampos.ativo} />
         </div>
@@ -179,7 +185,9 @@ export default function ProcessoEmpresaFormPage() {
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
           <Link href="/processos/empresas">
-            <Button variant="outline" type="button">Cancelar</Button>
+            <Button variant="outline" type="button">
+              Cancelar
+            </Button>
           </Link>
         </div>
       </form>

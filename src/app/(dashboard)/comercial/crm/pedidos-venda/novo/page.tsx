@@ -8,7 +8,11 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
 import { DocumentoVendaForm } from "@/components/crm/documento-venda-form"
-import { statusOptions, STATUS_PEDIDO_VENDA, STATUS_PEDIDO_VENDA_LABELS } from "@/lib/crm/documento-venda"
+import {
+  statusOptions,
+  STATUS_PEDIDO_VENDA,
+  STATUS_PEDIDO_VENDA_LABELS,
+} from "@/lib/crm/documento-venda"
 import type { ItemVendaLinha } from "@/lib/crm/documento-venda"
 
 function NovoPedidoVendaContent() {
@@ -25,24 +29,38 @@ function NovoPedidoVendaContent() {
     origem: "MANUAL",
     referenciaExterna: "",
   })
-  const [itens, setItens] = useState<ItemVendaLinha[]>([{ produto: "", codigo: "", unidade: "METROS", unidadeOutra: "", quantidade: "", valorUnitario: "", valorTotal: "" }])
+  const [itens, setItens] = useState<ItemVendaLinha[]>([
+    {
+      produto: "",
+      codigo: "",
+      unidade: "METROS",
+      unidadeOutra: "",
+      quantidade: "",
+      valorUnitario: "",
+      valorTotal: "",
+    },
+  ])
   const [oportunidades, setOportunidades] = useState<{ id: number; titulo: string }[]>([])
   const [saving, setSaving] = useState(false)
 
   useEffect(() => {
     const opId = searchParams.get("oportunidadeId")
-    if (opId) setForm(prev => ({ ...prev, oportunidadeId: opId }))
+    if (opId) setForm((prev) => ({ ...prev, oportunidadeId: opId }))
   }, [searchParams])
 
   useEffect(() => {
     fetch("/api/crm/oportunidades")
       .then((r) => r.json())
-      .then((data: { id: unknown; titulo: string }[]) => setOportunidades(Array.isArray(data) ? data.map((o) => ({ id: Number(o.id), titulo: o.titulo })) : []))
+      .then((data: { id: unknown; titulo: string }[]) =>
+        setOportunidades(
+          Array.isArray(data) ? data.map((o) => ({ id: Number(o.id), titulo: o.titulo })) : []
+        )
+      )
       .catch(() => setOportunidades([]))
   }, [])
 
   function setField(field: string, value: string) {
-    setForm(prev => ({ ...prev, [field]: value }))
+    setForm((prev) => ({ ...prev, [field]: value }))
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -98,12 +116,19 @@ function NovoPedidoVendaContent() {
   return (
     <div className="max-w-3xl animate-fade-in">
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => router.back()} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <button
+          onClick={() => router.back()}
+          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={18} className="text-slate-500" />
         </button>
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Novo Pedido de Venda{info && <InfoButton content={info} />}</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400">Registrar vendas geradas pela oportunidade</p>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+            Novo Pedido de Venda{info && <InfoButton content={info} />}
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400">
+            Registrar vendas geradas pela oportunidade
+          </p>
         </div>
       </div>
 

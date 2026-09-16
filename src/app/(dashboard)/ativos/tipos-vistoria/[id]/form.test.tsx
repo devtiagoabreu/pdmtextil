@@ -2,10 +2,26 @@
 import { describe, expect, it, vi, beforeEach } from "vitest"
 import { screen, fireEvent, waitFor } from "@testing-library/react"
 import TipoVistoriaFormPage from "./page"
-import { createFetchMock, renderPage, findCall, toastMock, navMock, type MockFetchHandler } from "@/test/harness"
+import {
+  createFetchMock,
+  renderPage,
+  findCall,
+  toastMock,
+  navMock,
+  type MockFetchHandler,
+} from "@/test/harness"
 
 const AREAS_MOCK = [
-  { id: 26, siteId: 6, siteNome: "Ativos e Vistorias", nome: "Segurança", descricao: null, ativo: true, createdAt: "", updatedAt: "" },
+  {
+    id: 26,
+    siteId: 6,
+    siteNome: "Ativos e Vistorias",
+    nome: "Segurança",
+    descricao: null,
+    ativo: true,
+    createdAt: "",
+    updatedAt: "",
+  },
 ]
 
 function mockFetch(handler?: MockFetchHandler) {
@@ -69,19 +85,24 @@ describe("TipoVistoriaFormPage", () => {
       navMock.setPathname("/ativos/tipos-vistoria/novo")
       navMock.setParams({ id: "novo" })
       const fetchMock = mockFetch(({ method, url }) => {
-        if (method === "POST" && url === "/api/ativos/tipos-vistoria") return { status: 201, json: { id: 10 } }
+        if (method === "POST" && url === "/api/ativos/tipos-vistoria")
+          return { status: 201, json: { id: 10 } }
         return { status: 404, json: { error: "Rota não mockada" } }
       })
       vi.stubGlobal("fetch", fetchMock.fn)
 
       renderPage(<TipoVistoriaFormPage />)
 
-      fireEvent.change(screen.getByPlaceholderText(/Extintor/), { target: { value: "Grupo Gerador" } })
+      fireEvent.change(screen.getByPlaceholderText(/Extintor/), {
+        target: { value: "Grupo Gerador" },
+      })
 
       const form = document.querySelector("form")!
       fireEvent.submit(form)
 
-      await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Tipo de vistoria criado!"))
+      await waitFor(() =>
+        expect(toastMock.success).toHaveBeenCalledWith("Tipo de vistoria criado!")
+      )
       expect(navMock.router.push).toHaveBeenCalledWith("/ativos/tipos-vistoria")
       const call = findCall(fetchMock.calls, "/api/ativos/tipos-vistoria", "POST")
       expect(call).toBeDefined()
@@ -142,9 +163,7 @@ describe("TipoVistoriaFormPage", () => {
               periodicidade: "MENSAL",
               diasIntervalo: null,
               baseLegal: "",
-              checklist: [
-                { pergunta: "Bateria OK?", tipo: "SIM_NAO", obrigatorio: true },
-              ],
+              checklist: [{ pergunta: "Bateria OK?", tipo: "SIM_NAO", obrigatorio: true }],
               ativo: true,
             },
           }
@@ -162,7 +181,9 @@ describe("TipoVistoriaFormPage", () => {
 
       fireEvent.click(screen.getByRole("button", { name: /Atualizar/ }))
 
-      await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Tipo de vistoria atualizado!"))
+      await waitFor(() =>
+        expect(toastMock.success).toHaveBeenCalledWith("Tipo de vistoria atualizado!")
+      )
       const call = findCall(fetchMock.calls, "/api/ativos/tipos-vistoria/1", "PUT")
       expect(call).toBeDefined()
       expect(call?.body?.checklist).toHaveLength(1)

@@ -19,8 +19,10 @@ const contatos = [
 
 function setup(contatosMock = contatos) {
   const fetchMock = createFetchMock(({ method, url }) => {
-    if (method === "GET" && url === "/api/admin/email-massa/listas") return { json: [{ ...lista, totalContatos: contatosMock.length }] }
-    if (method === "GET" && url === "/api/admin/email-massa/listas/1") return { json: { ...lista, contatos: contatosMock } }
+    if (method === "GET" && url === "/api/admin/email-massa/listas")
+      return { json: [{ ...lista, totalContatos: contatosMock.length }] }
+    if (method === "GET" && url === "/api/admin/email-massa/listas/1")
+      return { json: { ...lista, contatos: contatosMock } }
     return { json: { id: 1 } }
   })
   vi.stubGlobal("fetch", fetchMock.fn)
@@ -40,7 +42,9 @@ describe("ListasTab", () => {
     await abrirEdicao()
 
     expect(screen.getByText("Ana")).toBeInTheDocument()
-    expect(screen.getByText("2 email(s) repetido(s) na lista — mantém 1 contato por email")).toBeInTheDocument()
+    expect(
+      screen.getByText("2 email(s) repetido(s) na lista — mantém 1 contato por email")
+    ).toBeInTheDocument()
     expect(screen.getAllByText("repetido").length).toBe(4)
     expect(screen.getByText("5 contato(s)")).toBeInTheDocument()
   })
@@ -62,7 +66,9 @@ describe("ListasTab", () => {
 
     expect(toastMock.success).toHaveBeenCalledWith("Removidos 2 contato(s)")
     expect(screen.getByText("Nenhum contato encontrado para a busca")).toBeInTheDocument()
-    expect(screen.getByText("1 email(s) repetido(s) na lista — mantém 1 contato por email")).toBeInTheDocument()
+    expect(
+      screen.getByText("1 email(s) repetido(s) na lista — mantém 1 contato por email")
+    ).toBeInTheDocument()
   })
 
   it("limpa emails repetidos mantendo 1 contato por email", async () => {
@@ -92,7 +98,11 @@ describe("ListasTab", () => {
     await waitFor(() => {
       expect(findCall(fetchMock.calls, "/api/admin/email-massa/listas/1", "PUT")).toBeTruthy()
     })
-    const contatosCall = findCall(fetchMock.calls, "/api/admin/email-massa/listas/1/contatos", "POST")
+    const contatosCall = findCall(
+      fetchMock.calls,
+      "/api/admin/email-massa/listas/1/contatos",
+      "POST"
+    )
     expect(contatosCall).toBeTruthy()
     expect(contatosCall!.body.contatos).toHaveLength(3)
     expect(contatosCall!.body.contatos.map((c: any) => c.email)).toEqual([
@@ -114,7 +124,9 @@ describe("ListasTab", () => {
     renderPage(<ListasTab onListaDeletada={() => {}} />)
     await abrirEdicao()
 
-    expect(screen.getByText("205 contato(s) — exibindo 200, use a busca para refinar")).toBeInTheDocument()
+    expect(
+      screen.getByText("205 contato(s) — exibindo 200, use a busca para refinar")
+    ).toBeInTheDocument()
     expect(screen.getAllByRole("row")).toHaveLength(201)
   })
 
@@ -129,7 +141,11 @@ describe("ListasTab", () => {
     fireEvent.click(screen.getByRole("button", { name: "Deletar" }))
 
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Lista deletada"))
-    expect(fetchMock.calls.some((c) => c.method === "DELETE" && c.url === "/api/admin/email-massa/listas/1")).toBe(true)
+    expect(
+      fetchMock.calls.some(
+        (c) => c.method === "DELETE" && c.url === "/api/admin/email-massa/listas/1"
+      )
+    ).toBe(true)
     expect(onListaDeletada).toHaveBeenCalledWith(1)
   })
 

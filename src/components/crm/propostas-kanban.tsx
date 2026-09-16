@@ -3,7 +3,14 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
+import {
+  DndContext,
+  DragOverlay,
+  useDraggable,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
 import { useStatuses, type StatusConfig } from "@/hooks/use-statuses"
 import { DroppableColumn, KanbanSkeleton } from "./kanban-column"
 
@@ -16,14 +23,20 @@ interface PropostaCard {
   status: string
 }
 
-const DEFAULT_STATUSES: Array<{ nome: string; rotulo: string | null; cor: string | null; ativo: boolean }> = [
+const DEFAULT_STATUSES: Array<{
+  nome: string
+  rotulo: string | null
+  cor: string | null
+  ativo: boolean
+}> = [
   { nome: "ENVIADA", rotulo: "Enviada", cor: "#3b82f6", ativo: true },
   { nome: "ACEITA", rotulo: "Aceita", cor: "#22c55e", ativo: true },
   { nome: "RECUSADA", rotulo: "Recusada", cor: "#ef4444", ativo: true },
   { nome: "REVISAO", rotulo: "Em Revisão", cor: "#f59e0b", ativo: true },
 ]
 
-type KanbanStatus = StatusConfig | { nome: string; rotulo: string | null; cor: string | null; ativo: boolean }
+type KanbanStatus =
+  StatusConfig | { nome: string; rotulo: string | null; cor: string | null; ativo: boolean }
 
 const valorFormatter = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" })
 
@@ -39,10 +52,12 @@ function DraggableCard({ proposta }: { proposta: PropostaCard }) {
     data: { proposta },
   })
 
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    zIndex: 50,
-  } : undefined
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        zIndex: 50,
+      }
+    : undefined
 
   const handleClick = () => {
     router.push(`/comercial/crm/propostas/${proposta.id}`)
@@ -65,7 +80,9 @@ function DraggableCard({ proposta }: { proposta: PropostaCard }) {
         {proposta.titulo}
       </p>
       {(proposta.empresaNome || proposta.clienteNome) && (
-        <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{proposta.empresaNome || proposta.clienteNome}</p>
+        <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
+          {proposta.empresaNome || proposta.clienteNome}
+        </p>
       )}
       {valorFormatado && (
         <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
@@ -81,11 +98,11 @@ export default function PropostasKanban({ propostas }: { propostas: PropostaCard
   const [activeCard, setActiveCard] = useState<PropostaCard | null>(null)
   const [cards, setCards] = useState<PropostaCard[]>(propostas || [])
 
-  useEffect(() => { setCards(propostas || []) }, [propostas])
+  useEffect(() => {
+    setCards(propostas || [])
+  }, [propostas])
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  )
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   const hasStatuses = statuses.length > 0
   const effectiveStatuses = hasStatuses ? statuses : DEFAULT_STATUSES
@@ -133,8 +150,8 @@ export default function PropostasKanban({ propostas }: { propostas: PropostaCard
 
     const statusAntigo = proposta.status
 
-    setCards(prev =>
-      prev.map((p: PropostaCard) => p.id === proposta.id ? { ...p, status: novoStatus } : p)
+    setCards((prev) =>
+      prev.map((p: PropostaCard) => (p.id === proposta.id ? { ...p, status: novoStatus } : p))
     )
 
     try {
@@ -149,8 +166,8 @@ export default function PropostasKanban({ propostas }: { propostas: PropostaCard
       }
       toast.success(`Proposta movida para ${getLabel(novoStatus)}`)
     } catch (err: unknown) {
-      setCards(prev =>
-        prev.map((p: PropostaCard) => p.id === proposta.id ? { ...p, status: statusAntigo } : p)
+      setCards((prev) =>
+        prev.map((p: PropostaCard) => (p.id === proposta.id ? { ...p, status: statusAntigo } : p))
       )
       toast.error(err instanceof Error ? err.message : "Erro ao alterar status")
     }
@@ -165,7 +182,13 @@ export default function PropostasKanban({ propostas }: { propostas: PropostaCard
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto pb-2">
           {colunas.map((col) => (
-            <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo || col.nome} cor={col.cor} count={col.cards.length}>
+            <DroppableColumn
+              key={col.nome}
+              id={col.nome}
+              rotulo={col.rotulo || col.nome}
+              cor={col.cor}
+              count={col.cards.length}
+            >
               {col.cards.map((card) => (
                 <DraggableCard key={`prop-${card.id}`} proposta={card} />
               ))}
@@ -177,7 +200,11 @@ export default function PropostasKanban({ propostas }: { propostas: PropostaCard
           <DragOverlay>
             <div className="bg-white dark:bg-slate-800 rounded-lg border border-blue-400 shadow-xl p-3 w-72 opacity-90">
               <p className="text-sm font-medium text-slate-900">{activeCard.titulo}</p>
-              {(activeCard.empresaNome || activeCard.clienteNome) && <p className="text-xs text-slate-500 mt-0.5">{activeCard.empresaNome || activeCard.clienteNome}</p>}
+              {(activeCard.empresaNome || activeCard.clienteNome) && (
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {activeCard.empresaNome || activeCard.clienteNome}
+                </p>
+              )}
             </div>
           </DragOverlay>
         )}

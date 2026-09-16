@@ -38,11 +38,5 @@ export function AnimatedLine({
     return () => clearTimeout(timer)
   }, [drawDuration, drawDelay])
 
-  return (
-    <Line
-      {...props}
-      strokeDasharray="1500"
-      strokeDashoffset={dashOffset}
-    />
-  )
+  return <Line {...props} strokeDasharray="1500" strokeDashoffset={dashOffset} />
 }

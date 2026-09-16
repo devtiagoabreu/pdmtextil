@@ -3,7 +3,14 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
+import {
+  DndContext,
+  DragOverlay,
+  useDraggable,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
 import { Loader2 } from "lucide-react"
 import { useStatuses } from "@/hooks/use-statuses"
 import { DroppableColumn, KanbanSkeleton } from "./kanban-column"
@@ -49,10 +56,12 @@ function DraggableCard({ tarefa }: { tarefa: TarefaCard }) {
     data: { tarefa },
   })
 
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    zIndex: 50,
-  } : undefined
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        zIndex: 50,
+      }
+    : undefined
 
   const handleClick = () => {
     router.push(`/comercial/crm/tarefas/${tarefa.id}`)
@@ -70,7 +79,9 @@ function DraggableCard({ tarefa }: { tarefa: TarefaCard }) {
       }`}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${TIPO_CORES[tarefa.tipo] || ""}`}>
+        <span
+          className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${TIPO_CORES[tarefa.tipo] || ""}`}
+        >
           {TIPO_LABELS[tarefa.tipo] || tarefa.tipo}
         </span>
         {tarefa.dataPrevista && (
@@ -83,9 +94,7 @@ function DraggableCard({ tarefa }: { tarefa: TarefaCard }) {
       {tarefa.descricao && (
         <p className="text-xs text-slate-500 mt-0.5 line-clamp-2">{tarefa.descricao}</p>
       )}
-      {tarefa.empresaNome && (
-        <p className="text-xs text-slate-400 mt-1">{tarefa.empresaNome}</p>
-      )}
+      {tarefa.empresaNome && <p className="text-xs text-slate-400 mt-1">{tarefa.empresaNome}</p>}
     </div>
   )
 }
@@ -95,11 +104,11 @@ export default function TarefasKanban({ tarefas }: { tarefas: TarefaCard[] }) {
   const [activeCard, setActiveCard] = useState<TarefaCard | null>(null)
   const [cards, setCards] = useState<TarefaCard[]>(tarefas || [])
 
-  useEffect(() => { setCards(tarefas || []) }, [tarefas])
+  useEffect(() => {
+    setCards(tarefas || [])
+  }, [tarefas])
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  )
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   const hasStatuses = statuses.length > 0
   const effectiveStatuses = hasStatuses ? statuses : DEFAULT_STATUSES
@@ -147,8 +156,8 @@ export default function TarefasKanban({ tarefas }: { tarefas: TarefaCard[] }) {
 
     const statusAntigo = tarefa.status
 
-    setCards(prev =>
-      prev.map((t: any) => t.id === tarefa.id ? { ...t, status: novoStatus } : t)
+    setCards((prev) =>
+      prev.map((t: any) => (t.id === tarefa.id ? { ...t, status: novoStatus } : t))
     )
 
     try {
@@ -163,8 +172,8 @@ export default function TarefasKanban({ tarefas }: { tarefas: TarefaCard[] }) {
       }
       toast.success(`Tarefa movida para ${getLabel(novoStatus)}`)
     } catch (err: any) {
-      setCards(prev =>
-        prev.map((t: any) => t.id === tarefa.id ? { ...t, status: statusAntigo } : t)
+      setCards((prev) =>
+        prev.map((t: any) => (t.id === tarefa.id ? { ...t, status: statusAntigo } : t))
       )
       toast.error(err.message)
     }
@@ -179,7 +188,13 @@ export default function TarefasKanban({ tarefas }: { tarefas: TarefaCard[] }) {
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto pb-2">
           {colunas.map((col: any) => (
-            <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo || col.nome} cor={col.cor} count={col.cards.length}>
+            <DroppableColumn
+              key={col.nome}
+              id={col.nome}
+              rotulo={col.rotulo || col.nome}
+              cor={col.cor}
+              count={col.cards.length}
+            >
               {col.cards.map((card: any) => (
                 <DraggableCard key={`tar-${card.id}`} tarefa={card} />
               ))}

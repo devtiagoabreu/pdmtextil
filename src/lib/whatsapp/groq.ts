@@ -33,7 +33,25 @@ function extrairJsonDoConteudo(conteudo: string): Record<string, any> | null {
   }
 }
 
-const NOMES_INVALIDOS = new Set(["ola", "olá", "oi", "oe", "eai", "e aí", "cliente", "anonimo", "anônimo", "bom dia", "boa tarde", "boa noite", "usuario", "usuário", "nao informado", "não informado", "sem nome"])
+const NOMES_INVALIDOS = new Set([
+  "ola",
+  "olá",
+  "oi",
+  "oe",
+  "eai",
+  "e aí",
+  "cliente",
+  "anonimo",
+  "anônimo",
+  "bom dia",
+  "boa tarde",
+  "boa noite",
+  "usuario",
+  "usuário",
+  "nao informado",
+  "não informado",
+  "sem nome",
+])
 
 function nomeValido(nome: unknown): string | undefined {
   if (typeof nome !== "string") return undefined
@@ -102,10 +120,10 @@ pushName do contato (pode ser nome real): ${pushName}
 
 JSON:`
 
-  const resultado = await chamarIA(
-    [{ role: "user" as const, content: prompt }],
-    { temperatura: 0, maxTokens: 200 }
-  )
+  const resultado = await chamarIA([{ role: "user" as const, content: prompt }], {
+    temperatura: 0,
+    maxTokens: 200,
+  })
 
   const dados = extrairJsonDoConteudo(resultado.conteudo)
 
@@ -114,8 +132,12 @@ JSON:`
     tipoPessoa: tipoValido(dados?.tipoPessoa),
     documento: docValido(dados?.documento),
     email: typeof dados?.email === "string" && dados.email.trim() ? dados.email.trim() : undefined,
-    empresa: typeof dados?.empresa === "string" && dados.empresa.trim() ? dados.empresa.trim() : undefined,
-    telefone: typeof dados?.telefone === "string" ? dados.telefone.replace(/\D/g, "") || undefined : undefined,
+    empresa:
+      typeof dados?.empresa === "string" && dados.empresa.trim() ? dados.empresa.trim() : undefined,
+    telefone:
+      typeof dados?.telefone === "string"
+        ? dados.telefone.replace(/\D/g, "") || undefined
+        : undefined,
     linhasInteresse: linhasValidas(dados?.linhasInteresse),
   }
 }

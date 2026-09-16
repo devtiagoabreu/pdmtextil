@@ -26,13 +26,19 @@ describe("ProcessoSiteFormPage", () => {
       await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Nome é obrigatório"))
       expect(findCall(fetchMock.calls, "/api/processos/sites", "POST")).toBeUndefined()
 
-      fireEvent.change(screen.getByPlaceholderText("Unidade PDM Têxtil"), { target: { value: "Unidade Blumenau" } })
+      fireEvent.change(screen.getByPlaceholderText("Unidade PDM Têxtil"), {
+        target: { value: "Unidade Blumenau" },
+      })
       fireEvent.submit(form)
       await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Selecione a empresa"))
       expect(findCall(fetchMock.calls, "/api/processos/sites", "POST")).toBeUndefined()
 
-      fireEvent.change(screen.getByRole("combobox", { name: "Empresa *" }), { target: { value: "1" } })
-      fireEvent.change(screen.getByPlaceholderText("Unidade PDM Têxtil"), { target: { value: "Unidade Blumenau" } })
+      fireEvent.change(screen.getByRole("combobox", { name: "Empresa *" }), {
+        target: { value: "1" },
+      })
+      fireEvent.change(screen.getByPlaceholderText("Unidade PDM Têxtil"), {
+        target: { value: "Unidade Blumenau" },
+      })
       fireEvent.submit(form)
 
       await waitFor(() => {
@@ -79,9 +85,13 @@ describe("ProcessoSiteFormPage", () => {
       renderPage(<ProcessoSiteFormPage />)
 
       expect(await screen.findByDisplayValue("Unidade Blumenau")).toBeDefined()
-      expect((screen.getByRole("combobox", { name: "Empresa *" }) as HTMLSelectElement).value).toBe("1")
+      expect((screen.getByRole("combobox", { name: "Empresa *" }) as HTMLSelectElement).value).toBe(
+        "1"
+      )
 
-      fireEvent.change(screen.getByDisplayValue("Unidade Blumenau"), { target: { value: "Unidade Blumenau 2" } })
+      fireEvent.change(screen.getByDisplayValue("Unidade Blumenau"), {
+        target: { value: "Unidade Blumenau 2" },
+      })
       fireEvent.click(screen.getByRole("button", { name: /Atualizar/ }))
 
       await waitFor(() => expect(navMock.router.push).toHaveBeenCalledWith("/processos/sites"))

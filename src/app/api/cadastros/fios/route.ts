@@ -11,10 +11,7 @@ export async function GET() {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
-    const rows = await db
-      .select()
-      .from(fios)
-      .orderBy(fios.nome)
+    const rows = await db.select().from(fios).orderBy(fios.nome)
 
     return NextResponse.json(rows)
   } catch (error) {
@@ -24,8 +21,8 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   const auth = await requireAuth()
-  const session = (auth instanceof NextResponse) ? null : auth.session
-  const userIdResult = (auth instanceof NextResponse) ? null : auth.userId
+  const session = auth instanceof NextResponse ? null : auth.session
+  const userIdResult = auth instanceof NextResponse ? null : auth.userId
   try {
     if (auth instanceof NextResponse) return auth
 

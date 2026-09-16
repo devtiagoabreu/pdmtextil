@@ -30,7 +30,12 @@ describe("adquirirLockConversa — lead existente retornando", () => {
   })
 
   it("lead existente COM empresaNome → estado inicial AGUARDANDO_REPRESENTANTE com razaoSocial", async () => {
-    const insertBuilder = setupMock({ id: 9, nome: "Loja X", empresaNome: "Loja X LTDA", tipoPessoa: "PJ" })
+    const insertBuilder = setupMock({
+      id: 9,
+      nome: "Loja X",
+      empresaNome: "Loja X LTDA",
+      tipoPessoa: "PJ",
+    })
 
     const res = await adquirirLockConversa("5519999999999@s.whatsapp.net")
 

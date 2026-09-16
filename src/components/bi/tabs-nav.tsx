@@ -20,7 +20,7 @@ interface Props {
 export function TabsNav({ activeTab, setActiveTab }: Props) {
   return (
     <div className="flex gap-1 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-1">
-      {TABS.map(tab => (
+      {TABS.map((tab) => (
         <button
           key={tab.id}
           onClick={() => setActiveTab(tab.id)}

@@ -8,7 +8,10 @@ describe("DocumentosPage", () => {
   it("renderiza o heading e os módulos de documentos", () => {
     renderPage(<DocumentosPage />)
     expect(screen.getByRole("heading", { name: "Documentos" })).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: /Romaneios/ })).toHaveAttribute("href", "/documentos/romaneios")
+    expect(screen.getByRole("link", { name: /Romaneios/ })).toHaveAttribute(
+      "href",
+      "/documentos/romaneios"
+    )
     expect(screen.getByText("Pré-DANFE")).toBeInTheDocument()
     expect(screen.getByText("Pedidos de Venda")).toBeInTheDocument()
   })

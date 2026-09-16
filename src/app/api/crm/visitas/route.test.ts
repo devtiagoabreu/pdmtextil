@@ -9,7 +9,14 @@ import { POST } from "./route"
 
 vi.mock("@/lib/auth", () => ({ requireAuth: vi.fn() }))
 vi.mock("@/lib/db", () => ({
-  db: { select: vi.fn(), insert: vi.fn(), update: vi.fn(), delete: vi.fn(), execute: vi.fn(), transaction: vi.fn() },
+  db: {
+    select: vi.fn(),
+    insert: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    execute: vi.fn(),
+    transaction: vi.fn(),
+  },
 }))
 vi.mock("@/lib/crm/geocode", () => ({ geocodificarCamposEndereco: vi.fn() }))
 vi.mock("@/lib/notificar", () => ({ registrarLog: vi.fn(), notificar: vi.fn() }))
@@ -55,8 +62,15 @@ describe("POST /api/crm/visitas", () => {
   }
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
-    const res = await POST(new NextRequest("http://localhost/api/crm/visitas", { method: "POST", body: JSON.stringify({}) }))
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
+    const res = await POST(
+      new NextRequest("http://localhost/api/crm/visitas", {
+        method: "POST",
+        body: JSON.stringify({}),
+      })
+    )
     expect(res.status).toBe(401)
   })
 
@@ -80,7 +94,14 @@ describe("POST /api/crm/visitas", () => {
     )
 
     expect(res.status).toBe(201)
-    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({ endereco: "Av. X", numero: "100", complemento: null, bairro: "Centro", cidade: "Goiânia", uf: "GO" })
+    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({
+      endereco: "Av. X",
+      numero: "100",
+      complemento: null,
+      bairro: "Centro",
+      cidade: "Goiânia",
+      uf: "GO",
+    })
     expect(db.update).toHaveBeenCalledTimes(1)
     const body = await res.json()
     expect(body.visita.enderecoLat).toBe(-16.82)
@@ -89,7 +110,11 @@ describe("POST /api/crm/visitas", () => {
 
   it("geocodifica uma única vez e aplica as coordenadas em todas as recorrências", async () => {
     vi.mocked(geocodificarCamposEndereco).mockResolvedValue({ latitude: -16.82, longitude: -49.25 })
-    mockInsert([visitaInserted(1), visitaInserted(2, { id: 2, dataVisita: "2026-08-17" }), visitaInserted(3, { id: 3, dataVisita: "2026-08-24" })])
+    mockInsert([
+      visitaInserted(1),
+      visitaInserted(2, { id: 2, dataVisita: "2026-08-17" }),
+      visitaInserted(3, { id: 3, dataVisita: "2026-08-24" }),
+    ])
     ;(db.update as ReturnType<typeof vi.fn>).mockReturnValue(createQueryBuilder(undefined))
 
     const res = await POST(
@@ -116,11 +141,20 @@ describe("POST /api/crm/visitas", () => {
 
   it("usa o endereço da pessoa (empresa) quando a visita não tem endereço", async () => {
     vi.mocked(geocodificarCamposEndereco).mockResolvedValue({ latitude: -16.68, longitude: -49.26 })
-    mockInsert([visitaInserted(1, { endereco: null, numero: null, bairro: null, cidade: null, uf: null })])
+    mockInsert([
+      visitaInserted(1, { endereco: null, numero: null, bairro: null, cidade: null, uf: null }),
+    ])
 
     ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(
       createQueryBuilder([
-        { endereco: "Av. das Empresas", numero: "500", complemento: null, bairro: "Industrial", cidade: "Aparecida de Goiânia", uf: "GO" },
+        {
+          endereco: "Av. das Empresas",
+          numero: "500",
+          complemento: null,
+          bairro: "Industrial",
+          cidade: "Aparecida de Goiânia",
+          uf: "GO",
+        },
       ])
     )
     ;(db.update as ReturnType<typeof vi.fn>).mockReturnValue(createQueryBuilder(undefined))
@@ -133,11 +167,20 @@ describe("POST /api/crm/visitas", () => {
     )
 
     expect(res.status).toBe(201)
-    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({ endereco: "Av. das Empresas", numero: "500", complemento: null, bairro: "Industrial", cidade: "Aparecida de Goiânia", uf: "GO" })
+    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({
+      endereco: "Av. das Empresas",
+      numero: "500",
+      complemento: null,
+      bairro: "Industrial",
+      cidade: "Aparecida de Goiânia",
+      uf: "GO",
+    })
   })
 
   it("não geocodifica nem atualiza quando não há endereço em nenhuma origem", async () => {
-    mockInsert([visitaInserted(1, { endereco: null, numero: null, bairro: null, cidade: null, uf: null })])
+    mockInsert([
+      visitaInserted(1, { endereco: null, numero: null, bairro: null, cidade: null, uf: null }),
+    ])
 
     const update = db.update as ReturnType<typeof vi.fn>
     const res = await POST(

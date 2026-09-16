@@ -27,32 +27,32 @@ const campoMap: Record<string, keyof CorImport> = {
 function parseCSV(texto: string): CorImport[] {
   const textoNormalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
   const linhas = textoNormalizado.split("\n").filter((l: any) => l.trim())
-  
+
   if (linhas.length < 2) return []
 
   const separador = texto.includes(";") ? ";" : ","
   const cabecalho = linhas[0].split(separador).map((c: any) => c.trim().toLowerCase())
-  
+
   const dados: CorImport[] = []
 
   for (let i = 1; i < linhas.length; i++) {
     const linha = linhas[i]
     if (!linha.trim()) continue
-    
+
     const valores = linha.split(separador).map((v: any) => v.trim())
-    
+
     const item: CorImport = {}
-    
+
     for (let j = 0; j < cabecalho.length; j++) {
       const campoOriginal = cabecalho[j]
       const campoNormalizado = campoMap[campoOriginal]
       const valor = valores[j]
-      
+
       if (campoNormalizado && valor !== undefined && valor.length > 0) {
-        (item as any)[campoNormalizado] = valor
+        ;(item as any)[campoNormalizado] = valor
       }
     }
-    
+
     if (item.codigo || item.nome) {
       dados.push(item)
     }
@@ -95,11 +95,17 @@ export async function POST(req: NextRequest) {
     } else if (nomeArquivo.endsWith(".json")) {
       registros = parseJSON(texto)
     } else {
-      return NextResponse.json({ error: "Formato não suportado. Use CSV ou JSON." }, { status: 400 })
+      return NextResponse.json(
+        { error: "Formato não suportado. Use CSV ou JSON." },
+        { status: 400 }
+      )
     }
 
     if (registros.length === 0) {
-      return NextResponse.json({ error: "Nenhum registro válido encontrado no arquivo" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Nenhum registro válido encontrado no arquivo" },
+        { status: 400 }
+      )
     }
 
     const resultados = {
@@ -108,7 +114,7 @@ export async function POST(req: NextRequest) {
       erros: [] as { linha: number; erro: string }[],
     }
 
-    const paraInserir: typeof coresSolidas.$inferInsert[] = []
+    const paraInserir: (typeof coresSolidas.$inferInsert)[] = []
 
     for (let i = 0; i < registros.length; i++) {
       const reg = registros[i]
@@ -137,7 +143,10 @@ export async function POST(req: NextRequest) {
           .limit(1)
 
         if (existenteIdInt[0]) {
-          resultados.erros.push({ linha: i + 2, erro: `ID Integração ${reg.idIntegracao} já existe` })
+          resultados.erros.push({
+            linha: i + 2,
+            erro: `ID Integração ${reg.idIntegracao} já existe`,
+          })
           continue
         }
       }

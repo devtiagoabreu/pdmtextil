@@ -5,7 +5,13 @@ import RomaneiosPage from "./page"
 import { createFetchMock, navMock, renderPage } from "@/test/harness"
 
 const integracoes = [
-  { id: 1, nome: "ERP Principal", baseUrl: "http://erp.local", tipoAuth: "token", telas: ["romaneios"] },
+  {
+    id: 1,
+    nome: "ERP Principal",
+    baseUrl: "http://erp.local",
+    tipoAuth: "token",
+    telas: ["romaneios"],
+  },
 ]
 
 const rolos = [

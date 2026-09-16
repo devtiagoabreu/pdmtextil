@@ -3,13 +3,15 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { clientes } from "@/lib/db/schema/clientes"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
-import { produtosCru, produtoCruAmostra, produtoCruAcabamento, produtoCruAcabamentoAmostra } from "@/lib/db/schema/produto-cru"
+import {
+  produtosCru,
+  produtoCruAmostra,
+  produtoCruAcabamento,
+  produtoCruAcabamentoAmostra,
+} from "@/lib/db/schema/produto-cru"
 import { eq, desc, or, inArray } from "drizzle-orm"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -31,12 +33,7 @@ export async function GET(
     const solicitacoesList = await db
       .select({ id: solicitacoes.id })
       .from(solicitacoes)
-      .where(
-        or(
-          eq(solicitacoes.cliente, c.nome),
-          eq(solicitacoes.cnpj, c.cnpj)
-        )
-      )
+      .where(or(eq(solicitacoes.cliente, c.nome), eq(solicitacoes.cnpj, c.cnpj)))
 
     if (solicitacoesList.length === 0) {
       return NextResponse.json({ tecidoCru: [], acabamento: [] })
@@ -45,7 +42,12 @@ export async function GET(
     const solicitacaoIds = solicitacoesList.map((s: any) => s.id)
 
     const produtos = await db
-      .select({ id: produtosCru.id, codigoPdm: produtosCru.codigoPdm, descricao: produtosCru.descricao, solicitacaoDesenvolvimentoId: produtosCru.solicitacaoDesenvolvimentoId })
+      .select({
+        id: produtosCru.id,
+        codigoPdm: produtosCru.codigoPdm,
+        descricao: produtosCru.descricao,
+        solicitacaoDesenvolvimentoId: produtosCru.solicitacaoDesenvolvimentoId,
+      })
       .from(produtosCru)
       .where(inArray(produtosCru.solicitacaoDesenvolvimentoId, solicitacaoIds))
 
@@ -94,7 +96,10 @@ export async function GET(
           solicitacaoDesenvolvimentoId: produtosCru.solicitacaoDesenvolvimentoId,
         })
         .from(produtoCruAcabamentoAmostra)
-        .innerJoin(produtoCruAcabamento, eq(produtoCruAcabamentoAmostra.acabamentoId, produtoCruAcabamento.id))
+        .innerJoin(
+          produtoCruAcabamento,
+          eq(produtoCruAcabamentoAmostra.acabamentoId, produtoCruAcabamento.id)
+        )
         .innerJoin(produtosCru, eq(produtoCruAcabamento.produtoCruId, produtosCru.id))
         .where(inArray(produtoCruAcabamentoAmostra.acabamentoId, acIds))
         .orderBy(desc(produtoCruAcabamentoAmostra.createdAt))

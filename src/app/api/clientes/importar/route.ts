@@ -35,32 +35,32 @@ const campoMap: Record<string, keyof ClienteImport> = {
 function parseCSV(texto: string): ClienteImport[] {
   const textoNormalizado = texto.replace(/\r\n/g, "\n").replace(/\r/g, "\n")
   const linhas = textoNormalizado.split("\n").filter((l: any) => l.trim())
-  
+
   if (linhas.length < 2) return []
 
   const separador = texto.includes(";") ? ";" : ","
   const cabecalho = linhas[0].split(separador).map((c: any) => c.trim().toLowerCase())
-  
+
   const dados: ClienteImport[] = []
 
   for (let i = 1; i < linhas.length; i++) {
     const linha = linhas[i]
     if (!linha.trim()) continue
-    
+
     const valores = linha.split(separador).map((v: any) => v.trim())
-    
+
     const item: ClienteImport = {}
-    
+
     for (let j = 0; j < cabecalho.length; j++) {
       const campoOriginal = cabecalho[j]
       const campoNormalizado = campoMap[campoOriginal]
       const valor = valores[j]
-      
+
       if (campoNormalizado && valor !== undefined && valor.length > 0) {
-        (item as any)[campoNormalizado] = valor
+        ;(item as any)[campoNormalizado] = valor
       }
     }
-    
+
     if (item.nome || item.cnpj) {
       dados.push(item)
     }
@@ -103,11 +103,17 @@ export async function POST(req: NextRequest) {
     } else if (nomeArquivo.endsWith(".json")) {
       registros = parseJSON(texto)
     } else {
-      return NextResponse.json({ error: "Formato não suportado. Use CSV ou JSON." }, { status: 400 })
+      return NextResponse.json(
+        { error: "Formato não suportado. Use CSV ou JSON." },
+        { status: 400 }
+      )
     }
 
     if (registros.length === 0) {
-      return NextResponse.json({ error: "Nenhum registro válido encontrado no arquivo" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Nenhum registro válido encontrado no arquivo" },
+        { status: 400 }
+      )
     }
 
     const resultados = {
@@ -116,7 +122,7 @@ export async function POST(req: NextRequest) {
       erros: [] as { linha: number; erro: string }[],
     }
 
-    const paraInserir: typeof clientes.$inferInsert[] = []
+    const paraInserir: (typeof clientes.$inferInsert)[] = []
 
     for (let i = 0; i < registros.length; i++) {
       const reg = registros[i]
@@ -126,11 +132,7 @@ export async function POST(req: NextRequest) {
         continue
       }
 
-      const existente = await db
-        .select()
-        .from(clientes)
-        .where(eq(clientes.cnpj, reg.cnpj))
-        .limit(1)
+      const existente = await db.select().from(clientes).where(eq(clientes.cnpj, reg.cnpj)).limit(1)
 
       if (existente[0]) {
         resultados.erros.push({ linha: i + 2, erro: `Cliente com CNPJ ${reg.cnpj} já existe` })

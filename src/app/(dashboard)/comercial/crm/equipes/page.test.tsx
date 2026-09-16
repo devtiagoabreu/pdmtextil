@@ -49,17 +49,31 @@ const membros = [
 function buildHandler() {
   return ({ method, url }: { method: string; url: string }) => {
     if (method === "GET" && url === "/api/crm/equipes") return { json: equipes }
-    if (method === "GET" && url === "/api/crm/regioes") return { json: [{ id: 1, nome: "São Paulo", uf: "SP", ativo: true }] }
-    if (method === "GET" && url === "/api/usuarios/ativos") return { json: [{ id: 2, name: "Tiago" }] }
+    if (method === "GET" && url === "/api/crm/regioes")
+      return { json: [{ id: 1, nome: "São Paulo", uf: "SP", ativo: true }] }
+    if (method === "GET" && url === "/api/usuarios/ativos")
+      return { json: [{ id: 2, name: "Tiago" }] }
     if (method === "GET" && url === "/api/crm/equipes/1/membros") return { json: membros }
     if (method === "GET" && url.startsWith("/api/representantes?q=")) {
-      return { json: [{ id: 9, nome: "Malharia Tupiniquim", cnpj: "98.765.432/0001-10", cidade: "São Paulo", uf: "SP" }] }
+      return {
+        json: [
+          {
+            id: 9,
+            nome: "Malharia Tupiniquim",
+            cnpj: "98.765.432/0001-10",
+            cidade: "São Paulo",
+            uf: "SP",
+          },
+        ],
+      }
     }
     if (method === "POST" && url === "/api/crm/equipes") return { json: { id: 3 }, status: 201 }
-    if (method === "POST" && url === "/api/crm/equipes/1/membros") return { json: { id: 99 }, status: 201 }
+    if (method === "POST" && url === "/api/crm/equipes/1/membros")
+      return { json: { id: 99 }, status: 201 }
     if (method === "PUT" && url === "/api/crm/equipes/1") return { json: {} }
     if (method === "DELETE" && url === "/api/crm/equipes/1") return { json: { success: true } }
-    if (method === "DELETE" && url === "/api/crm/equipes/1/membros?membroId=5") return { json: { success: true } }
+    if (method === "DELETE" && url === "/api/crm/equipes/1/membros?membroId=5")
+      return { json: { success: true } }
     return { json: null }
   }
 }
@@ -89,7 +103,9 @@ describe("EquipesPage", () => {
   it("filtra equipes pela busca", async () => {
     await screen.findByText("Equipe Premium")
 
-    fireEvent.change(screen.getByPlaceholderText("Buscar equipe..."), { target: { value: "Interior" } })
+    fireEvent.change(screen.getByPlaceholderText("Buscar equipe..."), {
+      target: { value: "Interior" },
+    })
 
     expect(screen.getByText("Equipe Interior")).toBeInTheDocument()
     expect(screen.queryByText("Equipe Premium")).not.toBeInTheDocument()
@@ -102,7 +118,9 @@ describe("EquipesPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Nova Equipe" }))
     await screen.findByRole("heading", { name: "Nova Equipe" })
 
-    fireEvent.change(screen.getByPlaceholderText("Ex: Equipe Premium"), { target: { value: "Equipe Norte" } })
+    fireEvent.change(screen.getByPlaceholderText("Ex: Equipe Premium"), {
+      target: { value: "Equipe Norte" },
+    })
     await screen.findByRole("option", { name: "São Paulo (SP)" })
     fireEvent.change(screen.getAllByRole("combobox")[0], { target: { value: "1" } })
     fireEvent.change(screen.getAllByRole("combobox")[1], { target: { value: "2" } })
@@ -114,7 +132,9 @@ describe("EquipesPage", () => {
       expect(call).toBeDefined()
       expect(call!.body).toEqual({ nome: "Equipe Norte", regiaoId: 1, responsavelId: 2 })
     })
-    await waitFor(() => expect(screen.queryByRole("heading", { name: "Nova Equipe" })).not.toBeInTheDocument())
+    await waitFor(() =>
+      expect(screen.queryByRole("heading", { name: "Nova Equipe" })).not.toBeInTheDocument()
+    )
   })
 
   it("edita uma equipe via PUT", async () => {
@@ -143,7 +163,9 @@ describe("EquipesPage", () => {
     const dialog = await screen.findByRole("dialog", { name: "Excluir equipe?" })
     fireEvent.click(within(dialog).getByRole("button", { name: "Excluir" }))
 
-    await waitFor(() => expect(findCall(fetchMock.calls, "/api/crm/equipes/1", "DELETE")).toBeDefined())
+    await waitFor(() =>
+      expect(findCall(fetchMock.calls, "/api/crm/equipes/1", "DELETE")).toBeDefined()
+    )
   })
 
   it("abre o detalhe da equipe e adiciona um representante", async () => {
@@ -169,7 +191,9 @@ describe("EquipesPage", () => {
       expect(call).toBeDefined()
       expect(call!.body).toEqual({ representanteId: 9 })
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Representante adicionado à equipe"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Representante adicionado à equipe")
+    )
   })
 
   it("remove um representante da equipe", async () => {
@@ -183,8 +207,14 @@ describe("EquipesPage", () => {
     const dialog = await screen.findByRole("dialog", { name: "Remover membro da equipe" })
     fireEvent.click(within(dialog).getByRole("button", { name: "Remover" }))
 
-    await waitFor(() => expect(findCall(fetchMock.calls, "/api/crm/equipes/1/membros?membroId=5", "DELETE")).toBeDefined())
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Representante removido da equipe"))
+    await waitFor(() =>
+      expect(
+        findCall(fetchMock.calls, "/api/crm/equipes/1/membros?membroId=5", "DELETE")
+      ).toBeDefined()
+    )
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Representante removido da equipe")
+    )
   })
 
   it("volta para a lista de equipes a partir do detalhe", async () => {
@@ -199,14 +229,3 @@ describe("EquipesPage", () => {
     expect(screen.getByText("Equipe Interior")).toBeInTheDocument()
   })
 })
-
-
-
-
-
-
-
-
-
-
-

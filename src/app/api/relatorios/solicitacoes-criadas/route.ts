@@ -35,26 +35,28 @@ export async function GET(req: NextRequest) {
     const fd = filtro("created_at")
     const fdc = filtro("data_conclusao")
 
-    const agregado = (await rows(sql`
+    const agregado = (
+      await rows(sql`
       SELECT
         COUNT(*)::int AS total,
         COUNT(*) FILTER (WHERE status IN ('CONCLUIDO', 'CONCLUIDO_DEV', 'APROVADO_CLI'))::int AS concluidas,
         COUNT(*) FILTER (WHERE status NOT IN ('CONCLUIDO', 'CONCLUIDO_DEV', 'APROVADO_CLI'))::int AS em_andamento
       FROM solicitacoes WHERE ${fc}
-    `))[0] || { total: 0, concluidas: 0, em_andamento: 0 }
+    `)
+    )[0] || { total: 0, concluidas: 0, em_andamento: 0 }
 
-    const deletado = (await rows(sql`
+    const deletado = (
+      await rows(sql`
       SELECT COUNT(*)::int AS total FROM logs
       WHERE tipo = 'DELECAO' AND entidade = 'Solicitação' AND ${fd}
-    `))[0] || { total: 0 }
+    `)
+    )[0] || { total: 0 }
 
     const totalCriadas = Number(agregado.total ?? 0)
     const totalDeletadas = Number(deletado.total ?? 0)
     const concluidas = Number(agregado.concluidas ?? 0)
     const emAndamento = Number(agregado.em_andamento ?? 0)
-    const taxaSucesso = totalCriadas > 0
-      ? Math.round((concluidas / totalCriadas) * 10000) / 100
-      : 0
+    const taxaSucesso = totalCriadas > 0 ? Math.round((concluidas / totalCriadas) * 10000) / 100 : 0
 
     const porMes = await rows(sql`
       SELECT TO_CHAR(created_at, 'YYYY-MM') AS mes, COUNT(*)::int AS criadas
@@ -75,7 +77,8 @@ export async function GET(req: NextRequest) {
     `)
 
     const mesMap: Record<string, any> = {}
-    for (const r of porMes) mesMap[r.mes] = { mes: r.mes, criadas: Number(r.criadas), deletadas: 0, concluidas: 0 }
+    for (const r of porMes)
+      mesMap[r.mes] = { mes: r.mes, criadas: Number(r.criadas), deletadas: 0, concluidas: 0 }
     for (const r of deletadasPorMes) {
       if (!mesMap[r.mes]) mesMap[r.mes] = { mes: r.mes, criadas: 0, deletadas: 0, concluidas: 0 }
       mesMap[r.mes].deletadas = Number(r.deletadas)
@@ -104,9 +107,12 @@ export async function GET(req: NextRequest) {
     })
   } catch (error) {
     console.error("[GET /api/relatorios/solicitacoes-criadas]", error)
-    return NextResponse.json({
-      error: "Erro interno",
-      detail: "Erro interno",
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Erro interno",
+        detail: "Erro interno",
+      },
+      { status: 500 }
+    )
   }
 }

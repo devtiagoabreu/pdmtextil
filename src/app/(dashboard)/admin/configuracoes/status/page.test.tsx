@@ -5,7 +5,15 @@ import StatusPage from "./page"
 import { createFetchMock, findCall, renderPage, toastMock } from "@/test/harness"
 
 const statuses = [
-  { id: 1, nome: "PENDENTE", rotulo: "Pendente", tipo: "SOLICITACAO_DESENVOLVIMENTO", cor: "#f59e0b", ordem: 1, ativo: true },
+  {
+    id: 1,
+    nome: "PENDENTE",
+    rotulo: "Pendente",
+    tipo: "SOLICITACAO_DESENVOLVIMENTO",
+    cor: "#f59e0b",
+    ordem: 1,
+    ativo: true,
+  },
   { id: 2, nome: "CANCELADO", rotulo: "", tipo: "AMOSTRA", cor: null, ordem: 2, ativo: false },
 ]
 

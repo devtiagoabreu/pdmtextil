@@ -25,8 +25,8 @@ export function ProdutoTab({
   clientesData,
   loadingClientes,
 }: Props) {
-  const filteredProdutos = produtoList.filter(p =>
-    p.toLowerCase().includes(searchProduto.toLowerCase()),
+  const filteredProdutos = produtoList.filter((p) =>
+    p.toLowerCase().includes(searchProduto.toLowerCase())
   )
 
   return (
@@ -42,13 +42,13 @@ export function ProdutoTab({
             <input
               type="text"
               value={searchProduto}
-              onChange={e => setSearchProduto(e.target.value)}
+              onChange={(e) => setSearchProduto(e.target.value)}
               placeholder="Buscar produto..."
               className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
           <div className="max-h-[400px] overflow-y-auto space-y-1">
-            {filteredProdutos.slice(0, 200).map(p => (
+            {filteredProdutos.slice(0, 200).map((p) => (
               <button
                 key={p}
                 onClick={() => onSelectProduto(p)}
@@ -70,7 +70,9 @@ export function ProdutoTab({
         {!selectedProduto && (
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 text-center">
             <Package className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
-            <p className="text-sm text-slate-500">Selecione um produto ao lado para ver os clientes</p>
+            <p className="text-sm text-slate-500">
+              Selecione um produto ao lado para ver os clientes
+            </p>
           </div>
         )}
 
@@ -83,7 +85,8 @@ export function ProdutoTab({
         {selectedProduto && !loadingClientes && (
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-              Clientes que compraram: <span className="text-indigo-600 dark:text-indigo-400">{selectedProduto}</span>
+              Clientes que compraram:{" "}
+              <span className="text-indigo-600 dark:text-indigo-400">{selectedProduto}</span>
             </h3>
 
             <ClientesTable clientes={clientesData} />
@@ -96,8 +99,22 @@ export function ProdutoTab({
               <BarChart data={clientesData.slice(0, 10)} layout="vertical" margin={{ left: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis type="number" tick={{ fontSize: 10 }} stroke="#94a3b8" />
-                <YAxis dataKey="razaoSocial" type="category" tick={{ fontSize: 9 }} stroke="#94a3b8" width={150} />
-                <Tooltip content={<ChartTooltip formatter={(v: number) => `R$ ${v.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}`} />} />
+                <YAxis
+                  dataKey="razaoSocial"
+                  type="category"
+                  tick={{ fontSize: 9 }}
+                  stroke="#94a3b8"
+                  width={150}
+                />
+                <Tooltip
+                  content={
+                    <ChartTooltip
+                      formatter={(v: number) =>
+                        `R$ ${v.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}`
+                      }
+                    />
+                  }
+                />
                 <Bar dataKey="totalFaturado" radius={[0, 4, 4, 0]} fill="#6366f1" />
               </BarChart>
             </ResponsiveContainer>

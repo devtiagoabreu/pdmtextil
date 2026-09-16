@@ -24,7 +24,7 @@ async function carregarMenus(params: { role: string }) {
 
   if (menus.length === 0) return []
 
-  const menuIds = menus.map((m: typeof menus[number]) => m.id)
+  const menuIds = menus.map((m: (typeof menus)[number]) => m.id)
   const todosItens = await db
     .select()
     .from(userMenuItens)
@@ -37,7 +37,10 @@ async function carregarMenus(params: { role: string }) {
     itensPorMenu.get(item.userMenuId)!.push(item)
   }
 
-  return menus.map((menu: typeof menus[number]) => ({ ...menu, itens: itensPorMenu.get(menu.id) || [] }))
+  return menus.map((menu: (typeof menus)[number]) => ({
+    ...menu,
+    itens: itensPorMenu.get(menu.id) || [],
+  }))
 }
 
 export async function GET(req: NextRequest) {

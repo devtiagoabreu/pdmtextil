@@ -44,7 +44,10 @@ export type VisitaDetalhe = {
   checkOutLng: number | null
 }
 
-export type SetField = (field: keyof VisitaDetalhe, value: VisitaDetalhe[keyof VisitaDetalhe]) => void
+export type SetField = (
+  field: keyof VisitaDetalhe,
+  value: VisitaDetalhe[keyof VisitaDetalhe]
+) => void
 
 export type FormVisitaDetalhe = Partial<VisitaDetalhe>
 

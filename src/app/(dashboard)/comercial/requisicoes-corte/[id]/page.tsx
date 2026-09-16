@@ -27,9 +27,18 @@ import type { RequisicaoCorteDetalhe, ItemOcr } from "../types"
 type StatusOpcaoApi = { nome: string; rotulo: string | null; cor: string | null }
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
-  SOLICITADO: { label: "Solicitado", classes: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400" },
-  PROCESSANDO: { label: "Processando", classes: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400" },
-  ATENDIDO: { label: "Atendido", classes: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400" },
+  SOLICITADO: {
+    label: "Solicitado",
+    classes: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400",
+  },
+  PROCESSANDO: {
+    label: "Processando",
+    classes: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400",
+  },
+  ATENDIDO: {
+    label: "Atendido",
+    classes: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400",
+  },
 }
 
 interface ItemLinha {
@@ -49,7 +58,20 @@ interface ItemLinha {
 }
 
 function itemVazio(): ItemLinha {
-  return { codigoProduto: "", ordem: "", artigo: "", cor: "", desenho: "", quantidade: "", clienteId: null, clienteNome: null, fornecedorId: null, fornecedorNome: null, representanteId: null, representanteNome: null }
+  return {
+    codigoProduto: "",
+    ordem: "",
+    artigo: "",
+    cor: "",
+    desenho: "",
+    quantidade: "",
+    clienteId: null,
+    clienteNome: null,
+    fornecedorId: null,
+    fornecedorNome: null,
+    representanteId: null,
+    representanteNome: null,
+  }
 }
 
 function copiarItem(item: ItemLinha): ItemLinha {
@@ -77,7 +99,9 @@ export default function DetalheRequisicaoCortePage() {
   const [representanteNomeGlobal, setRepresentanteNomeGlobal] = useState<string | null>(null)
   const [status, setStatus] = useState("")
   const [itens, setItens] = useState<ItemLinha[]>([])
-  const [statusOptions, setStatusOptions] = useState<{ value: string; label: string; cor?: string }[]>([])
+  const [statusOptions, setStatusOptions] = useState<
+    { value: string; label: string; cor?: string }[]
+  >([])
   const [requisitanteNome, setRequisitanteNome] = useState("")
 
   const [dialogCopiarAberto, setDialogCopiarAberto] = useState(false)
@@ -88,7 +112,10 @@ export default function DetalheRequisicaoCortePage() {
     fetch("/api/admin/status?tipo=REQUISICAO_CORTE")
       .then((r: Response) => r.json())
       .then((data: StatusOpcaoApi[]) => {
-        if (Array.isArray(data)) setStatusOptions(data.map((s) => ({ value: s.nome, label: s.rotulo || s.nome, cor: s.cor ?? undefined })))
+        if (Array.isArray(data))
+          setStatusOptions(
+            data.map((s) => ({ value: s.nome, label: s.rotulo || s.nome, cor: s.cor ?? undefined }))
+          )
       })
       .catch(console.error)
   }, [])
@@ -96,7 +123,10 @@ export default function DetalheRequisicaoCortePage() {
   useEffect(() => {
     if (!mounted || !id) return
     fetch(`/api/comercial/requisicoes-corte/${id}?t=${Date.now()}`)
-      .then((res: Response) => { if (!res.ok) throw new Error(); return res.json() })
+      .then((res: Response) => {
+        if (!res.ok) throw new Error()
+        return res.json()
+      })
       .then((d: RequisicaoCorteDetalhe) => {
         setObservacoes(d.observacoes || "")
         setEntreguePor(d.entreguePor || "")
@@ -117,15 +147,21 @@ export default function DetalheRequisicaoCortePage() {
   }, [mounted, id])
 
   const handleItemChange = (index: number, field: keyof ItemLinha, value: string) => {
-    setItens(prev => {
+    setItens((prev) => {
       const next = [...prev]
       next[index] = { ...next[index], [field]: value }
       return next
     })
   }
 
-  const handleItemCreatableChange = (index: number, idField: keyof ItemLinha, nomeField: keyof ItemLinha, id: number | null, nome: string | null) => {
-    setItens(prev => {
+  const handleItemCreatableChange = (
+    index: number,
+    idField: keyof ItemLinha,
+    nomeField: keyof ItemLinha,
+    id: number | null,
+    nome: string | null
+  ) => {
+    setItens((prev) => {
       const next = [...prev]
       next[index] = { ...next[index], [idField]: id, [nomeField]: nome }
       return next
@@ -133,12 +169,12 @@ export default function DetalheRequisicaoCortePage() {
   }
 
   const addItem = () => {
-    setItens(prev => [...prev, itemVazio()])
+    setItens((prev) => [...prev, itemVazio()])
   }
 
   const copiarItemAtual = () => {
     const qtd = parseInt(qtdCopias) || 1
-    setItens(prev => {
+    setItens((prev) => {
       const ultimo = prev[prev.length - 1]
       const copias = Array.from({ length: qtd }, () => copiarItem(ultimo))
       return [...prev, ...copias]
@@ -149,7 +185,7 @@ export default function DetalheRequisicaoCortePage() {
   }
 
   const moverItem = (index: number, direcao: -1 | 1) => {
-    setItens(prev => {
+    setItens((prev) => {
       const novoIndex = index + direcao
       if (novoIndex < 0 || novoIndex >= prev.length) return prev
       const next = [...prev]
@@ -162,11 +198,11 @@ export default function DetalheRequisicaoCortePage() {
 
   const removeItem = (index: number) => {
     if (itens.length <= 1) return
-    setItens(prev => prev.filter((_, i) => i !== index))
+    setItens((prev) => prev.filter((_, i) => i !== index))
   }
 
   const handleOcrItens = (novosItens: ItemOcr[]) => {
-    setItens(prev => [
+    setItens((prev) => [
       ...prev.filter((item) => item.quantidade.trim()),
       ...novosItens.map((item) => ({
         codigoProduto: item.codigoProduto || "",
@@ -234,7 +270,10 @@ export default function DetalheRequisicaoCortePage() {
     )
   }
 
-  const statusCfg = STATUS_CONFIG[status] ?? { label: status, classes: "bg-slate-100 text-slate-600" }
+  const statusCfg = STATUS_CONFIG[status] ?? {
+    label: status,
+    classes: "bg-slate-100 text-slate-600",
+  }
   const totalCortes = itens.length
   const totalQtd = itens.reduce((acc, item) => {
     const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
@@ -256,34 +295,45 @@ export default function DetalheRequisicaoCortePage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            Requisição #{id}{info && <InfoButton content={info} />}
+            Requisição #{id}
+            {info && <InfoButton content={info} />}
           </h1>
           <div className="flex items-center gap-3 mt-1">
-            <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusCfg.classes}`}>
+            <span
+              className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusCfg.classes}`}
+            >
               {statusCfg.label}
             </span>
-            <span className="text-sm text-slate-500">{totalCortes} corte(s) — Qtd total: {totalQtd}</span>
+            <span className="text-sm text-slate-500">
+              {totalCortes} corte(s) — Qtd total: {totalQtd}
+            </span>
           </div>
         </div>
         <div className="flex items-center gap-2">
           <Button
             type="button"
             variant="outline"
-            onClick={() => gerarRequisicaoCortePdf({
-              id: parseInt(id),
-              status,
-              observacoes,
-              entreguePor,
-              requisitanteNome,
-              createdAt: undefined,
-              itens,
-            })}
+            onClick={() =>
+              gerarRequisicaoCortePdf({
+                id: parseInt(id),
+                status,
+                observacoes,
+                entreguePor,
+                requisitanteNome,
+                createdAt: undefined,
+                itens,
+              })
+            }
             className="gap-2"
           >
             <FileText size={16} />
             PDF
           </Button>
-          <Button onClick={handleSave} disabled={saving} className="bg-blue-600 hover:bg-blue-700 text-white">
+          <Button
+            onClick={handleSave}
+            disabled={saving}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
             {saving ? "Salvando..." : "Salvar"}
           </Button>
         </div>
@@ -297,15 +347,33 @@ export default function DetalheRequisicaoCortePage() {
             <thead>
               <tr className="border-b border-slate-200 dark:border-slate-700">
                 <th className="px-3 py-2 w-8"></th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Cód. Produto</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Ordem</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Artigo</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Cor</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Desenho</th>
-                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Qtd <span className="text-red-500">*</span></th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase">Cliente</th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase">Fornec.</th>
-                <th className="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase">Repr.</th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">
+                  Cód. Produto
+                </th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">
+                  Ordem
+                </th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">
+                  Artigo
+                </th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">
+                  Cor
+                </th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">
+                  Desenho
+                </th>
+                <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">
+                  Qtd <span className="text-red-500">*</span>
+                </th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase">
+                  Cliente
+                </th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase">
+                  Fornec.
+                </th>
+                <th className="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase">
+                  Repr.
+                </th>
                 <th className="px-3 py-2 w-10"></th>
               </tr>
             </thead>
@@ -335,19 +403,44 @@ export default function DetalheRequisicaoCortePage() {
                     </div>
                   </td>
                   <td className="px-3 py-2">
-                    <Input value={item.codigoProduto} onChange={(e) => handleItemChange(index, "codigoProduto", e.target.value)} placeholder="2.K2620..." className="h-9 text-sm" />
+                    <Input
+                      value={item.codigoProduto}
+                      onChange={(e) => handleItemChange(index, "codigoProduto", e.target.value)}
+                      placeholder="2.K2620..."
+                      className="h-9 text-sm"
+                    />
                   </td>
                   <td className="px-3 py-2">
-                    <Input value={item.ordem} onChange={(e) => handleItemChange(index, "ordem", e.target.value)} placeholder="Ordem" className="h-9 text-sm" />
+                    <Input
+                      value={item.ordem}
+                      onChange={(e) => handleItemChange(index, "ordem", e.target.value)}
+                      placeholder="Ordem"
+                      className="h-9 text-sm"
+                    />
                   </td>
                   <td className="px-3 py-2">
-                    <Input value={item.artigo} onChange={(e) => handleItemChange(index, "artigo", e.target.value)} placeholder="Artigo" className="h-9 text-sm" />
+                    <Input
+                      value={item.artigo}
+                      onChange={(e) => handleItemChange(index, "artigo", e.target.value)}
+                      placeholder="Artigo"
+                      className="h-9 text-sm"
+                    />
                   </td>
                   <td className="px-3 py-2">
-                    <Input value={item.cor} onChange={(e) => handleItemChange(index, "cor", e.target.value)} placeholder="Palha" className="h-9 text-sm" />
+                    <Input
+                      value={item.cor}
+                      onChange={(e) => handleItemChange(index, "cor", e.target.value)}
+                      placeholder="Palha"
+                      className="h-9 text-sm"
+                    />
                   </td>
                   <td className="px-3 py-2">
-                    <Input value={item.desenho} onChange={(e) => handleItemChange(index, "desenho", e.target.value)} placeholder="500101" className="h-9 text-sm" />
+                    <Input
+                      value={item.desenho}
+                      onChange={(e) => handleItemChange(index, "desenho", e.target.value)}
+                      placeholder="500101"
+                      className="h-9 text-sm"
+                    />
                   </td>
                   <td className="px-3 py-2">
                     <Input
@@ -360,7 +453,9 @@ export default function DetalheRequisicaoCortePage() {
                     <CreatableSelect
                       valueId={item.clienteId}
                       valueNome={item.clienteNome}
-                      onChange={(id, nome) => handleItemCreatableChange(index, "clienteId", "clienteNome", id, nome)}
+                      onChange={(id, nome) =>
+                        handleItemCreatableChange(index, "clienteId", "clienteNome", id, nome)
+                      }
                       fetchUrl="/api/clientes"
                       placeholder="—"
                       className="text-xs"
@@ -370,7 +465,9 @@ export default function DetalheRequisicaoCortePage() {
                     <CreatableSelect
                       valueId={item.fornecedorId}
                       valueNome={item.fornecedorNome}
-                      onChange={(id, nome) => handleItemCreatableChange(index, "fornecedorId", "fornecedorNome", id, nome)}
+                      onChange={(id, nome) =>
+                        handleItemCreatableChange(index, "fornecedorId", "fornecedorNome", id, nome)
+                      }
                       fetchUrl="/api/cadastros/fornecedores"
                       placeholder="—"
                       className="text-xs"
@@ -380,7 +477,15 @@ export default function DetalheRequisicaoCortePage() {
                     <CreatableSelect
                       valueId={item.representanteId}
                       valueNome={item.representanteNome}
-                      onChange={(id, nome) => handleItemCreatableChange(index, "representanteId", "representanteNome", id, nome)}
+                      onChange={(id, nome) =>
+                        handleItemCreatableChange(
+                          index,
+                          "representanteId",
+                          "representanteNome",
+                          id,
+                          nome
+                        )
+                      }
                       fetchUrl="/api/representantes"
                       placeholder="—"
                       className="text-xs"
@@ -473,7 +578,10 @@ export default function DetalheRequisicaoCortePage() {
               <CreatableSelect
                 valueId={clienteIdGlobal}
                 valueNome={clienteNomeGlobal}
-                onChange={(id, nome) => { setClienteIdGlobal(id); setClienteNomeGlobal(nome) }}
+                onChange={(id, nome) => {
+                  setClienteIdGlobal(id)
+                  setClienteNomeGlobal(nome)
+                }}
                 fetchUrl="/api/clientes"
                 placeholder="Nenhum"
               />
@@ -483,7 +591,10 @@ export default function DetalheRequisicaoCortePage() {
               <CreatableSelect
                 valueId={fornecedorIdGlobal}
                 valueNome={fornecedorNomeGlobal}
-                onChange={(id, nome) => { setFornecedorIdGlobal(id); setFornecedorNomeGlobal(nome) }}
+                onChange={(id, nome) => {
+                  setFornecedorIdGlobal(id)
+                  setFornecedorNomeGlobal(nome)
+                }}
                 fetchUrl="/api/cadastros/fornecedores"
                 placeholder="Nenhum"
               />
@@ -493,7 +604,10 @@ export default function DetalheRequisicaoCortePage() {
               <CreatableSelect
                 valueId={representanteIdGlobal}
                 valueNome={representanteNomeGlobal}
-                onChange={(id, nome) => { setRepresentanteIdGlobal(id); setRepresentanteNomeGlobal(nome) }}
+                onChange={(id, nome) => {
+                  setRepresentanteIdGlobal(id)
+                  setRepresentanteNomeGlobal(nome)
+                }}
                 fetchUrl="/api/representantes"
                 placeholder="Nenhum"
               />
@@ -502,13 +616,20 @@ export default function DetalheRequisicaoCortePage() {
 
           <div className="space-y-2">
             <Label htmlFor="status">Status</Label>
-            <Select value={status} onValueChange={(v: string | null) => { if (v) setStatus(v) }}>
+            <Select
+              value={status}
+              onValueChange={(v: string | null) => {
+                if (v) setStatus(v)
+              }}
+            >
               <SelectTrigger id="status">
                 <SelectValue placeholder="Selecione o status" />
               </SelectTrigger>
               <SelectContent>
                 {statusOptions.map((s) => (
-                  <SelectItem key={s.value} value={s.value}>{s.label}</SelectItem>
+                  <SelectItem key={s.value} value={s.value}>
+                    {s.label}
+                  </SelectItem>
                 ))}
               </SelectContent>
             </Select>
@@ -519,7 +640,9 @@ export default function DetalheRequisicaoCortePage() {
       {dialogCopiarAberto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl p-6 w-80 space-y-4">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Copiar último item</h3>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+              Copiar último item
+            </h3>
             <p className="text-sm text-slate-500">
               Quantas cópias do último item deseja adicionar?
             </p>
@@ -547,7 +670,12 @@ export default function DetalheRequisicaoCortePage() {
               >
                 Cancelar
               </Button>
-              <Button type="button" size="sm" onClick={copiarItemAtual} className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button
+                type="button"
+                size="sm"
+                onClick={copiarItemAtual}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
                 Copiar
               </Button>
             </div>

@@ -3,7 +3,14 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
+import {
+  DndContext,
+  DragOverlay,
+  useDraggable,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
 import { useStatuses } from "@/hooks/use-statuses"
 import { DroppableColumn, KanbanSkeleton } from "./kanban-column"
 
@@ -40,10 +47,12 @@ function DraggableCard({ pessoa }: { pessoa: PessoaCard }) {
     data: { pessoa },
   })
 
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    zIndex: 50,
-  } : undefined
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        zIndex: 50,
+      }
+    : undefined
 
   const handleClick = () => {
     router.push(`/comercial/crm/pessoas/${pessoa.id}`)
@@ -51,9 +60,10 @@ function DraggableCard({ pessoa }: { pessoa: PessoaCard }) {
 
   const nomeExibido = pessoa.nome || pessoa.razaoSocial || "Sem nome"
   const documento = formatarDocumento(pessoa)
-  const tipoBadge = pessoa.tipoPessoa === "PF"
-    ? "text-purple-600 bg-purple-50 dark:bg-purple-950/50 dark:text-purple-400"
-    : "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50 dark:text-cyan-400"
+  const tipoBadge =
+    pessoa.tipoPessoa === "PF"
+      ? "text-purple-600 bg-purple-50 dark:bg-purple-950/50 dark:text-purple-400"
+      : "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50 dark:text-cyan-400"
 
   return (
     <div
@@ -67,7 +77,9 @@ function DraggableCard({ pessoa }: { pessoa: PessoaCard }) {
       }`}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${tipoBadge}`}>
+        <span
+          className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${tipoBadge}`}
+        >
           {pessoa.tipoPessoa}
         </span>
         {pessoa.responsavelNome && (
@@ -77,12 +89,8 @@ function DraggableCard({ pessoa }: { pessoa: PessoaCard }) {
       <p className="text-sm font-medium text-slate-900 dark:text-slate-100 mt-1 leading-snug line-clamp-2">
         {nomeExibido}
       </p>
-      {documento && (
-        <p className="text-xs text-slate-500 mt-0.5">{documento}</p>
-      )}
-      {pessoa.segmento && (
-        <p className="text-xs text-slate-400 mt-1">{pessoa.segmento}</p>
-      )}
+      {documento && <p className="text-xs text-slate-500 mt-0.5">{documento}</p>}
+      {pessoa.segmento && <p className="text-xs text-slate-400 mt-1">{pessoa.segmento}</p>}
     </div>
   )
 }
@@ -92,11 +100,11 @@ export default function PessoasKanban({ pessoas }: { pessoas: PessoaCard[] }) {
   const [activeCard, setActiveCard] = useState<PessoaCard | null>(null)
   const [cards, setCards] = useState<PessoaCard[]>(pessoas || [])
 
-  useEffect(() => { setCards(pessoas || []) }, [pessoas])
+  useEffect(() => {
+    setCards(pessoas || [])
+  }, [pessoas])
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  )
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   const hasStatuses = statuses.length > 0
   const effectiveStatuses = hasStatuses ? statuses : DEFAULT_STATUSES
@@ -136,8 +144,8 @@ export default function PessoasKanban({ pessoas }: { pessoas: PessoaCard[] }) {
 
     const statusAntigo = pessoa.status
 
-    setCards(prev =>
-      prev.map((p: any) => p.id === pessoa.id ? { ...p, status: novoStatus } : p)
+    setCards((prev) =>
+      prev.map((p: any) => (p.id === pessoa.id ? { ...p, status: novoStatus } : p))
     )
 
     try {
@@ -152,8 +160,8 @@ export default function PessoasKanban({ pessoas }: { pessoas: PessoaCard[] }) {
       }
       toast.success(`Pessoa movida para ${getLabel(novoStatus)}`)
     } catch (err: any) {
-      setCards(prev =>
-        prev.map((p: any) => p.id === pessoa.id ? { ...p, status: statusAntigo } : p)
+      setCards((prev) =>
+        prev.map((p: any) => (p.id === pessoa.id ? { ...p, status: statusAntigo } : p))
       )
       toast.error(err.message)
     }
@@ -168,7 +176,13 @@ export default function PessoasKanban({ pessoas }: { pessoas: PessoaCard[] }) {
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto pb-2">
           {colunas.map((col: any) => (
-            <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo || col.nome} cor={col.cor} count={col.cards.length}>
+            <DroppableColumn
+              key={col.nome}
+              id={col.nome}
+              rotulo={col.rotulo || col.nome}
+              cor={col.cor}
+              count={col.cards.length}
+            >
               {col.cards.map((card: any) => (
                 <DraggableCard key={`pes-${card.id}`} pessoa={card} />
               ))}
@@ -179,7 +193,9 @@ export default function PessoasKanban({ pessoas }: { pessoas: PessoaCard[] }) {
         {activeCard && (
           <DragOverlay>
             <div className="bg-white dark:bg-slate-800 rounded-lg border border-blue-400 shadow-xl p-3 w-72 opacity-90">
-              <p className="text-sm font-medium text-slate-900">{activeCard.nome || activeCard.razaoSocial || "Sem nome"}</p>
+              <p className="text-sm font-medium text-slate-900">
+                {activeCard.nome || activeCard.razaoSocial || "Sem nome"}
+              </p>
             </div>
           </DragOverlay>
         )}

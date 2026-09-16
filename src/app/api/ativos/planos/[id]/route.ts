@@ -9,10 +9,7 @@ import { validateRequest } from "@/lib/validation"
 import { ativoPlanoVistoriaSchema } from "@/lib/validation"
 import { gerarOcorrencias } from "@/lib/ativos/agendamento"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -35,10 +32,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -62,16 +56,24 @@ export async function PUT(
     const proximaDataMudou =
       parsed.data.proximaData !== undefined && parsed.data.proximaData !== existente.proximaData
     const diasIntervaloMudou =
-      parsed.data.diasIntervalo !== undefined && parsed.data.diasIntervalo !== existente.diasIntervalo
+      parsed.data.diasIntervalo !== undefined &&
+      parsed.data.diasIntervalo !== existente.diasIntervalo
 
     const [atualizado] = await db
       .update(ativosPlanosVistoria)
       .set({
         ativoId: parsed.data.ativoId,
         tipoVistoriaId: parsed.data.tipoVistoriaId,
-        responsavelId: parsed.data.responsavelId !== undefined ? parsed.data.responsavelId : existente.responsavelId,
-        diasIntervalo: parsed.data.diasIntervalo !== undefined ? parsed.data.diasIntervalo : existente.diasIntervalo,
-        proximaData: parsed.data.proximaData !== undefined ? parsed.data.proximaData : existente.proximaData,
+        responsavelId:
+          parsed.data.responsavelId !== undefined
+            ? parsed.data.responsavelId
+            : existente.responsavelId,
+        diasIntervalo:
+          parsed.data.diasIntervalo !== undefined
+            ? parsed.data.diasIntervalo
+            : existente.diasIntervalo,
+        proximaData:
+          parsed.data.proximaData !== undefined ? parsed.data.proximaData : existente.proximaData,
         ativo: parsed.data.ativo !== undefined ? parsed.data.ativo : existente.ativo,
         updatedAt: new Date(),
       })
@@ -111,10 +113,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -135,7 +134,11 @@ export async function DELETE(
 
     await db.delete(ativosPlanosVistoria).where(eq(ativosPlanosVistoria.id, parseInt(id)))
 
-    await notificarDelecao("Plano de vistoria", `Plano de vistoria #${existente.id}`, auth.session.user.name)
+    await notificarDelecao(
+      "Plano de vistoria",
+      `Plano de vistoria #${existente.id}`,
+      auth.session.user.name
+    )
 
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -4,15 +4,15 @@ import { buildGrupos, montarProduto, normalizeRolo } from "./utils"
 
 describe("montarProduto", () => {
   it("concatena nivel.grupo.sub.item separados por ponto", () => {
-    expect(
-      montarProduto({ nivel: "3", grupo: "1", sub: "2", item: "SARJA 1001" }),
-    ).toBe("3.1.2.SARJA 1001")
+    expect(montarProduto({ nivel: "3", grupo: "1", sub: "2", item: "SARJA 1001" })).toBe(
+      "3.1.2.SARJA 1001"
+    )
   })
 
   it("ignora partes vazias", () => {
-    expect(
-      montarProduto({ nivel: "2", grupo: "4", sub: "", item: "Brim 2002" }),
-    ).toBe("2.4.Brim 2002")
+    expect(montarProduto({ nivel: "2", grupo: "4", sub: "", item: "Brim 2002" })).toBe(
+      "2.4.Brim 2002"
+    )
     expect(montarProduto({ nivel: "1", grupo: "", sub: "3", item: "ITEM" })).toBe("1.3.ITEM")
   })
 

@@ -1,4 +1,14 @@
-import { pgTable, serial, integer, varchar, text, timestamp, date, jsonb, doublePrecision } from "drizzle-orm/pg-core"
+import {
+  pgTable,
+  serial,
+  integer,
+  varchar,
+  text,
+  timestamp,
+  date,
+  jsonb,
+  doublePrecision,
+} from "drizzle-orm/pg-core"
 import { crmPessoas } from "./crm-pessoas"
 import { crmOportunidades } from "./crm-oportunidades"
 import { crmContatos } from "./crm-contatos"

@@ -1,11 +1,19 @@
 import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
-import { getSheetById, sheetNoPeriodo, listClientesByGrupo, getRepsByGrupo } from "@/lib/bi/sheet-loader"
+import {
+  getSheetById,
+  sheetNoPeriodo,
+  listClientesByGrupo,
+  getRepsByGrupo,
+} from "@/lib/bi/sheet-loader"
 
 export const dynamic = "force-dynamic"
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ sheetId: string; grupo: string }> }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ sheetId: string; grupo: string }> }
+) {
   const session = await getServerSession(authOptions)
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 

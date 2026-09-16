@@ -5,7 +5,10 @@ import { getSheetById, sheetNoPeriodo, listClientesByProduto } from "@/lib/bi/sh
 
 export const dynamic = "force-dynamic"
 
-export async function GET(req: NextRequest, { params }: { params: Promise<{ sheetId: string; codigo: string }> }) {
+export async function GET(
+  req: NextRequest,
+  { params }: { params: Promise<{ sheetId: string; codigo: string }> }
+) {
   const session = await getServerSession(authOptions)
   if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 

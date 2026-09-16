@@ -15,10 +15,12 @@ export function DraggableCard({ solicitacao, onOpenChat, onOpenAmostras }: Dragg
     data: { solicitacao },
   })
 
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    zIndex: 50,
-  } : undefined
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        zIndex: 50,
+      }
+    : undefined
 
   const prazoDate = solicitacao.prazoDesejado ? new Date(solicitacao.prazoDesejado) : null
   const hoje = new Date()
@@ -46,7 +48,10 @@ export function DraggableCard({ solicitacao, onOpenChat, onOpenAmostras }: Dragg
         <div className="flex items-center gap-1">
           {solicitacao.chatExists && (
             <button
-              onClick={(e) => { e.stopPropagation(); onOpenChat(solicitacao) }}
+              onClick={(e) => {
+                e.stopPropagation()
+                onOpenChat(solicitacao)
+              }}
               title="Ver resumo do chat"
               className="text-blue-500 hover:text-blue-700 transition-colors"
             >
@@ -68,19 +73,26 @@ export function DraggableCard({ solicitacao, onOpenChat, onOpenAmostras }: Dragg
           {solicitacao.produtoIdIntegracao && (
             <span className="text-slate-400">({solicitacao.produtoIdIntegracao})</span>
           )}
-          {solicitacao.produtoAmostrasCount !== undefined && solicitacao.produtoAmostrasCount > 0 && (
-            <button
-              onClick={(e) => { e.stopPropagation(); onOpenAmostras(solicitacao) }}
-              className="ml-auto text-blue-500 hover:text-blue-700 hover:underline transition-colors"
-              title="Ver amostras do produto"
-            >
-              {solicitacao.produtoAmostrasCount} amostra{solicitacao.produtoAmostrasCount > 1 ? "s" : ""}
-            </button>
-          )}
+          {solicitacao.produtoAmostrasCount !== undefined &&
+            solicitacao.produtoAmostrasCount > 0 && (
+              <button
+                onClick={(e) => {
+                  e.stopPropagation()
+                  onOpenAmostras(solicitacao)
+                }}
+                className="ml-auto text-blue-500 hover:text-blue-700 hover:underline transition-colors"
+                title="Ver amostras do produto"
+              >
+                {solicitacao.produtoAmostrasCount} amostra
+                {solicitacao.produtoAmostrasCount > 1 ? "s" : ""}
+              </button>
+            )}
         </div>
       )}
       {prazoDate && (
-        <div className={`flex items-center gap-1 mt-2 text-[10px] ${vencido ? "text-red-500" : "text-slate-400"}`}>
+        <div
+          className={`flex items-center gap-1 mt-2 text-[10px] ${vencido ? "text-red-500" : "text-slate-400"}`}
+        >
           <Calendar size={10} />
           <span>{prazoDate.toLocaleDateString("pt-BR")}</span>
         </div>

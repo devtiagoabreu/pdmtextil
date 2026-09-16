@@ -5,14 +5,26 @@ import EmpresaPage from "./page"
 import { createFetchMock, findCall, renderPage, toastMock } from "@/test/harness"
 
 const empresas = [
-  { id: 1, nome: "PDM Têxtil Ltda", documento: "12.345.678/0001-90", endereco: "Rua A", cidade: "São Paulo", uf: "SP", telefone: "", email: "", logoUrl: "", isDefault: true },
+  {
+    id: 1,
+    nome: "PDM Têxtil Ltda",
+    documento: "12.345.678/0001-90",
+    endereco: "Rua A",
+    cidade: "São Paulo",
+    uf: "SP",
+    telefone: "",
+    email: "",
+    logoUrl: "",
+    isDefault: true,
+  },
 ]
 
 function setup() {
   const fetchMock = createFetchMock(({ method, url }) => {
     if (method === "GET" && url === "/api/admin/config/empresa") return { json: empresas }
     if (method === "GET" && url === "/api/crm/estados") return { json: [] }
-    if (method === "POST" && url === "/api/admin/config/empresa") return { status: 201, json: { id: 2, nome: "Nova Empresa SA" } }
+    if (method === "POST" && url === "/api/admin/config/empresa")
+      return { status: 201, json: { id: 2, nome: "Nova Empresa SA" } }
     return { status: 404, json: { error: "Rota não mockada" } }
   })
   vi.stubGlobal("fetch", fetchMock.fn)

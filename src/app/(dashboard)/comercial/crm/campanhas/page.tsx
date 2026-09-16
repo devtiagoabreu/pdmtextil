@@ -4,9 +4,20 @@ import { useQuery } from "@tanstack/react-query"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { usePathname, useSearchParams } from "next/navigation"
-import {Suspense, useState} from "react"
+import { Suspense, useState } from "react"
 import Link from "next/link"
-import { Plus, Megaphone, Calendar, TrendingUp, Users, DollarSign, ArrowRight, Loader2, Table, Columns } from "lucide-react"
+import {
+  Plus,
+  Megaphone,
+  Calendar,
+  TrendingUp,
+  Users,
+  DollarSign,
+  ArrowRight,
+  Loader2,
+  Table,
+  Columns,
+} from "lucide-react"
 import CampanhasKanban from "@/components/crm/campanhas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import ListFilters, { useListFilters } from "@/components/ui/list-filters"
@@ -43,7 +54,9 @@ function CampanhasPageContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
-  const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
+  const [modo, setModo] = useState<"tabela" | "kanban">(
+    searchParams.get("view") === "kanban" ? "kanban" : "tabela"
+  )
   const { data, isLoading } = useQuery<Campanha[]>({
     queryKey: ["crm-campanhas"],
     queryFn: fetchCampanhas,
@@ -52,7 +65,8 @@ function CampanhasPageContent() {
   const campanhas = Array.isArray(data) ? data : []
 
   const filterState = useListFilters(
-    { searchFields: ["nome", "tipo"],
+    {
+      searchFields: ["nome", "tipo"],
       statusOptions: [
         { value: "ATIVA", label: "Ativa" },
         { value: "PAUSADA", label: "Pausada" },
@@ -68,7 +82,9 @@ function CampanhasPageContent() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Campanhas{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Campanhas{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {isLoading ? "Carregando..." : `${filteredData.length} de ${campanhas.length} total`}
           </p>
@@ -110,108 +126,131 @@ function CampanhasPageContent() {
 
       {modo === "tabela" && (
         <>
-        <ListFilters
-          config={{
-            searchFields: ["nome", "tipo"],
-            statusOptions: [
-              { value: "ATIVA", label: "Ativa" },
-              { value: "PAUSADA", label: "Pausada" },
-              { value: "CONCLUIDA", label: "Concluída" },
-            ],
-            dateField: "dataInicio",
-          }}
-          data={campanhas}
-          filterState={filterState}
-          placeholder="Buscar por nome ou tipo..."
-        />
-        {isLoading ? (
-          <div className="flex justify-center py-20">
-            <Loader2 className="animate-spin h-8 w-8 text-slate-400" />
-          </div>
-        ) : filteredData.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <Megaphone className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma campanha cadastrada</p>
-            <Link href="/comercial/crm/campanhas/nova" className="text-sm text-blue-600 hover:underline mt-2">
-              Criar primeira campanha
-            </Link>
-          </div>
-        ) : (
-          <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {filteredData.map((camp) => (
+          <ListFilters
+            config={{
+              searchFields: ["nome", "tipo"],
+              statusOptions: [
+                { value: "ATIVA", label: "Ativa" },
+                { value: "PAUSADA", label: "Pausada" },
+                { value: "CONCLUIDA", label: "Concluída" },
+              ],
+              dateField: "dataInicio",
+            }}
+            data={campanhas}
+            filterState={filterState}
+            placeholder="Buscar por nome ou tipo..."
+          />
+          {isLoading ? (
+            <div className="flex justify-center py-20">
+              <Loader2 className="animate-spin h-8 w-8 text-slate-400" />
+            </div>
+          ) : filteredData.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <Megaphone className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                Nenhuma campanha cadastrada
+              </p>
               <Link
-                key={camp.id}
-                href={`/comercial/crm/campanhas/${camp.id}`}
-                className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 hover:shadow-md transition-shadow"
+                href="/comercial/crm/campanhas/nova"
+                className="text-sm text-blue-600 hover:underline mt-2"
               >
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div className={`rounded-lg p-2 ${TIPO_CORES[camp.tipo]?.split(" ")[1] || "bg-slate-100"}`}>
-                      <Megaphone size={16} className={TIPO_CORES[camp.tipo]?.split(" ")[0] || "text-slate-500"} />
-                    </div>
-                    <div className="min-w-0">
-                      <p className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">{camp.nome}</p>
-                      <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${TIPO_CORES[camp.tipo] || "text-slate-600 bg-slate-100"}`}>
-                        {TIPO_LABELS[camp.tipo] || camp.tipo}
-                      </span>
-                    </div>
-                  </div>
-                  <span className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${STATUS_CORES[camp.status] || ""}`}>
-                    {camp.status}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-4 text-xs text-slate-500">
-                  {camp.dataInicio && (
-                    <span className="flex items-center gap-1">
-                      <Calendar size={12} />
-                      {new Date(camp.dataInicio).toLocaleDateString("pt-BR")}
-                    </span>
-                  )}
-                  {camp.leadsGerados > 0 && (
-                    <span className="flex items-center gap-1">
-                      <Users size={12} />
-                      {camp.leadsGerados} leads
-                    </span>
-                  )}
-                </div>
-
-                {(camp.orcamento || camp.custoAquisicao) && (
-                  <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
-                    {camp.orcamento && (
-                      <span className="text-slate-500">
-                        Orçamento:{" "}
-                        <span className="font-medium text-slate-700 dark:text-slate-300">
-                          {Number(camp.orcamento).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                        </span>
-                      </span>
-                    )}
-                    {camp.custoAquisicao && (
-                      <span className="text-slate-500">
-                        CPA:{" "}
-                        <span className="font-medium text-slate-700 dark:text-slate-300">
-                          {Number(camp.custoAquisicao).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
-                        </span>
-                      </span>
-                    )}
-                  </div>
-                )}
+                Criar primeira campanha
               </Link>
-            ))}
-          </div>
-        )}
+            </div>
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
+              {filteredData.map((camp) => (
+                <Link
+                  key={camp.id}
+                  href={`/comercial/crm/campanhas/${camp.id}`}
+                  className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 hover:shadow-md transition-shadow"
+                >
+                  <div className="flex items-start justify-between mb-3">
+                    <div className="flex items-center gap-2 min-w-0">
+                      <div
+                        className={`rounded-lg p-2 ${TIPO_CORES[camp.tipo]?.split(" ")[1] || "bg-slate-100"}`}
+                      >
+                        <Megaphone
+                          size={16}
+                          className={TIPO_CORES[camp.tipo]?.split(" ")[0] || "text-slate-500"}
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="text-sm font-semibold text-slate-900 dark:text-slate-50 truncate">
+                          {camp.nome}
+                        </p>
+                        <span
+                          className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${TIPO_CORES[camp.tipo] || "text-slate-600 bg-slate-100"}`}
+                        >
+                          {TIPO_LABELS[camp.tipo] || camp.tipo}
+                        </span>
+                      </div>
+                    </div>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.5 rounded-full font-medium ${STATUS_CORES[camp.status] || ""}`}
+                    >
+                      {camp.status}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-4 text-xs text-slate-500">
+                    {camp.dataInicio && (
+                      <span className="flex items-center gap-1">
+                        <Calendar size={12} />
+                        {new Date(camp.dataInicio).toLocaleDateString("pt-BR")}
+                      </span>
+                    )}
+                    {camp.leadsGerados > 0 && (
+                      <span className="flex items-center gap-1">
+                        <Users size={12} />
+                        {camp.leadsGerados} leads
+                      </span>
+                    )}
+                  </div>
+
+                  {(camp.orcamento || camp.custoAquisicao) && (
+                    <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex items-center justify-between text-xs">
+                      {camp.orcamento && (
+                        <span className="text-slate-500">
+                          Orçamento:{" "}
+                          <span className="font-medium text-slate-700 dark:text-slate-300">
+                            {Number(camp.orcamento).toLocaleString("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                            })}
+                          </span>
+                        </span>
+                      )}
+                      {camp.custoAquisicao && (
+                        <span className="text-slate-500">
+                          CPA:{" "}
+                          <span className="font-medium text-slate-700 dark:text-slate-300">
+                            {Number(camp.custoAquisicao).toLocaleString("pt-BR", {
+                              style: "currency",
+                              currency: "BRL",
+                            })}
+                          </span>
+                        </span>
+                      )}
+                    </div>
+                  )}
+                </Link>
+              ))}
+            </div>
+          )}
         </>
       )}
 
-      {modo === "kanban" && (
-        isLoading ? (
+      {modo === "kanban" &&
+        (isLoading ? (
           <div className="flex justify-center py-20">
             <Loader2 className="animate-spin h-8 w-8 text-slate-400" />
           </div>
         ) : (
-          <FloatableKanban tipo="CAMPANHA"><CampanhasKanban campanhas={campanhas} /></FloatableKanban>
-        )
-      )}
+          <FloatableKanban tipo="CAMPANHA">
+            <CampanhasKanban campanhas={campanhas} />
+          </FloatableKanban>
+        ))}
     </div>
   )
 }

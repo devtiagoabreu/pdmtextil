@@ -32,9 +32,10 @@ export function normalizeRolo(raw: Record<string, unknown>): ConferenciaRolo {
     sub: str(pick(raw, "sub", "SUB")).trim() || null,
     codigoRolo: str(pick(raw, "codigoRolo", "CODIGO_ROLO", "codigo_rolo")),
     dep: str(pick(raw, "dep", "DEP")),
-    enderecoRolo: pick(raw, "enderecoRolo", "ENDERECO_ROLO", "endereco_rolo") != null
-      ? str(pick(raw, "enderecoRolo", "ENDERECO_ROLO", "endereco_rolo"))
-      : null,
+    enderecoRolo:
+      pick(raw, "enderecoRolo", "ENDERECO_ROLO", "endereco_rolo") != null
+        ? str(pick(raw, "enderecoRolo", "ENDERECO_ROLO", "endereco_rolo"))
+        : null,
     sit: str(pick(raw, "sit", "SIT", "situacao", "SITUACAO")),
     item: str(pick(raw, "item", "ITEM", "produto", "PRODUTO")),
     lote: str(pick(raw, "lote", "LOTE")),
@@ -78,7 +79,9 @@ export function formatarPeso(valor: number | null | undefined): string {
   return `${Number(valor).toFixed(2)} kg`
 }
 
-export function montarProduto(rolo: Pick<ConferenciaRolo, "nivel" | "grupo" | "sub" | "item"> | null | undefined): string {
+export function montarProduto(
+  rolo: Pick<ConferenciaRolo, "nivel" | "grupo" | "sub" | "item"> | null | undefined
+): string {
   if (!rolo) return ""
   return [rolo.nivel, rolo.grupo, rolo.sub, rolo.item]
     .filter((parte): parte is string => typeof parte === "string" && parte.trim() !== "")
@@ -92,7 +95,15 @@ export function buildGrupos(itens: ConferenciaRolo[], ordem: "asc" | "desc" = "d
     const op = item.op || "SEM OP"
     let grupo = map.get(op)
     if (!grupo) {
-      grupo = { op, produto: montarProduto(item), capa: item, rolos: [], totalRolos: 0, totalMetragem: 0, totalPesoBruto: 0 }
+      grupo = {
+        op,
+        produto: montarProduto(item),
+        capa: item,
+        rolos: [],
+        totalRolos: 0,
+        totalMetragem: 0,
+        totalPesoBruto: 0,
+      }
       map.set(op, grupo)
     }
     grupo.rolos.push(item)
@@ -102,6 +113,6 @@ export function buildGrupos(itens: ConferenciaRolo[], ordem: "asc" | "desc" = "d
   }
   const fator = ordem === "desc" ? -1 : 1
   return Array.from(map.values()).sort(
-    (a, b) => fator * a.op.localeCompare(b.op, undefined, { numeric: true }),
+    (a, b) => fator * a.op.localeCompare(b.op, undefined, { numeric: true })
   )
 }

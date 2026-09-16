@@ -83,7 +83,9 @@ export default function ProdutoQuimicoFormPage() {
 
   async function handleSave() {
     const method = isNew ? "POST" : "PUT"
-    const url = isNew ? "/api/cadastros/produtos-quimicos" : `/api/cadastros/produtos-quimicos/${id}`
+    const url = isNew
+      ? "/api/cadastros/produtos-quimicos"
+      : `/api/cadastros/produtos-quimicos/${id}`
     const res = await fetch(url, {
       method,
       headers: { "Content-Type": "application/json" },
@@ -107,8 +109,9 @@ export default function ProdutoQuimicoFormPage() {
     if (res.ok) router.push("/cadastros/produtos-quimicos")
   }
 
-  const update = (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
-    setForm({ ...form, [field]: e.target.value })
+  const update =
+    (field: string) => (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) =>
+      setForm({ ...form, [field]: e.target.value })
 
   return (
     <div className="p-6 space-y-6">
@@ -116,7 +119,10 @@ export default function ProdutoQuimicoFormPage() {
         <Button variant="ghost" onClick={() => router.back()}>
           <ArrowLeft className="h-4 w-4 mr-1" /> Voltar
         </Button>
-        <h1 className="text-2xl font-bold">{isNew ? "Novo Produto Químico" : "Editar Produto Químico"}{info && <InfoButton content={info} />}</h1>
+        <h1 className="text-2xl font-bold">
+          {isNew ? "Novo Produto Químico" : "Editar Produto Químico"}
+          {info && <InfoButton content={info} />}
+        </h1>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -154,7 +160,11 @@ export default function ProdutoQuimicoFormPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label>ID Integração (ERP)</Label>
-                <Input value={form.idIntegracao} onChange={update("idIntegracao")} placeholder="Código no sistema externo" />
+                <Input
+                  value={form.idIntegracao}
+                  onChange={update("idIntegracao")}
+                  placeholder="Código no sistema externo"
+                />
               </div>
             </div>
             <div className="space-y-2">
@@ -175,7 +185,12 @@ export default function ProdutoQuimicoFormPage() {
             </div>
             <div className="space-y-2">
               <Label>Densidade</Label>
-              <Input type="number" step="0.0001" value={form.densidade} onChange={update("densidade")} />
+              <Input
+                type="number"
+                step="0.0001"
+                value={form.densidade}
+                onChange={update("densidade")}
+              />
             </div>
             <div className="space-y-2">
               <Label>pH</Label>
@@ -183,7 +198,11 @@ export default function ProdutoQuimicoFormPage() {
             </div>
             <div className="space-y-2">
               <Label>Ficha de Segurança (URL)</Label>
-              <Input value={form.fichaSeguranca} onChange={update("fichaSeguranca")} placeholder="Link para ficha de segurança" />
+              <Input
+                value={form.fichaSeguranca}
+                onChange={update("fichaSeguranca")}
+                placeholder="Link para ficha de segurança"
+              />
             </div>
           </CardContent>
         </Card>

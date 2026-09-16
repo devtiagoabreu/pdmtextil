@@ -6,8 +6,11 @@ import { notificacoes } from "@/lib/db/schema/notificacoes"
 import { eq, and, inArray, desc } from "drizzle-orm"
 import { sendEmail } from "@/lib/email"
 
-const SITE_URL = process.env.NEXT_PUBLIC_APP_URL
-  || (process.env.NODE_ENV === "development" ? "http://localhost:3000" : "https://pdmprotextil.vercel.app")
+const SITE_URL =
+  process.env.NEXT_PUBLIC_APP_URL ||
+  (process.env.NODE_ENV === "development"
+    ? "http://localhost:3000"
+    : "https://pdmprotextil.vercel.app")
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
@@ -37,16 +40,17 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     mensagens.reverse()
 
     const msgIds = mensagens.map((m: any) => m.id)
-    const leituras = msgIds.length > 0
-      ? await db
-          .select({
-            mensagemId: chatLeituras.mensagemId,
-            usuarioId: chatLeituras.usuarioId,
-            lidaEm: chatLeituras.lidaEm,
-          })
-          .from(chatLeituras)
-          .where(inArray(chatLeituras.mensagemId, msgIds))
-      : []
+    const leituras =
+      msgIds.length > 0
+        ? await db
+            .select({
+              mensagemId: chatLeituras.mensagemId,
+              usuarioId: chatLeituras.usuarioId,
+              lidaEm: chatLeituras.lidaEm,
+            })
+            .from(chatLeituras)
+            .where(inArray(chatLeituras.mensagemId, msgIds))
+        : []
 
     return NextResponse.json({ mensagens, leituras })
   } catch (error) {
@@ -84,10 +88,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       .set({ ultimaMensagemLidaId: msg.id })
       .where(and(eq(chatParticipantes.chatId, chatId), eq(chatParticipantes.usuarioId, userId)))
 
-    await db
-      .update(chats)
-      .set({ updatedAt: new Date() })
-      .where(eq(chats.id, chatId))
+    await db.update(chats).set({ updatedAt: new Date() }).where(eq(chats.id, chatId))
 
     const [remetente] = await db
       .select({ name: usuarios.name })
@@ -106,8 +107,8 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     let match: RegExpExecArray | null
     while ((match = mentionRegex.exec(body.mensagem)) !== null) {
       const nomeProcurado = match[1].trim().toLowerCase()
-      const matched = todosUsers.find((u: any) =>
-        u.id !== userId && u.name.toLowerCase() === nomeProcurado
+      const matched = todosUsers.find(
+        (u: any) => u.id !== userId && u.name.toLowerCase() === nomeProcurado
       )
       if (matched) {
         mencionados.add(matched.id)

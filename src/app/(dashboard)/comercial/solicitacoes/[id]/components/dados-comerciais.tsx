@@ -29,7 +29,9 @@ export function DadosComerciais({ sol }: { sol: Solicitacao }) {
         <div>
           <p className="text-slate-500 dark:text-slate-400">Prazo Desejado</p>
           <p className="font-medium">
-            {sol.prazoDesejado ? new Date(sol.prazoDesejado).toLocaleDateString("pt-BR", { timeZone: "UTC" }) : "—"}
+            {sol.prazoDesejado
+              ? new Date(sol.prazoDesejado).toLocaleDateString("pt-BR", { timeZone: "UTC" })
+              : "—"}
           </p>
         </div>
         <div>

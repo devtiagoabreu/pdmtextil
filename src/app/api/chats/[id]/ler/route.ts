@@ -50,10 +50,9 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       const existentes = await db
         .select({ mensagemId: chatLeituras.mensagemId })
         .from(chatLeituras)
-        .where(and(
-          inArray(chatLeituras.mensagemId, idsParaMarcar),
-          eq(chatLeituras.usuarioId, userId)
-        ))
+        .where(
+          and(inArray(chatLeituras.mensagemId, idsParaMarcar), eq(chatLeituras.usuarioId, userId))
+        )
 
       const existentesIds = new Set(existentes.map((e: any) => e.mensagemId))
       const novas = idsParaMarcar
@@ -69,11 +68,13 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
     await db
       .update(notificacoes)
       .set({ lida: true, lidaEm: new Date() })
-      .where(and(
-        eq(notificacoes.usuarioId, userId),
-        eq(notificacoes.lida, false),
-        eq(notificacoes.link, chatLink),
-      ))
+      .where(
+        and(
+          eq(notificacoes.usuarioId, userId),
+          eq(notificacoes.lida, false),
+          eq(notificacoes.link, chatLink)
+        )
+      )
 
     return NextResponse.json({ success: true })
   } catch (error) {

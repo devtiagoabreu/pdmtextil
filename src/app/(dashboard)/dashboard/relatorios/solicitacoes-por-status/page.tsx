@@ -11,10 +11,17 @@ import { getInfoContent } from "@/lib/info-content"
 import { exportCSV, exportPDFRelatorio } from "@/lib/export-utils"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 
-const SolicitacoesPorStatusCharts = dynamic(() => import("./charts").then((m) => m.SolicitacoesPorStatusCharts), { ssr: false })
+const SolicitacoesPorStatusCharts = dynamic(
+  () => import("./charts").then((m) => m.SolicitacoesPorStatusCharts),
+  { ssr: false }
+)
 
 export default function RelatorioSolicitacoesPorStatus() {
-  const { statuses, getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
+  const {
+    statuses,
+    getLabel: getStatusLabel,
+    getColor: getStatusColor,
+  } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
   const [selectedStatus, setSelectedStatus] = useState("")
   const [filtroDataInicio, setFiltroDataInicio] = useState("")
   const [filtroDataFim, setFiltroDataFim] = useState("")
@@ -22,7 +29,12 @@ export default function RelatorioSolicitacoesPorStatus() {
   const [aplicadoDataFim, setAplicadoDataFim] = useState("")
 
   const { data, isLoading: loading } = useQuery<any>({
-    queryKey: ["relatorio-solicitacoes-por-status", selectedStatus, aplicadoDataInicio, aplicadoDataFim],
+    queryKey: [
+      "relatorio-solicitacoes-por-status",
+      selectedStatus,
+      aplicadoDataInicio,
+      aplicadoDataFim,
+    ],
     enabled: !!selectedStatus,
     queryFn: async () => {
       const params = new URLSearchParams()
@@ -52,30 +64,10 @@ export default function RelatorioSolicitacoesPorStatus() {
   function handleExportCSV() {
     const rotulo = getStatusLabel(selectedStatus)
     setTimeout(() => {
-      exportCSV(`solicitacoes-${selectedStatus.toLowerCase()}`, ["#", "Cliente", "Projeto", "Tipo", "Criado em", "Concluído em", "Prazo"], lista.map((r: any) => [
-        r.id,
-        r.cliente,
-        r.projeto || "-",
-        r.tipo === "DESENVOLVIMENTO_TECELAGEM" ? "Tecelagem" : "Beneficiamento",
-        r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
-        r.dataConclusao ? new Date(r.dataConclusao).toLocaleDateString("pt-BR") : "-",
-        r.prazoDesejado ? new Date(r.prazoDesejado).toLocaleDateString("pt-BR") : "-",
-      ]))
-    }, 200)
-  }
-
-  async function handleExportPDF() {
-    const rotulo = getStatusLabel(selectedStatus)
-    await exportPDFRelatorio({
-      title: `Relatório: Solicitações ${rotulo}`,
-      stats: stats ? {
-        "Total": stats.total,
-        "Tecelagem": stats.tecelagem,
-        "Beneficiamento": stats.beneficiamento,
-      } : undefined,
-      tables: [
-        { headers: ["Mês", "Total"], rows: porMes.map((m: any) => [m.mes, m.total]) },
-        { headers: ["#", "Cliente", "Projeto", "Tipo", "Criado em", "Concluído em", "Prazo"], rows: lista.map((r: any) => [
+      exportCSV(
+        `solicitacoes-${selectedStatus.toLowerCase()}`,
+        ["#", "Cliente", "Projeto", "Tipo", "Criado em", "Concluído em", "Prazo"],
+        lista.map((r: any) => [
           r.id,
           r.cliente,
           r.projeto || "-",
@@ -83,7 +75,36 @@ export default function RelatorioSolicitacoesPorStatus() {
           r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
           r.dataConclusao ? new Date(r.dataConclusao).toLocaleDateString("pt-BR") : "-",
           r.prazoDesejado ? new Date(r.prazoDesejado).toLocaleDateString("pt-BR") : "-",
-        ])},
+        ])
+      )
+    }, 200)
+  }
+
+  async function handleExportPDF() {
+    const rotulo = getStatusLabel(selectedStatus)
+    await exportPDFRelatorio({
+      title: `Relatório: Solicitações ${rotulo}`,
+      stats: stats
+        ? {
+            Total: stats.total,
+            Tecelagem: stats.tecelagem,
+            Beneficiamento: stats.beneficiamento,
+          }
+        : undefined,
+      tables: [
+        { headers: ["Mês", "Total"], rows: porMes.map((m: any) => [m.mes, m.total]) },
+        {
+          headers: ["#", "Cliente", "Projeto", "Tipo", "Criado em", "Concluído em", "Prazo"],
+          rows: lista.map((r: any) => [
+            r.id,
+            r.cliente,
+            r.projeto || "-",
+            r.tipo === "DESENVOLVIMENTO_TECELAGEM" ? "Tecelagem" : "Beneficiamento",
+            r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-",
+            r.dataConclusao ? new Date(r.dataConclusao).toLocaleDateString("pt-BR") : "-",
+            r.prazoDesejado ? new Date(r.prazoDesejado).toLocaleDateString("pt-BR") : "-",
+          ]),
+        },
       ],
     })
   }
@@ -94,9 +115,13 @@ export default function RelatorioSolicitacoesPorStatus() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Solicitações de Desenvolvimento por Status{info && <InfoButton content={info} />}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+          Relatório: Solicitações de Desenvolvimento por Status
+          {info && <InfoButton content={info} />}
+        </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Filtre solicitações de desenvolvimento por status — total, distribuição por tipo e detalhamento
+          Filtre solicitações de desenvolvimento por status — total, distribuição por tipo e
+          detalhamento
         </p>
       </div>
 
@@ -112,7 +137,9 @@ export default function RelatorioSolicitacoesPorStatus() {
             className="h-9 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 text-sm min-w-[200px]"
           >
             {statuses.map((s: any) => (
-              <option key={s.nome} value={s.nome}>{s.rotulo}</option>
+              <option key={s.nome} value={s.nome}>
+                {s.rotulo}
+              </option>
             ))}
           </select>
         </div>
@@ -143,10 +170,16 @@ export default function RelatorioSolicitacoesPorStatus() {
         <div className="flex-1" />
         {selectedStatus && (
           <>
-            <button onClick={handleExportCSV} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+            <button
+              onClick={handleExportCSV}
+              className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
+            >
               CSV
             </button>
-            <button onClick={handleExportPDF} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+            <button
+              onClick={handleExportPDF}
+              className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
+            >
               PDF
             </button>
           </>
@@ -157,20 +190,30 @@ export default function RelatorioSolicitacoesPorStatus() {
         <div className="grid grid-cols-3 gap-4">
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total</p>
-            <p className="text-3xl font-bold text-slate-700 dark:text-slate-200 mt-1">{stats.total}</p>
+            <p className="text-3xl font-bold text-slate-700 dark:text-slate-200 mt-1">
+              {stats.total}
+            </p>
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-blue-50 dark:bg-blue-950/50 p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Tecelagem</p>
-            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1">{stats.tecelagem}</p>
+            <p className="text-3xl font-bold text-blue-600 dark:text-blue-400 mt-1">
+              {stats.tecelagem}
+            </p>
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-purple-50 dark:bg-purple-950/50 p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Beneficiamento</p>
-            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-1">{stats.beneficiamento}</p>
+            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-1">
+              {stats.beneficiamento}
+            </p>
           </div>
         </div>
       )}
 
-      <SolicitacoesPorStatusCharts porMes={porMes} getStatusLabel={getStatusLabel} selectedStatus={selectedStatus} />
+      <SolicitacoesPorStatusCharts
+        porMes={porMes}
+        getStatusLabel={getStatusLabel}
+        selectedStatus={selectedStatus}
+      />
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800">
@@ -183,12 +226,16 @@ export default function RelatorioSolicitacoesPorStatus() {
         ) : !selectedStatus ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <BarChart3 className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Selecione um status para visualizar</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Selecione um status para visualizar
+            </p>
           </div>
         ) : lista.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <BarChart3 className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma solicitação encontrada</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Nenhuma solicitação encontrada
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
@@ -196,11 +243,21 @@ export default function RelatorioSolicitacoesPorStatus() {
               <thead>
                 <tr className="border-b border-slate-100 dark:border-slate-800">
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">#</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Cliente</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Tipo</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Criado em</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Concluído em</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Prazo</th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Cliente
+                  </th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Tipo
+                  </th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Criado em
+                  </th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Concluído em
+                  </th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Prazo
+                  </th>
                   <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase"></th>
                 </tr>
               </thead>
@@ -210,16 +267,25 @@ export default function RelatorioSolicitacoesPorStatus() {
                   const hoje = new Date()
                   const vencido = prazoDate && prazoDate < hoje
                   return (
-                    <tr key={r.id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                      <td className="p-3 font-medium text-slate-700 dark:text-slate-300">#{r.id}</td>
+                    <tr
+                      key={r.id}
+                      className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30"
+                    >
+                      <td className="p-3 font-medium text-slate-700 dark:text-slate-300">
+                        #{r.id}
+                      </td>
                       <td className="p-3 text-slate-600 dark:text-slate-400">
                         <div>{r.cliente}</div>
                         {r.projeto && <div className="text-xs text-slate-400">{r.projeto}</div>}
                       </td>
                       <td className="p-3">
-                        <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                        <span
+                          className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
                           style={{
-                            backgroundColor: r.tipo === "DESENVOLVIMENTO_TECELAGEM" ? hexToRgba("#3b82f6", 0.12) : hexToRgba("#a855f7", 0.12),
+                            backgroundColor:
+                              r.tipo === "DESENVOLVIMENTO_TECELAGEM"
+                                ? hexToRgba("#3b82f6", 0.12)
+                                : hexToRgba("#a855f7", 0.12),
                             color: r.tipo === "DESENVOLVIMENTO_TECELAGEM" ? "#3b82f6" : "#a855f7",
                           }}
                         >
@@ -230,14 +296,18 @@ export default function RelatorioSolicitacoesPorStatus() {
                         {r.createdAt ? new Date(r.createdAt).toLocaleDateString("pt-BR") : "-"}
                       </td>
                       <td className="p-3 text-slate-500 text-xs">
-                        {r.dataConclusao ? new Date(r.dataConclusao).toLocaleDateString("pt-BR") : "-"}
+                        {r.dataConclusao
+                          ? new Date(r.dataConclusao).toLocaleDateString("pt-BR")
+                          : "-"}
                       </td>
                       <td className="p-3 text-slate-500 text-xs">
                         {prazoDate ? (
                           <span className={vencido ? "text-red-500 font-medium" : ""}>
                             {prazoDate.toLocaleDateString("pt-BR")}
                           </span>
-                        ) : "-"}
+                        ) : (
+                          "-"
+                        )}
                       </td>
                       <td className="p-3">
                         <Link

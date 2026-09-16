@@ -6,7 +6,10 @@ export type ResultadoBuscaLocal = {
 
 const NOMINATIM_URL = "https://nominatim.openstreetmap.org/search"
 
-export async function buscarLocal(termo: string, signal?: AbortSignal): Promise<ResultadoBuscaLocal[]> {
+export async function buscarLocal(
+  termo: string,
+  signal?: AbortSignal
+): Promise<ResultadoBuscaLocal[]> {
   const texto = termo.trim()
   if (texto.length < 3) return []
   const url = new URL(NOMINATIM_URL)
@@ -29,7 +32,10 @@ export async function buscarLocal(termo: string, signal?: AbortSignal): Promise<
         longitude: Number(item.lon),
         rotulo: String(item.display_name || ""),
       }))
-      .filter((r: ResultadoBuscaLocal) => Number.isFinite(r.latitude) && Number.isFinite(r.longitude) && r.rotulo)
+      .filter(
+        (r: ResultadoBuscaLocal) =>
+          Number.isFinite(r.latitude) && Number.isFinite(r.longitude) && r.rotulo
+      )
   } catch {
     return []
   }

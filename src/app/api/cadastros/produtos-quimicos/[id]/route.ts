@@ -8,16 +8,17 @@ import { handleApiError } from "@/lib/api-error"
 import { notificarDelecao } from "@/lib/notificar"
 export const dynamic = "force-dynamic"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
     const { id } = await params
-    const [item] = await db.select().from(produtosQuimicos).where(eq(produtosQuimicos.id, parseInt(id))).limit(1)
+    const [item] = await db
+      .select()
+      .from(produtosQuimicos)
+      .where(eq(produtosQuimicos.id, parseInt(id)))
+      .limit(1)
     if (!item) return NextResponse.json({ error: "Não encontrado" }, { status: 404 })
     return NextResponse.json(item)
   } catch (error) {
@@ -26,10 +27,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -37,22 +35,25 @@ export async function PUT(
     const { id } = await params
     const body = await req.json()
 
-    await db.update(produtosQuimicos).set({
-      codigo: body.codigo,
-      nome: body.nome,
-      descricao: body.descricao || null,
-      categoria: body.categoria || null,
-      unidadePadrao: body.unidadePadrao || "kg",
-      tipo: body.tipo || null,
-      concentracao: body.concentracao || null,
-      densidade: body.densidade || null,
-      ph: body.ph || null,
-      observacoes: body.observacoes || null,
-      fichaSeguranca: body.fichaSeguranca || null,
-      idIntegracao: body.idIntegracao || null,
-      ativo: body.ativo ?? true,
-      updatedAt: new Date(),
-    }).where(eq(produtosQuimicos.id, parseInt(id)))
+    await db
+      .update(produtosQuimicos)
+      .set({
+        codigo: body.codigo,
+        nome: body.nome,
+        descricao: body.descricao || null,
+        categoria: body.categoria || null,
+        unidadePadrao: body.unidadePadrao || "kg",
+        tipo: body.tipo || null,
+        concentracao: body.concentracao || null,
+        densidade: body.densidade || null,
+        ph: body.ph || null,
+        observacoes: body.observacoes || null,
+        fichaSeguranca: body.fichaSeguranca || null,
+        idIntegracao: body.idIntegracao || null,
+        ativo: body.ativo ?? true,
+        updatedAt: new Date(),
+      })
+      .where(eq(produtosQuimicos.id, parseInt(id)))
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
@@ -64,10 +65,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })

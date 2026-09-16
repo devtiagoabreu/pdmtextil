@@ -8,10 +8,7 @@ import { handleApiError } from "@/lib/api-error"
 import { notificarDelecao } from "@/lib/notificar"
 export const dynamic = "force-dynamic"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -34,10 +31,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -53,7 +47,10 @@ export async function PUT(
         .limit(1)
 
       if (existenteIdInt[0] && existenteIdInt[0].id !== parseInt(id)) {
-        return NextResponse.json({ error: "ID Integração já cadastrado em outro fio" }, { status: 409 })
+        return NextResponse.json(
+          { error: "ID Integração já cadastrado em outro fio" },
+          { status: 409 }
+        )
       }
     }
 
@@ -91,10 +88,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -109,7 +103,11 @@ export async function DELETE(
       return NextResponse.json({ error: "Fio não encontrado" }, { status: 404 })
     }
 
-    await notificarDelecao("Fio", String(deleted[0]?.codigoFio || deleted[0]?.id), session?.user?.name)
+    await notificarDelecao(
+      "Fio",
+      String(deleted[0]?.codigoFio || deleted[0]?.id),
+      session?.user?.name
+    )
 
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -27,11 +27,19 @@ export function NovaConexaoForm({
       <h2 className="text-lg font-semibold">Nova Conexão</h2>
       <div className="space-y-2">
         <Label>Nome</Label>
-        <Input value={nome} onChange={e => setNome(e.target.value)} placeholder="Ex: Produção Neon" />
+        <Input
+          value={nome}
+          onChange={(e) => setNome(e.target.value)}
+          placeholder="Ex: Produção Neon"
+        />
       </div>
       <div className="space-y-2">
         <Label>String de Conexão</Label>
-        <Input value={connectionString} onChange={e => setConnectionString(e.target.value)} placeholder="postgresql://user:pass@host:5432/postgres" />
+        <Input
+          value={connectionString}
+          onChange={(e) => setConnectionString(e.target.value)}
+          placeholder="postgresql://user:pass@host:5432/postgres"
+        />
       </div>
       <div className="flex gap-2">
         <Button onClick={onAdd} disabled={saving} className="gap-2">

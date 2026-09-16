@@ -3,7 +3,19 @@
 import { useState, useEffect, useRef } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { signOut, useSession } from "next-auth/react"
-import { Bell, Menu, Search, X, User, LogOut, Settings, CheckCheck, Loader2, PanelLeftClose, PanelLeftOpen } from "lucide-react"
+import {
+  Bell,
+  Menu,
+  Search,
+  X,
+  User,
+  LogOut,
+  Settings,
+  CheckCheck,
+  Loader2,
+  PanelLeftClose,
+  PanelLeftOpen,
+} from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ThemeToggle } from "./theme-toggle"
@@ -95,7 +107,7 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id: n.id }),
       })
-      setNotificacoes(prev => prev.filter((p: any) => p.id !== n.id))
+      setNotificacoes((prev) => prev.filter((p: any) => p.id !== n.id))
     }
     setShowNotifications(false)
     if (n.link) router.push(n.link)
@@ -174,7 +186,11 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
         {/* Notifications */}
         <div className="relative">
           <button
-            onClick={() => { setShowNotifications(!showNotifications); setShowUserMenu(false); if (!showNotifications) notificacoesQuery.refetch() }}
+            onClick={() => {
+              setShowNotifications(!showNotifications)
+              setShowUserMenu(false)
+              if (!showNotifications) notificacoesQuery.refetch()
+            }}
             aria-label={`Notificações${unreadCount > 0 ? ` (${unreadCount} não lidas)` : ""}`}
             aria-haspopup="true"
             aria-expanded={showNotifications}
@@ -189,7 +205,10 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
           </button>
 
           {showNotifications && (
-            <div ref={notifRef} className="absolute right-0 mt-2 w-80 rounded-xl border bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900 animate-fade-in z-50">
+            <div
+              ref={notifRef}
+              className="absolute right-0 mt-2 w-80 rounded-xl border bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900 animate-fade-in z-50"
+            >
               <div className="border-b p-3 font-semibold text-sm dark:border-slate-700 flex items-center justify-between">
                 <span>Notificações</span>
                 <div className="flex items-center gap-2">
@@ -198,7 +217,10 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
                       <span className="text-xs bg-red-100 text-red-600 dark:bg-red-900 dark:text-red-300 rounded-full px-2 py-0.5">
                         {unreadCount}
                       </span>
-                      <button onClick={marcarLidas} className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1">
+                      <button
+                        onClick={marcarLidas}
+                        className="text-xs text-blue-600 hover:text-blue-700 flex items-center gap-1"
+                      >
                         <CheckCheck size={14} /> Ler tudo
                       </button>
                     </>
@@ -207,7 +229,9 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
               </div>
               <div className="max-h-80 overflow-y-auto divide-y dark:divide-slate-800">
                 {loadingNotif && notificacoes.length === 0 && (
-                  <div className="p-6 text-center"><Loader2 size={20} className="animate-spin mx-auto text-slate-400" /></div>
+                  <div className="p-6 text-center">
+                    <Loader2 size={20} className="animate-spin mx-auto text-slate-400" />
+                  </div>
                 )}
                 {!loadingNotif && notificacoes.length === 0 && (
                   <div className="p-6 text-center text-sm text-slate-500">Nenhuma notificação</div>
@@ -218,7 +242,9 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
                     onClick={() => handleNotificacaoClick(n)}
                     className="w-full text-left p-3 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
                   >
-                    <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{n.mensagem}</p>
+                    <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                      {n.mensagem}
+                    </p>
                     <p className="text-xs text-slate-500 mt-0.5">{formatTime(n.createdAt)}</p>
                   </button>
                 ))}
@@ -230,7 +256,10 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
         {/* User Menu */}
         <div className="relative" ref={userMenuRef}>
           <button
-            onClick={() => { setShowUserMenu(!showUserMenu); setShowNotifications(false) }}
+            onClick={() => {
+              setShowUserMenu(!showUserMenu)
+              setShowNotifications(false)
+            }}
             aria-label="Menu do usuário"
             aria-haspopup="true"
             aria-expanded={showUserMenu}
@@ -247,19 +276,27 @@ export function Header({ onMenuClick, onToggleSidebar, sidebarCollapsed }: Heade
           {showUserMenu && (
             <div className="absolute right-0 mt-2 w-56 rounded-xl border bg-white shadow-xl dark:border-slate-700 dark:bg-slate-900 animate-fade-in z-50">
               <div className="border-b p-3 dark:border-slate-700">
-                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">{session?.user?.name}</p>
+                <p className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  {session?.user?.name}
+                </p>
                 <p className="text-xs text-slate-500 mt-0.5">{session?.user?.email}</p>
                 <span className="mt-1.5 inline-block rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 px-2 py-0.5 text-xs font-medium">
                   {session?.user?.role}
                 </span>
               </div>
               <div className="p-2">
-                <Link href="/perfil" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
+                <Link
+                  href="/perfil"
+                  className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
+                >
                   <User size={16} />
                   Meu Perfil
                 </Link>
                 {session?.user?.role === "ADMIN" && (
-                  <Link href="/admin/configuracoes" className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors">
+                  <Link
+                    href="/admin/configuracoes"
+                    className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-sm text-slate-700 hover:bg-slate-100 dark:text-slate-300 dark:hover:bg-slate-800 transition-colors"
+                  >
                     <Settings size={16} />
                     Configurações
                   </Link>

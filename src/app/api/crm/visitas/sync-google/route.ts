@@ -5,7 +5,11 @@ import { crmVisitas } from "@/lib/db/schema/crm-visitas"
 import { crmPessoas } from "@/lib/db/schema/crm-pessoas"
 import { clientes } from "@/lib/db/schema/clientes"
 import { eq } from "drizzle-orm"
-import { createCalendarEvent, updateCalendarEvent, deleteCalendarEvent } from "@/lib/google-calendar"
+import {
+  createCalendarEvent,
+  updateCalendarEvent,
+  deleteCalendarEvent,
+} from "@/lib/google-calendar"
 
 function buildEventSummary(visita: any): string {
   const entity = visita.empresaNome || visita.clienteNome || "Visita"
@@ -15,7 +19,10 @@ function buildEventSummary(visita: any): string {
 function buildEventDescription(visita: any): string {
   const parts: string[] = []
   if (visita.tipo) parts.push(`Tipo: ${visita.tipo}`)
-  if (visita.endereco) parts.push(`Endereco: ${visita.endereco}${visita.numero ? `, ${visita.numero}` : ""}${visita.cidade ? ` - ${visita.cidade}/${visita.uf}` : ""}`)
+  if (visita.endereco)
+    parts.push(
+      `Endereco: ${visita.endereco}${visita.numero ? `, ${visita.numero}` : ""}${visita.cidade ? ` - ${visita.cidade}/${visita.uf}` : ""}`
+    )
   if (visita.relato) parts.push(`Relato: ${visita.relato.replace(/<[^>]*>/g, "").slice(0, 200)}`)
   return parts.join("\n")
 }
@@ -32,7 +39,10 @@ export async function POST(req: NextRequest) {
     const session = auth.session
     const accessToken = (session.user as any).accessToken
     if (!accessToken) {
-      return NextResponse.json({ error: "Login via Google necessario para sincronizar com Google Calendar" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Login via Google necessario para sincronizar com Google Calendar" },
+        { status: 400 }
+      )
     }
 
     const body = await req.json()

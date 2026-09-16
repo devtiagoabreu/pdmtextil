@@ -16,7 +16,14 @@ vi.mock("@/lib/notificar", () => ({
   notificarDelecao: vi.fn(),
 }))
 vi.mock("@/lib/db", () => ({
-  db: { select: vi.fn(), insert: vi.fn(), update: vi.fn(), delete: vi.fn(), execute: vi.fn(), transaction: vi.fn() },
+  db: {
+    select: vi.fn(),
+    insert: vi.fn(),
+    update: vi.fn(),
+    delete: vi.fn(),
+    execute: vi.fn(),
+    transaction: vi.fn(),
+  },
 }))
 vi.mock("@/lib/crm/geocode", () => ({ geocodificarCamposEndereco: vi.fn() }))
 
@@ -81,13 +88,18 @@ describe("DELETE /api/crm/visitas/[id]", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await del("1")
     expect(res.status).toBe(401)
   })
 
   it("retorna 403 para papel não autorizado", async () => {
-    vi.mocked(requireAuth).mockResolvedValue({ session: { user: { id: "2", role: "GERENTE" } }, userId: 2 } as any)
+    vi.mocked(requireAuth).mockResolvedValue({
+      session: { user: { id: "2", role: "GERENTE" } },
+      userId: 2,
+    } as any)
     const res = await del("1")
     expect(res.status).toBe(403)
     expect(await res.json()).toEqual({ error: "Apenas administradores podem excluir" })
@@ -112,7 +124,7 @@ describe("DELETE /api/crm/visitas/[id]", () => {
 
 describe("PUT /api/crm/visitas/[id]", () => {
   beforeEach(() => {
-vi.mocked(requireAuth).mockReset()
+    vi.mocked(requireAuth).mockReset()
 
     vi.mocked(geocodificarCamposEndereco).mockReset()
     vi.mocked(requireAuth).mockResolvedValue(sessionAdmin as any)
@@ -120,27 +132,52 @@ vi.mocked(requireAuth).mockReset()
   })
 
   function put(id: string, body: Record<string, any>) {
-    return PUT(new NextRequest(`http://localhost/api/crm/visitas/${id}`, { method: "PUT", body: JSON.stringify(body) }), {
-      params: Promise.resolve({ id }),
-    })
+    return PUT(
+      new NextRequest(`http://localhost/api/crm/visitas/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(body),
+      }),
+      {
+        params: Promise.resolve({ id }),
+      }
+    )
   }
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await put("10", {})
     expect(res.status).toBe(401)
   })
 
   it("geocodifica e salva as coordenadas ao atualizar o endereço da visita", async () => {
     vi.mocked(geocodificarCamposEndereco).mockResolvedValue({ latitude: -16.82, longitude: -49.25 })
-    ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(createQueryBuilder([visitaExistente()]))
-    const builder = createQueryBuilder([visitaExistente({ enderecoLat: -16.82, enderecoLng: -49.25 })])
+    ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(
+      createQueryBuilder([visitaExistente()])
+    )
+    const builder = createQueryBuilder([
+      visitaExistente({ enderecoLat: -16.82, enderecoLng: -49.25 }),
+    ])
     ;(db.update as ReturnType<typeof vi.fn>).mockReturnValue(builder)
 
-    const res = await put("10", { endereco: "Av. X", numero: "100", bairro: "Centro", cidade: "Goiânia", uf: "GO" })
+    const res = await put("10", {
+      endereco: "Av. X",
+      numero: "100",
+      bairro: "Centro",
+      cidade: "Goiânia",
+      uf: "GO",
+    })
 
     expect(res.status).toBe(200)
-    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({ endereco: "Av. X", numero: "100", complemento: null, bairro: "Centro", cidade: "Goiânia", uf: "GO" })
+    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({
+      endereco: "Av. X",
+      numero: "100",
+      complemento: null,
+      bairro: "Centro",
+      cidade: "Goiânia",
+      uf: "GO",
+    })
     const setArgs = builder.set.mock.calls[0][0]
     expect(setArgs.enderecoLat).toBe(-16.82)
     expect(setArgs.enderecoLng).toBe(-49.25)
@@ -149,11 +186,20 @@ vi.mocked(requireAuth).mockReset()
   })
 
   it("limpa as coordenadas ao remover o endereço da visita", async () => {
-    ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(createQueryBuilder([visitaExistente()]))
+    ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(
+      createQueryBuilder([visitaExistente()])
+    )
     const builder = createQueryBuilder([visitaExistente()])
     ;(db.update as ReturnType<typeof vi.fn>).mockReturnValue(builder)
 
-    const res = await put("10", { endereco: null, numero: null, complemento: null, bairro: null, cidade: null, uf: null })
+    const res = await put("10", {
+      endereco: null,
+      numero: null,
+      complemento: null,
+      bairro: null,
+      cidade: null,
+      uf: null,
+    })
 
     expect(res.status).toBe(200)
     expect(geocodificarCamposEndereco).not.toHaveBeenCalled()
@@ -165,10 +211,28 @@ vi.mocked(requireAuth).mockReset()
   it("usa o endereço da pessoa (empresa) quando a visita fica sem endereço", async () => {
     vi.mocked(geocodificarCamposEndereco).mockResolvedValue({ latitude: -16.68, longitude: -49.26 })
     ;(db.select as ReturnType<typeof vi.fn>)
-      .mockReturnValueOnce(createQueryBuilder([visitaExistente({ empresaId: 9, endereco: null, numero: null, bairro: null, cidade: null, uf: null })]))
       .mockReturnValueOnce(
         createQueryBuilder([
-          { endereco: "Av. das Empresas", numero: "500", complemento: null, bairro: "Industrial", cidade: "Aparecida de Goiânia", uf: "GO" },
+          visitaExistente({
+            empresaId: 9,
+            endereco: null,
+            numero: null,
+            bairro: null,
+            cidade: null,
+            uf: null,
+          }),
+        ])
+      )
+      .mockReturnValueOnce(
+        createQueryBuilder([
+          {
+            endereco: "Av. das Empresas",
+            numero: "500",
+            complemento: null,
+            bairro: "Industrial",
+            cidade: "Aparecida de Goiânia",
+            uf: "GO",
+          },
         ])
       )
     const builder = createQueryBuilder([visitaExistente({ empresaId: 9 })])
@@ -177,11 +241,20 @@ vi.mocked(requireAuth).mockReset()
     const res = await put("10", { endereco: null })
 
     expect(res.status).toBe(200)
-    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({ endereco: "Av. das Empresas", numero: "500", complemento: null, bairro: "Industrial", cidade: "Aparecida de Goiânia", uf: "GO" })
+    expect(geocodificarCamposEndereco).toHaveBeenCalledWith({
+      endereco: "Av. das Empresas",
+      numero: "500",
+      complemento: null,
+      bairro: "Industrial",
+      cidade: "Aparecida de Goiânia",
+      uf: "GO",
+    })
   })
 
   it("não geocodifica quando nenhum campo de endereço é enviado", async () => {
-    ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(createQueryBuilder([visitaExistente()]))
+    ;(db.select as ReturnType<typeof vi.fn>).mockReturnValueOnce(
+      createQueryBuilder([visitaExistente()])
+    )
     const builder = createQueryBuilder([visitaExistente()])
     ;(db.update as ReturnType<typeof vi.fn>).mockReturnValue(builder)
 

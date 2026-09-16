@@ -41,7 +41,9 @@ describe("NovaRequisicaoCortePage", () => {
     renderPage(<NovaRequisicaoCortePage />)
     fireEvent.click(screen.getByRole("button", { name: "Salvar Requisição" }))
 
-    await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Adicione pelo menos um item com quantidade"))
+    await waitFor(() =>
+      expect(toastMock.error).toHaveBeenCalledWith("Adicione pelo menos um item com quantidade")
+    )
     expect(findCall(fetchMock.calls, "/api/comercial/requisicoes-corte", "POST")).toBeUndefined()
   })
 
@@ -50,17 +52,22 @@ describe("NovaRequisicaoCortePage", () => {
       if (url === "/api/clientes") return { json: [] }
       if (url.startsWith("/api/cadastros/fornecedores")) return { json: [] }
       if (url === "/api/representantes") return { json: [] }
-      if (method === "POST" && url === "/api/comercial/requisicoes-corte") return { status: 201, json: { id: 40 } }
+      if (method === "POST" && url === "/api/comercial/requisicoes-corte")
+        return { status: 201, json: { id: 40 } }
       return { status: 404, json: { error: "Rota não mockada" } }
     })
     vi.stubGlobal("fetch", fetchMock.fn)
 
     renderPage(<NovaRequisicaoCortePage />)
 
-    fireEvent.change(screen.getByPlaceholderText("2.K2620..."), { target: { value: "2.K2620.001" } })
+    fireEvent.change(screen.getByPlaceholderText("2.K2620..."), {
+      target: { value: "2.K2620.001" },
+    })
     fireEvent.change(screen.getByPlaceholderText("Palha"), { target: { value: "Preto" } })
     fireEvent.change(screen.getByPlaceholderText("2 M"), { target: { value: "3 M" } })
-    fireEvent.change(screen.getByPlaceholderText("Digite aqui mais informações"), { target: { value: "Urgente" } })
+    fireEvent.change(screen.getByPlaceholderText("Digite aqui mais informações"), {
+      target: { value: "Urgente" },
+    })
     fireEvent.change(screen.getByPlaceholderText("Vilma"), { target: { value: "Tiago" } })
     fireEvent.click(screen.getByRole("button", { name: "Salvar Requisição" }))
 
@@ -73,7 +80,9 @@ describe("NovaRequisicaoCortePage", () => {
       expect(call!.body.observacoes).toBe("Urgente")
       expect(call!.body.entreguePor).toBe("Tiago")
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Requisição criada com sucesso"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Requisição criada com sucesso")
+    )
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/requisicoes-corte")
   })
 
@@ -88,7 +97,9 @@ describe("NovaRequisicaoCortePage", () => {
 
     renderPage(<NovaRequisicaoCortePage />)
 
-    fireEvent.change(screen.getByPlaceholderText("2.K2620..."), { target: { value: "2.K2620.001" } })
+    fireEvent.change(screen.getByPlaceholderText("2.K2620..."), {
+      target: { value: "2.K2620.001" },
+    })
     fireEvent.change(screen.getByPlaceholderText("2 M"), { target: { value: "5 M" } })
 
     fireEvent.click(screen.getByRole("button", { name: /Copiar Item/ }))

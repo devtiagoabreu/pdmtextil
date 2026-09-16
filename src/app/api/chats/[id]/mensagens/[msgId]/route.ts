@@ -7,10 +7,13 @@ import { eq, and } from "drizzle-orm"
 function isWithin5Min(data: Date | string | null): boolean {
   if (!data) return false
   const agora = new Date()
-  return (agora.getTime() - new Date(data).getTime()) < 5 * 60 * 1000
+  return agora.getTime() - new Date(data).getTime() < 5 * 60 * 1000
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string; msgId: string }> }) {
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string; msgId: string }> }
+) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -32,8 +35,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
       .limit(1)
 
     if (!msg) return NextResponse.json({ error: "Mensagem não encontrada" }, { status: 404 })
-    if (msg.remetenteId !== userId) return NextResponse.json({ error: "Não autorizado" }, { status: 403 })
-    if (!isWithin5Min(msg.createdAt)) return NextResponse.json({ error: "Prazo de 5 minutos expirou" }, { status: 400 })
+    if (msg.remetenteId !== userId)
+      return NextResponse.json({ error: "Não autorizado" }, { status: 403 })
+    if (!isWithin5Min(msg.createdAt))
+      return NextResponse.json({ error: "Prazo de 5 minutos expirou" }, { status: 400 })
 
     const [updated] = await db
       .update(chatMensagens)
@@ -50,7 +55,10 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string; msgId: string }> }) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string; msgId: string }> }
+) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -67,8 +75,10 @@ export async function DELETE(req: NextRequest, { params }: { params: Promise<{ i
       .limit(1)
 
     if (!msg) return NextResponse.json({ error: "Mensagem não encontrada" }, { status: 404 })
-    if (msg.remetenteId !== userId) return NextResponse.json({ error: "Não autorizado" }, { status: 403 })
-    if (!isWithin5Min(msg.createdAt)) return NextResponse.json({ error: "Prazo de 5 minutos expirou" }, { status: 400 })
+    if (msg.remetenteId !== userId)
+      return NextResponse.json({ error: "Não autorizado" }, { status: 403 })
+    if (!isWithin5Min(msg.createdAt))
+      return NextResponse.json({ error: "Prazo de 5 minutos expirou" }, { status: 400 })
 
     await db.delete(chatMensagens).where(eq(chatMensagens.id, mensagemId))
     await db.update(chats).set({ updatedAt: new Date() }).where(eq(chats.id, chatId))

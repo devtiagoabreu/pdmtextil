@@ -14,14 +14,22 @@ export async function GET(req: NextRequest) {
     const campos = [
       { nome: "nome", descricao: "Nome do cliente (obrigatório)", exemplo: "Cliente Exemplo Ltda" },
       { nome: "cnpj", descricao: "CNPJ do cliente (obrigatório)", exemplo: "12.345.678/0001-90" },
-      { nome: "razaoSocial", descricao: "Razão Social", exemplo: "Cliente Exemplo Participações Ltda" },
+      {
+        nome: "razaoSocial",
+        descricao: "Razão Social",
+        exemplo: "Cliente Exemplo Participações Ltda",
+      },
       { nome: "email", descricao: "Email do cliente", exemplo: "contato@cliente.com.br" },
       { nome: "telefone", descricao: "Telefone", exemplo: "(11) 99999-8888" },
       { nome: "contato", descricao: "Nome do contato", exemplo: "João Silva" },
       { nome: "endereco", descricao: "Endereço completo", exemplo: "Rua das Flores, 123" },
       { nome: "cidade", descricao: "Cidade", exemplo: "São Paulo" },
       { nome: "uf", descricao: "UF (2 dígitos)", exemplo: "SP" },
-      { nome: "idIntegracao", descricao: "ID de integração (ERP/WMS/CRM/OUTROS)", exemplo: "CLI001" },
+      {
+        nome: "idIntegracao",
+        descricao: "ID de integração (ERP/WMS/CRM/OUTROS)",
+        exemplo: "CLI001",
+      },
       { nome: "ativo", descricao: "Status ativo (true/false)", exemplo: "true" },
     ]
 

@@ -4,7 +4,11 @@ import { eq, and, lte } from "drizzle-orm"
 import { enviarMensagem, evolutionConfigurado } from "@/lib/evolution-api"
 import { registrarLogBot } from "@/lib/whatsapp/bot-log"
 
-export async function processarRetryQueue(): Promise<{ processados: number; sucessos: number; falhas: number }> {
+export async function processarRetryQueue(): Promise<{
+  processados: number
+  sucessos: number
+  falhas: number
+}> {
   if (!evolutionConfigurado()) return { processados: 0, sucessos: 0, falhas: 0 }
 
   const pendentes = await db
@@ -25,18 +29,21 @@ export async function processarRetryQueue(): Promise<{ processados: number; suce
     const resultado = await enviarMensagem(item.remoteJid, item.mensagem)
 
     if (resultado.sucesso) {
-      await db.update(crmWhatsappRetryQueue)
+      await db
+        .update(crmWhatsappRetryQueue)
         .set({ status: "ENVIADO" })
         .where(eq(crmWhatsappRetryQueue.id, item.id))
       sucessos++
     } else {
       const novasTentativas = item.tentativas + 1
       const nextStatus = novasTentativas >= item.maxTentativas ? "FALHOU" : "PENDENTE"
-      const proximoRetry = nextStatus === "PENDENTE"
-        ? new Date(Date.now() + Math.pow(2, novasTentativas) * 60 * 1000) // exponential backoff: 2min, 4min, 8min
-        : null
+      const proximoRetry =
+        nextStatus === "PENDENTE"
+          ? new Date(Date.now() + Math.pow(2, novasTentativas) * 60 * 1000) // exponential backoff: 2min, 4min, 8min
+          : null
 
-      await db.update(crmWhatsappRetryQueue)
+      await db
+        .update(crmWhatsappRetryQueue)
         .set({
           tentativas: novasTentativas,
           status: nextStatus,
@@ -61,7 +68,11 @@ export async function processarRetryQueue(): Promise<{ processados: number; suce
   return { processados: pendentes.length, sucessos, falhas }
 }
 
-export async function enfileirarRetry(remoteJid: string, mensagem: string, erro: string): Promise<void> {
+export async function enfileirarRetry(
+  remoteJid: string,
+  mensagem: string,
+  erro: string
+): Promise<void> {
   await db.insert(crmWhatsappRetryQueue).values({
     remoteJid,
     mensagem,

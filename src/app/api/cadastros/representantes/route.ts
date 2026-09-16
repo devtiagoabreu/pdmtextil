@@ -54,7 +54,19 @@ export async function POST(req: NextRequest) {
     const parsed = validateRequest(representanteSchema, body)
     if ("error" in parsed) return parsed.error
 
-    const { nome, cnpj, razaoSocial, email, telefone, contato, endereco, cidade, uf, gerenteId, idIntegracao } = parsed.data
+    const {
+      nome,
+      cnpj,
+      razaoSocial,
+      email,
+      telefone,
+      contato,
+      endereco,
+      cidade,
+      uf,
+      gerenteId,
+      idIntegracao,
+    } = parsed.data
 
     const existente = await db
       .select()

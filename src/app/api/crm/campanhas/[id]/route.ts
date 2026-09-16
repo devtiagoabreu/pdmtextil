@@ -52,7 +52,12 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
       .where(eq(crmCampanhas.id, Number(id)))
       .returning()
 
-    await notificar("CAMPANHA_ATUALIZADA", `Campanha #${id} atualizada`, `/comercial/crm/campanhas/${id}`, session.user.name)
+    await notificar(
+      "CAMPANHA_ATUALIZADA",
+      `Campanha #${id} atualizada`,
+      `/comercial/crm/campanhas/${id}`,
+      session.user.name
+    )
 
     return NextResponse.json(atualizado)
   } catch (error) {

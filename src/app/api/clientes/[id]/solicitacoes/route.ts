@@ -7,10 +7,7 @@ import { usuarios } from "@/lib/db/schema/usuarios"
 import { anexos } from "@/lib/db/schema/anexos"
 import { eq, desc, or, sql, and } from "drizzle-orm"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -42,14 +39,7 @@ export async function GET(
       })
       .from(solicitacoes)
       .leftJoin(usuarios, eq(solicitacoes.solicitanteId, usuarios.id))
-      .where(
-        and(
-          or(
-            eq(solicitacoes.cliente, c.nome),
-            eq(solicitacoes.cnpj, c.cnpj)
-          )
-        )
-      )
+      .where(and(or(eq(solicitacoes.cliente, c.nome), eq(solicitacoes.cnpj, c.cnpj))))
       .orderBy(desc(solicitacoes.createdAt))
 
     return NextResponse.json(lista)

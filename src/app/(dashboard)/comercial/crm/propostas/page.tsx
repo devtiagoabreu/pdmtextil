@@ -4,9 +4,19 @@ import { useQuery } from "@tanstack/react-query"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
-import {Suspense, useState} from "react"
+import { Suspense, useState } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { PlusCircle, FileText, Search, Table, Columns, Users, User, Pencil, Trash2 } from "lucide-react"
+import {
+  PlusCircle,
+  FileText,
+  Search,
+  Table,
+  Columns,
+  Users,
+  User,
+  Pencil,
+  Trash2,
+} from "lucide-react"
 import PropostasKanban from "@/components/crm/propostas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import ListFilters, { useListFilters } from "@/components/ui/list-filters"
@@ -40,14 +50,20 @@ function PropostasPageContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
-  const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
+  const [modo, setModo] = useState<"tabela" | "kanban">(
+    searchParams.get("view") === "kanban" ? "kanban" : "tabela"
+  )
 
   const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("minhas")
   const [deleteTarget, setDeleteTarget] = useState<Proposta | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
 
-  const { data: propostas, isLoading, refetch } = useQuery<Proposta[]>({
+  const {
+    data: propostas,
+    isLoading,
+    refetch,
+  } = useQuery<Proposta[]>({
     queryKey: ["crm-propostas", visitasFilter],
     queryFn: () => fetchPropostas(visitasFilter === "minhas"),
     retry: 1,
@@ -73,7 +89,8 @@ function PropostasPageContent() {
   }
 
   const filterState = useListFilters(
-    { searchFields: ["titulo", "empresaNome", "clienteNome"],
+    {
+      searchFields: ["titulo", "empresaNome", "clienteNome"],
       statusOptions: [
         { value: "ENVIADA", label: "Enviada" },
         { value: "ACEITA", label: "Aceita" },
@@ -90,9 +107,13 @@ function PropostasPageContent() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Propostas{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Propostas{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {isLoading ? "Carregando..." : `${filteredData.length} de ${(propostas || []).length} total`}
+            {isLoading
+              ? "Carregando..."
+              : `${filteredData.length} de ${(propostas || []).length} total`}
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -155,100 +176,131 @@ function PropostasPageContent() {
       </div>
 
       {modo === "tabela" && (
-      <>
-      <ListFilters
-        config={{
-          searchFields: ["titulo", "empresaNome", "clienteNome"],
-          statusOptions: [
-            { value: "ENVIADA", label: "Enviada" },
-            { value: "ACEITA", label: "Aceita" },
-            { value: "RECUSADA", label: "Recusada" },
-            { value: "REVISAO", label: "Revisão" },
-          ],
-          dateField: "createdAt",
-        }}
-        data={propostas || []}
-        filterState={filterState}
-        placeholder="Buscar por pessoa ou título..."
-      />
+        <>
+          <ListFilters
+            config={{
+              searchFields: ["titulo", "empresaNome", "clienteNome"],
+              statusOptions: [
+                { value: "ENVIADA", label: "Enviada" },
+                { value: "ACEITA", label: "Aceita" },
+                { value: "RECUSADA", label: "Recusada" },
+                { value: "REVISAO", label: "Revisão" },
+              ],
+              dateField: "createdAt",
+            }}
+            data={propostas || []}
+            filterState={filterState}
+            placeholder="Buscar por pessoa ou título..."
+          />
 
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
-        {isLoading ? (
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+            {isLoading ? (
+              <div className="flex justify-center py-20">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+              </div>
+            ) : filteredData.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <FileText className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                  Nenhuma proposta encontrada
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                        Título
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                        Pessoa (Negócio)
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                        Valor
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                        Status
+                      </th>
+                      <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                        Data
+                      </th>
+                      <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                        Ações
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {filteredData.map((p) => (
+                      <tr key={p.id}>
+                        <td className="px-4 py-3 text-sm font-medium">
+                          <Link
+                            href={`/comercial/crm/propostas/${p.id}`}
+                            className="text-slate-900 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                          >
+                            {p.titulo}
+                          </Link>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-slate-500">
+                          {p.empresaNome || p.clienteNome || "—"}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-slate-900 dark:text-slate-200">
+                          {p.valor
+                            ? `R$ ${Number(p.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
+                            : "—"}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[p.status] || ""}`}
+                          >
+                            {STATUS_LABELS[p.status] || p.status}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-slate-500">
+                          {p.createdAt ? new Date(p.createdAt).toLocaleDateString("pt-BR") : "—"}
+                        </td>
+                        <td className="px-4 py-3 text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <Link
+                              href={`/comercial/crm/propostas/${p.id}`}
+                              className="p-1 text-slate-400 hover:text-blue-600 rounded transition-colors"
+                              title="Editar proposta"
+                            >
+                              <Pencil size={15} />
+                            </Link>
+                            <button
+                              type="button"
+                              className="p-1 text-slate-400 hover:text-red-600 rounded transition-colors"
+                              title="Excluir proposta"
+                              onClick={() => {
+                                setDeleteTarget(p)
+                                setDeleteBlocked(false)
+                              }}
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {modo === "kanban" &&
+        (isLoading ? (
           <div className="flex justify-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
-        ) : filteredData.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <FileText className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma proposta encontrada</p>
-          </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Título</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Pessoa (Negócio)</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Valor</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
-                  <th className="px-4 py-3 text-right text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredData.map((p) => (
-                  <tr key={p.id}>
-                    <td className="px-4 py-3 text-sm font-medium">
-                      <Link href={`/comercial/crm/propostas/${p.id}`} className="text-slate-900 dark:text-slate-200 hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
-                        {p.titulo}
-                      </Link>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-slate-500">{p.empresaNome || p.clienteNome || "—"}</td>
-                    <td className="px-4 py-3 text-sm text-slate-900 dark:text-slate-200">
-                      {p.valor ? `R$ ${Number(p.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
-                    </td>
-                    <td className="px-4 py-3">
-                      <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[p.status] || ""}`}>
-                        {STATUS_LABELS[p.status] || p.status}
-                      </span>
-                    </td>
-                    <td className="px-4 py-3 text-sm text-slate-500">
-                      {p.createdAt ? new Date(p.createdAt).toLocaleDateString("pt-BR") : "—"}
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Link href={`/comercial/crm/propostas/${p.id}`} className="p-1 text-slate-400 hover:text-blue-600 rounded transition-colors" title="Editar proposta">
-                          <Pencil size={15} />
-                        </Link>
-                        <button
-                          type="button"
-                          className="p-1 text-slate-400 hover:text-red-600 rounded transition-colors"
-                          title="Excluir proposta"
-                          onClick={() => { setDeleteTarget(p); setDeleteBlocked(false) }}
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-      </>
-      )}
-
-      {modo === "kanban" && (
-        isLoading ? (
-          <div className="flex justify-center py-20">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
-          </div>
-        ) : (
-          <FloatableKanban tipo="PROPOSTA"><PropostasKanban propostas={filteredData} /></FloatableKanban>
-        )
-      )}
+          <FloatableKanban tipo="PROPOSTA">
+            <PropostasKanban propostas={filteredData} />
+          </FloatableKanban>
+        ))}
 
       <ConfirmModal
         open={deleteTarget !== null}
@@ -259,7 +311,10 @@ function PropostasPageContent() {
         variant="danger"
         loading={deleteLoading}
         onConfirm={handleDelete}
-        onCancel={() => { setDeleteTarget(null); setDeleteBlocked(false) }}
+        onCancel={() => {
+          setDeleteTarget(null)
+          setDeleteBlocked(false)
+        }}
       />
     </div>
   )

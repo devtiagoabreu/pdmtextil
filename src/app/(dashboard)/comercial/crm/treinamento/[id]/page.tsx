@@ -5,8 +5,17 @@ import { usePathname, useParams, useRouter } from "next/navigation"
 import Link from "next/link"
 import { useState } from "react"
 import {
-  ArrowLeft, BookOpen, Video, ExternalLink, Printer,
-  FileText, GraduationCap, Loader2, ChevronLeft, ChevronRight, Download,
+  ArrowLeft,
+  BookOpen,
+  Video,
+  ExternalLink,
+  Printer,
+  FileText,
+  GraduationCap,
+  Loader2,
+  ChevronLeft,
+  ChevronRight,
+  Download,
 } from "lucide-react"
 import ReactMarkdown from "react-markdown"
 import remarkGfm from "remark-gfm"
@@ -58,11 +67,7 @@ export default function LicaoDetailPage() {
   }
 
   if (!licao) {
-    return (
-      <div className="p-6 text-center text-slate-400">
-        Lição não encontrada
-      </div>
-    )
+    return <div className="p-6 text-center text-slate-400">Lição não encontrada</div>
   }
 
   return (
@@ -164,7 +169,9 @@ export default function LicaoDetailPage() {
           <BookOpen size={14} />
           <span className="text-slate-400">PDM Têxtil</span>
           <span className="text-slate-300">—</span>
-          <Link href="/comercial/crm/treinamento" className="hover:text-indigo-600">Treinamento CRM</Link>
+          <Link href="/comercial/crm/treinamento" className="hover:text-indigo-600">
+            Treinamento CRM
+          </Link>
           <span className="text-slate-300">—</span>
           <span className="text-slate-700 dark:text-slate-300">{licao.moduloTitulo}</span>
           <span className="text-slate-300">— </span>
@@ -186,7 +193,8 @@ export default function LicaoDetailPage() {
                 <span>{licao.moduloTitulo}</span>
               </div>
               <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-                {licao.titulo}{info && <InfoButton content={info} />}
+                {licao.titulo}
+                {info && <InfoButton content={info} />}
               </h1>
             </div>
           </div>
@@ -202,21 +210,25 @@ export default function LicaoDetailPage() {
 
         <div className="print-header">
           <span>PDM Têxtil — Treinamento CRM</span>
-          <span>{licao.moduloTitulo} —  {licao.titulo}</span>
+          <span>
+            {licao.moduloTitulo} —  {licao.titulo}
+          </span>
         </div>
 
         <div>
           {licao.preRequisitos && (
             <div className="mb-8 p-4 bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-xl">
-              <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2">Pré-cadastros Necessários</h3>
-              <p className="text-sm text-amber-700 dark:text-amber-400 whitespace-pre-wrap">{licao.preRequisitos}</p>
+              <h3 className="text-sm font-semibold text-amber-800 dark:text-amber-300 mb-2">
+                Pré-cadastros Necessários
+              </h3>
+              <p className="text-sm text-amber-700 dark:text-amber-400 whitespace-pre-wrap">
+                {licao.preRequisitos}
+              </p>
             </div>
           )}
 
           <div className="prose prose-slate dark:prose-invert max-w-none mb-8">
-            <ReactMarkdown remarkPlugins={[remarkGfm]}>
-              {licao.conteudoMd}
-            </ReactMarkdown>
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>{licao.conteudoMd}</ReactMarkdown>
           </div>
         </div>
 
@@ -298,7 +310,8 @@ export default function LicaoDetailPage() {
       </div>
 
       <div className="print-footer-text">
-        PDM Têxtil - {licao.moduloTitulo} / {licao.titulo} — Gerado em {new Date().toLocaleDateString("pt-BR")}
+        PDM Têxtil - {licao.moduloTitulo} / {licao.titulo} — Gerado em{" "}
+        {new Date().toLocaleDateString("pt-BR")}
       </div>
     </>
   )

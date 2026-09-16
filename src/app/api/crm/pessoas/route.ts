@@ -24,12 +24,15 @@ export async function GET(req: NextRequest) {
           like(crmPessoas.nome, `%${search}%`),
           like(crmPessoas.nomeFantasia, `%${search}%`),
           like(crmPessoas.cnpj, `%${search}%`),
-          like(crmPessoas.cpf, `%${search}%`),
+          like(crmPessoas.cpf, `%${search}%`)
         )
       )
     }
 
-    const where = conditions.length > 0 ? sql`${conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`)}` : undefined
+    const where =
+      conditions.length > 0
+        ? sql`${conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`)}`
+        : undefined
 
     const lista = await db
       .select({
@@ -96,7 +99,7 @@ export async function POST(req: NextRequest) {
         tipoPessoa,
         nome: tipoPessoa === "PF" ? body.nome : null,
         razaoSocial: tipoPessoa === "PJ" ? body.razaoSocial : null,
-        nomeFantasia: tipoPessoa === "PJ" ? (body.nomeFantasia || null) : null,
+        nomeFantasia: tipoPessoa === "PJ" ? body.nomeFantasia || null : null,
         cpf: tipoPessoa === "PF" ? cpf : null,
         cnpj: tipoPessoa === "PJ" ? cnpj : null,
         segmento: body.segmento || null,
@@ -129,7 +132,12 @@ export async function POST(req: NextRequest) {
     })
 
     const nomePessoa = nova.nome || nova.razaoSocial || "Pessoa"
-    await notificar("PESSOA_CRIADA", `Pessoa ${nova.tipoPessoa === "PF" ? "Física" : "Jurídica"} criada: ${nomePessoa}`, `/comercial/crm/pessoas/${nova.id}`, session.user.name)
+    await notificar(
+      "PESSOA_CRIADA",
+      `Pessoa ${nova.tipoPessoa === "PF" ? "Física" : "Jurídica"} criada: ${nomePessoa}`,
+      `/comercial/crm/pessoas/${nova.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error: any) {

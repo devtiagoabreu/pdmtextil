@@ -77,7 +77,12 @@ export async function POST(req: NextRequest) {
       usuarioNome: session.user.name,
     })
 
-    await notificar("ATIVO_TIPO_VISTORIA_CRIADA", `Tipo de vistoria cadastrado: ${novo.nome}`, `/ativos/tipos-vistoria/${novo.id}`, session.user.name)
+    await notificar(
+      "ATIVO_TIPO_VISTORIA_CRIADA",
+      `Tipo de vistoria cadastrado: ${novo.nome}`,
+      `/ativos/tipos-vistoria/${novo.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(novo, { status: 201 })
   } catch (error) {

@@ -16,10 +16,7 @@ function extractRemoteJid(idIntegracao: string | null): string | null {
   return idIntegracao.slice(prefix.length)
 }
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -41,12 +38,7 @@ export async function GET(
       const contato = await db
         .select()
         .from(crmContatos)
-        .where(
-          and(
-            eq(crmContatos.empresaId, lead.empresaId),
-            eq(crmContatos.principal, true)
-          )
-        )
+        .where(and(eq(crmContatos.empresaId, lead.empresaId), eq(crmContatos.principal, true)))
         .limit(1)
         .then((r: any) => r[0] || null)
 
@@ -82,10 +74,7 @@ export async function GET(
   }
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -114,12 +103,7 @@ export async function POST(
       const contato = await db
         .select()
         .from(crmContatos)
-        .where(
-          and(
-            eq(crmContatos.empresaId, lead.empresaId),
-            eq(crmContatos.principal, true)
-          )
-        )
+        .where(and(eq(crmContatos.empresaId, lead.empresaId), eq(crmContatos.principal, true)))
         .limit(1)
         .then((r: any) => r[0] || null)
 

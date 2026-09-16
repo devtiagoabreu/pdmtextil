@@ -62,10 +62,10 @@ export function listPageSpec(cfg: ListPageSpecConfig) {
         expect(await screen.findByText(item[primary])).toBeInTheDocument()
       }
       expect(screen.getAllByText("Ativo", { selector: "span" })).toHaveLength(
-        cfg.data.filter((d) => d.ativo).length,
+        cfg.data.filter((d) => d.ativo).length
       )
       expect(screen.getAllByText("Inativo", { selector: "span" })).toHaveLength(
-        cfg.data.filter((d) => !d.ativo).length,
+        cfg.data.filter((d) => !d.ativo).length
       )
     })
 
@@ -97,14 +97,22 @@ export function listPageSpec(cfg: ListPageSpecConfig) {
       await screen.findByText(cfg.firstItemText)
 
       const row = screen.getByText(cfg.firstItemText).closest("tr")!
-      const trash = within(row).getAllByRole("button").find((b) => !b.closest("a"))!
+      const trash = within(row)
+        .getAllByRole("button")
+        .find((b) => !b.closest("a"))!
       fireEvent.click(trash)
 
       const dialog = screen.getByRole("dialog", { name: `Excluir ${cfg.deleteSingular}?` })
       fireEvent.click(within(dialog).getByRole("button", { name: "Excluir" }))
 
       await waitFor(() =>
-        expect(findCall(fetchMock.calls, `${cfg.apiPrefix ?? "/api/cadastros"}/${cfg.apiBase}/${cfg.data[0].id}`, "DELETE")).toBeDefined(),
+        expect(
+          findCall(
+            fetchMock.calls,
+            `${cfg.apiPrefix ?? "/api/cadastros"}/${cfg.apiBase}/${cfg.data[0].id}`,
+            "DELETE"
+          )
+        ).toBeDefined()
       )
       await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith(cfg.successToast))
       expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
@@ -116,12 +124,20 @@ export function listPageSpec(cfg: ListPageSpecConfig) {
       await screen.findByText(blocked[primary])
 
       const row = screen.getByText(blocked[primary]).closest("tr")!
-      const trash = within(row).getAllByRole("button").find((b) => !b.closest("a"))!
+      const trash = within(row)
+        .getAllByRole("button")
+        .find((b) => !b.closest("a"))!
       fireEvent.click(trash)
 
       fireEvent.click(screen.getByRole("button", { name: "Excluir" }))
       await waitFor(() =>
-        expect(findCall(fetchMock.calls, `${cfg.apiPrefix ?? "/api/cadastros"}/${cfg.apiBase}/${cfg.blockedId}`, "DELETE")).toBeDefined(),
+        expect(
+          findCall(
+            fetchMock.calls,
+            `${cfg.apiPrefix ?? "/api/cadastros"}/${cfg.apiBase}/${cfg.blockedId}`,
+            "DELETE"
+          )
+        ).toBeDefined()
       )
       const blockedDialog = await screen.findByRole("dialog", { name: "Exclusão não permitida" })
       expect(blockedDialog).toHaveTextContent(/não pode ser exclu/)
@@ -134,8 +150,14 @@ export function listPageSpec(cfg: ListPageSpecConfig) {
       renderPage(cfg.component)
       await screen.findByText(cfg.firstItemText)
 
-      expect(screen.getByRole("link", { name: cfg.newLinkText })).toHaveAttribute("href", cfg.newHref)
-      expect(screen.getByText(cfg.firstItemText).closest("a")).toHaveAttribute("href", cfg.editHref(cfg.data[0]))
+      expect(screen.getByRole("link", { name: cfg.newLinkText })).toHaveAttribute(
+        "href",
+        cfg.newHref
+      )
+      expect(screen.getByText(cfg.firstItemText).closest("a")).toHaveAttribute(
+        "href",
+        cfg.editHref(cfg.data[0])
+      )
     })
   })
 }

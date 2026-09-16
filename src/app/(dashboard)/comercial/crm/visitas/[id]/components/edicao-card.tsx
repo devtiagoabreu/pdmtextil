@@ -5,7 +5,13 @@ import { ViagemSelect } from "@/components/crm/viagem-select"
 import { CreatableSelect } from "@/components/ui/creatable-select"
 import { QuickCreateOportunidade } from "@/components/crm/quick-create-oportunidade"
 import { QuickCreateProposta } from "@/components/crm/quick-create-proposta"
-import type { Conflito, FormVisitaDetalhe, OportunidadeResumo, SetField, VisitaDetalhe } from "../../types"
+import type {
+  Conflito,
+  FormVisitaDetalhe,
+  OportunidadeResumo,
+  SetField,
+  VisitaDetalhe,
+} from "../../types"
 import { STATUS_OPTIONS, TIPO_OPTIONS } from "./constants"
 
 interface EdicaoCardProps {
@@ -37,17 +43,21 @@ export function EdicaoCard({
   return (
     <>
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-        <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Informações</h2>
+        <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">
+          Informações
+        </h2>
         <div className="space-y-4">
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Status</label>
             <select
               value={form.status || visita.status}
-              onChange={e => setField("status", e.target.value)}
+              onChange={(e) => setField("status", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
             >
               {STATUS_OPTIONS.map((s) => (
-                <option key={s} value={s}>{getStatusLabel(s)}</option>
+                <option key={s} value={s}>
+                  {getStatusLabel(s)}
+                </option>
               ))}
             </select>
           </div>
@@ -55,7 +65,7 @@ export function EdicaoCard({
             <label className="block text-xs font-medium text-slate-500 mb-1">Viagem</label>
             <ViagemSelect
               value={form.viagemId ? String(form.viagemId) : ""}
-              onChange={v => setField("viagemId", v ? Number(v) : null)}
+              onChange={(v) => setField("viagemId", v ? Number(v) : null)}
             />
           </div>
           <div>
@@ -76,14 +86,20 @@ export function EdicaoCard({
             <label className="block text-xs font-medium text-slate-500 mb-1">
               Oportunidade
               {form.empresaId ? (
-                <QuickCreateOportunidade empresaId={String(form.empresaId ?? "")} onCreated={onOportunidadeCreated} />
+                <QuickCreateOportunidade
+                  empresaId={String(form.empresaId ?? "")}
+                  onCreated={onOportunidadeCreated}
+                />
               ) : form.clienteId ? (
-                <QuickCreateOportunidade clienteId={String(form.clienteId ?? "")} onCreated={onOportunidadeCreated} />
+                <QuickCreateOportunidade
+                  clienteId={String(form.clienteId ?? "")}
+                  onCreated={onOportunidadeCreated}
+                />
               ) : null}
             </label>
             <select
               value={form.oportunidadeId ? String(form.oportunidadeId) : ""}
-              onChange={e => {
+              onChange={(e) => {
                 setField("oportunidadeId", e.target.value ? parseInt(e.target.value) : null)
                 setField("propostaId", null)
                 setField("propostaTitulo", null)
@@ -98,7 +114,9 @@ export function EdicaoCard({
                     : String(o.clienteId) === String(form.clienteId)
                 )
                 .map((o) => (
-                  <option key={o.id} value={String(o.id)}>{o.titulo}</option>
+                  <option key={o.id} value={String(o.id)}>
+                    {o.titulo}
+                  </option>
                 ))}
             </select>
           </div>
@@ -129,7 +147,11 @@ export function EdicaoCard({
               onSelect={(opt) => {
                 if (opt.oportunidadeId) setField("oportunidadeId", Number(opt.oportunidadeId))
               }}
-              fetchUrl={form.oportunidadeId ? `/api/crm/propostas?oportunidadeId=${form.oportunidadeId}` : "/api/crm/propostas"}
+              fetchUrl={
+                form.oportunidadeId
+                  ? `/api/crm/propostas?oportunidadeId=${form.oportunidadeId}`
+                  : "/api/crm/propostas"
+              }
               labelField="titulo"
               placeholder="Buscar proposta..."
               className="w-full"
@@ -137,10 +159,12 @@ export function EdicaoCard({
           </div>
           {form.status === "CANCELADA" && (
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Motivo do Cancelamento</label>
+              <label className="block text-xs font-medium text-slate-500 mb-1">
+                Motivo do Cancelamento
+              </label>
               <textarea
                 value={form.motivoCancelamento || ""}
-                onChange={e => setField("motivoCancelamento", e.target.value)}
+                onChange={(e) => setField("motivoCancelamento", e.target.value)}
                 rows={3}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
               />
@@ -150,11 +174,13 @@ export function EdicaoCard({
             <label className="block text-xs font-medium text-slate-500 mb-1">Tipo</label>
             <select
               value={form.tipo}
-              onChange={e => setField("tipo", e.target.value)}
+              onChange={(e) => setField("tipo", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
             >
               {TIPO_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
               ))}
             </select>
           </div>
@@ -163,7 +189,7 @@ export function EdicaoCard({
             <input
               type="date"
               value={form.dataVisita ? form.dataVisita.split("T")[0] : ""}
-              onChange={e => setField("dataVisita", e.target.value)}
+              onChange={(e) => setField("dataVisita", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
             />
           </div>
@@ -172,17 +198,21 @@ export function EdicaoCard({
             <input
               type="time"
               value={form.hora || ""}
-              onChange={e => setField("hora", e.target.value)}
+              onChange={(e) => setField("hora", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
             />
             {conflictos.length > 0 && (
               <div className="mt-2 flex items-start gap-2 rounded-lg bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 px-3 py-2">
                 <AlertTriangle size={16} className="text-amber-500 mt-0.5 shrink-0" />
                 <div className="text-xs text-amber-700 dark:text-amber-300">
-                  <p className="font-medium">{conflictos.length} visita(s) ja agendada(s) neste horario:</p>
+                  <p className="font-medium">
+                    {conflictos.length} visita(s) ja agendada(s) neste horario:
+                  </p>
                   <ul className="mt-1 space-y-0.5">
                     {conflictos.map((c) => (
-                      <li key={c.id}>⬢ {c.empresaNome || c.clienteNome || "Visita"} ({c.tipo})</li>
+                      <li key={c.id}>
+                        ⬢ {c.empresaNome || c.clienteNome || "Visita"} ({c.tipo})
+                      </li>
                     ))}
                   </ul>
                 </div>
@@ -190,10 +220,14 @@ export function EdicaoCard({
             )}
           </div>
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">Duracao Estimada</label>
+            <label className="block text-xs font-medium text-slate-500 mb-1">
+              Duracao Estimada
+            </label>
             <select
               value={form.duracaoEstimada || ""}
-              onChange={e => setField("duracaoEstimada", e.target.value ? parseInt(e.target.value) : null)}
+              onChange={(e) =>
+                setField("duracaoEstimada", e.target.value ? parseInt(e.target.value) : null)
+              }
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
             >
               <option value="">Nao definida</option>
@@ -218,38 +252,68 @@ export function EdicaoCard({
             onClick={onCopiarEndereco}
             className="text-xs text-blue-600 hover:underline flex items-center gap-1"
           >
-            Copiar endereço da {form.empresaId ? "pessoa" : form.clienteId ? "cliente" : "pessoa ou cliente"}
+            Copiar endereço da{" "}
+            {form.empresaId ? "pessoa" : form.clienteId ? "cliente" : "pessoa ou cliente"}
           </button>
         </div>
         <div className="space-y-3">
           <div>
             <label className="block text-xs font-medium text-slate-500 mb-1">Logradouro</label>
-            <input type="text" value={form.endereco || ""} onChange={e => setField("endereco", e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+            <input
+              type="text"
+              value={form.endereco || ""}
+              onChange={(e) => setField("endereco", e.target.value)}
+              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Número</label>
-              <input type="text" value={form.numero || ""} onChange={e => setField("numero", e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              <input
+                type="text"
+                value={form.numero || ""}
+                onChange={(e) => setField("numero", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Complemento</label>
-              <input type="text" value={form.complemento || ""} onChange={e => setField("complemento", e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              <input
+                type="text"
+                value={form.complemento || ""}
+                onChange={(e) => setField("complemento", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Bairro</label>
-              <input type="text" value={form.bairro || ""} onChange={e => setField("bairro", e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              <input
+                type="text"
+                value={form.bairro || ""}
+                onChange={(e) => setField("bairro", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">CEP</label>
-              <input type="text" value={form.cep || ""} onChange={e => setField("cep", e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+              <input
+                type="text"
+                value={form.cep || ""}
+                onChange={(e) => setField("cep", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+              />
             </div>
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">UF</label>
-              <SelectUf value={form.uf || ""} onChange={v => setField("uf", v)} />
+              <SelectUf value={form.uf || ""} onChange={(v) => setField("uf", v)} />
             </div>
             <div className="col-span-2">
               <label className="block text-xs font-medium text-slate-500 mb-1">Cidade</label>
-              <SelectCidade value={form.cidade || ""} onChange={v => setField("cidade", v)} estadoId={estadoId} />
+              <SelectCidade
+                value={form.cidade || ""}
+                onChange={(v) => setField("cidade", v)}
+                estadoId={estadoId}
+              />
             </div>
           </div>
         </div>

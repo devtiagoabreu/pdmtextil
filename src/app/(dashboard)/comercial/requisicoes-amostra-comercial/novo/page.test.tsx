@@ -15,8 +15,12 @@ describe("NovaRequisicaoAmostraComercialPage", () => {
 
     renderPage(<NovaRequisicaoAmostraComercialPage />)
 
-    expect(screen.getByRole("heading", { name: /Nova Requisição de Amostra Comercial/ })).toBeInTheDocument()
-    expect(screen.getByPlaceholderText("Buscar produto por código ou descrição...")).toBeInTheDocument()
+    expect(
+      screen.getByRole("heading", { name: /Nova Requisição de Amostra Comercial/ })
+    ).toBeInTheDocument()
+    expect(
+      screen.getByPlaceholderText("Buscar produto por código ou descrição...")
+    ).toBeInTheDocument()
     expect(screen.getByPlaceholderText("Ex: Amostra para aprovação do cliente")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Salvar Requisição" })).toBeInTheDocument()
   })
@@ -38,7 +42,8 @@ describe("NovaRequisicaoAmostraComercialPage", () => {
       if (method === "GET" && url.startsWith("/api/cadastros/produtos-cru")) {
         return { json: [{ id: 7, codigoPdm: "TEC-01", descricao: "Tecido poliéster" }] }
       }
-      if (method === "POST" && url === "/api/requisicoes-amostra-comercial") return { status: 201, json: { id: 20 } }
+      if (method === "POST" && url === "/api/requisicoes-amostra-comercial")
+        return { status: 201, json: { id: 20 } }
       return { status: 404, json: { error: "Rota não mockada" } }
     })
     vi.stubGlobal("fetch", fetchMock.fn)
@@ -61,7 +66,9 @@ describe("NovaRequisicaoAmostraComercialPage", () => {
       expect(call!.body.produtoCruId).toBe(7)
       expect(call!.body.titulo).toBe("Amostra para cliente")
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Requisição criada com sucesso"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Requisição criada com sucesso")
+    )
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/requisicoes-amostra-comercial")
   })
 })

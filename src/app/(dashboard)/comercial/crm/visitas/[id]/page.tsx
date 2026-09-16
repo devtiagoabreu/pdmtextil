@@ -81,10 +81,17 @@ export default function DetalheVisitaPage() {
 
   useEffect(() => {
     if (conflictTimerRef.current) clearTimeout(conflictTimerRef.current)
-    if (!editing || !form.dataVisita || !form.hora) { setConflictos([]); return }
+    if (!editing || !form.dataVisita || !form.hora) {
+      setConflictos([])
+      return
+    }
     conflictTimerRef.current = setTimeout(async () => {
       try {
-        const sp = new URLSearchParams({ dataVisita: form.dataVisita ?? "", hora: form.hora ?? "", excludeId: String(params.id) })
+        const sp = new URLSearchParams({
+          dataVisita: form.dataVisita ?? "",
+          hora: form.hora ?? "",
+          excludeId: String(params.id),
+        })
         const res = await fetch(`/api/crm/visitas/conflictos?${sp}`)
         if (res.ok) {
           const data: { conflictos?: Conflito[] } = await res.json()
@@ -99,7 +106,7 @@ export default function DetalheVisitaPage() {
   }
 
   function setField<K extends keyof VisitaDetalhe>(field: K, value: VisitaDetalhe[K]) {
-    setForm(prev => ({ ...prev, [field]: value }))
+    setForm((prev) => ({ ...prev, [field]: value }))
   }
 
   function handleOportunidadeCreated(id: number) {
@@ -192,7 +199,9 @@ export default function DetalheVisitaPage() {
   async function handleUnsyncGoogle() {
     if (!visita) return
     try {
-      const res = await fetch(`/api/crm/visitas/sync-google?visitaId=${visita.id}`, { method: "DELETE" })
+      const res = await fetch(`/api/crm/visitas/sync-google?visitaId=${visita.id}`, {
+        method: "DELETE",
+      })
       if (!res.ok) {
         const err = await res.json()
         throw new Error(err.error || "Erro ao dessincronizar")
@@ -217,7 +226,9 @@ export default function DetalheVisitaPage() {
         uf: data.uf || "",
         cep: data.cep || "",
       }
-    } catch { return {} }
+    } catch {
+      return {}
+    }
   }
 
   async function loadClienteEndereco(clienteId: number): Promise<Record<string, string>> {
@@ -229,14 +240,18 @@ export default function DetalheVisitaPage() {
         cidade: data.cidade || "",
         uf: data.uf || "",
       }
-    } catch { return {} }
+    } catch {
+      return {}
+    }
   }
 
   async function handleCopiarEndereco() {
     if (!visita) return
     if (visita.empresaId) {
-      const end = empresaEndereco.endereco ? empresaEndereco : await loadEmpresaEndereco(visita.empresaId)
-      setForm(prev => ({
+      const end = empresaEndereco.endereco
+        ? empresaEndereco
+        : await loadEmpresaEndereco(visita.empresaId)
+      setForm((prev) => ({
         ...prev,
         endereco: end.endereco || "",
         numero: end.numero || "",
@@ -247,8 +262,10 @@ export default function DetalheVisitaPage() {
         cep: end.cep || "",
       }))
     } else if (visita.clienteId) {
-      const end = clienteEndereco.endereco ? clienteEndereco : await loadClienteEndereco(visita.clienteId)
-      setForm(prev => ({
+      const end = clienteEndereco.endereco
+        ? clienteEndereco
+        : await loadClienteEndereco(visita.clienteId)
+      setForm((prev) => ({
         ...prev,
         endereco: end.endereco || "",
         cidade: end.cidade || "",
@@ -268,7 +285,10 @@ export default function DetalheVisitaPage() {
       if ("geolocation" in navigator) {
         try {
           const pos = await new Promise<GeolocationPosition>((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(resolve, reject, { timeout: 10000, enableHighAccuracy: true })
+            navigator.geolocation.getCurrentPosition(resolve, reject, {
+              timeout: 10000,
+              enableHighAccuracy: true,
+            })
           })
           lat = pos.coords.latitude
           lng = pos.coords.longitude
@@ -329,7 +349,12 @@ export default function DetalheVisitaPage() {
     return (
       <div className="text-center py-20">
         <p className="text-slate-500">Visita não encontrada</p>
-        <Link href="/comercial/crm/visitas" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
+        <Link
+          href="/comercial/crm/visitas"
+          className="text-blue-600 hover:underline mt-2 inline-block"
+        >
+          Voltar
+        </Link>
       </div>
     )
   }

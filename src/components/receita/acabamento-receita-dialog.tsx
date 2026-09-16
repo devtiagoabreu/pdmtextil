@@ -101,7 +101,7 @@ export function ReceitaDialog({
     if (!receitasData) return
     setReceitas(receitasData)
     if (receitasData.length > 0) {
-      const latest = receitasData.reduce((a: any, b: any) => a.versao > b.versao ? a : b)
+      const latest = receitasData.reduce((a: any, b: any) => (a.versao > b.versao ? a : b))
       selectReceita(latest)
     } else {
       setReceita(null)
@@ -125,7 +125,10 @@ export function ReceitaDialog({
   }
 
   async function createReceita() {
-    if (!editDescricao) { toast.error("Informe a descrição da receita"); return }
+    if (!editDescricao) {
+      toast.error("Informe a descrição da receita")
+      return
+    }
     setSaving(true)
     try {
       const res = await fetch(baseUrl, {
@@ -135,7 +138,7 @@ export function ReceitaDialog({
       })
       if (!res.ok) throw new Error()
       const r = await res.json()
-      setReceitas(prev => [...prev, r])
+      setReceitas((prev) => [...prev, r])
       setReceita(r)
       toast.success("Receita criada")
     } catch {
@@ -205,7 +208,10 @@ export function ReceitaDialog({
   }
 
   async function addItem() {
-    if (!receita || !novoQtd) { toast.error("Preencha a quantidade"); return }
+    if (!receita || !novoQtd) {
+      toast.error("Preencha a quantidade")
+      return
+    }
     setSaving(true)
     try {
       const res = await fetch(`${baseUrl}/${receita.id}/itens`, {
@@ -259,12 +265,16 @@ export function ReceitaDialog({
               </span>
             )}
           </div>
-          <Button variant="ghost" onClick={onClose}>X</Button>
+          <Button variant="ghost" onClick={onClose}>
+            X
+          </Button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-4 space-y-4">
           {loading ? (
-            <div className="flex justify-center py-8"><Loader2 className="animate-spin" /></div>
+            <div className="flex justify-center py-8">
+              <Loader2 className="animate-spin" />
+            </div>
           ) : (
             <>
               {receitas.length > 1 && (
@@ -272,7 +282,7 @@ export function ReceitaDialog({
                   <Label className="text-xs whitespace-nowrap">Versões:</Label>
                   <select
                     value={receita?.id || ""}
-                    onChange={e => {
+                    onChange={(e) => {
                       const r = receitas.find((r: any) => r.id === parseInt(e.target.value))
                       if (r) selectReceita(r)
                     }}
@@ -292,11 +302,14 @@ export function ReceitaDialog({
               <div className="space-y-3">
                 <div className="space-y-1">
                   <Label>Descrição da Receita</Label>
-                  <Input value={editDescricao} onChange={e => setEditDescricao(e.target.value)} />
+                  <Input value={editDescricao} onChange={(e) => setEditDescricao(e.target.value)} />
                 </div>
                 <div className="space-y-1">
                   <Label>Instruções</Label>
-                  <Textarea value={editInstrucoes} onChange={e => setEditInstrucoes(e.target.value)} />
+                  <Textarea
+                    value={editInstrucoes}
+                    onChange={(e) => setEditInstrucoes(e.target.value)}
+                  />
                 </div>
                 <div className="flex gap-2">
                   {!receita ? (
@@ -305,10 +318,20 @@ export function ReceitaDialog({
                     </Button>
                   ) : (
                     <>
-                      <Button size="sm" variant="outline" onClick={updateReceita} disabled={saving || !latest}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={updateReceita}
+                        disabled={saving || !latest}
+                      >
                         Salvar
                       </Button>
-                      <Button size="sm" variant="outline" onClick={duplicateReceita} disabled={saving}>
+                      <Button
+                        size="sm"
+                        variant="outline"
+                        onClick={duplicateReceita}
+                        disabled={saving}
+                      >
                         <Copy size={14} className="mr-1" /> Duplicar v{receita.versao + 1}
                       </Button>
                       <Button size="sm" variant="ghost" onClick={printReceita}>
@@ -326,15 +349,30 @@ export function ReceitaDialog({
                     {itens.length > 0 && (
                       <div className="space-y-1 mb-3">
                         {itens.map((item: any) => (
-                          <div key={item.id} className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded text-sm">
+                          <div
+                            key={item.id}
+                            className="flex items-center justify-between p-2 bg-slate-50 dark:bg-slate-800/50 rounded text-sm"
+                          >
                             <span>
-                              <span className="font-mono text-xs text-slate-400 mr-1">[{item.estagio}]</span>
-                              {item.quimicoNome || item.descricao || "Item"} —
-                              {item.quantidadeMetro} {item.unidade}
-                              {item.ordem > 0 && <span className="text-xs text-slate-400 ml-1">(ordem {item.ordem})</span>}
+                              <span className="font-mono text-xs text-slate-400 mr-1">
+                                [{item.estagio}]
+                              </span>
+                              {item.quimicoNome || item.descricao || "Item"} —{item.quantidadeMetro}{" "}
+                              {item.unidade}
+                              {item.ordem > 0 && (
+                                <span className="text-xs text-slate-400 ml-1">
+                                  (ordem {item.ordem})
+                                </span>
+                              )}
                             </span>
                             {latest && (
-                              <Button variant="ghost" size="icon" className="h-6 w-6" onClick={() => removeItem(item.id)} aria-label={`Remover item ${item.descricao || item.id}`}>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                className="h-6 w-6"
+                                onClick={() => removeItem(item.id)}
+                                aria-label={`Remover item ${item.descricao || item.id}`}
+                              >
                                 <Trash2 size={12} />
                               </Button>
                             )}
@@ -347,39 +385,70 @@ export function ReceitaDialog({
                       <div className="grid grid-cols-6 gap-2 items-end">
                         <div className="space-y-1 col-span-2">
                           <Label className="text-xs">Produto Químico</Label>
-                          <select value={novoQuimicoId} onChange={e => setNovoQuimicoId(e.target.value)}
-                            className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm">
+                          <select
+                            value={novoQuimicoId}
+                            onChange={(e) => setNovoQuimicoId(e.target.value)}
+                            className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm"
+                          >
                             <option value="">Nenhum</option>
                             {quimicos.map((q: any) => (
-                              <option key={q.id} value={q.id}>{q.codigo} - {q.nome}</option>
+                              <option key={q.id} value={q.id}>
+                                {q.codigo} - {q.nome}
+                              </option>
                             ))}
                           </select>
                         </div>
                         <div className="space-y-1">
                           <Label className="text-xs">Descrição</Label>
-                          <Input size={4} value={novoDescricao} onChange={e => setNovoDescricao(e.target.value)} placeholder="ou manual" />
+                          <Input
+                            size={4}
+                            value={novoDescricao}
+                            onChange={(e) => setNovoDescricao(e.target.value)}
+                            placeholder="ou manual"
+                          />
                         </div>
                         <div className="space-y-1">
                           <Label className="text-xs">Unid.</Label>
-                          <select value={novoUnidade} onChange={e => setNovoUnidade(e.target.value)}
-                            className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm">
-                            {UNIDADES.map((u: any) => <option key={u} value={u}>{u}</option>)}
+                          <select
+                            value={novoUnidade}
+                            onChange={(e) => setNovoUnidade(e.target.value)}
+                            className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm"
+                          >
+                            {UNIDADES.map((u: any) => (
+                              <option key={u} value={u}>
+                                {u}
+                              </option>
+                            ))}
                           </select>
                         </div>
                         <div className="space-y-1">
                           <Label className="text-xs">Qtd/m</Label>
-                          <Input type="number" step="0.0001" value={novoQtd} onChange={e => setNovoQtd(e.target.value)} />
+                          <Input
+                            type="number"
+                            step="0.0001"
+                            value={novoQtd}
+                            onChange={(e) => setNovoQtd(e.target.value)}
+                          />
                         </div>
                         <div className="space-y-1">
                           <Label className="text-xs">Estágio</Label>
-                          <select value={novoEstagio} onChange={e => setNovoEstagio(e.target.value)}
-                            className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm">
-                            {ESTAGIOS.map((s: any) => <option key={s} value={s}>{s}</option>)}
+                          <select
+                            value={novoEstagio}
+                            onChange={(e) => setNovoEstagio(e.target.value)}
+                            className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm"
+                          >
+                            {ESTAGIOS.map((s: any) => (
+                              <option key={s} value={s}>
+                                {s}
+                              </option>
+                            ))}
                           </select>
                         </div>
                       </div>
                     ) : (
-                      <p className="text-xs text-slate-400 italic">Versões anteriores são somente leitura. Duplique para criar uma nova versão.</p>
+                      <p className="text-xs text-slate-400 italic">
+                        Versões anteriores são somente leitura. Duplique para criar uma nova versão.
+                      </p>
                     )}
                     {latest && (
                       <Button size="sm" className="mt-2" onClick={addItem} disabled={saving}>
@@ -391,7 +460,9 @@ export function ReceitaDialog({
                   {receita.instrucoes && (
                     <div className="border-t pt-3">
                       <h3 className="text-sm font-medium mb-1">Instruções</h3>
-                      <p className="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap">{receita.instrucoes}</p>
+                      <p className="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
+                        {receita.instrucoes}
+                      </p>
                     </div>
                   )}
                 </>
@@ -408,17 +479,27 @@ export function ReceitaDialog({
             <div className="version">Versão {receita.versao}</div>
             {itens.length > 0 && (
               <table>
-                <thead><tr><th>Estágio</th><th>Produto</th><th>Qtd/m</th><th>Unidade</th><th>Ordem</th></tr></thead>
+                <thead>
+                  <tr>
+                    <th>Estágio</th>
+                    <th>Produto</th>
+                    <th>Qtd/m</th>
+                    <th>Unidade</th>
+                    <th>Ordem</th>
+                  </tr>
+                </thead>
                 <tbody>
-                  {[...itens].sort((a: any, b: any) => a.ordem - b.ordem).map((item: any) => (
-                    <tr key={item.id}>
-                      <td>[{item.estagio}]</td>
-                      <td>{item.quimicoNome || item.descricao || "—"}</td>
-                      <td>{item.quantidadeMetro}</td>
-                      <td>{item.unidade}</td>
-                      <td>{item.ordem}</td>
-                    </tr>
-                  ))}
+                  {[...itens]
+                    .sort((a: any, b: any) => a.ordem - b.ordem)
+                    .map((item: any) => (
+                      <tr key={item.id}>
+                        <td>[{item.estagio}]</td>
+                        <td>{item.quimicoNome || item.descricao || "—"}</td>
+                        <td>{item.quantidadeMetro}</td>
+                        <td>{item.unidade}</td>
+                        <td>{item.ordem}</td>
+                      </tr>
+                    ))}
                 </tbody>
               </table>
             )}

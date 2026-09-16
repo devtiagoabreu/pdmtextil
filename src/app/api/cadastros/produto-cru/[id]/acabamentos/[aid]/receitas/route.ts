@@ -19,7 +19,10 @@ export async function GET(
     const err = await validateAcabamentoChain(parseInt(id), parseInt(aid))
     if (err) return err
 
-    const lista = await db.select().from(produtoCruAcabamentoReceita).where(eq(produtoCruAcabamentoReceita.acabamentoId, parseInt(aid)))
+    const lista = await db
+      .select()
+      .from(produtoCruAcabamentoReceita)
+      .where(eq(produtoCruAcabamentoReceita.acabamentoId, parseInt(aid)))
 
     return NextResponse.json(lista)
   } catch (error) {

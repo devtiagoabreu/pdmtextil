@@ -29,12 +29,33 @@ vi.mock("@/lib/whatsapp/validation", () => ({
   linhasNomes: vi.fn(() => []),
 }))
 vi.mock("@/lib/whatsapp/state-machine", () => ({
-  maquinaEstados: vi.fn(() => ({ nextEstado: "SAUDACAO", dados: {}, finalizado: false, enviarCatalogo: [], needsCnpjLookup: false })),
+  maquinaEstados: vi.fn(() => ({
+    nextEstado: "SAUDACAO",
+    dados: {},
+    finalizado: false,
+    enviarCatalogo: [],
+    needsCnpjLookup: false,
+  })),
 }))
-vi.mock("@/lib/whatsapp/lead-scoring", () => ({ calcularLeadScore: vi.fn(() => ({ score: 0, prioridade: "BAIXA", motivos: [] })) }))
-vi.mock("@/lib/whatsapp/groq", () => ({ chamarGroq: vi.fn(async () => ({ conteudo: "", provedor: "groq", modelo: "x", nomeChave: "", tentativas: 1 })), extrairDadosLead: vi.fn(async () => ({})) }))
+vi.mock("@/lib/whatsapp/lead-scoring", () => ({
+  calcularLeadScore: vi.fn(() => ({ score: 0, prioridade: "BAIXA", motivos: [] })),
+}))
+vi.mock("@/lib/whatsapp/groq", () => ({
+  chamarGroq: vi.fn(async () => ({
+    conteudo: "",
+    provedor: "groq",
+    modelo: "x",
+    nomeChave: "",
+    tentativas: 1,
+  })),
+  extrairDadosLead: vi.fn(async () => ({})),
+}))
 vi.mock("@/lib/whatsapp/intencao", () => ({
-  analisarEscalacao: vi.fn(async () => ({ querAtendente: false, querReiniciar: false, via: "regex" as const })),
+  analisarEscalacao: vi.fn(async () => ({
+    querAtendente: false,
+    querReiniciar: false,
+    via: "regex" as const,
+  })),
   temIndicioDeLinhas: vi.fn(() => false),
   analisarLinhas: vi.fn(async () => undefined),
 }))
@@ -61,7 +82,10 @@ function makeRequest(): NextRequest {
   return new NextRequest("https://pdm.vercel.app/api/crm/whatsapp/ai-webhook", {
     method: "POST",
     headers: { authorization: "Bearer secret-teste" },
-    body: JSON.stringify({ data: { key: { remoteJid: PJ }, pushName: "Maria", fromMe: false }, texto: "Oi, preciso de atendimento" }),
+    body: JSON.stringify({
+      data: { key: { remoteJid: PJ }, pushName: "Maria", fromMe: false },
+      texto: "Oi, preciso de atendimento",
+    }),
   })
 }
 
@@ -88,7 +112,7 @@ describe("ai-webhook — POST (enfileiramento async)", () => {
     expect(json.enfileirado).toBe(true)
     expect(json.executionId).toBeTruthy()
 
-    const filaInsert = insertedValues.find(v => v?.remoteJid === PJ)
+    const filaInsert = insertedValues.find((v) => v?.remoteJid === PJ)
     expect(filaInsert).toBeDefined()
     expect(filaInsert?.mensagem).toBe("Oi, preciso de atendimento")
   })
@@ -121,7 +145,9 @@ describe("ai-webhook — POST (enfileiramento async)", () => {
       body: statusBody,
     })
 
-    vi.mocked(db.select).mockImplementation(() => createQueryBuilder([{ id: 50, status: "ENTREGUE" }]))
+    vi.mocked(db.select).mockImplementation(() =>
+      createQueryBuilder([{ id: 50, status: "ENTREGUE" }])
+    )
     vi.mocked(db.update).mockImplementation(() => createQueryBuilder([]))
 
     const res = await POST(req)
@@ -172,22 +198,24 @@ describe("executarFluxo — retorno de cliente antigo", () => {
     // lock foi adquirido (claim) e liberado (release) ao redor do processamento
     const setPayloads = chainBuilder.set.mock.calls.map((c: any) => c[0])
     const dadosSets = setPayloads.filter((s: any) => s?.dados !== undefined)
-    expect(dadosSets.some((s: any) => JSON.stringify(s.dados).includes("jsonb_build_object"))).toBe(true)
+    expect(dadosSets.some((s: any) => JSON.stringify(s.dados).includes("jsonb_build_object"))).toBe(
+      true
+    )
     expect(dadosSets.some((s: any) => JSON.stringify(s.dados).includes("dados - "))).toBe(true)
 
     const enviadas = vi.mocked(enviarMensagem).mock.calls
-    const msgCliente = enviadas.find(c => c[0] === PJ)
+    const msgCliente = enviadas.find((c) => c[0] === PJ)
     expect(msgCliente).toBeDefined()
     expect(msgCliente![1]).toContain("Que bom te-lo(a) de volta")
     expect(msgCliente![1]).toContain("informar seu representante")
 
-    const msgRep = enviadas.find(c => c[0] === "5519999999999@s.whatsapp.net")
+    const msgRep = enviadas.find((c) => c[0] === "5519999999999@s.whatsapp.net")
     expect(msgRep).toBeDefined()
     expect(msgRep![1]).toContain("Cliente antigo entrou em contato novamente")
     expect(msgRep![1]).toContain("Pessoa Juridica")
 
     const inserts = insertedValues
-    expect(inserts.some(v => v?.tipo === "WHATSAPP_RETORNO")).toBe(true)
+    expect(inserts.some((v) => v?.tipo === "WHATSAPP_RETORNO")).toBe(true)
     expect(selectCall).toBeGreaterThanOrEqual(4)
   })
 })

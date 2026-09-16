@@ -46,12 +46,16 @@ describe("CidadesConfigPage busca e filtro", () => {
     renderPage(<CidadesPage />)
     await screen.findByText("Campinas")
 
-    fireEvent.change(screen.getByPlaceholderText("Buscar cidade ou estado..."), { target: { value: "Uberlândia" } })
+    fireEvent.change(screen.getByPlaceholderText("Buscar cidade ou estado..."), {
+      target: { value: "Uberlândia" },
+    })
 
     expect(screen.getByText("Uberlândia")).toBeInTheDocument()
     expect(screen.queryByText("Campinas")).not.toBeInTheDocument()
 
-    fireEvent.change(screen.getByPlaceholderText("Buscar cidade ou estado..."), { target: { value: "zzz" } })
+    fireEvent.change(screen.getByPlaceholderText("Buscar cidade ou estado..."), {
+      target: { value: "zzz" },
+    })
 
     expect(screen.getByText("Nenhuma cidade encontrada")).toBeInTheDocument()
   })

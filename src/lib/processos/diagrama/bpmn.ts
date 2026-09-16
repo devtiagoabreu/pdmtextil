@@ -33,7 +33,11 @@ function nosParaBpmn(modelo: ModeloProcesso): NoCredencial[] {
     return { x, y }
   }
 
-  if (modelo.atividades.some((a) => a.id === INICIO_ID) || !modelo.fluxos.length || modelo.fluxos.some((f) => f.de === INICIO_ID)) {
+  if (
+    modelo.atividades.some((a) => a.id === INICIO_ID) ||
+    !modelo.fluxos.length ||
+    modelo.fluxos.some((f) => f.de === INICIO_ID)
+  ) {
     const p = posicao()
     nos.push({ id: INICIO_ID, tipo: "inicio", x: p.x, y: p.y, w: LADO_EVENTO, h: LADO_EVENTO })
   }
@@ -95,7 +99,9 @@ export function modeloParaBpmn(modelo: ModeloProcesso): string {
       resumoModelo(modelo).nos.toString()
     )}" targetNamespace="http://pdmtextil.com.br/processos">`
   )
-  linhas.push(`  <bpmn:process id="Processo_1" name="${xmlEscape(esc(modelo.nome || "Processo"))}" isExecutable="false">`)
+  linhas.push(
+    `  <bpmn:process id="Processo_1" name="${xmlEscape(esc(modelo.nome || "Processo"))}" isExecutable="false">`
+  )
   for (const no of nos) {
     linhas.push(elementoXml(modelo, no))
   }

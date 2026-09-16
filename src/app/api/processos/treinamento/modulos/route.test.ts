@@ -31,13 +31,25 @@ describe("GET /api/processos/treinamento/modulos", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await GET()
     expect(res.status).toBe(401)
   })
 
   it("retorna a lista de módulos", async () => {
-    const modulos = [{ id: 1, titulo: "Visão Geral", descricao: null, icone: "GraduationCap", cor: "#0ea5e9", ordem: 1, ativo: true }]
+    const modulos = [
+      {
+        id: 1,
+        titulo: "Visão Geral",
+        descricao: null,
+        icone: "GraduationCap",
+        cor: "#0ea5e9",
+        ordem: 1,
+        ativo: true,
+      },
+    ]
     db.select = vi.fn(() => createQueryBuilder(modulos))
     const res = await GET()
     expect(res.status).toBe(200)
@@ -57,7 +69,15 @@ describe("POST /api/processos/treinamento/modulos", () => {
   })
 
   it("cria um módulo com sucesso", async () => {
-    const novo = { id: 5, titulo: "Novo Módulo", descricao: null, icone: "GraduationCap", cor: "#0ea5e9", ordem: 0, ativo: true }
+    const novo = {
+      id: 5,
+      titulo: "Novo Módulo",
+      descricao: null,
+      icone: "GraduationCap",
+      cor: "#0ea5e9",
+      ordem: 0,
+      ativo: true,
+    }
     db.insert = vi.fn(() => createQueryBuilder([novo]))
     const res = await POST(
       new NextRequest("http://localhost/api/processos/treinamento/modulos", {

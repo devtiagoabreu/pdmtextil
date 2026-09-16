@@ -43,7 +43,7 @@ export default function NovaOportunidadePage() {
   })
 
   function setField(field: keyof OportunidadeForm, value: string) {
-    setForm(prev => ({ ...prev, [field]: value }))
+    setForm((prev) => ({ ...prev, [field]: value }))
   }
 
   async function loadEmpresas() {
@@ -90,9 +90,11 @@ export default function NovaOportunidadePage() {
         fetch("/api/crm/leads").then((r) => r.json()),
         fetch("/api/usuarios/ativos?role=COMERCIAL,ADMIN,SUDO").then((r) => r.json()),
       ])
-      if (empresasRes.status === "fulfilled" && Array.isArray(empresasRes.value)) setEmpresas(empresasRes.value)
+      if (empresasRes.status === "fulfilled" && Array.isArray(empresasRes.value))
+        setEmpresas(empresasRes.value)
       if (leadsRes.status === "fulfilled" && Array.isArray(leadsRes.value)) setLeads(leadsRes.value)
-      if (usuariosRes.status === "fulfilled" && Array.isArray(usuariosRes.value)) setUsuarios(usuariosRes.value)
+      if (usuariosRes.status === "fulfilled" && Array.isArray(usuariosRes.value))
+        setUsuarios(usuariosRes.value)
     }
     load()
   }, [])
@@ -167,11 +169,16 @@ export default function NovaOportunidadePage() {
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
       <div className="flex items-center gap-3">
-        <Link href="/comercial/crm/oportunidades" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link
+          href="/comercial/crm/oportunidades"
+          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Nova Oportunidade{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+            Nova Oportunidade{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500">Cadastrar nova oportunidade de venda</p>
         </div>
       </div>
@@ -191,192 +198,225 @@ export default function NovaOportunidadePage() {
       )}
 
       {tipoEntidade && (
-      <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
-        <div className="grid gap-5 sm:grid-cols-2">
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Título *</label>
-            <input
-              type="text"
-              value={form.titulo}
-              onChange={e => setField("titulo", e.target.value)}
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Ex: Venda de malha 100% algodão"
-              required
-            />
-          </div>
-          <div className="sm:col-span-2 flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {entidadeIcone}
-              <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                {entidadeLabel}
-              </span>
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5"
+        >
+          <div className="grid gap-5 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Título *
+              </label>
+              <input
+                type="text"
+                value={form.titulo}
+                onChange={(e) => setField("titulo", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Ex: Venda de malha 100% algodão"
+                required
+              />
             </div>
-            <button
-              type="button"
-              onClick={handleTrocar}
-              className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:underline"
-            >
-              Trocar
-            </button>
-          </div>
-          {tipoEntidade === "AVULSO" && (
-            <div className="sm:col-span-2 rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-950/20 px-4 py-3 text-sm text-orange-700 dark:text-orange-300">
-              Oportunidade sem vínculo obrigatório. Opcionalmente vincule a uma pessoa ou cliente.
+            <div className="sm:col-span-2 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                {entidadeIcone}
+                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  {entidadeLabel}
+                </span>
+              </div>
+              <button
+                type="button"
+                onClick={handleTrocar}
+                className="text-xs text-slate-500 hover:text-slate-700 dark:hover:text-slate-300 hover:underline"
+              >
+                Trocar
+              </button>
             </div>
-          )}
-          {tipoEntidade === "AVULSO" ? (
-            <>
+            {tipoEntidade === "AVULSO" && (
+              <div className="sm:col-span-2 rounded-lg border border-orange-200 dark:border-orange-800 bg-orange-50 dark:bg-orange-950/20 px-4 py-3 text-sm text-orange-700 dark:text-orange-300">
+                Oportunidade sem vínculo obrigatório. Opcionalmente vincule a uma pessoa ou cliente.
+              </div>
+            )}
+            {tipoEntidade === "AVULSO" ? (
+              <>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Pessoa (Negócio)
+                    <QuickCreatePessoa onCreated={handleEmpresaCreated} />
+                  </label>
+                  <select
+                    value={form.empresaId}
+                    onChange={(e) => setField("empresaId", e.target.value)}
+                    className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="">Selecione...</option>
+                    {empresas.map((e) => (
+                      <option key={e.id} value={String(e.id)}>
+                        {e.razaoSocial || e.nomeFantasia}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                    Cliente
+                    <QuickCreateCliente onCreated={handleClienteCreated} />
+                  </label>
+                  <SelectCliente
+                    value={form.clienteId}
+                    onChange={(value) => setField("clienteId", value)}
+                  />
+                </div>
+              </>
+            ) : tipoEntidade === "CLIENTE" ? (
               <div>
                 <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                  Pessoa (Negócio)
+                  Cliente *
+                  <QuickCreateCliente onCreated={handleClienteCreated} />
+                </label>
+                <SelectCliente
+                  value={form.clienteId}
+                  onChange={(value) => setField("clienteId", value)}
+                />
+              </div>
+            ) : (
+              <div>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Pessoa (Negócio) *
                   <QuickCreatePessoa onCreated={handleEmpresaCreated} />
                 </label>
                 <select
                   value={form.empresaId}
-                  onChange={e => setField("empresaId", e.target.value)}
+                  onChange={(e) => setField("empresaId", e.target.value)}
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 >
                   <option value="">Selecione...</option>
                   {empresas.map((e) => (
-                    <option key={e.id} value={String(e.id)}>{e.razaoSocial || e.nomeFantasia}</option>
+                    <option key={e.id} value={String(e.id)}>
+                      {e.razaoSocial || e.nomeFantasia}
+                    </option>
                   ))}
                 </select>
               </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                  Cliente
-                  <QuickCreateCliente onCreated={handleClienteCreated} />
-                </label>
-                <SelectCliente value={form.clienteId} onChange={value => setField("clienteId", value)} />
-              </div>
-            </>
-          ) : tipoEntidade === "CLIENTE" ? (
+            )}
             <div>
               <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Cliente *
-                <QuickCreateCliente onCreated={handleClienteCreated} />
-              </label>
-              <SelectCliente value={form.clienteId} onChange={value => setField("clienteId", value)} />
-            </div>
-          ) : (
-            <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-                Pessoa (Negócio) *
-                <QuickCreatePessoa onCreated={handleEmpresaCreated} />
+                Lead
+                <QuickCreateLead onCreated={handleLeadCreated} />
               </label>
               <select
-                value={form.empresaId}
-                onChange={e => setField("empresaId", e.target.value)}
+                value={form.leadId}
+                onChange={(e) => setField("leadId", e.target.value)}
                 className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 <option value="">Selecione...</option>
-                {empresas.map((e) => (
-                  <option key={e.id} value={String(e.id)}>{e.razaoSocial || e.nomeFantasia}</option>
+                {leads.map((l) => (
+                  <option key={l.id} value={String(l.id)}>
+                    {l.nome}
+                  </option>
                 ))}
               </select>
             </div>
-          )}
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
-              Lead
-              <QuickCreateLead onCreated={handleLeadCreated} />
-            </label>
-            <select
-              value={form.leadId}
-              onChange={e => setField("leadId", e.target.value)}
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Selecione...</option>
-              {leads.map((l) => (
-                <option key={l.id} value={String(l.id)}>{l.nome}</option>
-              ))}
-            </select>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Responsável
+              </label>
+              <select
+                value={form.responsavelId}
+                onChange={(e) => setField("responsavelId", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                <option value="">Selecione...</option>
+                {usuarios.map((u) => (
+                  <option key={u.id} value={String(u.id)}>
+                    {u.name}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Valor Estimado
+              </label>
+              <input
+                type="number"
+                step="0.01"
+                value={form.valorEstimado}
+                onChange={(e) => setField("valorEstimado", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="R$ 0,00"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Previsão de Fechamento
+              </label>
+              <input
+                type="date"
+                value={form.dataFechamentoPrevista}
+                onChange={(e) => setField("dataFechamentoPrevista", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Probabilidade (%)
+              </label>
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={form.probabilidade}
+                onChange={(e) => setField("probabilidade", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Status
+              </label>
+              <select
+                value={form.status}
+                onChange={(e) => setField("status", e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+              >
+                {statuses.map((s) => (
+                  <option key={s.id} value={s.nome}>
+                    {s.nome}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <div className="sm:col-span-2">
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Descrição
+              </label>
+              <textarea
+                value={form.descricao}
+                onChange={(e) => setField("descricao", e.target.value)}
+                rows={4}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                placeholder="Detalhes da oportunidade..."
+              />
+            </div>
           </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Responsável</label>
-            <select
-              value={form.responsavelId}
-              onChange={e => setField("responsavelId", e.target.value)}
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              <option value="">Selecione...</option>
-              {usuarios.map((u) => (
-                <option key={u.id} value={String(u.id)}>{u.name}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Valor Estimado</label>
-            <input
-              type="number"
-              step="0.01"
-              value={form.valorEstimado}
-              onChange={e => setField("valorEstimado", e.target.value)}
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="R$ 0,00"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Previsão de Fechamento</label>
-            <input
-              type="date"
-              value={form.dataFechamentoPrevista}
-              onChange={e => setField("dataFechamentoPrevista", e.target.value)}
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Probabilidade (%)</label>
-            <input
-              type="number"
-              min="0"
-              max="100"
-              value={form.probabilidade}
-              onChange={e => setField("probabilidade", e.target.value)}
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            />
-          </div>
-          <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Status</label>
-            <select
-              value={form.status}
-              onChange={e => setField("status", e.target.value)}
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-            >
-              {statuses.map((s) => (
-                <option key={s.id} value={s.nome}>{s.nome}</option>
-              ))}
-            </select>
-          </div>
-          <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Descrição</label>
-            <textarea
-              value={form.descricao}
-              onChange={e => setField("descricao", e.target.value)}
-              rows={4}
-              className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-              placeholder="Detalhes da oportunidade..."
-            />
-          </div>
-        </div>
 
-        <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
-          <Link
-            href="/comercial/crm/oportunidades"
-            className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
-          >
-            Cancelar
-          </Link>
-          <button
-            type="submit"
-            disabled={saving}
-            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-sm"
-          >
-            <Save size={16} />
-            {saving ? "Salvando..." : "Salvar"}
-          </button>
-        </div>
-      </form>
+          <div className="flex justify-end gap-3 pt-3 border-t border-slate-100 dark:border-slate-800">
+            <Link
+              href="/comercial/crm/oportunidades"
+              className="px-4 py-2 text-sm font-medium text-slate-600 hover:text-slate-900 dark:text-slate-400 dark:hover:text-slate-200"
+            >
+              Cancelar
+            </Link>
+            <button
+              type="submit"
+              disabled={saving}
+              className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50 transition-colors shadow-sm"
+            >
+              <Save size={16} />
+              {saving ? "Salvando..." : "Salvar"}
+            </button>
+          </div>
+        </form>
       )}
     </div>
   )

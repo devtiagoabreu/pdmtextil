@@ -34,7 +34,7 @@ export function AnimatedNumber({
           obs.disconnect()
         }
       },
-      { threshold: 0.1 },
+      { threshold: 0.1 }
     )
     obs.observe(el)
     return () => obs.disconnect()
@@ -69,8 +69,16 @@ export function AnimatedNumber({
 
   return (
     <span ref={ref} className={className}>
-      <span aria-hidden="true">{prefix}{displayValue.toLocaleString("pt-BR")}{suffix}</span>
-      <span className="sr-only">{prefix}{value.toLocaleString("pt-BR")}{suffix}</span>
+      <span aria-hidden="true">
+        {prefix}
+        {displayValue.toLocaleString("pt-BR")}
+        {suffix}
+      </span>
+      <span className="sr-only">
+        {prefix}
+        {value.toLocaleString("pt-BR")}
+        {suffix}
+      </span>
     </span>
   )
 }

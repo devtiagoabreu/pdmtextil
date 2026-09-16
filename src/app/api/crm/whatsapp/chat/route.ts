@@ -24,7 +24,7 @@ export async function GET(req: NextRequest) {
         and(
           eq(crmWhatsappMensagens.remoteJid, remoteJid),
           eq(crmWhatsappMensagens.tipo, "RECEBIDA"),
-          eq(crmWhatsappMensagens.lida, false),
+          eq(crmWhatsappMensagens.lida, false)
         )
       )
 

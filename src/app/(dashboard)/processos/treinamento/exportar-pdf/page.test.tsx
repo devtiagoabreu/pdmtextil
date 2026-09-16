@@ -18,8 +18,22 @@ const modulos = [
     ordem: 1,
     ativo: true,
     licoes: [
-      { id: 10, titulo: "O que é um processo", conteudoMd: "Conteúdo da lição 1.", preRequisitos: null, ordem: 1, ativo: true },
-      { id: 11, titulo: "Lição Inativa", conteudoMd: "Conteúdo da lição 2.", preRequisitos: "Processo cadastrado", ordem: 2, ativo: false },
+      {
+        id: 10,
+        titulo: "O que é um processo",
+        conteudoMd: "Conteúdo da lição 1.",
+        preRequisitos: null,
+        ordem: 1,
+        ativo: true,
+      },
+      {
+        id: 11,
+        titulo: "Lição Inativa",
+        conteudoMd: "Conteúdo da lição 2.",
+        preRequisitos: "Processo cadastrado",
+        ordem: 2,
+        ativo: false,
+      },
     ],
   },
   {
@@ -37,7 +51,8 @@ const modulos = [
 describe("ExportarPdfPage", () => {
   beforeEach(() => {
     const handler = ({ method, url }: { method: string; url: string }) => {
-      if (method === "GET" && url === "/api/processos/treinamento/exportar-pdf") return { json: modulos }
+      if (method === "GET" && url === "/api/processos/treinamento/exportar-pdf")
+        return { json: modulos }
       return { json: null }
     }
     vi.stubGlobal("fetch", createFetchMock(handler).fn)
@@ -46,7 +61,9 @@ describe("ExportarPdfPage", () => {
   it("renderiza o documento completo com módulos e lições ativas", async () => {
     renderPage(<ExportarPdfPage />)
 
-    expect(screen.getByRole("heading", { name: "Exportar Treinamento Completo" })).toBeInTheDocument()
+    expect(
+      screen.getByRole("heading", { name: "Exportar Treinamento Completo" })
+    ).toBeInTheDocument()
     expect(await screen.findByText(/Resumo do Documento/)).toBeInTheDocument()
     expect(screen.getByText(/2 módulos/)).toBeInTheDocument()
     expect(screen.getByText("Treinamento Engenharia de Processos")).toBeInTheDocument()

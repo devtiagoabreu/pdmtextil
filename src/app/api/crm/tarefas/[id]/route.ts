@@ -7,10 +7,7 @@ import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { inserirTimelineEvento, excluirTimelineEventosEntidade } from "@/lib/crm-timeline"
 import { handleApiError } from "@/lib/api-error"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -32,10 +29,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -89,11 +83,20 @@ export async function PUT(
         empresaId: existente.empresaId,
         tipo: "TAREFA",
         descricao: `Tarefa "${existente.titulo}" ${body.status === "CONCLUIDO" ? "concluída" : "reaberta"}`,
-        metadados: { tarefaId: atualizada.id, statusAnterior: existente.status, statusNovo: body.status },
+        metadados: {
+          tarefaId: atualizada.id,
+          statusAnterior: existente.status,
+          statusNovo: body.status,
+        },
       })
     }
 
-    await notificar("TAREFA_ATUALIZADA", `Tarefa #${id} ${body.status === "CONCLUIDO" ? "concluída" : "atualizada"}`, `/comercial/crm/tarefas/${atualizada.id}`, session.user.name)
+    await notificar(
+      "TAREFA_ATUALIZADA",
+      `Tarefa #${id} ${body.status === "CONCLUIDO" ? "concluída" : "atualizada"}`,
+      `/comercial/crm/tarefas/${atualizada.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(atualizada)
   } catch (error) {
@@ -101,10 +104,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth

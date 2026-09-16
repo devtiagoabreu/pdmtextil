@@ -30,8 +30,10 @@ describe("NovoPedidoVendaPage", () => {
 
   it("cria via POST e redireciona para o detalhe", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
-      if (method === "GET" && url === "/api/crm/oportunidades") return { json: [{ id: 1, titulo: "Malha penteada" }] }
-      if (method === "POST" && url === "/api/crm/pedidos-venda") return { status: 201, json: { id: 6 } }
+      if (method === "GET" && url === "/api/crm/oportunidades")
+        return { json: [{ id: 1, titulo: "Malha penteada" }] }
+      if (method === "POST" && url === "/api/crm/pedidos-venda")
+        return { status: 201, json: { id: 6 } }
       return { status: 404, json: { error: "Rota não mockada" } }
     })
     vi.stubGlobal("fetch", fetchMock.fn)
@@ -39,7 +41,9 @@ describe("NovoPedidoVendaPage", () => {
 
     await screen.findByText("Malha penteada")
     fireEvent.change(screen.getAllByRole("combobox")[0], { target: { value: "1" } })
-    fireEvent.change(screen.getByPlaceholderText("Ex: Tecido 100% algodão"), { target: { value: "Malha penteada azul" } })
+    fireEvent.change(screen.getByPlaceholderText("Ex: Tecido 100% algodão"), {
+      target: { value: "Malha penteada azul" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Criar Pedido de Venda" }))
 
     await waitFor(() => {

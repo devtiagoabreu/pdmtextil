@@ -6,12 +6,14 @@ export function exportCSV(
   const csvContent = [
     headers.join(","),
     ...rows.map((row: any) =>
-      row.map((cell: any) => {
-        const val = cell?.toString() ?? ""
-        return val.includes(",") || val.includes('"') || val.includes("\n")
-          ? `"${val.replace(/"/g, '""')}"`
-          : val
-      }).join(",")
+      row
+        .map((cell: any) => {
+          const val = cell?.toString() ?? ""
+          return val.includes(",") || val.includes('"') || val.includes("\n")
+            ? `"${val.replace(/"/g, '""')}"`
+            : val
+        })
+        .join(",")
     ),
   ].join("\n")
 
@@ -91,7 +93,14 @@ export async function exportPDFRelatorio(options: {
   const { default: jsPDF } = await import("jspdf")
   await import("jspdf-autotable")
 
-  let empresa: { nome?: string; documento?: string; endereco?: string; cidade?: string; uf?: string; logoUrl?: string } | null = null
+  let empresa: {
+    nome?: string
+    documento?: string
+    endereco?: string
+    cidade?: string
+    uf?: string
+    logoUrl?: string
+  } | null = null
   try {
     const res = await fetch("/api/admin/config/empresa")
     const list: any[] = await res.json()
@@ -116,7 +125,8 @@ export async function exportPDFRelatorio(options: {
   const headerParts: string[] = []
   if (empresa?.documento) headerParts.push(`CNPJ: ${empresa.documento}`)
   if (empresa?.endereco) headerParts.push(empresa.endereco)
-  if (empresa?.cidade || empresa?.uf) headerParts.push([empresa.cidade, empresa.uf].filter(Boolean).join("/"))
+  if (empresa?.cidade || empresa?.uf)
+    headerParts.push([empresa.cidade, empresa.uf].filter(Boolean).join("/"))
   if (headerParts.length > 0) {
     doc.text(headerParts.join(" — "), marginX, headerY)
   }
@@ -157,7 +167,7 @@ export async function exportPDFRelatorio(options: {
     } else {
       const boxW = Math.min(contentW / entries.length - 4, 80)
       for (const [label, value] of entries) {
-        const x = marginX + (Object.keys(options.stats).indexOf(label) * (boxW + 4))
+        const x = marginX + Object.keys(options.stats).indexOf(label) * (boxW + 4)
         doc.setFillColor(248, 250, 252)
         doc.setDrawColor(200, 200, 200)
         doc.roundedRect(x, y, boxW, 22, 2, 2, "FD")

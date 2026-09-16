@@ -13,7 +13,8 @@ export const adminContent: Record<string, InfoContent> = {
   },
   "/admin/roles": {
     title: "Perfis (Roles)",
-    description: "Gerenciamento dos perfis de acesso do sistema. Crie e configure permissões para cada perfil.",
+    description:
+      "Gerenciamento dos perfis de acesso do sistema. Crie e configure permissões para cada perfil.",
     rules: [
       "Cada perfil define um conjunto de permissões (CRUD) por entidade.",
       "Perfis não podem ser excluídos se houver usuários vinculados.",
@@ -22,7 +23,8 @@ export const adminContent: Record<string, InfoContent> = {
   },
   "/admin/email-massa": {
     title: "Email em Massa",
-    description: "Ferramenta de disparo, gestão de modelos e listas, histórico e dashboard de campanhas de email.",
+    description:
+      "Ferramenta de disparo, gestão de modelos e listas, histórico e dashboard de campanhas de email.",
     rules: [
       "Os destinatários podem ser: todos (clientes + utilizadores), apenas clientes, apenas utilizadores do sistema, ou listas personalizadas.",
       "O modo de envio define se o email vai como Cópia Oculta (BCC), Para (TO), ou Individual com placeholder [NOME].",
@@ -38,22 +40,44 @@ export const adminContent: Record<string, InfoContent> = {
       "Os perfis Administrador e Gestão de Relacionamento com o Cliente têm acesso total a todas as funcionalidades.",
     ],
     fields: [
-      { name: "Enviar para", desc: "Destinatários: Todos, Clientes, Utilizadores ou Lista personalizada" },
+      {
+        name: "Enviar para",
+        desc: "Destinatários: Todos, Clientes, Utilizadores ou Lista personalizada",
+      },
       { name: "Assunto", desc: "Linha de assunto do email" },
-      { name: "Selecionar Listas", desc: "Escolha uma ou mais listas de contactos (visível apenas com destino Lista)" },
-      { name: "Remetente", desc: "SMTP do sistema, configuração de email pessoal (Meu Email) ou SMTP do CRM" },
-      { name: "Modo de Envio", desc: "BCC (oculto), TO (visível) ou Individual com personalização [NOME]" },
-      { name: "Modelos Rápidos", desc: "Atalhos para carregar modelos salvos diretamente no editor" },
-      { name: "Editor WYSIWYG", desc: "Editor de conteúdo rico: formatação, alinhamento, fontes, cores, links, imagens" },
+      {
+        name: "Selecionar Listas",
+        desc: "Escolha uma ou mais listas de contactos (visível apenas com destino Lista)",
+      },
+      {
+        name: "Remetente",
+        desc: "SMTP do sistema, configuração de email pessoal (Meu Email) ou SMTP do CRM",
+      },
+      {
+        name: "Modo de Envio",
+        desc: "BCC (oculto), TO (visível) ou Individual com personalização [NOME]",
+      },
+      {
+        name: "Modelos Rápidos",
+        desc: "Atalhos para carregar modelos salvos diretamente no editor",
+      },
+      {
+        name: "Editor WYSIWYG",
+        desc: "Editor de conteúdo rico: formatação, alinhamento, fontes, cores, links, imagens",
+      },
       { name: "Modelos", desc: "Gestão de modelos: guardar, editar, visualizar e apagar" },
       { name: "Listas", desc: "Gestão de listas de contactos com importação CSV/JSON e API" },
-      { name: "Histórico", desc: "Registo de envios com status, tracking de abertura e cliques, busca e relatório PDF" },
+      {
+        name: "Histórico",
+        desc: "Registo de envios com status, tracking de abertura e cliques, busca e relatório PDF",
+      },
       { name: "Dashboard", desc: "Relatório de remessas com taxas de abertura e cliques por link" },
     ],
   },
   "/admin/configuracoes": {
     title: "Configurações",
-    description: "Configurações gerais do sistema como integrações, emails e parâmetros operacionais.",
+    description:
+      "Configurações gerais do sistema como integrações, emails e parâmetros operacionais.",
     rules: [
       "Alterações em configurações de integração podem afetar a comunicação com sistemas externos.",
       "Configurações de email afetam o envio de notificações.",
@@ -62,7 +86,8 @@ export const adminContent: Record<string, InfoContent> = {
   },
   "/admin/configuracoes/banco-dados": {
     title: "Banco de Dados",
-    description: "Gerenciamento de servidores PostgreSQL: criação, clonagem e redundância de bancos de dados.",
+    description:
+      "Gerenciamento de servidores PostgreSQL: criação, clonagem e redundância de bancos de dados.",
     rules: [
       "A string de conexão deve apontar para o servidor (ex: postgresql://user:pass@host:5432/postgres).",
       "Apenas conexões ativas podem ser usadas nas operações de criar/clonar/redundância.",
@@ -72,7 +97,8 @@ export const adminContent: Record<string, InfoContent> = {
   },
   "/admin/configuracoes/empresa": {
     title: "Empresa",
-    description: "Dados cadastrais da empresa e configuração de logo para relatórios e exportações PDF.",
+    description:
+      "Dados cadastrais da empresa e configuração de logo para relatórios e exportações PDF.",
     rules: [
       "Os dados da empresa são utilizados em relatórios e exportações (PDF, CSV, JSON).",
       "O logo deve ser uma URL pública acessível (Google Drive, imagens da web).",
@@ -82,7 +108,8 @@ export const adminContent: Record<string, InfoContent> = {
   },
   "/admin/configuracoes/integracoes": {
     title: "Integrações",
-    description: "Configuração de conexões com sistemas externos (ERP, APIs, WMS). Cada integração define como o sistema se autentica e comunica com serviços externos.",
+    description:
+      "Configuração de conexões com sistemas externos (ERP, APIs, WMS). Cada integração define como o sistema se autentica e comunica com serviços externos.",
     rules: [
       "O campo Base URL define o endpoint base para todas as requisições.",
       "O tipo de autenticação define como o sistema se identifica (Bearer, Basic, OAuth2, API Key).",
@@ -93,7 +120,8 @@ export const adminContent: Record<string, InfoContent> = {
   },
   "/admin/configuracoes/email": {
     title: "Configuração de Email",
-    description: "Unificação do SMTP do sistema, email por usuário e email do CRM em uma única tela.",
+    description:
+      "Unificação do SMTP do sistema, email por usuário e email do CRM em uma única tela.",
     rules: [
       "A aba SMTP Sistema define o servidor usado por notificações do sistema, menções no chat e envio em massa com remetente sistema.",
       "A aba Email por Usuário configura o SMTP pessoal de cada usuário, usado no envio em massa quando o remetente é o usuário.",
@@ -105,7 +133,8 @@ export const adminContent: Record<string, InfoContent> = {
   },
   "/admin/notificacoes": {
     title: "Notificações por Tipo",
-    description: "Configure quais perfis (roles) recebem notificações para cada tipo de evento do sistema.",
+    description:
+      "Configure quais perfis (roles) recebem notificações para cada tipo de evento do sistema.",
     rules: [
       "Cada tipo de notificação pode ser atribuído a um ou mais perfis.",
       "As notificações são exibidas no ícone de sino no cabeçalho.",
@@ -132,7 +161,8 @@ export const adminContent: Record<string, InfoContent> = {
   },
   "/admin/configuracoes/permissoes": {
     title: "Permissões",
-    description: "Configuração detalhada de permissões de acesso por entidade e ação para cada perfil.",
+    description:
+      "Configuração detalhada de permissões de acesso por entidade e ação para cada perfil.",
     rules: [
       "As permissões são do tipo CRUD (Criar, Ler, Atualizar, Deletar) por entidade.",
       "Permissões são aplicadas imediatamente após salvas.",

@@ -12,7 +12,9 @@ export async function PATCH(req: NextRequest) {
 
     const body = await req.json()
     const { ids, status } = body
-    const idList = (Array.isArray(ids) ? ids : []).filter((id: unknown): id is number => typeof id === "number")
+    const idList = (Array.isArray(ids) ? ids : []).filter(
+      (id: unknown): id is number => typeof id === "number"
+    )
 
     if (idList.length === 0 || !status) {
       return NextResponse.json({ error: "ids e status sao obrigatorios" }, { status: 400 })
@@ -34,7 +36,10 @@ export async function PATCH(req: NextRequest) {
         .where(inArray(crmVisitas.id, idList))
       const unauthorized = visitas.filter((v) => v.criadoPor !== userId)
       if (unauthorized.length > 0) {
-        return NextResponse.json({ error: `${unauthorized.length} visita(s) sem permissao para alterar` }, { status: 403 })
+        return NextResponse.json(
+          { error: `${unauthorized.length} visita(s) sem permissao para alterar` },
+          { status: 403 }
+        )
       }
     }
 
@@ -69,16 +74,27 @@ export async function DELETE(req: NextRequest) {
     }
 
     if (!isAdminOrSudo) {
-      const visitas = await db.select({ id: crmVisitas.id, criadoPor: crmVisitas.criadoPor }).from(crmVisitas).where(inArray(crmVisitas.id, ids))
+      const visitas = await db
+        .select({ id: crmVisitas.id, criadoPor: crmVisitas.criadoPor })
+        .from(crmVisitas)
+        .where(inArray(crmVisitas.id, ids))
       const unauthorized = visitas.filter((v: any) => v.criadoPor !== userId)
       if (unauthorized.length > 0) {
-        return NextResponse.json({ error: `${unauthorized.length} visita(s) sem permissao para excluir` }, { status: 403 })
+        return NextResponse.json(
+          { error: `${unauthorized.length} visita(s) sem permissao para excluir` },
+          { status: 403 }
+        )
       }
     }
 
     await db.delete(crmVisitas).where(inArray(crmVisitas.id, ids))
 
-    await notificar("VISITA_CRIADA", `${ids.length} visita(s) excluida(s) em lote`, `/comercial/crm/visitas`, auth.session.user.name)
+    await notificar(
+      "VISITA_CRIADA",
+      `${ids.length} visita(s) excluida(s) em lote`,
+      `/comercial/crm/visitas`,
+      auth.session.user.name
+    )
 
     return NextResponse.json({ deleted: ids.length })
   } catch (error) {

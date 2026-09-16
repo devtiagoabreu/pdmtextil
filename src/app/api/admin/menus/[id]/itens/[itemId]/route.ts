@@ -16,14 +16,18 @@ async function requireAdmin() {
   return auth
 }
 
-export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string; itemId: string }> }) {
+export async function PUT(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string; itemId: string }> }
+) {
   try {
     const admin = await requireAdmin()
     if (admin instanceof NextResponse) return admin
     const { id, itemId } = await params
     const menuId = parseInt(id)
     const itemIdNum = parseInt(itemId)
-    if (isNaN(menuId) || isNaN(itemIdNum)) return NextResponse.json({ error: "Parâmetros inválidos" }, { status: 400 })
+    if (isNaN(menuId) || isNaN(itemIdNum))
+      return NextResponse.json({ error: "Parâmetros inválidos" }, { status: 400 })
 
     const body = await req.json()
     if (body.url) {
@@ -47,14 +51,18 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string; itemId: string }> }) {
+export async function DELETE(
+  req: NextRequest,
+  { params }: { params: Promise<{ id: string; itemId: string }> }
+) {
   try {
     const admin = await requireAdmin()
     if (admin instanceof NextResponse) return admin
     const { id, itemId } = await params
     const menuId = parseInt(id)
     const itemIdNum = parseInt(itemId)
-    if (isNaN(menuId) || isNaN(itemIdNum)) return NextResponse.json({ error: "Parâmetros inválidos" }, { status: 400 })
+    if (isNaN(menuId) || isNaN(itemIdNum))
+      return NextResponse.json({ error: "Parâmetros inválidos" }, { status: 400 })
 
     const [deleted] = await db
       .delete(userMenuItens)

@@ -54,7 +54,8 @@ const projetoCriado = {
 function fetchSucesso() {
   const fetchMock = createFetchMock(({ method, url }) => {
     if (url === "/api/reunioes/projetos" && method === "GET") return { json: { projetos } }
-    if (url === "/api/reunioes/projetos" && method === "POST") return { status: 201, json: { projeto: projetoCriado } }
+    if (url === "/api/reunioes/projetos" && method === "POST")
+      return { status: 201, json: { projeto: projetoCriado } }
     if (url === "/api/reunioes/projetos/2" && method === "PUT")
       return { json: { projeto: { ...projetos[0], status: "ENCERRADO" } } }
     if (url === "/api/reunioes/projetos/2" && method === "DELETE") return { json: { ok: true } }
@@ -124,7 +125,9 @@ describe("ProjetosPage", () => {
       expect(chamada?.body?.status).toBe("EM_ANDAMENTO")
       expect(chamada?.body?.ativo).toBe(true)
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Projeto criado com sucesso."))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Projeto criado com sucesso.")
+    )
   })
 
   it("edita projeto via modal (PUT)", async () => {
@@ -143,7 +146,9 @@ describe("ProjetosPage", () => {
       expect(chamada?.body?.nome).toBe("Integração Systêxtil")
       expect(chamada?.body?.status).toBe("ENCERRADO")
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Projeto atualizado com sucesso."))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Projeto atualizado com sucesso.")
+    )
   })
 
   it("não mostra botão de excluir para o projeto padrão", async () => {
@@ -161,7 +166,9 @@ describe("ProjetosPage", () => {
 
     fireEvent.click(screen.getAllByRole("button", { name: "Excluir" }).at(-1)!)
 
-    await waitFor(() => expect(findCall(fetchMock.calls, "/api/reunioes/projetos/2", "DELETE")).toBeDefined())
+    await waitFor(() =>
+      expect(findCall(fetchMock.calls, "/api/reunioes/projetos/2", "DELETE")).toBeDefined()
+    )
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Projeto excluído."))
   })
 

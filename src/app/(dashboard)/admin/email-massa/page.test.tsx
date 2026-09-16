@@ -4,7 +4,9 @@ import { screen, fireEvent, waitFor } from "@testing-library/react"
 import EmailMassaPage from "./page"
 import { createFetchMock, renderPage, toastMock } from "@/test/harness"
 
-const modelos = [{ id: 1, nome: "Promoção de Verão", assunto: "Oferta imperdível", html: "<p>oi</p>" }]
+const modelos = [
+  { id: 1, nome: "Promoção de Verão", assunto: "Oferta imperdível", html: "<p>oi</p>" },
+]
 const listas = [{ id: 1, nome: "Clientes SP", totalContatos: 10 }]
 
 function setup(config: { email?: string; ativo?: boolean } | null = null) {
@@ -12,7 +14,11 @@ function setup(config: { email?: string; ativo?: boolean } | null = null) {
     if (method === "GET" && url === "/api/admin/email-massa/modelos") return { json: modelos }
     if (method === "GET" && url === "/api/admin/email-massa/listas") return { json: listas }
     if (method === "GET" && url === "/api/user/email-config") {
-      return { json: config ? { config: { email: config.email, ativo: config.ativo ?? true } } : { config: null } }
+      return {
+        json: config
+          ? { config: { email: config.email, ativo: config.ativo ?? true } }
+          : { config: null },
+      }
     }
     return { json: [] }
   })
@@ -26,7 +32,14 @@ describe("EmailMassaPage", () => {
     renderPage(<EmailMassaPage />)
 
     expect(screen.getByRole("heading", { name: "Email em Massa" })).toBeInTheDocument()
-    for (const aba of ["Enviar Email", "Modelos", "Listas", "Histórico", "Programar Disparo", "Dashboard"]) {
+    for (const aba of [
+      "Enviar Email",
+      "Modelos",
+      "Listas",
+      "Histórico",
+      "Programar Disparo",
+      "Dashboard",
+    ]) {
       expect(screen.getByRole("tab", { name: aba })).toBeInTheDocument()
     }
   })
@@ -54,7 +67,11 @@ describe("EmailMassaPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Deletar" }))
 
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Modelo deletado"))
-    expect(fetchMock.calls.some((c) => c.method === "DELETE" && c.url === "/api/admin/email-massa/modelos/1")).toBe(true)
+    expect(
+      fetchMock.calls.some(
+        (c) => c.method === "DELETE" && c.url === "/api/admin/email-massa/modelos/1"
+      )
+    ).toBe(true)
   })
 
   it("valida conteúdo vazio antes de enviar", async () => {
@@ -71,10 +88,31 @@ describe("EmailMassaPage", () => {
       if (method === "GET" && url === "/api/admin/email-massa/modelos") return { json: modelos }
       if (method === "GET" && url === "/api/admin/email-massa/listas") return { json: listas }
       if (method === "GET" && url === "/api/admin/email-massa/disparos") {
-        return { json: { disparos: [{ id: 2, nome: "07.08 | Feira Equipotel", status: "enviando", total: 4711, enviados: 380, falhas: 2, pendentes: 10, lidos: 0, cliques: 0 }] } }
+        return {
+          json: {
+            disparos: [
+              {
+                id: 2,
+                nome: "07.08 | Feira Equipotel",
+                status: "enviando",
+                total: 4711,
+                enviados: 380,
+                falhas: 2,
+                pendentes: 10,
+                lidos: 0,
+                cliques: 0,
+              },
+            ],
+          },
+        }
       }
       if (method === "GET" && url === "/api/admin/email-massa/historico") {
-        return { json: { envios: [], stats: { total: 0, enviados: 0, lidos: 0, falhas: 0, totalCliques: 9 } } }
+        return {
+          json: {
+            envios: [],
+            stats: { total: 0, enviados: 0, lidos: 0, falhas: 0, totalCliques: 9 },
+          },
+        }
       }
       return { json: [] }
     })
@@ -96,7 +134,10 @@ describe("EmailMassaPage", () => {
     renderPage(<EmailMassaPage />)
 
     expect(await screen.findByText(/Nenhuma configuração encontrada/)).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: /Configure em Meu Perfil/ })).toHaveAttribute("href", "/perfil")
+    expect(screen.getByRole("link", { name: /Configure em Meu Perfil/ })).toHaveAttribute(
+      "href",
+      "/perfil"
+    )
     const radio = screen.getByLabelText("Meu e-mail de envio em massa") as HTMLInputElement
     expect(radio).toBeDisabled()
   })
@@ -105,8 +146,12 @@ describe("EmailMassaPage", () => {
     setup({ email: "usuario@gmail.com", ativo: true })
     renderPage(<EmailMassaPage />)
 
-    expect(await screen.findByLabelText("Meu e-mail de envio em massa (usuario@gmail.com)")).toBeInTheDocument()
-    const radio = screen.getByLabelText("Meu e-mail de envio em massa (usuario@gmail.com)") as HTMLInputElement
+    expect(
+      await screen.findByLabelText("Meu e-mail de envio em massa (usuario@gmail.com)")
+    ).toBeInTheDocument()
+    const radio = screen.getByLabelText(
+      "Meu e-mail de envio em massa (usuario@gmail.com)"
+    ) as HTMLInputElement
     expect(radio).toBeEnabled()
     expect(radio).toBeChecked()
   })
@@ -125,7 +170,9 @@ describe("EmailMassaPage", () => {
     renderPage(<EmailMassaPage />)
 
     expect(await screen.findByText(/inativa/)).toBeInTheDocument()
-    const radio = screen.getByRole("radio", { name: /Meu e-mail de envio em massa \(usuario@gmail\.com\)/ }) as HTMLInputElement
+    const radio = screen.getByRole("radio", {
+      name: /Meu e-mail de envio em massa \(usuario@gmail\.com\)/,
+    }) as HTMLInputElement
     expect(radio).toBeDisabled()
   })
 
@@ -133,7 +180,9 @@ describe("EmailMassaPage", () => {
     setup({ email: "usuario@gmail.com", ativo: true })
     renderPage(<EmailMassaPage />)
 
-    expect(await screen.findByLabelText(/Meu e-mail de envio em massa \(usuario@gmail\.com\)/)).toBeInTheDocument()
+    expect(
+      await screen.findByLabelText(/Meu e-mail de envio em massa \(usuario@gmail\.com\)/)
+    ).toBeInTheDocument()
     const sistema = screen.getByRole("radio", { name: /Sistema.*SMTP padrão/ })
     const meuEmail = screen.getByRole("radio", { name: /Meu e-mail de envio em massa/ })
     const crm = screen.getByRole("radio", { name: /CRM.*SMTP CRM/ })

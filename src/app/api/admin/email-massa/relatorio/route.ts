@@ -11,7 +11,10 @@ export const dynamic = "force-dynamic"
 export async function GET() {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
+    if (
+      !session ||
+      (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")
+    ) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -45,7 +48,10 @@ export async function GET() {
         .groupBy(emailEnviados.remessaId)
 
       for (const r of cliquesRows) {
-        cliquesPorRemessa.set(r.remessaId!, { clicados: Number(r.clicados), totalCliques: Number(r.totalCliques) })
+        cliquesPorRemessa.set(r.remessaId!, {
+          clicados: Number(r.clicados),
+          totalCliques: Number(r.totalCliques),
+        })
       }
 
       const linksPorRemessa = new Map<string, { urlOriginal: string; total: number }[]>()
@@ -63,7 +69,9 @@ export async function GET() {
 
       for (const link of todosLinks) {
         if (!linksPorRemessa.has(link.remessaId!)) linksPorRemessa.set(link.remessaId!, [])
-        linksPorRemessa.get(link.remessaId!)!.push({ urlOriginal: link.urlOriginal, total: link.total })
+        linksPorRemessa
+          .get(link.remessaId!)!
+          .push({ urlOriginal: link.urlOriginal, total: link.total })
       }
 
       return NextResponse.json({

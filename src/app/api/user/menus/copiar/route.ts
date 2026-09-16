@@ -27,7 +27,10 @@ export async function POST(req: NextRequest) {
       .orderBy(asc(userMenus.ordem))
 
     if (menusOrigem.length === 0) {
-      return NextResponse.json({ error: "Usuário de origem não possui menus personalizados" }, { status: 404 })
+      return NextResponse.json(
+        { error: "Usuário de origem não possui menus personalizados" },
+        { status: 404 }
+      )
     }
 
     const menusAtuais = await db
@@ -36,25 +39,33 @@ export async function POST(req: NextRequest) {
       .where(eq(userMenus.usuarioId, userId))
 
     if (menusAtuais.length > 0) {
-      const idsAtuais = menusAtuais.map((m: typeof menusAtuais[number]) => m.id)
+      const idsAtuais = menusAtuais.map((m: (typeof menusAtuais)[number]) => m.id)
       await db.delete(userMenuItens).where(inArray(userMenuItens.userMenuId, idsAtuais))
       await db.delete(userMenus).where(inArray(userMenus.id, idsAtuais))
     }
 
-    const novosMenus = await db.insert(userMenus).values(
-      menusOrigem.map((menu: typeof menusOrigem[number]) => ({
-        usuarioId: userId,
-        titulo: menu.titulo,
-        icone: menu.icone,
-        ordem: menu.ordem,
-        ativo: menu.ativo,
-      }))
-    ).returning()
+    const novosMenus = await db
+      .insert(userMenus)
+      .values(
+        menusOrigem.map((menu: (typeof menusOrigem)[number]) => ({
+          usuarioId: userId,
+          titulo: menu.titulo,
+          icone: menu.icone,
+          ordem: menu.ordem,
+          ativo: menu.ativo,
+        }))
+      )
+      .returning()
 
     const todosItensOrigem = await db
       .select()
       .from(userMenuItens)
-      .where(inArray(userMenuItens.userMenuId, menusOrigem.map((m: typeof menusOrigem[number]) => m.id)))
+      .where(
+        inArray(
+          userMenuItens.userMenuId,
+          menusOrigem.map((m: (typeof menusOrigem)[number]) => m.id)
+        )
+      )
       .orderBy(asc(userMenuItens.ordem))
 
     const itensPorMenuOrigem = new Map<number, typeof todosItensOrigem>()
@@ -69,17 +80,21 @@ export async function POST(req: NextRequest) {
       const novoMenu = novosMenus[i]
       const itensOrigem = itensPorMenuOrigem.get(menuOrigem.id) || []
 
-      const novosItens = itensOrigem.length > 0
-        ? await db.insert(userMenuItens).values(
-            itensOrigem.map((item: typeof itensOrigem[number]) => ({
-              userMenuId: novoMenu.id,
-              titulo: item.titulo,
-              url: item.url,
-              ordem: item.ordem,
-              ativo: item.ativo,
-            }))
-          ).returning()
-        : []
+      const novosItens =
+        itensOrigem.length > 0
+          ? await db
+              .insert(userMenuItens)
+              .values(
+                itensOrigem.map((item: (typeof itensOrigem)[number]) => ({
+                  userMenuId: novoMenu.id,
+                  titulo: item.titulo,
+                  url: item.url,
+                  ordem: item.ordem,
+                  ativo: item.ativo,
+                }))
+              )
+              .returning()
+          : []
 
       resultado.push({ ...novoMenu, itens: novosItens })
     }

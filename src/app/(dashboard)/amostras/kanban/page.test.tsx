@@ -12,8 +12,24 @@ vi.mock("next-auth/react", () => ({
 }))
 
 const statuses = [
-  { id: 1, nome: "EM_DESENVOLVIMENTO", rotulo: "Em Desenvolvimento", tipo: "AMOSTRA", cor: "#f59e0b", ordem: 1, ativo: true },
-  { id: 2, nome: "APROVADA", rotulo: "Aprovada", tipo: "AMOSTRA", cor: "#22c55e", ordem: 2, ativo: true },
+  {
+    id: 1,
+    nome: "EM_DESENVOLVIMENTO",
+    rotulo: "Em Desenvolvimento",
+    tipo: "AMOSTRA",
+    cor: "#f59e0b",
+    ordem: 1,
+    ativo: true,
+  },
+  {
+    id: 2,
+    nome: "APROVADA",
+    rotulo: "Aprovada",
+    tipo: "AMOSTRA",
+    cor: "#22c55e",
+    ordem: 2,
+    ativo: true,
+  },
 ]
 
 const amostras = {
@@ -70,7 +86,9 @@ describe("KanbanAmostrasPage", () => {
     vi.stubGlobal("fetch", createFetchMock(handler()).fn)
     renderPage(<KanbanAmostrasPage />)
 
-    expect(screen.getByRole("heading", { name: "Kanban — Amostras de Desenvolvimento" })).toBeInTheDocument()
+    expect(
+      screen.getByRole("heading", { name: "Kanban — Amostras de Desenvolvimento" })
+    ).toBeInTheDocument()
     expect(await screen.findByText("Em Desenvolvimento")).toBeInTheDocument()
     expect(screen.getByText("Aprovada")).toBeInTheDocument()
     expect(screen.getByText("TEC-001")).toBeInTheDocument()

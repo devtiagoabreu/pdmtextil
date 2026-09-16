@@ -5,14 +5,23 @@ import Link from "next/link"
 import dynamic from "next/dynamic"
 import { useState, useCallback } from "react"
 import {
-  Calendar, CheckCircle2, XCircle, Clock, MapPin, Users,
-  ArrowRight, BarChart3, PieChart as PieChartIcon, ClipboardCheck, Navigation, User, Loader2,
+  Calendar,
+  CheckCircle2,
+  XCircle,
+  Clock,
+  MapPin,
+  Users,
+  ArrowRight,
+  BarChart3,
+  PieChart as PieChartIcon,
+  ClipboardCheck,
+  Navigation,
+  User,
+  Loader2,
 } from "lucide-react"
 import VisitLocationModal from "@/components/crm/visit-location-modal"
 import ViagemCronogramaModal from "@/components/crm/viagem-cronograma"
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import type { VisitaModalRow } from "../types"
 
 const VisitasCharts = dynamic(() => import("./charts").then((m) => m.VisitasCharts), { ssr: false })
@@ -36,8 +45,33 @@ type VisitasDashboardData = {
     melhorDia: { dia: string; total: number } | null
     piorDia: { dia: string; total: number } | null
   }[]
-  viagens: { viagemId: number | null; viagemTitulo: string; total: number; realizadas: number; dataInicio: string | null; dataFim: string | null; totalInvestimento: number; possivelRetorno: number; retornoReal: number; vendas: number }[]
-  ultimasVisitas: { id: number; empresaId: number; clienteId: number | null; dataVisita: string; hora: string | null; tipo: string; status: string; endereco: string | null; numero: string | null; complemento: string | null; bairro: string | null; cidade: string | null; uf: string | null }[]
+  viagens: {
+    viagemId: number | null
+    viagemTitulo: string
+    total: number
+    realizadas: number
+    dataInicio: string | null
+    dataFim: string | null
+    totalInvestimento: number
+    possivelRetorno: number
+    retornoReal: number
+    vendas: number
+  }[]
+  ultimasVisitas: {
+    id: number
+    empresaId: number
+    clienteId: number | null
+    dataVisita: string
+    hora: string | null
+    tipo: string
+    status: string
+    endereco: string | null
+    numero: string | null
+    complemento: string | null
+    bairro: string | null
+    cidade: string | null
+    uf: string | null
+  }[]
   pesquisas: { enviadas: number; abertas: number; respondidas: number }
 }
 
@@ -73,18 +107,26 @@ export default function VisitasDashboardPage() {
   const [modalFiltro, setModalFiltro] = useState<string | null>(null)
   const [modalTitle, setModalTitle] = useState("")
   const [visitasFilter, setVisitasFilter] = useState<"todas" | "minhas">("minhas")
-  const [selectedViagem, setSelectedViagem] = useState<{ viagemId: number; viagemTitulo: string } | null>(null)
+  const [selectedViagem, setSelectedViagem] = useState<{
+    viagemId: number
+    viagemTitulo: string
+  } | null>(null)
 
   const { data, isLoading } = useQuery<VisitasDashboardData>({
     queryKey: ["visitas-dashboard", visitasFilter],
-    queryFn: () => fetch(`/api/crm/visitas/dashboard${visitasFilter === "minhas" ? "?mine=true" : ""}`).then((r) => r.json()),
+    queryFn: () =>
+      fetch(`/api/crm/visitas/dashboard${visitasFilter === "minhas" ? "?mine=true" : ""}`).then(
+        (r) => r.json()
+      ),
     retry: 1,
   })
 
   const modalQuery = useQuery<VisitaModalRow[]>({
     queryKey: ["visitas-dashboard-lista", modalFiltro, visitasFilter],
     queryFn: async () => {
-      const res = await fetch(`/api/crm/visitas/dashboard-lista?filtro=${modalFiltro}${visitasFilter === "minhas" ? "&mine=true" : ""}`)
+      const res = await fetch(
+        `/api/crm/visitas/dashboard-lista?filtro=${modalFiltro}${visitasFilter === "minhas" ? "&mine=true" : ""}`
+      )
       if (!res.ok) return []
       const data = await res.json()
       return Array.isArray(data) ? data : []
@@ -105,7 +147,9 @@ export default function VisitasDashboardPage() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Dashboard de Visitas</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Dashboard de Visitas
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Métricas de visitas comerciais, check-in e performance
           </p>
@@ -160,7 +204,7 @@ export default function VisitasDashboardPage() {
       ) : (
         <>
           {/* Linha 1: Cards de resumo */}
-           <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
+          <div className="grid gap-3 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-7">
             <SummaryCard
               onClick={() => openModal("total")}
               icon={<Calendar size={20} />}
@@ -230,7 +274,10 @@ export default function VisitasDashboardPage() {
                 <Navigation size={16} className="text-cyan-500" />
                 Viagens
               </h2>
-              <Link href="/comercial/crm/viagens" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+              <Link
+                href="/comercial/crm/viagens"
+                className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+              >
                 Ver todas <ArrowRight size={12} />
               </Link>
             </div>
@@ -238,11 +285,16 @@ export default function VisitasDashboardPage() {
               <div className="divide-y divide-slate-100 dark:divide-slate-800">
                 {data.viagens.map((vg) => {
                   const viagemId = vg.viagemId
-                  const periodo = vg.dataInicio ? `${fmtData(vg.dataInicio)} a ${fmtData(vg.dataFim ?? "")}` : null
+                  const periodo = vg.dataInicio
+                    ? `${fmtData(vg.dataInicio)} a ${fmtData(vg.dataFim ?? "")}`
+                    : null
                   const row = (
                     <div className="flex items-center gap-3 p-3">
                       <div className="flex items-center gap-3 min-w-0 flex-1">
-                        <Navigation size={14} className={vg.viagemId ? "text-cyan-500" : "text-slate-300"} />
+                        <Navigation
+                          size={14}
+                          className={vg.viagemId ? "text-cyan-500" : "text-slate-300"}
+                        />
                         <div className="min-w-0">
                           <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
                             {vg.viagemTitulo ?? "Sem viagem"}
@@ -257,33 +309,39 @@ export default function VisitasDashboardPage() {
                       <div className="flex items-center gap-4 shrink-0">
                         <div className="flex flex-col items-end gap-1.5">
                           <div className="text-right">
-                            <p className="text-[10px] leading-none text-slate-400 dark:text-slate-500">Investimento</p>
+                            <p className="text-[10px] leading-none text-slate-400 dark:text-slate-500">
+                              Investimento
+                            </p>
                             <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                               {fmtBRL(vg.totalInvestimento ?? 0)}
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="text-[10px] leading-none text-slate-400 dark:text-slate-500">Possível retorno</p>
+                            <p className="text-[10px] leading-none text-slate-400 dark:text-slate-500">
+                              Possível retorno
+                            </p>
                             <p className="text-xs font-semibold text-cyan-600 dark:text-cyan-400">
                               {fmtBRL(vg.possivelRetorno ?? 0)}
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="text-[10px] leading-none text-slate-400 dark:text-slate-500">Retorno real</p>
+                            <p className="text-[10px] leading-none text-slate-400 dark:text-slate-500">
+                              Retorno real
+                            </p>
                             <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400">
                               {vg.retornoReal ? fmtBRL(vg.retornoReal) : "—"}
                             </p>
                           </div>
                           <div className="text-right">
-                            <p className="text-[10px] leading-none text-slate-400 dark:text-slate-500">Vendas</p>
+                            <p className="text-[10px] leading-none text-slate-400 dark:text-slate-500">
+                              Vendas
+                            </p>
                             <p className="text-xs font-semibold text-slate-700 dark:text-slate-300">
                               {vg.vendas ? fmtBRL(vg.vendas) : "—"}
                             </p>
                           </div>
                         </div>
-                        {vg.viagemId && (
-                          <ArrowRight size={14} className="text-cyan-500" />
-                        )}
+                        {vg.viagemId && <ArrowRight size={14} className="text-cyan-500" />}
                       </div>
                     </div>
                   )
@@ -298,7 +356,9 @@ export default function VisitasDashboardPage() {
                       {row}
                     </button>
                   ) : (
-                    <div key="sem" className="cursor-default">{row}</div>
+                    <div key="sem" className="cursor-default">
+                      {row}
+                    </div>
                   )
                 })}
               </div>
@@ -317,7 +377,10 @@ export default function VisitasDashboardPage() {
                 <Users size={16} className="text-blue-500" />
                 Performance por Gerente Comercial
               </h2>
-              <Link href="/comercial/crm/visitas" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+              <Link
+                href="/comercial/crm/visitas"
+                className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+              >
                 Ver todas <ArrowRight size={12} />
               </Link>
             </div>
@@ -340,7 +403,9 @@ export default function VisitasDashboardPage() {
                       <KpiMini label="Média/dia" value={`${g.mediaPorDia}`} />
                       <KpiMini
                         label="Melhor dia"
-                        value={g.melhorDia ? `${fmtData(g.melhorDia.dia)} (${g.melhorDia.total})` : "—"}
+                        value={
+                          g.melhorDia ? `${fmtData(g.melhorDia.dia)} (${g.melhorDia.total})` : "—"
+                        }
                         tone="green"
                       />
                       <KpiMini
@@ -367,7 +432,10 @@ export default function VisitasDashboardPage() {
                 <Calendar size={16} className="text-amber-500" />
                 Últimas Visitas
               </h2>
-              <Link href="/comercial/crm/visitas" className="text-xs text-blue-600 hover:underline flex items-center gap-1">
+              <Link
+                href="/comercial/crm/visitas"
+                className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+              >
                 Ver todas <ArrowRight size={12} />
               </Link>
             </div>
@@ -385,17 +453,20 @@ export default function VisitasDashboardPage() {
                       <span className="text-[10px] md:text-xs text-slate-500 whitespace-nowrap">
                         {visita.dataVisita
                           ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")
-                          : "—"}{visita.hora ? ` ${visita.hora}` : ""}
+                          : "—"}
+                        {visita.hora ? ` ${visita.hora}` : ""}
                       </span>
                     </div>
                     <div className="flex items-center gap-1 md:gap-2 shrink-0">
-                      <span className={`text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
-                        visita.status === "REALIZADA"
-                          ? "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400"
-                          : visita.status === "CANCELADA"
-                          ? "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400"
-                          : "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
-                      }`}>
+                      <span
+                        className={`text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
+                          visita.status === "REALIZADA"
+                            ? "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400"
+                            : visita.status === "CANCELADA"
+                              ? "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400"
+                              : "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                        }`}
+                      >
                         {STATUS_LABELS[visita.status] || visita.status}
                       </span>
                       {(visita.endereco || visita.cidade) && (
@@ -411,7 +482,9 @@ export default function VisitasDashboardPage() {
                       )}
                       <button
                         type="button"
-                        onClick={() => setSelectedVisita({ id: visita.id, nome: `Visita #${visita.id}` })}
+                        onClick={() =>
+                          setSelectedVisita({ id: visita.id, nome: `Visita #${visita.id}` })
+                        }
                         className="p-2 md:p-1.5 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
                         aria-label="Gerenciar localizações"
                       >
@@ -431,12 +504,38 @@ export default function VisitasDashboardPage() {
 
           {/* Quick Actions */}
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-            <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">Ações Rápidas</h2>
+            <h2 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
+              Ações Rápidas
+            </h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
-              <QuickAction href="/comercial/crm/visitas/novo" icon={<Calendar size={18} />} label="Nova Visita" color="text-amber-600" bg="bg-amber-100 dark:bg-amber-950/50" />
-              <QuickAction href="/comercial/crm/visitas" icon={<BarChart3 size={18} />} label="Listar Visitas" color="text-blue-600" bg="bg-blue-100 dark:bg-blue-950/50" />
-              <QuickAction href="/comercial/crm/visitas?view=kanban" icon={<PieChartIcon size={18} />} label="Kanban Visitas" color="text-indigo-600" bg="bg-indigo-100 dark:bg-indigo-950/50" />
-              <QuickAction href="/comercial/crm/visitas/dashboard" icon={<CheckCircle2 size={18} />} label="Dashboard" color="text-green-600" bg="bg-green-100 dark:bg-green-950/50" />
+              <QuickAction
+                href="/comercial/crm/visitas/novo"
+                icon={<Calendar size={18} />}
+                label="Nova Visita"
+                color="text-amber-600"
+                bg="bg-amber-100 dark:bg-amber-950/50"
+              />
+              <QuickAction
+                href="/comercial/crm/visitas"
+                icon={<BarChart3 size={18} />}
+                label="Listar Visitas"
+                color="text-blue-600"
+                bg="bg-blue-100 dark:bg-blue-950/50"
+              />
+              <QuickAction
+                href="/comercial/crm/visitas?view=kanban"
+                icon={<PieChartIcon size={18} />}
+                label="Kanban Visitas"
+                color="text-indigo-600"
+                bg="bg-indigo-100 dark:bg-indigo-950/50"
+              />
+              <QuickAction
+                href="/comercial/crm/visitas/dashboard"
+                icon={<CheckCircle2 size={18} />}
+                label="Dashboard"
+                color="text-green-600"
+                bg="bg-green-100 dark:bg-green-950/50"
+              />
             </div>
           </div>
         </>
@@ -468,7 +567,9 @@ export default function VisitasDashboardPage() {
       >
         <DialogContent className="sm:max-w-2xl max-h-[75vh] flex flex-col overflow-hidden p-0 gap-0">
           <DialogHeader className="flex-row items-center justify-between gap-2 p-4 pr-12 border-b border-slate-100 dark:border-slate-800">
-            <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50">{modalTitle}</DialogTitle>
+            <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+              {modalTitle}
+            </DialogTitle>
           </DialogHeader>
           <div className="overflow-y-auto p-4 flex-1">
             {modalLoading ? (
@@ -500,15 +601,17 @@ export default function VisitasDashboardPage() {
                       </p>
                     </div>
                     <div className="flex items-center gap-3 ml-3 shrink-0">
-                      <span className={`text-[10px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
-                        v.status === "REALIZADA"
-                          ? "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400"
-                          : v.status === "CANCELADA"
-                          ? "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400"
-                          : v.status === "EM_ANDAMENTO"
-                          ? "bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-400"
-                          : "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
-                      }`}>
+                      <span
+                        className={`text-[10px] px-2 py-0.5 rounded-full font-medium whitespace-nowrap ${
+                          v.status === "REALIZADA"
+                            ? "bg-green-100 text-green-700 dark:bg-green-950/50 dark:text-green-400"
+                            : v.status === "CANCELADA"
+                              ? "bg-red-100 text-red-700 dark:bg-red-950/50 dark:text-red-400"
+                              : v.status === "EM_ANDAMENTO"
+                                ? "bg-orange-100 text-orange-700 dark:bg-orange-950/50 dark:text-orange-400"
+                                : "bg-blue-100 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                        }`}
+                      >
                         {STATUS_LABELS[v.status || ""] || v.status}
                       </span>
                     </div>
@@ -524,9 +627,21 @@ export default function VisitasDashboardPage() {
 }
 
 function SummaryCard({
-  onClick, icon, value, label, sub, bgColor, iconColor,
+  onClick,
+  icon,
+  value,
+  label,
+  sub,
+  bgColor,
+  iconColor,
 }: {
-  onClick: () => void; icon: React.ReactNode; value: number; label: string; sub?: string; bgColor: string; iconColor: string
+  onClick: () => void
+  icon: React.ReactNode
+  value: number
+  label: string
+  sub?: string
+  bgColor: string
+  iconColor: string
 }) {
   return (
     <button
@@ -549,9 +664,17 @@ function SummaryCard({
 }
 
 function QuickAction({
-  href, icon, label, color, bg,
+  href,
+  icon,
+  label,
+  color,
+  bg,
 }: {
-  href: string; icon: React.ReactNode; label: string; color: string; bg: string
+  href: string
+  icon: React.ReactNode
+  label: string
+  color: string
+  bg: string
 }) {
   return (
     <Link
@@ -568,7 +691,9 @@ function QuickAction({
 
 function fmtData(dia: string): string {
   const d = new Date(dia + "T12:00:00")
-  return isNaN(d.getTime()) ? dia : d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
+  return isNaN(d.getTime())
+    ? dia
+    : d.toLocaleDateString("pt-BR", { day: "2-digit", month: "2-digit" })
 }
 
 function fmtBRL(value: number): string {
@@ -580,8 +705,8 @@ function KpiMini({ label, value, tone }: { label: string; value: string; tone?: 
     tone === "green"
       ? "text-green-600 dark:text-green-400"
       : tone === "red"
-      ? "text-red-600 dark:text-red-400"
-      : "text-slate-800 dark:text-slate-100"
+        ? "text-red-600 dark:text-red-400"
+        : "text-slate-800 dark:text-slate-100"
   return (
     <div className="rounded-lg bg-slate-50 dark:bg-slate-800/50 px-3 py-2">
       <p className="text-[10px] text-slate-400">{label}</p>

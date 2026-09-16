@@ -38,16 +38,26 @@ describe("GET /api/usuarios/ativos", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await list()
     expect(res.status).toBe(401)
   })
 
   it("lista usuários ativos sem filtro de role", async () => {
-    db.select.mockReturnValue(createQueryBuilder([{ id: 1, name: "Tiago" }, { id: 3, name: "Ana Vendas" }]))
+    db.select.mockReturnValue(
+      createQueryBuilder([
+        { id: 1, name: "Tiago" },
+        { id: 3, name: "Ana Vendas" },
+      ])
+    )
     const res = await list()
     expect(res.status).toBe(200)
-    expect(await res.json()).toEqual([{ id: 1, name: "Tiago" }, { id: 3, name: "Ana Vendas" }])
+    expect(await res.json()).toEqual([
+      { id: 1, name: "Tiago" },
+      { id: 3, name: "Ana Vendas" },
+    ])
     const cond = db.select.mock.results[0].value.where.mock.calls[0][0]
     expect(flattenSql(cond)).not.toContain(" in ")
   })

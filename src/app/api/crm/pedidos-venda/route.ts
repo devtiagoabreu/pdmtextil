@@ -23,13 +23,14 @@ export async function GET(req: NextRequest) {
 
     const conditions = []
     if (status) conditions.push(eq(crmPedidosVenda.status, status))
-    if (oportunidadeId) conditions.push(eq(crmPedidosVenda.oportunidadeId, parseInt(oportunidadeId)))
+    if (oportunidadeId)
+      conditions.push(eq(crmPedidosVenda.oportunidadeId, parseInt(oportunidadeId)))
     if (q.length >= 2) {
       conditions.push(
         or(
           ilike(crmPedidosVenda.numero, `%${q}%`),
           ilike(crmPedidosVenda.referenciaExterna, `%${q}%`),
-          ilike(crmOportunidades.titulo, `%${q}%`),
+          ilike(crmOportunidades.titulo, `%${q}%`)
         )!
       )
     }
@@ -57,7 +58,10 @@ export async function GET(req: NextRequest) {
       .where(where)
 
     if (all) {
-      const lista = await baseQuery.orderBy(desc(crmPedidosVenda.dataEmissao), desc(crmPedidosVenda.id))
+      const lista = await baseQuery.orderBy(
+        desc(crmPedidosVenda.dataEmissao),
+        desc(crmPedidosVenda.id)
+      )
       return NextResponse.json(lista)
     }
 
@@ -128,9 +132,9 @@ export async function POST(req: NextRequest) {
         })
         .returning()
 
-      await tx.insert(crmPedidoVendaItens).values(
-        itens.map((item: any) => ({ ...item, pedidoVendaId: created.id }))
-      )
+      await tx
+        .insert(crmPedidoVendaItens)
+        .values(itens.map((item: any) => ({ ...item, pedidoVendaId: created.id })))
 
       return [created]
     })

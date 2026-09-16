@@ -38,7 +38,10 @@ function dbConnString(connString: string, dbName: string): string {
   }
 }
 
-export async function createDatabase(connString: string, dbName: string): Promise<{ success: boolean; message: string }> {
+export async function createDatabase(
+  connString: string,
+  dbName: string
+): Promise<{ success: boolean; message: string }> {
   const pool = new Pool({ connectionString: serverBase(connString) })
   try {
     await pool.query(`CREATE DATABASE "${dbName}"`)
@@ -74,13 +77,22 @@ export async function cloneDatabase(
   if (sameServer) {
     const pool2 = new Pool({ connectionString: server })
     try {
-      await pool2.query(`SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = $1 AND pid <> pg_backend_pid()`, [sourceDb])
+      await pool2.query(
+        `SELECT pg_terminate_backend(pid) FROM pg_stat_activity WHERE datname = $1 AND pid <> pg_backend_pid()`,
+        [sourceDb]
+      )
       const exists = await pool2.query(`SELECT 1 FROM pg_database WHERE datname = $1`, [targetDb])
       if (exists.rows.length > 0) {
-        return { success: false, message: `Banco "${targetDb}" já existe. Remova ou escolha outro nome.` }
+        return {
+          success: false,
+          message: `Banco "${targetDb}" já existe. Remova ou escolha outro nome.`,
+        }
       }
       await pool2.query(`CREATE DATABASE "${targetDb}" WITH TEMPLATE "${sourceDb}"`)
-      return { success: true, message: `Banco "${sourceDb}" clonado para "${targetDb}" com sucesso (mesmo servidor, TEMPLATE).` }
+      return {
+        success: true,
+        message: `Banco "${sourceDb}" clonado para "${targetDb}" com sucesso (mesmo servidor, TEMPLATE).`,
+      }
     } catch (err: unknown) {
       const msg = err instanceof Error ? err.message : String(err)
       return { success: false, message: msg }
@@ -93,12 +105,18 @@ export async function cloneDatabase(
     try {
       const exists = await tgtPool.query(`SELECT 1 FROM information_schema.tables LIMIT 1`)
       if (exists.rows.length > 0) {
-        return { success: false, message: `Banco "${targetDb}" já existe e contém dados. Remova ou escolha outro nome.` }
+        return {
+          success: false,
+          message: `Banco "${targetDb}" já existe e contém dados. Remova ou escolha outro nome.`,
+        }
       }
     } finally {
       await tgtPool.end()
     }
-    return { success: false, message: `Clone entre servidores diferentes requer pg_dump/pg_restore local. Execute manualmente ou configure no mesmo servidor.` }
+    return {
+      success: false,
+      message: `Clone entre servidores diferentes requer pg_dump/pg_restore local. Execute manualmente ou configure no mesmo servidor.`,
+    }
   }
 }
 
@@ -126,12 +144,22 @@ export async function setupRedundancy(
   try {
     const primaryFullConn = dbConnString(primaryConn, primaryDb)
     await standbyPool.query(`DROP SUBSCRIPTION IF EXISTS "${subscriptionName}"`)
-    await standbyPool.query(`CREATE SUBSCRIPTION "${subscriptionName}" CONNECTION $1 PUBLICATION "${publicationName}"`, [primaryFullConn])
-    return { success: true, message: `Redundância configurada: publicação "${publicationName}" no primário, inscrição "${subscriptionName}" no standby.` }
+    await standbyPool.query(
+      `CREATE SUBSCRIPTION "${subscriptionName}" CONNECTION $1 PUBLICATION "${publicationName}"`,
+      [primaryFullConn]
+    )
+    return {
+      success: true,
+      message: `Redundância configurada: publicação "${publicationName}" no primário, inscrição "${subscriptionName}" no standby.`,
+    }
   } catch (err: unknown) {
     const msg = err instanceof Error ? err.message : String(err)
     // Try to clean up the publication on primary
-    try { await primaryPool.query(`DROP PUBLICATION IF EXISTS "${publicationName}"`) } catch { /* ignore */ }
+    try {
+      await primaryPool.query(`DROP PUBLICATION IF EXISTS "${publicationName}"`)
+    } catch {
+      /* ignore */
+    }
     return { success: false, message: `Erro ao criar inscrição: ${msg}` }
   } finally {
     await primaryPool.end()

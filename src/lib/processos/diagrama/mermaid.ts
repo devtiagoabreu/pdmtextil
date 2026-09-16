@@ -143,9 +143,7 @@ function parseMindmap(modelo: ModeloProcesso, linhas: string[]): string | null {
 }
 
 export function mermaidParaModelo(texto: string): ResultadoParseMermaid {
-  const linhas = texto
-    .split("\n")
-    .map((l) => l.replace(/\t/g, "  "))
+  const linhas = texto.split("\n").map((l) => l.replace(/\t/g, "  "))
   const ehMindmap = linhas.some((l) => /^\s*mindmap/.test(l))
   const modelo = modeloVazio()
   const erro = ehMindmap ? parseMindmap(modelo, linhas) : parseFlowchart(modelo, linhas)
@@ -158,7 +156,10 @@ function modeloParaMindmap(modelo: ModeloProcesso): string {
   const raiz = (modelo.nome && modelo.nome.trim()) || "Processo"
   linhas.push(`  raiz((${esc(raiz)}))`)
   for (const a of modelo.atividades) {
-    const extras = [a.responsavel ? `Responsável: ${a.responsavel}` : "", a.sistema ? `Sistema: ${a.sistema}` : ""]
+    const extras = [
+      a.responsavel ? `Responsável: ${a.responsavel}` : "",
+      a.sistema ? `Sistema: ${a.sistema}` : "",
+    ]
       .filter(Boolean)
       .join(" · ")
     linhas.push(`    ${esc(a.nome)}`)

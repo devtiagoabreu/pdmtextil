@@ -49,6 +49,8 @@ describe("CrmRelatoriosPage", () => {
 
     renderPage(<RelatoriosPage />)
 
-    expect(await screen.findByText("Erro ao carregar dados", {}, { timeout: 5000 })).toBeInTheDocument()
+    expect(
+      await screen.findByText("Erro ao carregar dados", {}, { timeout: 5000 })
+    ).toBeInTheDocument()
   })
 })

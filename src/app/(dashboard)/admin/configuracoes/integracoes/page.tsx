@@ -103,7 +103,10 @@ export default function IntegracoesPage() {
 
     setSaving(true)
     try {
-      const telasArr = telas.split(",").map((s: any) => s.trim()).filter(Boolean)
+      const telasArr = telas
+        .split(",")
+        .map((s: any) => s.trim())
+        .filter(Boolean)
       const body = { nome, baseUrl, tipoAuth, authConfig: parsedAuth, telas: telasArr, mapping }
       const method = editItem ? "PUT" : "POST"
       const res = await fetch("/api/admin/integracoes", {
@@ -114,11 +117,11 @@ export default function IntegracoesPage() {
       if (!res.ok) throw new Error()
 
       if (editItem) {
-        setLista(prev => prev.map((i: any) => i.id === editItem.id ? { ...i, ...body } : i))
+        setLista((prev) => prev.map((i: any) => (i.id === editItem.id ? { ...i, ...body } : i)))
         toast.success("Integração atualizada!")
       } else {
         const item = await res.json()
-        setLista(prev => [...prev, item])
+        setLista((prev) => [...prev, item])
         toast.success("Integração adicionada!")
       }
       resetForm()
@@ -137,7 +140,7 @@ export default function IntegracoesPage() {
         body: JSON.stringify({ id: item.id, ativo: !item.ativo }),
       })
       if (!res.ok) throw new Error()
-      setLista(prev => prev.map((i: any) => i.id === item.id ? { ...i, ativo: !i.ativo } : i))
+      setLista((prev) => prev.map((i: any) => (i.id === item.id ? { ...i, ativo: !i.ativo } : i)))
       toast.success(item.ativo ? "Integração desativada" : "Integração ativada")
     } catch {
       toast.error("Erro ao alterar status")
@@ -153,7 +156,7 @@ export default function IntegracoesPage() {
         body: JSON.stringify({ id }),
       })
       if (!res.ok) throw new Error()
-      setLista(prev => prev.filter((c: any) => c.id !== id))
+      setLista((prev) => prev.filter((c: any) => c.id !== id))
       toast.success("Integração removida")
     } catch {
       toast.error("Erro ao remover integração")
@@ -199,7 +202,10 @@ export default function IntegracoesPage() {
       const autoMap: Record<string, string> = {}
       const pdmOptions = getPdmCampos(telas)
       for (const f of fields) {
-        const pdmField = pdmOptions.find((p: any) => p.value.toLowerCase() === f.toLowerCase() || p.label.toLowerCase() === f.toLowerCase())
+        const pdmField = pdmOptions.find(
+          (p: any) =>
+            p.value.toLowerCase() === f.toLowerCase() || p.label.toLowerCase() === f.toLowerCase()
+        )
         if (pdmField) autoMap[f] = pdmField.value
       }
       setFieldMappings(autoMap)
@@ -218,21 +224,32 @@ export default function IntegracoesPage() {
   }
 
   if (loading) {
-    return <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-400" size={24} /></div>
+    return (
+      <div className="flex justify-center p-8">
+        <Loader2 className="animate-spin text-slate-400" size={24} />
+      </div>
+    )
   }
 
   return (
     <div className="max-w-4xl mx-auto space-y-6">
       <div className="flex items-center gap-4">
-        <Link href="/admin/configuracoes" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link
+          href="/admin/configuracoes"
+          className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={20} />
         </Link>
         <div>
           <div className="flex items-center gap-2">
             <Zap className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Integrações{info && <InfoButton content={info} />}</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+              Integrações{info && <InfoButton content={info} />}
+            </h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">Gerencie as conexões com sistemas externos (ERP, API, WMS)</p>
+          <p className="text-sm text-slate-500 mt-1">
+            Gerencie as conexões com sistemas externos (ERP, API, WMS)
+          </p>
         </div>
       </div>
 
@@ -290,7 +307,9 @@ export default function IntegracoesPage() {
         </Button>
       )}
 
-      {testResult && <TestResultModal testResult={testResult} onClose={() => setTestResult(null)} />}
+      {testResult && (
+        <TestResultModal testResult={testResult} onClose={() => setTestResult(null)} />
+      )}
     </div>
   )
 }

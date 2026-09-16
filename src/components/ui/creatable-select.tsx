@@ -83,7 +83,9 @@ export function CreatableSelect({
       .finally(() => {
         if (!cancelled) setIsLoading(false)
       })
-    return () => { cancelled = true }
+    return () => {
+      cancelled = true
+    }
   }, [debouncedQuery, fetchUrl])
 
   useEffect(() => {
@@ -141,7 +143,10 @@ export function CreatableSelect({
           </button>
         )}
         {isLoading && (
-          <Loader2 className="absolute right-8 top-1/2 -translate-y-1/2 text-slate-400 animate-spin" size={14} />
+          <Loader2
+            className="absolute right-8 top-1/2 -translate-y-1/2 text-slate-400 animate-spin"
+            size={14}
+          />
         )}
       </div>
 
@@ -163,7 +168,9 @@ export function CreatableSelect({
             >
               <span className="text-slate-900 dark:text-slate-100">{option[labelField]}</span>
               {extraField && option[extraField] && (
-                <span className="text-xs text-slate-500 font-mono ml-2 shrink-0">{option[extraField]}</span>
+                <span className="text-xs text-slate-500 font-mono ml-2 shrink-0">
+                  {option[extraField]}
+                </span>
               )}
             </button>
           ))}

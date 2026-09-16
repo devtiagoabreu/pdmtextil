@@ -64,7 +64,8 @@ describe("LeadDetailPage", () => {
     const fetchMock = createFetchMock(({ method, url }) => {
       if (method === "GET" && url === "/api/crm/leads/1") return { json: lead }
       if (method === "GET" && url === "/api/crm/leads/1/whatsapp") return { json: [] }
-      if (method === "PUT" && url === "/api/crm/leads/1") return { json: { ...lead, nome: "João Pereira Junior" } }
+      if (method === "PUT" && url === "/api/crm/leads/1")
+        return { json: { ...lead, nome: "João Pereira Junior" } }
       return { json: null }
     })
     vi.stubGlobal("fetch", fetchMock.fn)
@@ -97,7 +98,9 @@ describe("LeadDetailPage", () => {
     const dialog = screen.getByRole("dialog", { name: "Excluir lead?" })
     fireEvent.click(within(dialog).getByRole("button", { name: "Excluir" }))
 
-    await waitFor(() => expect(findCall(fetchMock.calls, "/api/crm/leads/1", "DELETE")).toBeDefined())
+    await waitFor(() =>
+      expect(findCall(fetchMock.calls, "/api/crm/leads/1", "DELETE")).toBeDefined()
+    )
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Lead excluído"))
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/crm/leads")
   })
@@ -107,7 +110,16 @@ describe("LeadDetailPage", () => {
       if (method === "GET" && url === "/api/crm/leads/1") return { json: lead }
       if (method === "GET" && url === "/api/crm/leads/1/whatsapp") return { json: mensagens }
       if (method === "POST" && url === "/api/crm/leads/1/whatsapp") {
-        return { status: 201, json: { id: 2, mensagem: "Olá!", tipo: "ENVIADA", status: "ENVIADA", createdAt: "2026-07-01T11:00:00Z" } }
+        return {
+          status: 201,
+          json: {
+            id: 2,
+            mensagem: "Olá!",
+            tipo: "ENVIADA",
+            status: "ENVIADA",
+            createdAt: "2026-07-01T11:00:00Z",
+          },
+        }
       }
       return { json: null }
     })

@@ -38,14 +38,30 @@ export async function listarReunioes(): Promise<ReuniaoItemLista[]> {
 
   const ids = rows.map((r: any) => r.id)
   const [links, pautas, participantes, encaminhamentos] = await Promise.all([
-    db.select().from(reuniaoLinks).where(inArray(reuniaoLinks.reuniaoId, ids)).orderBy(asc(reuniaoLinks.ordem)),
-    db.select({ reuniaoId: reuniaoPautas.reuniaoId }).from(reuniaoPautas).where(inArray(reuniaoPautas.reuniaoId, ids)),
-    db.select({ reuniaoId: reuniaoParticipantes.reuniaoId }).from(reuniaoParticipantes).where(inArray(reuniaoParticipantes.reuniaoId, ids)),
-    db.select({ reuniaoId: reuniaoEncaminhamentos.reuniaoId }).from(reuniaoEncaminhamentos).where(inArray(reuniaoEncaminhamentos.reuniaoId, ids)),
+    db
+      .select()
+      .from(reuniaoLinks)
+      .where(inArray(reuniaoLinks.reuniaoId, ids))
+      .orderBy(asc(reuniaoLinks.ordem)),
+    db
+      .select({ reuniaoId: reuniaoPautas.reuniaoId })
+      .from(reuniaoPautas)
+      .where(inArray(reuniaoPautas.reuniaoId, ids)),
+    db
+      .select({ reuniaoId: reuniaoParticipantes.reuniaoId })
+      .from(reuniaoParticipantes)
+      .where(inArray(reuniaoParticipantes.reuniaoId, ids)),
+    db
+      .select({ reuniaoId: reuniaoEncaminhamentos.reuniaoId })
+      .from(reuniaoEncaminhamentos)
+      .where(inArray(reuniaoEncaminhamentos.reuniaoId, ids)),
   ])
 
   const projetoIds = [...new Set(rows.map((r: any) => r.projetoId))]
-  const projetos = await db.select().from(reunioesProjetos).where(inArray(reunioesProjetos.id, projetoIds))
+  const projetos = await db
+    .select()
+    .from(reunioesProjetos)
+    .where(inArray(reunioesProjetos.id, projetoIds))
   const projetoMap = new Map(projetos.map((p: any) => [p.id, p.nome]))
 
   return rows.map((r: any) => ({
@@ -80,15 +96,35 @@ export async function carregarDetalheReuniao(id: number) {
   if (reu.length === 0) return null
   const r = reu[0]
 
-  const projeto = await db.select().from(reunioesProjetos).where(eq(reunioesProjetos.id, r.projetoId)).limit(1)
+  const projeto = await db
+    .select()
+    .from(reunioesProjetos)
+    .where(eq(reunioesProjetos.id, r.projetoId))
+    .limit(1)
   const projetoNome = projeto[0]?.nome ?? null
 
   const [ata, pautas, participantes, encaminhamentos, links] = await Promise.all([
     db.select().from(reuniaoAtas).where(eq(reuniaoAtas.reuniaoId, id)),
-    db.select().from(reuniaoPautas).where(eq(reuniaoPautas.reuniaoId, id)).orderBy(asc(reuniaoPautas.ordem)),
-    db.select().from(reuniaoParticipantes).where(eq(reuniaoParticipantes.reuniaoId, id)).orderBy(asc(reuniaoParticipantes.id)),
-    db.select().from(reuniaoEncaminhamentos).where(eq(reuniaoEncaminhamentos.reuniaoId, id)).orderBy(asc(reuniaoEncaminhamentos.id)),
-    db.select().from(reuniaoLinks).where(eq(reuniaoLinks.reuniaoId, id)).orderBy(asc(reuniaoLinks.ordem)),
+    db
+      .select()
+      .from(reuniaoPautas)
+      .where(eq(reuniaoPautas.reuniaoId, id))
+      .orderBy(asc(reuniaoPautas.ordem)),
+    db
+      .select()
+      .from(reuniaoParticipantes)
+      .where(eq(reuniaoParticipantes.reuniaoId, id))
+      .orderBy(asc(reuniaoParticipantes.id)),
+    db
+      .select()
+      .from(reuniaoEncaminhamentos)
+      .where(eq(reuniaoEncaminhamentos.reuniaoId, id))
+      .orderBy(asc(reuniaoEncaminhamentos.id)),
+    db
+      .select()
+      .from(reuniaoLinks)
+      .where(eq(reuniaoLinks.reuniaoId, id))
+      .orderBy(asc(reuniaoLinks.ordem)),
   ])
 
   return {
@@ -109,17 +145,26 @@ export async function inserirFilhos(
   usuarioNome?: string | null
 ) {
   if (data.ata) {
-    await tx.insert(reuniaoAtas).values({ reuniaoId, conteudo: data.ata, criadoPor: usuarioNome || null })
+    await tx
+      .insert(reuniaoAtas)
+      .values({ reuniaoId, conteudo: data.ata, criadoPor: usuarioNome || null })
   }
   if (data.pautas.length > 0) {
-    await tx.insert(reuniaoPautas).values(
-      data.pautas.map((p, i) => ({ reuniaoId, ordem: i + 1, descricao: p.descricao }))
-    )
+    await tx
+      .insert(reuniaoPautas)
+      .values(data.pautas.map((p, i) => ({ reuniaoId, ordem: i + 1, descricao: p.descricao })))
   }
   if (data.participantes.length > 0) {
-    await tx.insert(reuniaoParticipantes).values(
-      data.participantes.map((p) => ({ reuniaoId, nome: p.nome, empresa: p.empresa, papel: p.papel }))
-    )
+    await tx
+      .insert(reuniaoParticipantes)
+      .values(
+        data.participantes.map((p) => ({
+          reuniaoId,
+          nome: p.nome,
+          empresa: p.empresa,
+          papel: p.papel,
+        }))
+      )
   }
   if (data.encaminhamentos.length > 0) {
     await tx.insert(reuniaoEncaminhamentos).values(
@@ -133,9 +178,17 @@ export async function inserirFilhos(
     )
   }
   if (data.links.length > 0) {
-    await tx.insert(reuniaoLinks).values(
-      data.links.map((l, i) => ({ reuniaoId, rotulo: l.rotulo, url: l.url, descricao: l.descricao, ordem: i + 1 }))
-    )
+    await tx
+      .insert(reuniaoLinks)
+      .values(
+        data.links.map((l, i) => ({
+          reuniaoId,
+          rotulo: l.rotulo,
+          url: l.url,
+          descricao: l.descricao,
+          ordem: i + 1,
+        }))
+      )
   }
 }
 
@@ -144,18 +197,21 @@ export async function criarReuniaoComFilhos(
   data: ReuniaoFormData,
   usuarioNome?: string | null
 ) {
-  const criada = await tx.insert(reunioes).values({
-    titulo: data.titulo,
-    projetoId: data.projetoId,
-    data: data.data,
-    local: data.local,
-    status: data.status,
-    resumoCurto: data.resumoCurto,
-    resumoDetalhado: data.resumoDetalhado,
-    resumoItensAcao: data.resumoItensAcao,
-    transcricao: data.transcricao,
-    videoUrl: data.videoUrl,
-  }).returning()
+  const criada = await tx
+    .insert(reunioes)
+    .values({
+      titulo: data.titulo,
+      projetoId: data.projetoId,
+      data: data.data,
+      local: data.local,
+      status: data.status,
+      resumoCurto: data.resumoCurto,
+      resumoDetalhado: data.resumoDetalhado,
+      resumoItensAcao: data.resumoItensAcao,
+      transcricao: data.transcricao,
+      videoUrl: data.videoUrl,
+    })
+    .returning()
   const reuniao = criada[0]
   await inserirFilhos(tx, reuniao.id, data, usuarioNome)
   return reuniao
@@ -167,19 +223,23 @@ export async function atualizarReuniaoComFilhos(
   data: ReuniaoFormData,
   usuarioNome?: string | null
 ) {
-  const atualizada = await tx.update(reunioes).set({
-    titulo: data.titulo,
-    projetoId: data.projetoId,
-    data: data.data,
-    local: data.local,
-    status: data.status,
-    resumoCurto: data.resumoCurto,
-    resumoDetalhado: data.resumoDetalhado,
-    resumoItensAcao: data.resumoItensAcao,
-    transcricao: data.transcricao,
-    videoUrl: data.videoUrl,
-    updatedAt: new Date(),
-  }).where(eq(reunioes.id, id)).returning()
+  const atualizada = await tx
+    .update(reunioes)
+    .set({
+      titulo: data.titulo,
+      projetoId: data.projetoId,
+      data: data.data,
+      local: data.local,
+      status: data.status,
+      resumoCurto: data.resumoCurto,
+      resumoDetalhado: data.resumoDetalhado,
+      resumoItensAcao: data.resumoItensAcao,
+      transcricao: data.transcricao,
+      videoUrl: data.videoUrl,
+      updatedAt: new Date(),
+    })
+    .where(eq(reunioes.id, id))
+    .returning()
 
   if (atualizada.length === 0) return null
 

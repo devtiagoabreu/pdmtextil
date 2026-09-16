@@ -2,7 +2,19 @@
 
 import { useDroppable } from "@dnd-kit/core"
 
-export function DroppableColumn({ id, children, rotulo, cor, count }: { id: string; children: React.ReactNode; rotulo: string; cor: string | null; count: number }) {
+export function DroppableColumn({
+  id,
+  children,
+  rotulo,
+  cor,
+  count,
+}: {
+  id: string
+  children: React.ReactNode
+  rotulo: string
+  cor: string | null
+  count: number
+}) {
   const { setNodeRef, isOver } = useDroppable({ id })
 
   return (
@@ -22,9 +34,7 @@ export function DroppableColumn({ id, children, rotulo, cor, count }: { id: stri
           {count}
         </span>
       </div>
-      <div className="flex-1 min-h-0 p-2 space-y-2 overflow-y-auto">
-        {children}
-      </div>
+      <div className="flex-1 min-h-0 p-2 space-y-2 overflow-y-auto">{children}</div>
     </div>
   )
 }
@@ -33,7 +43,10 @@ export function KanbanSkeleton() {
   return (
     <div className="flex gap-4 h-[calc(100vh-280px)]">
       {[1, 2, 3].map((i: any) => (
-        <div key={i} className="w-72 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0 animate-pulse">
+        <div
+          key={i}
+          className="w-72 bg-slate-100 dark:bg-slate-900 rounded-xl border border-slate-200 dark:border-slate-800 shrink-0 animate-pulse"
+        >
           <div className="h-10 border-b border-slate-200 dark:border-slate-800" />
           <div className="p-3 space-y-3">
             <div className="h-20 bg-slate-200 dark:bg-slate-800 rounded-lg" />

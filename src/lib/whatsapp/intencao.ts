@@ -1,5 +1,8 @@
 import { chamarIA } from "@/lib/ai"
-import { pediuAtendente as regexPediuAtendente, pediuReiniciar as regexPediuReiniciar } from "./validation"
+import {
+  pediuAtendente as regexPediuAtendente,
+  pediuReiniciar as regexPediuReiniciar,
+} from "./validation"
 
 export interface EscalacaoIntencao {
   querAtendente: boolean
@@ -10,7 +13,8 @@ export interface EscalacaoIntencao {
 const GATE_ESCALACAO =
   /\b(falar com|quero falar|queria falar|preciso falar|conversar com|quero conversar|atendente|atendimento|humano|alguem|alguma pessoa|uma pessoa|pessoa|representante|suporte|admin|gerente|me atender|ligar|manda alguem|quem pode me atender|reiniciar|recomecar|recomeçar|resetar|reset|limpar|do zero|voltar ao inicio|voltar ao início|volta ao inicio|volta ao início|comecar de novo|começar de novo|começar do zero|ajuda)\b/i
 
-const GATE_LINHAS = /\b(linha|linhas|interessad|tenho interesse|quero|gostaria|todos|todas|tudo|qualquer|catalogo|catalog|vou querer|poderia me enviar|me manda)\b/i
+const GATE_LINHAS =
+  /\b(linha|linhas|interessad|tenho interesse|quero|gostaria|todos|todas|tudo|qualquer|catalogo|catalog|vou querer|poderia me enviar|me manda)\b/i
 
 export function parecePedidoEscalacao(texto: string): boolean {
   return GATE_ESCALACAO.test(texto)
@@ -32,7 +36,10 @@ function extrairJsonDoConteudo(conteudo: string): Record<string, any> | null {
   }
 }
 
-async function classificarEscalacao(mensagem: string, estado: string): Promise<EscalacaoIntencao | null> {
+async function classificarEscalacao(
+  mensagem: string,
+  estado: string
+): Promise<EscalacaoIntencao | null> {
   const prompt = `Voce e um classificador de intencao de um chatbot de vendas de tecidos (B2B).
 O cliente esta na etapa "${estado}" do funil de cadastro.
 Mensagem do cliente: "${mensagem}"
@@ -50,13 +57,20 @@ JSON:`
 
   const res = await chamarIA([{ role: "user", content: prompt }], { temperatura: 0, maxTokens: 40 })
   const dados = extrairJsonDoConteudo(res.conteudo)
-  if (!dados || typeof dados.querAtendente !== "boolean" || typeof dados.querReiniciar !== "boolean") {
+  if (
+    !dados ||
+    typeof dados.querAtendente !== "boolean" ||
+    typeof dados.querReiniciar !== "boolean"
+  ) {
     return null
   }
   return { querAtendente: dados.querAtendente, querReiniciar: dados.querReiniciar, via: "llm" }
 }
 
-export async function analisarEscalacao(mensagem: string, estado: string): Promise<EscalacaoIntencao> {
+export async function analisarEscalacao(
+  mensagem: string,
+  estado: string
+): Promise<EscalacaoIntencao> {
   const regexAtendente = regexPediuAtendente(mensagem)
   const regexReiniciar = regexPediuReiniciar(mensagem)
 
@@ -95,10 +109,17 @@ Responda APENAS com JSON valido: {"linhas": [numeros]} — somente numeros de li
 JSON:`
 
   try {
-    const res = await chamarIA([{ role: "user", content: prompt }], { temperatura: 0, maxTokens: 40 })
+    const res = await chamarIA([{ role: "user", content: prompt }], {
+      temperatura: 0,
+      maxTokens: 40,
+    })
     const dados = extrairJsonDoConteudo(res.conteudo)
     if (!dados || !Array.isArray(dados.linhas)) return undefined
-    const linhas = [...new Set(dados.linhas.map(Number).filter((n: any) => Number.isFinite(n) && n >= 1 && n <= maxNumero))].sort((a: any, b: any) => a - b)
+    const linhas = [
+      ...new Set(
+        dados.linhas.map(Number).filter((n: any) => Number.isFinite(n) && n >= 1 && n <= maxNumero)
+      ),
+    ].sort((a: any, b: any) => a - b)
     return linhas.length > 0 ? linhas : undefined
   } catch (e) {
     console.error("[Intencao] erro ao extrair linhas:", e)

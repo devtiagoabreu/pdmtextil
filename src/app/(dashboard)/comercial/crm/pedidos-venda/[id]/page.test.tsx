@@ -15,7 +15,16 @@ const pedido = {
   origem: "MANUAL",
   referenciaExterna: null,
   itens: [
-    { id: 1, pedidoVendaId: 1, produto: "Malha penteada azul", codigo: "MP-01", unidade: "METROS", quantidade: "100", valorUnitario: "12.5", valorTotal: "1250" },
+    {
+      id: 1,
+      pedidoVendaId: 1,
+      produto: "Malha penteada azul",
+      codigo: "MP-01",
+      unidade: "METROS",
+      quantidade: "100",
+      valorUnitario: "12.5",
+      valorTotal: "1250",
+    },
   ],
 }
 
@@ -23,7 +32,8 @@ function buildHandler() {
   return ({ method, url }: { method: string; url: string }) => {
     if (method === "GET" && url === "/api/crm/pedidos-venda/1") return { json: pedido }
     if (method === "PUT" && url === "/api/crm/pedidos-venda/1") return { json: pedido }
-    if (method === "GET" && url === "/api/crm/oportunidades") return { json: [{ id: 1, titulo: "Malha penteada" }] }
+    if (method === "GET" && url === "/api/crm/oportunidades")
+      return { json: [{ id: 1, titulo: "Malha penteada" }] }
     return { json: null }
   }
 }
@@ -59,9 +69,14 @@ describe("PedidoVendaDetailPage", () => {
     await waitFor(() => {
       const call = findCall(fetchMock.calls, "/api/crm/pedidos-venda/1", "PUT")
       expect(call).toBeDefined()
-      expect(call!.body).toMatchObject({ status: "ABERTO", itens: [{ produto: "Malha penteada azul" }] })
+      expect(call!.body).toMatchObject({
+        status: "ABERTO",
+        itens: [{ produto: "Malha penteada azul" }],
+      })
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Pedido de venda atualizado"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Pedido de venda atualizado")
+    )
     expect(screen.queryByRole("button", { name: "Salvar Alterações" })).not.toBeInTheDocument()
   })
 })

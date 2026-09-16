@@ -3,7 +3,14 @@
 import { useState } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
+import {
+  DndContext,
+  DragOverlay,
+  useDraggable,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
 import { X } from "lucide-react"
 import { useStatuses, type StatusConfig } from "@/hooks/use-statuses"
 import { DroppableColumn, KanbanSkeleton } from "./kanban-column"
@@ -19,9 +26,15 @@ interface OportunidadeCard {
   status: string
 }
 
-type KanbanStatus = StatusConfig | { nome: string; rotulo: string | null; cor: string | null; ativo: boolean }
+type KanbanStatus =
+  StatusConfig | { nome: string; rotulo: string | null; cor: string | null; ativo: boolean }
 
-const DEFAULT_STATUSES: Array<{ nome: string; rotulo: string | null; cor: string | null; ativo: boolean }> = [
+const DEFAULT_STATUSES: Array<{
+  nome: string
+  rotulo: string | null
+  cor: string | null
+  ativo: boolean
+}> = [
   { nome: "NOVO", rotulo: "Novo", cor: "#3b82f6", ativo: true },
   { nome: "QUALIFICACAO", rotulo: "Qualificação", cor: "#a855f7", ativo: true },
   { nome: "PROPOSTA", rotulo: "Proposta", cor: "#eab308", ativo: true },
@@ -44,10 +57,12 @@ function DraggableCard({ oportunidade }: { oportunidade: OportunidadeCard }) {
     data: { oportunidade },
   })
 
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    zIndex: 50,
-  } : undefined
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        zIndex: 50,
+      }
+    : undefined
 
   const handleClick = () => {
     router.push(`/comercial/crm/oportunidades/${oportunidade.id}`)
@@ -74,7 +89,9 @@ function DraggableCard({ oportunidade }: { oportunidade: OportunidadeCard }) {
         {oportunidade.titulo}
       </p>
       {(oportunidade.empresaNome || oportunidade.clienteNome) && (
-        <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">{oportunidade.empresaNome || oportunidade.clienteNome}</p>
+        <p className="text-xs text-slate-500 mt-0.5 line-clamp-1">
+          {oportunidade.empresaNome || oportunidade.clienteNome}
+        </p>
       )}
       {oportunidade.valorEstimado && (
         <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 mt-1">
@@ -85,18 +102,24 @@ function DraggableCard({ oportunidade }: { oportunidade: OportunidadeCard }) {
   )
 }
 
-export default function OportunidadesKanban({ oportunidades }: { oportunidades: OportunidadeCard[] }) {
+export default function OportunidadesKanban({
+  oportunidades,
+}: {
+  oportunidades: OportunidadeCard[]
+}) {
   const { statuses, loading: statusLoading } = useStatuses("OPORTUNIDADE")
   const [activeCard, setActiveCard] = useState<OportunidadeCard | null>(null)
   const [data, setData] = useState<OportunidadeCard[]>(oportunidades)
 
   const [showMotivoPerda, setShowMotivoPerda] = useState(false)
   const [motivoPerda, setMotivoPerda] = useState("")
-  const [pendingMove, setPendingMove] = useState<{ id: number; status: string; statusAntigo: string } | null>(null)
+  const [pendingMove, setPendingMove] = useState<{
+    id: number
+    status: string
+    statusAntigo: string
+  } | null>(null)
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  )
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   const hasStatuses = statuses.length > 0
   const effectiveStatuses = hasStatuses ? statuses : DEFAULT_STATUSES
@@ -114,7 +137,9 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
     .filter((s: KanbanStatus) => s.ativo !== false)
     .map((col: KanbanStatus) => ({
       ...col,
-      cards: (data.length > 0 ? data : oportunidades).filter((o: OportunidadeCard) => o.status === col.nome),
+      cards: (data.length > 0 ? data : oportunidades).filter(
+        (o: OportunidadeCard) => o.status === col.nome
+      ),
     }))
 
   const handleDragStart = (event: any) => {
@@ -140,14 +165,18 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
       setPendingMove({ id: oportunidade.id, status: novoStatus, statusAntigo })
       setMotivoPerda("")
       setShowMotivoPerda(true)
-      setData(prev =>
-        prev.map((o: OportunidadeCard) => o.id === oportunidade.id ? { ...o, status: novoStatus } : o)
+      setData((prev) =>
+        prev.map((o: OportunidadeCard) =>
+          o.id === oportunidade.id ? { ...o, status: novoStatus } : o
+        )
       )
       return
     }
 
-    setData(prev =>
-      prev.map((o: OportunidadeCard) => o.id === oportunidade.id ? { ...o, status: novoStatus } : o)
+    setData((prev) =>
+      prev.map((o: OportunidadeCard) =>
+        o.id === oportunidade.id ? { ...o, status: novoStatus } : o
+      )
     )
 
     try {
@@ -162,8 +191,10 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
       }
       toast.success(`Oportunidade movida para ${getLabelSafe(novoStatus)}`)
     } catch (err: unknown) {
-      setData(prev =>
-        prev.map((o: OportunidadeCard) => o.id === oportunidade.id ? { ...o, status: statusAntigo } : o)
+      setData((prev) =>
+        prev.map((o: OportunidadeCard) =>
+          o.id === oportunidade.id ? { ...o, status: statusAntigo } : o
+        )
       )
       toast.error(err instanceof Error ? err.message : "Erro ao mover oportunidade")
     }
@@ -181,8 +212,10 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
       if (!res.ok) throw new Error((await res.json()).error || "Erro ao confirmar perda")
       toast.success("Oportunidade marcada como Perdida")
     } catch (err: unknown) {
-      setData(prev =>
-        prev.map((o: OportunidadeCard) => o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o)
+      setData((prev) =>
+        prev.map((o: OportunidadeCard) =>
+          o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o
+        )
       )
       toast.error(err instanceof Error ? err.message : "Erro ao confirmar perda")
     }
@@ -193,8 +226,10 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
 
   function cancelarPerda() {
     if (pendingMove) {
-      setData(prev =>
-        prev.map((o: OportunidadeCard) => o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o)
+      setData((prev) =>
+        prev.map((o: OportunidadeCard) =>
+          o.id === pendingMove.id ? { ...o, status: pendingMove.statusAntigo } : o
+        )
       )
     }
     setShowMotivoPerda(false)
@@ -211,7 +246,13 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto pb-2">
           {colunas.map((col) => (
-            <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo || col.nome} cor={col.cor} count={col.cards.length}>
+            <DroppableColumn
+              key={col.nome}
+              id={col.nome}
+              rotulo={col.rotulo || col.nome}
+              cor={col.cor}
+              count={col.cards.length}
+            >
               {col.cards.map((card) => (
                 <DraggableCard key={`op-${card.id}`} oportunidade={card} />
               ))}
@@ -223,24 +264,38 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
           <DragOverlay>
             <div className="bg-white dark:bg-slate-800 rounded-lg border border-blue-400 shadow-xl p-3 w-72 opacity-90">
               <div className="flex items-start justify-between gap-2">
-                <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">#{activeCard.id}</span>
+                <span className="text-[10px] font-bold uppercase px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">
+                  #{activeCard.id}
+                </span>
               </div>
               <p className="text-sm font-medium text-slate-900 mt-1">{activeCard.titulo}</p>
               {(activeCard.empresaNome || activeCard.clienteNome) && (
-                <p className="text-xs text-slate-500 mt-0.5">{activeCard.empresaNome || activeCard.clienteNome}</p>
+                <p className="text-xs text-slate-500 mt-0.5">
+                  {activeCard.empresaNome || activeCard.clienteNome}
+                </p>
               )}
             </div>
           </DragOverlay>
         )}
       </DndContext>
 
-      <DialogPrimitive.Root open={showMotivoPerda} onOpenChange={(next) => { if (!next) cancelarPerda() }}>
+      <DialogPrimitive.Root
+        open={showMotivoPerda}
+        onOpenChange={(next) => {
+          if (!next) cancelarPerda()
+        }}
+      >
         <DialogPrimitive.Portal>
           <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/50" />
           <DialogPrimitive.Popup className="fixed top-1/2 left-1/2 z-50 w-full max-w-md -translate-x-1/2 -translate-y-1/2 rounded-xl bg-white dark:bg-slate-900 shadow-xl border border-slate-200 dark:border-slate-800 p-6 outline-none">
             <div className="flex items-center justify-between mb-4">
-              <DialogPrimitive.Title className="text-lg font-semibold text-slate-900 dark:text-slate-50">Motivo da Perda</DialogPrimitive.Title>
-              <DialogPrimitive.Close aria-label="Fechar" className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+              <DialogPrimitive.Title className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                Motivo da Perda
+              </DialogPrimitive.Title>
+              <DialogPrimitive.Close
+                aria-label="Fechar"
+                className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
                 <X size={18} className="text-slate-400" />
               </DialogPrimitive.Close>
             </div>
@@ -249,14 +304,17 @@ export default function OportunidadesKanban({ oportunidades }: { oportunidades: 
             </p>
             <textarea
               value={motivoPerda}
-              onChange={e => setMotivoPerda(e.target.value)}
+              onChange={(e) => setMotivoPerda(e.target.value)}
               className="w-full px-3 py-2 text-sm rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-slate-900 dark:text-slate-100 min-h-[100px] resize-none"
               placeholder="Ex: Cliente optou por concorrente, orçamento acima do esperado..."
               aria-label="Motivo da perda"
               autoFocus
             />
             <div className="flex gap-2 justify-end mt-4">
-              <button onClick={cancelarPerda} className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors">
+              <button
+                onClick={cancelarPerda}
+                className="px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg transition-colors"
+              >
                 Cancelar
               </button>
               <button

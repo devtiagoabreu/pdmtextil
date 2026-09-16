@@ -1,7 +1,16 @@
 "use client"
 
 import { useQuery } from "@tanstack/react-query"
-import { Building2, Factory, Boxes, Workflow, GitBranch, ClipboardList, ArrowRight, Loader2 } from "lucide-react"
+import {
+  Building2,
+  Factory,
+  Boxes,
+  Workflow,
+  GitBranch,
+  ClipboardList,
+  ArrowRight,
+  Loader2,
+} from "lucide-react"
 import Link from "next/link"
 import { usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
@@ -60,12 +69,12 @@ export default function ProcessosHomePage() {
     queryKey: ["proc-contagens"],
     queryFn: async () => {
       const [empresas, sites, areas, processos, subprocessos, atividades] = await Promise.all([
-        fetch("/api/processos/empresas").then(r => r.json()),
-        fetch("/api/processos/sites").then(r => r.json()),
-        fetch("/api/processos/areas").then(r => r.json()),
-        fetch("/api/processos/processos").then(r => r.json()),
-        fetch("/api/processos/subprocessos").then(r => r.json()),
-        fetch("/api/processos/atividades").then(r => r.json()),
+        fetch("/api/processos/empresas").then((r) => r.json()),
+        fetch("/api/processos/sites").then((r) => r.json()),
+        fetch("/api/processos/areas").then((r) => r.json()),
+        fetch("/api/processos/processos").then((r) => r.json()),
+        fetch("/api/processos/subprocessos").then((r) => r.json()),
+        fetch("/api/processos/atividades").then((r) => r.json()),
       ])
       return {
         empresas: Array.isArray(empresas) ? empresas.length : 0,
@@ -86,16 +95,17 @@ export default function ProcessosHomePage() {
           {info && <InfoButton content={info} />}
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400">
-          Mapeie a organização de Empresa até Atividade e documente cada processo com objetivo, entradas/saídas,
-          fornecedores, recursos, riscos, controles e indicadores.
+          Mapeie a organização de Empresa até Atividade e documente cada processo com objetivo,
+          entradas/saídas, fornecedores, recursos, riscos, controles e indicadores.
         </p>
       </div>
 
       <div className="flex items-center justify-between rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-4 py-3 text-sm">
         <span className="text-slate-500 dark:text-slate-400">Hierarquia do mapeamento</span>
         <span className="flex items-center gap-1 text-slate-600 dark:text-slate-300 font-medium">
-          Empresa <ArrowRight size={14} /> Site <ArrowRight size={14} /> Área <ArrowRight size={14} /> Processo{" "}
-          <ArrowRight size={14} /> Subprocesso <ArrowRight size={14} /> Atividade
+          Empresa <ArrowRight size={14} /> Site <ArrowRight size={14} /> Área{" "}
+          <ArrowRight size={14} /> Processo <ArrowRight size={14} /> Subprocesso{" "}
+          <ArrowRight size={14} /> Atividade
         </span>
       </div>
 

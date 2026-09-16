@@ -5,7 +5,19 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Card, CardContent } from "@/components/ui/card"
 import { toast } from "sonner"
-import { Loader2, MessageSquare, Send, RefreshCw, Bot, User, ArrowLeft, Search, CheckCheck, Check, AlertTriangle } from "lucide-react"
+import {
+  Loader2,
+  MessageSquare,
+  Send,
+  RefreshCw,
+  Bot,
+  User,
+  ArrowLeft,
+  Search,
+  CheckCheck,
+  Check,
+  AlertTriangle,
+} from "lucide-react"
 
 interface Mensagem {
   id: number
@@ -202,7 +214,9 @@ export default function WhatsAppChatPage() {
   return (
     <div className="flex h-[calc(100vh-4rem)] animate-fade-in">
       {/* Sidebar */}
-      <div className={`${selectedJid ? "hidden md:flex" : "flex"} flex-col w-full md:w-80 lg:w-96 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950`}>
+      <div
+        className={`${selectedJid ? "hidden md:flex" : "flex"} flex-col w-full md:w-80 lg:w-96 border-r border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-950`}
+      >
         <div className="p-4 border-b border-slate-200 dark:border-slate-800">
           <div className="flex items-center gap-2 mb-3">
             <MessageSquare className="text-blue-600" size={20} />
@@ -221,26 +235,40 @@ export default function WhatsAppChatPage() {
 
         <div className="flex-1 overflow-y-auto">
           {loading ? (
-            <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-400" size={24} /></div>
+            <div className="flex justify-center p-8">
+              <Loader2 className="animate-spin text-slate-400" size={24} />
+            </div>
           ) : conversas.length === 0 ? (
-            <div className="text-center p-8 text-slate-500 text-sm">Nenhuma conversa encontrada</div>
+            <div className="text-center p-8 text-slate-500 text-sm">
+              Nenhuma conversa encontrada
+            </div>
           ) : (
             conversas.map((c: any) => (
               <button
                 key={c.remoteJid}
                 onClick={() => handleSelect(c.remoteJid)}
                 className={`w-full text-left px-4 py-3 border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-900 transition-colors ${
-                  selectedJid === c.remoteJid ? "bg-blue-50 dark:bg-blue-950/30 border-l-2 border-l-blue-500" : ""
+                  selectedJid === c.remoteJid
+                    ? "bg-blue-50 dark:bg-blue-950/30 border-l-2 border-l-blue-500"
+                    : ""
                 }`}
               >
                 <div className="flex items-center justify-between mb-1">
-                  <span className="font-medium text-sm text-slate-900 dark:text-slate-100 truncate">{c.nome}</span>
+                  <span className="font-medium text-sm text-slate-900 dark:text-slate-100 truncate">
+                    {c.nome}
+                  </span>
                   {c.naoLidas > 0 && (
-                    <span className="bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">{c.naoLidas}</span>
+                    <span className="bg-blue-600 text-white text-[10px] font-bold px-1.5 py-0.5 rounded-full">
+                      {c.naoLidas}
+                    </span>
                   )}
                 </div>
-                <p className="text-xs text-slate-500 truncate">{c.ultimaMensagem || "Sem mensagens"}</p>
-                <p className="text-[10px] text-slate-400 mt-1">{c.remoteJid?.replace(/@s\.whatsapp\.net$/, "")}</p>
+                <p className="text-xs text-slate-500 truncate">
+                  {c.ultimaMensagem || "Sem mensagens"}
+                </p>
+                <p className="text-[10px] text-slate-400 mt-1">
+                  {c.remoteJid?.replace(/@s\.whatsapp\.net$/, "")}
+                </p>
               </button>
             ))
           )}
@@ -248,7 +276,9 @@ export default function WhatsAppChatPage() {
       </div>
 
       {/* Chat Area */}
-      <div className={`${selectedJid ? "flex" : "hidden md:flex"} flex-1 flex-col bg-slate-50 dark:bg-slate-900`}>
+      <div
+        className={`${selectedJid ? "flex" : "hidden md:flex"} flex-1 flex-col bg-slate-50 dark:bg-slate-900`}
+      >
         {!selectedJid ? (
           <div className="flex-1 flex items-center justify-center">
             <div className="text-center">
@@ -261,7 +291,10 @@ export default function WhatsAppChatPage() {
             {/* Header */}
             <div className="flex items-center justify-between px-4 py-3 bg-white dark:bg-slate-950 border-b border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-3">
-                <button onClick={() => setSelectedJid(null)} className="md:hidden p-1 text-slate-400 hover:text-slate-600">
+                <button
+                  onClick={() => setSelectedJid(null)}
+                  className="md:hidden p-1 text-slate-400 hover:text-slate-600"
+                >
                   <ArrowLeft size={18} />
                 </button>
                 <div>
@@ -270,12 +303,16 @@ export default function WhatsAppChatPage() {
                       {lead?.nome || selected?.nome || selectedJid?.split("@")[0]}
                     </span>
                     {estadoInfo && (
-                      <span className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${estadoInfo.color}`}>
+                      <span
+                        className={`text-[10px] font-medium px-2 py-0.5 rounded-full ${estadoInfo.color}`}
+                      >
                         {estadoInfo.label}
                       </span>
                     )}
                   </div>
-                  <p className="text-xs text-slate-400">{selectedJid?.replace(/@s\.whatsapp\.net$/, "")}</p>
+                  <p className="text-xs text-slate-400">
+                    {selectedJid?.replace(/@s\.whatsapp\.net$/, "")}
+                  </p>
                 </div>
               </div>
               <div className="flex items-center gap-2">
@@ -289,7 +326,13 @@ export default function WhatsAppChatPage() {
                   </a>
                 )}
                 {isHumano ? (
-                  <Button size="sm" variant="outline" onClick={handleDevolverBot} disabled={sending} className="gap-1 text-xs">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={handleDevolverBot}
+                    disabled={sending}
+                    className="gap-1 text-xs"
+                  >
                     <Bot size={14} />
                     Devolver ao Bot
                   </Button>
@@ -311,14 +354,19 @@ export default function WhatsAppChatPage() {
             {/* Messages */}
             <div className="flex-1 overflow-y-auto px-4 py-4 space-y-3">
               {loadingChat ? (
-                <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-400" size={24} /></div>
+                <div className="flex justify-center p-8">
+                  <Loader2 className="animate-spin text-slate-400" size={24} />
+                </div>
               ) : mensagens.length === 0 ? (
                 <div className="text-center p-8 text-slate-400 text-sm">Nenhuma mensagem</div>
               ) : (
                 mensagens.map((msg: any) => {
                   const isFromBot = msg.tipo === "ENVIADA"
                   return (
-                    <div key={msg.id} className={`flex ${isFromBot ? "justify-end" : "justify-start"}`}>
+                    <div
+                      key={msg.id}
+                      className={`flex ${isFromBot ? "justify-end" : "justify-start"}`}
+                    >
                       <div
                         className={`max-w-[75%] px-4 py-2.5 rounded-2xl text-sm ${
                           isFromBot
@@ -327,15 +375,40 @@ export default function WhatsAppChatPage() {
                         }`}
                       >
                         <p className="whitespace-pre-wrap break-words">{msg.mensagem}</p>
-                        <div className={`flex items-center gap-1 mt-1 ${isFromBot ? "justify-end" : ""}`}>
-                          <span className={`text-[10px] ${isFromBot ? "text-blue-200" : "text-slate-400"}`}>
-                            {msg.createdAt ? (() => { const d = new Date(msg.createdAt); const dias = ["dom","seg","ter","qua","qui","sex","sab"]; return `${String(d.getDate()).padStart(2,"0")}/${String(d.getMonth()+1).padStart(2,"0")} ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")} (${dias[d.getDay()]})` })() : ""}
+                        <div
+                          className={`flex items-center gap-1 mt-1 ${isFromBot ? "justify-end" : ""}`}
+                        >
+                          <span
+                            className={`text-[10px] ${isFromBot ? "text-blue-200" : "text-slate-400"}`}
+                          >
+                            {msg.createdAt
+                              ? (() => {
+                                  const d = new Date(msg.createdAt)
+                                  const dias = ["dom", "seg", "ter", "qua", "qui", "sex", "sab"]
+                                  return `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")} ${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")} (${dias[d.getDay()]})`
+                                })()
+                              : ""}
                           </span>
-                          {isFromBot && (
-                            msg.status === "ENTREGUE" || msg.status === "LIDA" ? <CheckCheck size={12} className="text-blue-200" data-testid={`status-${msg.status}`} /> :
-                            msg.status === "ERRO" ? <AlertTriangle size={12} className="text-red-300" data-testid={`status-${msg.status}`} /> :
-                            <Check size={12} className="text-blue-300" data-testid={`status-${msg.status}`} />
-                          )}
+                          {isFromBot &&
+                            (msg.status === "ENTREGUE" || msg.status === "LIDA" ? (
+                              <CheckCheck
+                                size={12}
+                                className="text-blue-200"
+                                data-testid={`status-${msg.status}`}
+                              />
+                            ) : msg.status === "ERRO" ? (
+                              <AlertTriangle
+                                size={12}
+                                className="text-red-300"
+                                data-testid={`status-${msg.status}`}
+                              />
+                            ) : (
+                              <Check
+                                size={12}
+                                className="text-blue-300"
+                                data-testid={`status-${msg.status}`}
+                              />
+                            ))}
                         </div>
                       </div>
                     </div>
@@ -349,20 +422,35 @@ export default function WhatsAppChatPage() {
             <div className="px-4 py-3 bg-white dark:bg-slate-950 border-t border-slate-200 dark:border-slate-800">
               <div className="flex items-center gap-2">
                 <Input
-                  placeholder={isHumano ? "Modo humano - sua mensagem vai direto ao cliente..." : "Digite uma mensagem..."}
+                  placeholder={
+                    isHumano
+                      ? "Modo humano - sua mensagem vai direto ao cliente..."
+                      : "Digite uma mensagem..."
+                  }
                   value={inputMsg}
                   onChange={(e) => setInputMsg(e.target.value)}
-                  onKeyDown={(e) => { if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); handleSend() } }}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault()
+                      handleSend()
+                    }
+                  }}
                   disabled={sending}
                 />
-                <Button onClick={handleSend} disabled={!inputMsg.trim() || sending} size="icon" className="shrink-0">
+                <Button
+                  onClick={handleSend}
+                  disabled={!inputMsg.trim() || sending}
+                  size="icon"
+                  className="shrink-0"
+                >
                   {sending ? <Loader2 className="animate-spin" size={16} /> : <Send size={16} />}
                 </Button>
               </div>
               {isHumano && (
                 <p className="text-[10px] text-orange-600 dark:text-orange-400 mt-1.5 flex items-center gap-1">
                   <AlertTriangle size={10} />
-                  Modo humano ativo — o bot nao respondera esta conversa. Clique &quot;Devolver ao Bot&quot; quando finalizar.
+                  Modo humano ativo — o bot nao respondera esta conversa. Clique &quot;Devolver ao
+                  Bot&quot; quando finalizar.
                 </p>
               )}
             </div>

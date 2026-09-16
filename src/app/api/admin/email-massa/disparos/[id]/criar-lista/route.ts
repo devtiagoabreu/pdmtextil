@@ -19,13 +19,13 @@ const ROTULOS: Record<Tipo, string> = {
   falhas: "falharam na entrega",
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
-    if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")) {
+    if (
+      !session ||
+      (session.user.role !== "ADMIN" && session.user.role !== "SUDO" && session.user.role !== "CRM")
+    ) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
@@ -39,7 +39,8 @@ export async function POST(
     const body = await req.json()
     const tipo: Tipo = body.tipo
     const nome = String(body.nome || "").trim()
-    if (!TIPOS.includes(tipo)) return NextResponse.json({ error: "Tipo de lista inválido" }, { status: 400 })
+    if (!TIPOS.includes(tipo))
+      return NextResponse.json({ error: "Tipo de lista inválido" }, { status: 400 })
     if (!nome) return NextResponse.json({ error: "Nome da lista é obrigatório" }, { status: 400 })
 
     let contatos: { nome: string | null; email: string }[]
@@ -64,7 +65,10 @@ export async function POST(
 
     const validos = contatos.filter((c) => c.email && c.email.includes("@"))
     if (validos.length === 0) {
-      return NextResponse.json({ error: "Nenhum contato com esta característica neste disparo" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Nenhum contato com esta característica neste disparo" },
+        { status: 400 }
+      )
     }
 
     const descricao = `Contatos do disparo #${disparoId} (${disparo.nome || disparo.assunto}) que ${ROTULOS[tipo]}. Gerado automaticamente em ${new Date().toLocaleString("pt-BR")}.`

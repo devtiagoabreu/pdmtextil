@@ -40,8 +40,12 @@ export default function CoresPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
   const [showApiImport, setShowApiImport] = useState(false)
-  
-  const { data: cores = [], isLoading, refetch } = useQuery({
+
+  const {
+    data: cores = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["cores"],
     queryFn: fetchCores,
   })
@@ -86,11 +90,21 @@ export default function CoresPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <ImportarEntidade config={{ titulo: "Cores", apiBase: "cadastros/cores", arquivoPrefixo: "cores" }} onImportado={() => refetch()} />
-          <ExportarDados data={filteredCores} columns={[
-            { key: "codigo", label: "Código" }, { key: "nome", label: "Nome" },
-            { key: "pantone", label: "Pantone" }, { key: "familia", label: "Família" },
-          ]} filename="cores-solidas" title="Cores Sólidas" />
+          <ImportarEntidade
+            config={{ titulo: "Cores", apiBase: "cadastros/cores", arquivoPrefixo: "cores" }}
+            onImportado={() => refetch()}
+          />
+          <ExportarDados
+            data={filteredCores}
+            columns={[
+              { key: "codigo", label: "Código" },
+              { key: "nome", label: "Nome" },
+              { key: "pantone", label: "Pantone" },
+              { key: "familia", label: "Família" },
+            ]}
+            filename="cores-solidas"
+            title="Cores Sólidas"
+          />
           <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
             <Database size={16} />
             Importar via API
@@ -122,21 +136,35 @@ export default function CoresPage() {
             <Loader2 className="animate-spin text-slate-400" size={24} />
           </div>
         ) : filteredCores.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
-            Nenhuma cor encontrada
-          </div>
+          <div className="p-8 text-center text-slate-500">Nenhuma cor encontrada</div>
         ) : (
           <table className="w-full">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Código</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Nome</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Cor</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Pantone</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Família</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID Integração</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Código
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Nome
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Cor
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Pantone
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Família
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  ID Integração
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Status
+                </th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -145,36 +173,45 @@ export default function CoresPage() {
                   key={cor.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 >
-                  <td className="p-4 text-sm font-medium font-mono"><Link href={`/cadastros/cores/${cor.id}`}>{cor.codigo}</Link></td>
+                  <td className="p-4 text-sm font-medium font-mono">
+                    <Link href={`/cadastros/cores/${cor.id}`}>{cor.codigo}</Link>
+                  </td>
                   <td className="p-4 text-sm">{cor.nome}</td>
                   <td className="p-4">
-                    <div 
+                    <div
                       className="w-6 h-6 rounded border border-slate-300 dark:border-slate-600"
                       style={{ backgroundColor: `#${cor.codigo}` }}
                     />
                   </td>
                   <td className="p-4 text-sm text-slate-500">{cor.pantone || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{cor.familia || "—"}</td>
-                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{cor.idIntegracao || "—"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">
+                    {cor.idIntegracao || "—"}
+                  </td>
                   <td className="p-4">
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                      cor.ativo 
-                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400" 
-                        : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                    }`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                        cor.ativo
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                          : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                      }`}
+                    >
                       {cor.ativo ? "Ativo" : "Inativo"}
                     </span>
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/cadastros/cores/${cor.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Link
+                        href={`/cadastros/cores/${cor.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
                       </Link>
-                      <Button 
-                        variant="ghost" 
-                        size="icon" 
+                      <Button
+                        variant="ghost"
+                        size="icon"
                         className="h-8 w-8 text-red-500 hover:text-red-600"
                         onClick={(e: MouseEvent<HTMLButtonElement>) => {
                           e.stopPropagation()
@@ -196,12 +233,16 @@ export default function CoresPage() {
       <ConfirmModal
         open={deleteTarget !== null}
         title={deleteBlocked ? "Exclusão não permitida" : "Excluir cor?"}
-        message={deleteBlocked
-          ? "Esta cor possui cadastros vinculados e não pode ser excluída."
-          : `Tem certeza que deseja excluir?`}
-        subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
-          : undefined}
+        message={
+          deleteBlocked
+            ? "Esta cor possui cadastros vinculados e não pode ser excluída."
+            : `Tem certeza que deseja excluir?`
+        }
+        subMessage={
+          deleteBlocked
+            ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+            : undefined
+        }
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}
         loading={deleteLoading}

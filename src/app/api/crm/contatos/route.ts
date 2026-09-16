@@ -58,9 +58,10 @@ export async function GET(req: NextRequest) {
       .leftJoin(clientes, eq(crmContatos.clienteId, clientes.id))
       .orderBy(desc(crmContatos.createdAt))
 
-    const lista = conditions.length > 0
-      ? await query.where(conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`))
-      : await query
+    const lista =
+      conditions.length > 0
+        ? await query.where(conditions.reduce((a: any, b: any) => sql`${a} AND ${b}`))
+        : await query
     return NextResponse.json(lista)
   } catch (error) {
     console.error("[GET /api/crm/contatos]", error)
@@ -105,7 +106,12 @@ export async function POST(req: NextRequest) {
         ? `/comercial/clientes/${novo.clienteId}`
         : "/comercial/crm/contatos"
 
-    await notificar("CONTATO_CRIADO", `Contato criado: ${novo.nome}`, linkDestino, session.user.name)
+    await notificar(
+      "CONTATO_CRIADO",
+      `Contato criado: ${novo.nome}`,
+      linkDestino,
+      session.user.name
+    )
 
     return NextResponse.json(novo, { status: 201 })
   } catch (error) {

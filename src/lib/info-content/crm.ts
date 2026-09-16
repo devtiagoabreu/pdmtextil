@@ -4,7 +4,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== DASHBOARD ====================
   "/comercial/crm": {
     title: "Dashboard CRM",
-    description: "Visão geral do CRM com métricas de leads, pessoas, pipeline comercial, atividades recentes e previsão de receita. Central de comando para o time comercial.",
+    description:
+      "Visão geral do CRM com métricas de leads, pessoas, pipeline comercial, atividades recentes e previsão de receita. Central de comando para o time comercial.",
     rules: [
       "Os cards de resumo (Leads, Pessoas, Oportunidades) são clicáveis — levam direto para a lista correspondente.",
       "O funil mostra a quantidade de oportunidades em cada etapa do pipeline.",
@@ -13,7 +14,10 @@ export const crmContent: Record<string, InfoContent> = {
       "Use as Ações Rápidas para criar novos registros sem sair do dashboard.",
     ],
     fields: [
-      { name: "Pipeline (Funil)", desc: "Quantidade de oportunidades por estágio (Novo → Qualificação → Proposta → Negociação → Fechado)" },
+      {
+        name: "Pipeline (Funil)",
+        desc: "Quantidade de oportunidades por estágio (Novo → Qualificação → Proposta → Negociação → Fechado)",
+      },
       { name: "Previsão de Receita", desc: "Soma dos valores estimados das oportunidades abertas" },
       { name: "Top Pessoas", desc: "5 pessoas com maior valor total em pipeline" },
       { name: "Atividades Recentes", desc: "Últimas 10 movimentações registradas na timeline" },
@@ -23,7 +27,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== LEADS ====================
   "/comercial/crm/leads": {
     title: "Leads",
-    description: "Lista de leads captados por diferentes origens: site, WhatsApp, indicação, prospecção ativa ou eventos. Aqui você gerencia o primeiro contato com potenciais clientes.",
+    description:
+      "Lista de leads captados por diferentes origens: site, WhatsApp, indicação, prospecção ativa ou eventos. Aqui você gerencia o primeiro contato com potenciais clientes.",
     rules: [
       "Leads NOVOS devem ser contatados em até 24h para maior taxa de conversão.",
       "O score IA (0-100) é preenchido automaticamente pela inteligência artificial, indicando a probabilidade de conversão.",
@@ -35,14 +40,24 @@ export const crmContent: Record<string, InfoContent> = {
       { name: "Nome", desc: "Nome completo do contato" },
       { name: "Contato", desc: "E-mail e telefone do lead" },
       { name: "Empresa", desc: "Empresa onde o lead trabalha (se informado)" },
-      { name: "Score IA", desc: "Pontuação de 0-100 calculada pela IA Comercial — quanto maior, maior a chance de conversão" },
-      { name: "Origem", desc: "Como o lead foi captado: Site, WhatsApp, Indicação, Prospecção, Evento, Ligação, E-mail" },
-      { name: "Status", desc: "Etapa atual: Novo → Contatado → Qualificado → Convertido → Perdido" },
+      {
+        name: "Score IA",
+        desc: "Pontuação de 0-100 calculada pela IA Comercial — quanto maior, maior a chance de conversão",
+      },
+      {
+        name: "Origem",
+        desc: "Como o lead foi captado: Site, WhatsApp, Indicação, Prospecção, Evento, Ligação, E-mail",
+      },
+      {
+        name: "Status",
+        desc: "Etapa atual: Novo → Contatado → Qualificado → Convertido → Perdido",
+      },
     ],
   },
   "/comercial/crm/leads/novo": {
     title: "Novo Lead",
-    description: "Cadastre manualmente um lead captado por qualquer canal. Quanto mais informações preencher, melhor a IA poderá classificar o lead automaticamente.",
+    description:
+      "Cadastre manualmente um lead captado por qualquer canal. Quanto mais informações preencher, melhor a IA poderá classificar o lead automaticamente.",
     rules: [
       "Apenas o nome é obrigatório — os demais campos podem ser preenchidos depois.",
       "Se o lead já tiver um CNPJ, é melhor cadastrá-lo direto como Pessoa.",
@@ -60,7 +75,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== PESSOAS ====================
   "/comercial/crm/pessoas": {
     title: "Pessoas",
-    description: "Cadastro de pessoas no CRM. Cada pessoa pode ter múltiplos contatos, oportunidades, propostas, visitas e um histórico completo na timeline.",
+    description:
+      "Cadastro de pessoas no CRM. Cada pessoa pode ter múltiplos contatos, oportunidades, propostas, visitas e um histórico completo na timeline.",
     rules: [
       "O CNPJ é único — não é possível cadastrar duas pessoas com o mesmo CNPJ.",
       "Pessoas podem ser criadas manualmente ou convertidas de leads qualificados.",
@@ -76,7 +92,8 @@ export const crmContent: Record<string, InfoContent> = {
   },
   "/comercial/crm/pessoas/novo": {
     title: "Nova Pessoa",
-    description: "Cadastre uma nova pessoa no CRM. O cadastro pode ser feito manualmente ou através da conversão de um lead qualificado.",
+    description:
+      "Cadastre uma nova pessoa no CRM. O cadastro pode ser feito manualmente ou através da conversão de um lead qualificado.",
     rules: [
       "A razão social é obrigatória; o CNPJ é recomendado para evitar duplicidade.",
       "Pessoas sem CNPJ podem ser cadastradas, mas a validação de unicidade não será aplicada.",
@@ -91,7 +108,8 @@ export const crmContent: Record<string, InfoContent> = {
   },
   "/comercial/crm/pessoas/[id]": {
     title: "Detalhe da Pessoa",
-    description: "Visão completa de uma pessoa no CRM: dados cadastrais, contatos, timeline, WhatsApp e resumo gerado por IA. Tudo que você precisa saber sobre a conta.",
+    description:
+      "Visão completa de uma pessoa no CRM: dados cadastrais, contatos, timeline, WhatsApp e resumo gerado por IA. Tudo que você precisa saber sobre a conta.",
     rules: [
       "A Timeline mostra todo o histórico de interações: leads, oportunidades, visitas, tarefas, propostas e mensagens WhatsApp.",
       "O WhatsApp permite enviar e receber mensagens diretamente pelo sistema (integrado com Evolution API + n8n).",
@@ -109,13 +127,14 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== OPORTUNIDADES ====================
   "/comercial/crm/oportunidades": {
     title: "Oportunidades",
-    description: "Lista de oportunidades comerciais em andamento. Cada oportunidade representa uma negociação em potencial com uma pessoa, com valor estimado e estágio no pipeline.",
+    description:
+      "Lista de oportunidades comerciais em andamento. Cada oportunidade representa uma negociação em potencial com uma pessoa, com valor estimado e estágio no pipeline.",
     rules: [
       "O pipeline segue o fluxo: Novo → Qualificação → Proposta → Negociação → Fechado Ganho/Perdido.",
       "Use o Kanban para arrastar oportunidades entre estágios do pipeline.",
       "Oportunidades FECHADO_PERDIDO podem ser reativadas pela IA após 90 dias.",
       "Ao fechar como GANHO, a pessoa é automaticamente sincronizada como Cliente no PDM.",
-      "Oportunidade (crm_oportunidades): é a negociação em si, o \"deal\" no pipeline de vendas. Avança por etapas (Novo → Qualificação → Proposta → Negociação → Ganho/Perdido) e guarda valorEstimado, probabilidade, responsável, previsão de fechamento, motivo da perda. É usada na previsão de vendas.",
+      'Oportunidade (crm_oportunidades): é a negociação em si, o "deal" no pipeline de vendas. Avança por etapas (Novo → Qualificação → Proposta → Negociação → Ganho/Perdido) e guarda valorEstimado, probabilidade, responsável, previsão de fechamento, motivo da perda. É usada na previsão de vendas.',
       "Proposta (crm_propostas): é o documento comercial formal enviado ao cliente (o orçamento/PDF). Vinculada a uma oportunidade (oportunidadeId), guarda valor, condições de pagamento, prazo de entrega, link do PDF e status (Enviada → Aceita/Recusada/Em revisão).",
       "Por que ambas têm valor? São números de naturezas diferentes: a oportunidade guarda o valor estimado do negócio (projeção/previsão), e a proposta guarda o valor efetivamente cotado/oferecido ao cliente. Os dois são legítimos e complementares para acompanhar o funil.",
     ],
@@ -123,12 +142,15 @@ export const crmContent: Record<string, InfoContent> = {
       { name: "Título", desc: "Nome da oportunidade (ex: Venda de 500m de malha)" },
       { name: "Pessoa", desc: "Pessoa vinculada à oportunidade" },
       { name: "Valor Estimado", desc: "Valor potencial da negociação" },
-      { name: "Status", desc: "Estágio no pipeline: Novo → Qualificação → Proposta → Negociação → Fechado" },
+      {
+        name: "Status",
+        desc: "Estágio no pipeline: Novo → Qualificação → Proposta → Negociação → Fechado",
+      },
     ],
     examples: [
       {
         title: "Exemplo do dia a dia",
-        desc: "A Tecelagem Y pediu 10.000 kg de malha penteada. Você cadastra a Oportunidade \"Fornecimento Malha Penteada - Tecelagem Y\" com valorEstimado de R$ 120.000 (sua projeção). À medida que o cliente negocia, você avança o status: Novo → Qualificação → Proposta → Negociação. Se fechar, o valor estimado é que alimenta a previsão de vendas.",
+        desc: 'A Tecelagem Y pediu 10.000 kg de malha penteada. Você cadastra a Oportunidade "Fornecimento Malha Penteada - Tecelagem Y" com valorEstimado de R$ 120.000 (sua projeção). À medida que o cliente negocia, você avança o status: Novo → Qualificação → Proposta → Negociação. Se fechar, o valor estimado é que alimenta a previsão de vendas.',
       },
       {
         title: "Quando cada uma é usada",
@@ -138,7 +160,8 @@ export const crmContent: Record<string, InfoContent> = {
   },
   "/comercial/crm/oportunidades/novo": {
     title: "Nova Oportunidade",
-    description: "Registre uma nova oportunidade de negócio. Toda oportunidade deve estar vinculada a uma pessoa existente no CRM.",
+    description:
+      "Registre uma nova oportunidade de negócio. Toda oportunidade deve estar vinculada a uma pessoa existente no CRM.",
     rules: [
       "A pessoa deve estar cadastrada no CRM antes de criar a oportunidade.",
       "O valor estimado é opcional, mas recomendado para cálculo de forecast.",
@@ -154,7 +177,8 @@ export const crmContent: Record<string, InfoContent> = {
   },
   "/comercial/crm/oportunidades/[id]": {
     title: "Detalhe da Oportunidade",
-    description: "Acompanhe o andamento de uma oportunidade: dados da negociação, timeline, propostas vinculadas e ações disponíveis.",
+    description:
+      "Acompanhe o andamento de uma oportunidade: dados da negociação, timeline, propostas vinculadas e ações disponíveis.",
     rules: [
       "A timeline da oportunidade mostra todas as interações relacionadas.",
       "Alterar o status registra automaticamente na timeline.",
@@ -163,12 +187,16 @@ export const crmContent: Record<string, InfoContent> = {
     fields: [
       { name: "Valor Estimado", desc: "Valor potencial registrado para a oportunidade" },
       { name: "Status", desc: "Estágio atual no pipeline comercial" },
-      { name: "Motivo da Perda", desc: "Preenchido quando a oportunidade é perdida — usado pela IA para análise" },
+      {
+        name: "Motivo da Perda",
+        desc: "Preenchido quando a oportunidade é perdida — usado pela IA para análise",
+      },
     ],
   },
   "/comercial/crm/oportunidades/kanban": {
     title: "Kanban de Oportunidades",
-    description: "Quadro visual com drag-and-drop para gerenciar o pipeline comercial. Arraste oportunidades entre colunas para atualizar o status automaticamente.",
+    description:
+      "Quadro visual com drag-and-drop para gerenciar o pipeline comercial. Arraste oportunidades entre colunas para atualizar o status automaticamente.",
     rules: [
       "Arraste um card para outra coluna para mudar o estágio da oportunidade.",
       "Ao arrastar para FECHADO_PERDIDO, um modal solicitará o motivo da perda.",
@@ -177,16 +205,23 @@ export const crmContent: Record<string, InfoContent> = {
       "Clique no card para ver detalhes completos.",
     ],
     fields: [
-      { name: "Colunas", desc: "Pipeline: Novo → Qualificação → Proposta → Negociação → Ganho/Perdido" },
+      {
+        name: "Colunas",
+        desc: "Pipeline: Novo → Qualificação → Proposta → Negociação → Ganho/Perdido",
+      },
       { name: "Card", desc: "Cada card = uma oportunidade com valor e probabilidade" },
-      { name: "Drag & Drop", desc: "Arraste para mover entre estágios — a timeline registra automaticamente" },
+      {
+        name: "Drag & Drop",
+        desc: "Arraste para mover entre estágios — a timeline registra automaticamente",
+      },
     ],
   },
 
   // ==================== VISITAS ====================
   "/comercial/crm/visitas": {
     title: "Visitas",
-    description: "Agenda de visitas comerciais. Registre e acompanhe visitas presenciais, videochamadas e contatos telefônicos com pessoas.",
+    description:
+      "Agenda de visitas comerciais. Registre e acompanhe visitas presenciais, videochamadas e contatos telefônicos com pessoas.",
     rules: [
       "Visitas podem ser presenciais, por vídeo ou telefone.",
       "Visitas FUTURAS aparecem destacadas — são compromissos agendados.",
@@ -205,7 +240,8 @@ export const crmContent: Record<string, InfoContent> = {
   },
   "/comercial/crm/visitas/novo": {
     title: "Nova Visita",
-    description: "Agende uma visita a uma pessoa. Informe o tipo, data, contato e observações sobre o objetivo da visita.",
+    description:
+      "Agende uma visita a uma pessoa. Informe o tipo, data, contato e observações sobre o objetivo da visita.",
     rules: [
       "Selecione a pessoa (autocomplete com pessoas cadastradas).",
       "Escolha o tipo: Presencial (vai até o cliente), Vídeo (chamada online) ou Telefone.",
@@ -221,7 +257,8 @@ export const crmContent: Record<string, InfoContent> = {
   },
   "/comercial/crm/visitas/[id]": {
     title: "Detalhe da Visita",
-    description: "Acompanhe os detalhes de uma visita: dados do encontro, fotos, relato do representante e próximo passo.",
+    description:
+      "Acompanhe os detalhes de uma visita: dados do encontro, fotos, relato do representante e próximo passo.",
     rules: [
       "Visitas realizadas podem ter fotos anexadas.",
       "O relato da visita ajuda a IA a gerar resumo da pessoa.",
@@ -237,7 +274,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== TAREFAS ====================
   "/comercial/crm/tarefas": {
     title: "Tarefas",
-    description: "Lista de tarefas comerciais: ligações, reuniões, propostas a enviar e follow-ups. Gerencie seu dia a dia comercial com prazos e prioridades.",
+    description:
+      "Lista de tarefas comerciais: ligações, reuniões, propostas a enviar e follow-ups. Gerencie seu dia a dia comercial com prazos e prioridades.",
     rules: [
       "Tarefas podem ser dos tipos: Ligação, Reunião, Proposta ou Tarefa genérica.",
       "Tarefas PENDENTES com data vencida aparecem em vermelho no topo.",
@@ -256,13 +294,14 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== PROPOSTAS ====================
   "/comercial/crm/propostas": {
     title: "Propostas",
-    description: "Lista de propostas comerciais enviadas. Acompanhe o status de cada proposta: enviada, aceita, recusada ou em revisão.",
+    description:
+      "Lista de propostas comerciais enviadas. Acompanhe o status de cada proposta: enviada, aceita, recusada ou em revisão.",
     rules: [
       "Cada proposta está vinculada a uma pessoa e opcionalmente a uma oportunidade.",
       "Ao ACEITAR uma proposta, a oportunidade vinculada avança no pipeline.",
       "Propostas podem ser impressas em PDF diretamente do sistema.",
       "O valor total e as condições são registrados para controle histórico.",
-      "Oportunidade (crm_oportunidades): é a negociação em si, o \"deal\" no pipeline de vendas. Avança por etapas (Novo → Qualificação → Proposta → Negociação → Ganho/Perdido) e guarda valorEstimado, probabilidade, responsável, previsão de fechamento, motivo da perda. É usada na previsão de vendas.",
+      'Oportunidade (crm_oportunidades): é a negociação em si, o "deal" no pipeline de vendas. Avança por etapas (Novo → Qualificação → Proposta → Negociação → Ganho/Perdido) e guarda valorEstimado, probabilidade, responsável, previsão de fechamento, motivo da perda. É usada na previsão de vendas.',
       "Proposta (crm_propostas): é o documento comercial formal enviado ao cliente (o orçamento/PDF). Vinculada a uma oportunidade (oportunidadeId), guarda valor, condições de pagamento, prazo de entrega, link do PDF e status (Enviada → Aceita/Recusada/Em revisão).",
       "Por que ambas têm valor? São números de naturezas diferentes: a oportunidade guarda o valor estimado do negócio (projeção/previsão), e a proposta guarda o valor efetivamente cotado/oferecido ao cliente. Os dois são legítimos e complementares para acompanhar o funil.",
     ],
@@ -275,7 +314,7 @@ export const crmContent: Record<string, InfoContent> = {
     examples: [
       {
         title: "Exemplo de proposta concreta",
-        desc: "Depois da negociação, você cria a Proposta \"Orçamento Malha Penteada - Tecelagem Y\" para o cliente, com valor de R$ 118.500 (o preço final cotado), condicoesPagamento \"30/60/90 dias\" e prazoEntrega \"45 dias\". Você anexa o link do PDF e o status vai de Enviada → Aceita (ou Recusada/Em revisão).",
+        desc: 'Depois da negociação, você cria a Proposta "Orçamento Malha Penteada - Tecelagem Y" para o cliente, com valor de R$ 118.500 (o preço final cotado), condicoesPagamento "30/60/90 dias" e prazoEntrega "45 dias". Você anexa o link do PDF e o status vai de Enviada → Aceita (ou Recusada/Em revisão).',
       },
       {
         title: "Proposta x Oportunidade no exemplo",
@@ -285,7 +324,8 @@ export const crmContent: Record<string, InfoContent> = {
   },
   "/comercial/crm/propostas/novo": {
     title: "Nova Proposta",
-    description: "Crie uma proposta comercial para uma pessoa. Preencha os dados, valores, condições e itens da proposta.",
+    description:
+      "Crie uma proposta comercial para uma pessoa. Preencha os dados, valores, condições e itens da proposta.",
     rules: [
       "A pessoa é obrigatória — a oportunidade é opcional.",
       "O prazo de validade define até quando a proposta pode ser aceita.",
@@ -301,7 +341,8 @@ export const crmContent: Record<string, InfoContent> = {
   },
   "/comercial/crm/propostas/[id]": {
     title: "Detalhe da Proposta",
-    description: "Visualize os detalhes de uma proposta: dados comerciais, condições, timeline e ações de PDF.",
+    description:
+      "Visualize os detalhes de uma proposta: dados comerciais, condições, timeline e ações de PDF.",
     rules: [
       "Clique em Imprimir para gerar o PDF da proposta.",
       "Altere o status conforme o retorno do cliente.",
@@ -317,7 +358,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== FATURAMENTOS ====================
   "/comercial/crm/faturamentos": {
     title: "Faturamentos",
-    description: "Lista de faturamentos vinculados a oportunidades. Representam o retorno real da negociação: quem comprou e o valor efetivamente faturado.",
+    description:
+      "Lista de faturamentos vinculados a oportunidades. Representam o retorno real da negociação: quem comprou e o valor efetivamente faturado.",
     rules: [
       "Cada faturamento está vinculado a uma oportunidade e possui seus próprios itens (produto, quantidade, unidade e valor).",
       "O total do faturamento é a soma automática dos valores dos itens.",
@@ -334,7 +376,8 @@ export const crmContent: Record<string, InfoContent> = {
   },
   "/comercial/crm/faturamentos/novo": {
     title: "Novo Faturamento",
-    description: "Registre um faturamento para uma oportunidade, informando capa (número, data, status) e os itens vendidos.",
+    description:
+      "Registre um faturamento para uma oportunidade, informando capa (número, data, status) e os itens vendidos.",
     rules: [
       "A oportunidade é obrigatória.",
       "Adicione ao menos um item com produto preenchido.",
@@ -364,7 +407,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== PEDIDOS DE VENDA ====================
   "/comercial/crm/pedidos-venda": {
     title: "Pedidos de Venda",
-    description: "Lista de pedidos de venda gerados a partir de oportunidades. Alimentam o KPI de Vendas.",
+    description:
+      "Lista de pedidos de venda gerados a partir de oportunidades. Alimentam o KPI de Vendas.",
     rules: [
       "Cada pedido está vinculado a uma oportunidade e possui seus próprios itens.",
       "O total do pedido é a soma automática dos valores dos itens.",
@@ -381,7 +425,8 @@ export const crmContent: Record<string, InfoContent> = {
   },
   "/comercial/crm/pedidos-venda/novo": {
     title: "Novo Pedido de Venda",
-    description: "Registre um pedido de venda para uma oportunidade, informando capa (número, data, status) e os itens vendidos.",
+    description:
+      "Registre um pedido de venda para uma oportunidade, informando capa (número, data, status) e os itens vendidos.",
     rules: [
       "A oportunidade é obrigatória.",
       "Adicione ao menos um item com produto preenchido.",
@@ -411,7 +456,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== REGIÕES ====================
   "/comercial/crm/regioes": {
     title: "Regiões",
-    description: "Cadastro de regiões comerciais. Organize o território de vendas por regiões geográficas com gerentes responsáveis.",
+    description:
+      "Cadastro de regiões comerciais. Organize o território de vendas por regiões geográficas com gerentes responsáveis.",
     rules: [
       "Cada região pode ter um gerente responsável.",
       "Regiões são usadas para organizar equipes comerciais.",
@@ -428,7 +474,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== EQUIPES ====================
   "/comercial/crm/equipes": {
     title: "Equipes",
-    description: "Cadastro de equipes comerciais. Crie equipes com ou sem região definida e adicione representantes de qualquer estado/região.",
+    description:
+      "Cadastro de equipes comerciais. Crie equipes com ou sem região definida e adicione representantes de qualquer estado/região.",
     rules: [
       "A região é opcional — a equipe pode ter representantes de qualquer localidade.",
       "Clique em uma equipe para gerenciar seus membros.",
@@ -447,7 +494,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== CAMPANHAS ====================
   "/comercial/crm/campanhas": {
     title: "Campanhas",
-    description: "Lista de campanhas de marketing e comunicação. Gerencie campanhas de e-mail, WhatsApp, redes sociais e eventos.",
+    description:
+      "Lista de campanhas de marketing e comunicação. Gerencie campanhas de e-mail, WhatsApp, redes sociais e eventos.",
     rules: [
       "Tipos de campanha: E-mail, WhatsApp, Redes Sociais ou Evento.",
       "O status define se a campanha está ativa, pausada ou concluída.",
@@ -464,7 +512,8 @@ export const crmContent: Record<string, InfoContent> = {
   },
   "/comercial/crm/campanhas/nova": {
     title: "Nova Campanha",
-    description: "Crie uma nova campanha de marketing. Defina o tipo, período, orçamento e público-alvo.",
+    description:
+      "Crie uma nova campanha de marketing. Defina o tipo, período, orçamento e público-alvo.",
     rules: [
       "O nome é obrigatório; os demais campos são opcionais.",
       "Campanhas ativas aparecem no dashboard.",
@@ -479,7 +528,8 @@ export const crmContent: Record<string, InfoContent> = {
   },
   "/comercial/crm/campanhas/[id]": {
     title: "Detalhe da Campanha",
-    description: "Acompanhe o desempenho de uma campanha: métricas, leads gerados, custo e resultados.",
+    description:
+      "Acompanhe o desempenho de uma campanha: métricas, leads gerados, custo e resultados.",
     rules: [
       "Edite os campos diretamente para atualizar métricas.",
       "Leads gerados podem ser vinculados manualmente.",
@@ -495,7 +545,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== RELATÓRIOS ====================
   "/comercial/crm/relatorios": {
     title: "Relatórios CRM",
-    description: "Análise consolidada dos dados do CRM com gráficos de leads por origem, pipeline, performance por representante, tarefas e taxa de conversão.",
+    description:
+      "Análise consolidada dos dados do CRM com gráficos de leads por origem, pipeline, performance por representante, tarefas e taxa de conversão.",
     rules: [
       "Os dados são atualizados em tempo real com base no banco.",
       "Use os gráficos para identificar gargalos no pipeline.",
@@ -506,7 +557,10 @@ export const crmContent: Record<string, InfoContent> = {
       { name: "Leads por Origem", desc: "Distribuição dos leads pelo canal de captação" },
       { name: "Pipeline", desc: "Quantidade de oportunidades por estágio" },
       { name: "Representantes", desc: "Oportunidades abertas por vendedor" },
-      { name: "Propostas por Status", desc: "Distribuição das propostas: enviadas, aceitas, recusadas" },
+      {
+        name: "Propostas por Status",
+        desc: "Distribuição das propostas: enviadas, aceitas, recusadas",
+      },
       { name: "Conversão", desc: "Taxa de conversão geral do funil comercial" },
     ],
   },
@@ -514,7 +568,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== TREINAMENTO ====================
   "/comercial/crm/treinamento": {
     title: "Treinamento CRM",
-    description: "Central de documentação e treinamento do CRM. Aqui você encontra explicações detalhadas de cada tela, campo por campo, com pré-requisitos, links para POPs e vídeos tutoriais.",
+    description:
+      "Central de documentação e treinamento do CRM. Aqui você encontra explicações detalhadas de cada tela, campo por campo, com pré-requisitos, links para POPs e vídeos tutoriais.",
     rules: [
       "Navegue pelos módulos e expanda para ver as lições disponíveis",
       "Cada lição documenta uma tela específica do CRM",
@@ -525,7 +580,8 @@ export const crmContent: Record<string, InfoContent> = {
   },
   "/comercial/crm/treinamento/admin": {
     title: "Gerenciar Treinamento",
-    description: "Gerencie os módulos e lições do treinamento. Crie, edite ou remova conteúdo de documentação do CRM.",
+    description:
+      "Gerencie os módulos e lições do treinamento. Crie, edite ou remova conteúdo de documentação do CRM.",
     rules: [
       "Módulos agrupam lições relacionadas",
       "Cada lição contém documentação em markdown",
@@ -536,7 +592,8 @@ export const crmContent: Record<string, InfoContent> = {
   },
   "/comercial/crm/treinamento/admin/novo": {
     title: "Nova Lição de Treinamento",
-    description: "Crie uma nova lição de treinamento com conteúdo markdown, pré-requisitos e links multimídia.",
+    description:
+      "Crie uma nova lição de treinamento com conteúdo markdown, pré-requisitos e links multimídia.",
     rules: [
       "Selecione o módulo ao qual a lição pertence",
       "Preencha o conteúdo em markdown para formatação rica",
@@ -547,16 +604,26 @@ export const crmContent: Record<string, InfoContent> = {
       { name: "Módulo", desc: "Obrigatório. Módulo de treinamento ao qual esta lição pertence" },
       { name: "Título", desc: "Obrigatório. Nome da lição que aparecerá na lista" },
       { name: "Ordem", desc: "Posição da lição dentro do módulo" },
-      { name: "Pathname relacionado", desc: "Caminho da tela CRM relacionada (ex: /comercial/crm/leads)" },
-      { name: "Pré-requisitos", desc: "Lista de cadastros indispensáveis para usar a tela documentada" },
-      { name: "Conteúdo", desc: "Documentação em markdown. Use ## para títulos, **negrito**, - listas" },
+      {
+        name: "Pathname relacionado",
+        desc: "Caminho da tela CRM relacionada (ex: /comercial/crm/leads)",
+      },
+      {
+        name: "Pré-requisitos",
+        desc: "Lista de cadastros indispensáveis para usar a tela documentada",
+      },
+      {
+        name: "Conteúdo",
+        desc: "Documentação em markdown. Use ## para títulos, **negrito**, - listas",
+      },
       { name: "Links POP", desc: "Links para Procedimentos Operacionais Padrão relacionados" },
       { name: "Links Vídeos", desc: "Links para vídeos tutoriais explicativos" },
     ],
   },
   "/comercial/crm/treinamento/": {
     title: "Detalhe da Lição",
-    description: "Leia o conteúdo completo da lição de treinamento. Aqui você encontra a documentação detalhada da tela, pré-requisitos, links para POPs e vídeos tutoriais.",
+    description:
+      "Leia o conteúdo completo da lição de treinamento. Aqui você encontra a documentação detalhada da tela, pré-requisitos, links para POPs e vídeos tutoriais.",
     rules: [
       "Use Exportar PDF para gerar um documento com cabeçalho e rodapé",
       "Links de POPs e vídeos tutoriais abrem em nova aba",
@@ -567,7 +634,8 @@ export const crmContent: Record<string, InfoContent> = {
   },
   "/comercial/crm/treinamento/admin/": {
     title: "Editar Lição",
-    description: "Edite os dados da lição de treinamento: módulo, título, conteúdo markdown, pré-requisitos e links multimídia.",
+    description:
+      "Edite os dados da lição de treinamento: módulo, título, conteúdo markdown, pré-requisitos e links multimídia.",
     rules: [
       "Altere o módulo para mover a lição entre módulos",
       "O conteúdo markdown é renderizado com formatação rica (títulos, listas, tabelas)",
@@ -580,7 +648,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== ESTADOS (CONFIG) ====================
   "/comercial/crm/configuracoes/estados": {
     title: "Estados (UF)",
-    description: "Consulta e edição dos estados cadastrados. A coluna Região define a região geográfica de cada estado para fins de organização comercial.",
+    description:
+      "Consulta e edição dos estados cadastrados. A coluna Região define a região geográfica de cada estado para fins de organização comercial.",
     rules: [
       "Os estados são carregados automaticamente da base do IBGE.",
       "Você pode alterar a região de cada estado manualmente.",
@@ -598,7 +667,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== REPRESENTANTES ====================
   "/comercial/representantes": {
     title: "Representantes",
-    description: "Cadastro de representantes comerciais. Cada representante possui endereço e está vinculado a uma região através do gerente responsável pelo seu estado.",
+    description:
+      "Cadastro de representantes comerciais. Cada representante possui endereço e está vinculado a uma região através do gerente responsável pelo seu estado.",
     rules: [
       "O CNPJ é único e obrigatório para cada representante.",
       "O gerente responsável é definido automaticamente com base no estado/região onde o representante atua.",
@@ -653,7 +723,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== CONVERSAS WHATSAPP ====================
   "/comercial/crm/conversas": {
     title: "Conversas WhatsApp",
-    description: "Visualize todas as conversas do WhatsApp integradas ao CRM. As mensagens de leads que entram via WhatsApp são agrupadas por contato.",
+    description:
+      "Visualize todas as conversas do WhatsApp integradas ao CRM. As mensagens de leads que entram via WhatsApp são agrupadas por contato.",
     rules: [
       "Conversas são agrupadas automaticamente pelo número de telefone do contato.",
       "As mensagens são importadas automaticamente via n8n.",
@@ -662,14 +733,18 @@ export const crmContent: Record<string, InfoContent> = {
     fields: [
       { name: "Painel lateral", desc: "Lista de conversas ativas, ordenadas pela mais recente" },
       { name: "Painel principal", desc: "Exibe o histórico de mensagens da conversa selecionada" },
-      { name: "Link para lead", desc: "Clica no nome do contato para abrir a ficha do lead no CRM" },
+      {
+        name: "Link para lead",
+        desc: "Clica no nome do contato para abrir a ficha do lead no CRM",
+      },
     ],
   },
 
   // ==================== NOTIFICAÇÕES ====================
   "/comercial/crm/notificacoes": {
     title: "Notificações",
-    description: "Central de notificações do CRM. Aqui você encontra alertas automáticos do sistema, como novos leads cadastrados via WhatsApp.",
+    description:
+      "Central de notificações do CRM. Aqui você encontra alertas automáticos do sistema, como novos leads cadastrados via WhatsApp.",
     rules: [
       "Notificações são geradas automaticamente pelo sistema.",
       "Use o filtro 'Não lidas' para ver apenas as pendentes.",
@@ -688,7 +763,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== CIDADES (CONFIG) ====================
   "/comercial/crm/configuracoes/cidades": {
     title: "Cidades",
-    description: "Consulta de todas as cidades cadastradas, carregadas automaticamente da base do IBGE. Utilize os filtros para localizar cidades por nome ou estado.",
+    description:
+      "Consulta de todas as cidades cadastradas, carregadas automaticamente da base do IBGE. Utilize os filtros para localizar cidades por nome ou estado.",
     rules: [
       "As cidades são carregadas automaticamente da API do IBGE.",
       "São 5570 municípios brasileiros cadastrados.",
@@ -705,7 +781,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== VIAGENS ====================
   "/comercial/crm/viagens": {
     title: "Viagens",
-    description: "Gestão do cronograma da equipe comercial: planejamento de viagens, visitas a clientes por cidade, custos de deslocamento e acompanhamento no mapa.",
+    description:
+      "Gestão do cronograma da equipe comercial: planejamento de viagens, visitas a clientes por cidade, custos de deslocamento e acompanhamento no mapa.",
     rules: [
       "Viagem PLANEJADA pode ser editada ou excluída; EM_ANDAMENTO registra o início do roteiro.",
       "Cada viagem possui um cronograma de visitas; o mapa agrupa pontos coincidentes automaticamente.",
@@ -723,7 +800,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== CONTATOS ====================
   "/comercial/crm/contatos": {
     title: "Contatos",
-    description: "Base de contatos do CRM (pessoas ligadas a clientes/empresas). Use para centralizar e-mails, telefones e o relacionamento comercial.",
+    description:
+      "Base de contatos do CRM (pessoas ligadas a clientes/empresas). Use para centralizar e-mails, telefones e o relacionamento comercial.",
     rules: [
       "Contatos podem ser vinculados a uma pessoa ou empresa do cadastro.",
       "Use a busca por nome, e-mail, cargo ou empresa para localizar rapidamente.",
@@ -742,7 +820,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== SEGMENTOS ====================
   "/comercial/crm/segmentos": {
     title: "Segmentos",
-    description: "Cadastro de segmentos de mercado usados para classificar clientes (ex.: confecção, calçados, estofados). Ajuda a direcionar prospecção e ofertas.",
+    description:
+      "Cadastro de segmentos de mercado usados para classificar clientes (ex.: confecção, calçados, estofados). Ajuda a direcionar prospecção e ofertas.",
     rules: [
       "O segmento é um campo opcional no cadastro de clientes.",
       "Use nomes curtos e objetivos para facilitar filtros e relatórios.",
@@ -757,7 +836,8 @@ export const crmContent: Record<string, InfoContent> = {
   // ==================== PAÍSES (CONFIG) ====================
   "/comercial/crm/configuracoes/paises": {
     title: "Países",
-    description: "Cadastro de países usados nas transações e requisições do módulo comercial (código + nome).",
+    description:
+      "Cadastro de países usados nas transações e requisições do módulo comercial (código + nome).",
     rules: [
       "O código é uma sigla curta (ex.: BR, PT, US) exibida em relatórios.",
       "Países são referenciados por vendas e requisições internacionais.",

@@ -1,25 +1,48 @@
 "use client"
 
-import {Suspense, useState, useEffect} from "react"
+import { Suspense, useState, useEffect } from "react"
 import Link from "next/link"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { Scissors, Plus, FileText, Loader2, Truck, Columns, Table, RotateCw, Copy } from "lucide-react"
+import {
+  Scissors,
+  Plus,
+  FileText,
+  Loader2,
+  Truck,
+  Columns,
+  Table,
+  RotateCw,
+  Copy,
+} from "lucide-react"
 import { toast } from "sonner"
 import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { Button } from "@/components/ui/button"
-import { gerarRequisicaoCortePdf, gerarRequisicaoCortePdfConsolidado, RequisicaoCorteData } from "@/lib/gerar-requisicao-corte-pdf"
+import {
+  gerarRequisicaoCortePdf,
+  gerarRequisicaoCortePdfConsolidado,
+  RequisicaoCorteData,
+} from "@/lib/gerar-requisicao-corte-pdf"
 import type { RequisicaoCorteLista, RequisicaoCorteDetalhe, RequisicaoCopia } from "./types"
 import RequisicoesCorteKanban from "@/components/crm/requisicoes-corte-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
 
 const STATUS_CONFIG: Record<string, { label: string; classes: string }> = {
-  SOLICITADO: { label: "Solicitado", classes: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400" },
-  PROCESSANDO: { label: "Processando", classes: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400" },
-  ATENDIDO: { label: "Atendido", classes: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400" },
+  SOLICITADO: {
+    label: "Solicitado",
+    classes: "bg-amber-100 text-amber-700 dark:bg-amber-950 dark:text-amber-400",
+  },
+  PROCESSANDO: {
+    label: "Processando",
+    classes: "bg-indigo-100 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-400",
+  },
+  ATENDIDO: {
+    label: "Atendido",
+    classes: "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400",
+  },
 }
 
 function ListaRequisicoesCortePageContent() {
@@ -35,11 +58,14 @@ function ListaRequisicoesCortePageContent() {
 
   const [selected, setSelected] = useState<Set<number>>(new Set())
   const [gerandoPdf, setGerandoPdf] = useState(false)
-  const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
+  const [modo, setModo] = useState<"tabela" | "kanban">(
+    searchParams.get("view") === "kanban" ? "kanban" : "tabela"
+  )
   const [pdfOrientacao, setPdfOrientacao] = useState<"portrait" | "landscape">("portrait")
 
   const filterState = useListFilters(
-    { searchFields: ["requisitanteNome"],
+    {
+      searchFields: ["requisitanteNome"],
       statusOptions: [
         { value: "SOLICITADO", label: "Solicitado" },
         { value: "PROCESSANDO", label: "Processando" },
@@ -58,14 +84,17 @@ function ListaRequisicoesCortePageContent() {
   useEffect(() => {
     if (!mounted) return
     fetch("/api/comercial/requisicoes-corte")
-      .then((res: Response) => { if (!res.ok) throw new Error(); return res.json() })
+      .then((res: Response) => {
+        if (!res.ok) throw new Error()
+        return res.json()
+      })
       .then((d: RequisicaoCorteLista[]) => setData(Array.isArray(d) ? d : []))
       .catch(() => toast.error("Erro ao carregar requisições"))
       .finally(() => setLoading(false))
   }, [mounted])
 
   function toggleSel(id: number) {
-    setSelected(prev => {
+    setSelected((prev) => {
       const next = new Set(prev)
       if (next.has(id)) next.delete(id)
       else next.add(id)
@@ -85,14 +114,16 @@ function ListaRequisicoesCortePageContent() {
         entreguePor: d.entreguePor,
         createdAt: d.createdAt,
         requisitanteNome: d.requisitanteNome,
-        itens: Array.isArray(d.itens) ? d.itens.map((i) => ({
-          codigoProduto: i.codigoProduto || "",
-          ordem: i.ordem || "",
-          artigo: i.artigo || "",
-          cor: i.cor || "",
-          desenho: i.desenho || "",
-          quantidade: i.quantidade || "0",
-        })) : [],
+        itens: Array.isArray(d.itens)
+          ? d.itens.map((i) => ({
+              codigoProduto: i.codigoProduto || "",
+              ordem: i.ordem || "",
+              artigo: i.artigo || "",
+              cor: i.cor || "",
+              desenho: i.desenho || "",
+              quantidade: i.quantidade || "0",
+            }))
+          : [],
       }
     } catch {
       return null
@@ -160,7 +191,9 @@ function ListaRequisicoesCortePageContent() {
     if (!deleteTarget) return
     setDeleteLoading(true)
     try {
-      const res = await fetch(`/api/comercial/requisicoes-corte/${deleteTarget.id}`, { method: "DELETE" })
+      const res = await fetch(`/api/comercial/requisicoes-corte/${deleteTarget.id}`, {
+        method: "DELETE",
+      })
       if (!res.ok) {
         const err = await res.json().catch(() => ({}))
         throw new Error(err.error || "Erro ao excluir")
@@ -168,7 +201,11 @@ function ListaRequisicoesCortePageContent() {
       toast.success("Requisição excluída com sucesso")
       setDeleteTarget(null)
       setData((prev) => prev.filter((item) => item.id !== deleteTarget.id))
-      setSelected(prev => { const next = new Set(prev); next.delete(deleteTarget.id); return next })
+      setSelected((prev) => {
+        const next = new Set(prev)
+        next.delete(deleteTarget.id)
+        return next
+      })
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Erro ao excluir")
       setDeleteTarget(null)
@@ -249,7 +286,7 @@ function ListaRequisicoesCortePageContent() {
               Paisagem
             </button>
           </div>
-           {filteredData.length > 0 && modo === "tabela" && (
+          {filteredData.length > 0 && modo === "tabela" && (
             <>
               <Button
                 onClick={gerarPdfsSelecionados}
@@ -257,7 +294,11 @@ function ListaRequisicoesCortePageContent() {
                 variant="outline"
                 className="gap-2"
               >
-                {gerandoPdf ? <Loader2 size={16} className="animate-spin" /> : <FileText size={16} />}
+                {gerandoPdf ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <FileText size={16} />
+                )}
                 PDF ({selected.size})
               </Button>
               <Button
@@ -265,7 +306,11 @@ function ListaRequisicoesCortePageContent() {
                 disabled={selected.size === 0 || gerandoPdf}
                 className="gap-2 bg-purple-700 hover:bg-purple-800 text-white"
               >
-                {gerandoPdf ? <Loader2 size={16} className="animate-spin" /> : <FileText size={16} />}
+                {gerandoPdf ? (
+                  <Loader2 size={16} className="animate-spin" />
+                ) : (
+                  <FileText size={16} />
+                )}
                 Consolidado ({selected.size})
               </Button>
             </>
@@ -310,114 +355,149 @@ function ListaRequisicoesCortePageContent() {
         </div>
       ) : (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
-        {filteredData.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <Scissors className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma requisição encontrada</p>
-            <Link href="/comercial/requisicoes-corte/nova" className="text-sm text-blue-600 hover:underline mt-2">
-              Criar primeira requisição
-            </Link>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase w-10">
-                    <input
-                      type="checkbox"
-                      checked=                    {filteredData.length > 0 && selected.size === filteredData.length}
-                      onChange={() => {
-                        if (selected.size === filteredData.length) setSelected(new Set())
-                        else setSelected(new Set(filteredData.map((d) => d.id)))
-                      }}
-                      className="rounded"
-                    />
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">#</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Requisitante</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Cortes</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Qtd Total</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredData.map((item) => {
-                  const statusCfg = STATUS_CONFIG[item.status] ?? { label: item.status, classes: "bg-slate-100 text-slate-600" }
-                  const isSel = selected.has(item.id)
-                  return (
-                    <tr
-                      key={item.id}
-                      className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${isSel ? "bg-blue-50/50 dark:bg-blue-950/20" : ""}`}
-                    >
-                      <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
-                        <input
-                          type="checkbox"
-                          checked={isSel}
-                          onChange={() => toggleSel(item.id)}
-                          className="rounded"
-                        />
-                      </td>
-                      <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">
-                        <Link href={`/comercial/requisicoes-corte/${item.id}`} className="hover:underline">
-                          #{item.id}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.requisitanteNome || "—"}</td>
-                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.totalCortes ?? 0}</td>
-                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{item.quantidadeTotal ?? 0}</td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusCfg.classes}`}>
-                          {statusCfg.label}
-                        </span>
-                      </td>
-                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
-                        {item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : "—"}
-                      </td>
-                      <td className="px-4 py-3" onClick={e => e.stopPropagation()}>
-                        <div className="flex items-center gap-2">
-                          <Button
-                            size="sm"
-                            variant="ghost"
-                            onClick={() => gerarPdfUnico(item.id)}
-                            disabled={gerandoPdf}
-                            className="gap-1 text-xs h-8 px-2"
-                          >
-                            <FileText size={13} />
-                            PDF
-                          </Button>
-                          <button
-                            onClick={() => copiarRequisicao(item)}
-                            className="text-slate-600 dark:text-slate-400 hover:underline text-xs font-medium gap-1 inline-flex items-center"
-                          >
-                            <Copy size={12} />
-                            Copiar
-                          </button>
+          {filteredData.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-20 text-center">
+              <Scissors className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
+              <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                Nenhuma requisição encontrada
+              </p>
+              <Link
+                href="/comercial/requisicoes-corte/nova"
+                className="text-sm text-blue-600 hover:underline mt-2"
+              >
+                Criar primeira requisição
+              </Link>
+            </div>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase w-10">
+                      <input
+                        type="checkbox"
+                        checked={filteredData.length > 0 && selected.size === filteredData.length}
+                        onChange={() => {
+                          if (selected.size === filteredData.length) setSelected(new Set())
+                          else setSelected(new Set(filteredData.map((d) => d.id)))
+                        }}
+                        className="rounded"
+                      />
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                      #
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                      Requisitante
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                      Cortes
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                      Qtd Total
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                      Data
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                      Ações
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                  {filteredData.map((item) => {
+                    const statusCfg = STATUS_CONFIG[item.status] ?? {
+                      label: item.status,
+                      classes: "bg-slate-100 text-slate-600",
+                    }
+                    const isSel = selected.has(item.id)
+                    return (
+                      <tr
+                        key={item.id}
+                        className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors ${isSel ? "bg-blue-50/50 dark:bg-blue-950/20" : ""}`}
+                      >
+                        <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                          <input
+                            type="checkbox"
+                            checked={isSel}
+                            onChange={() => toggleSel(item.id)}
+                            className="rounded"
+                          />
+                        </td>
+                        <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">
                           <Link
                             href={`/comercial/requisicoes-corte/${item.id}`}
-                            className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
+                            className="hover:underline"
                           >
-                            Ver
+                            #{item.id}
                           </Link>
-                          <button
-                            onClick={() => setDeleteTarget(item)}
-                            className="text-red-600 dark:text-red-400 hover:underline text-xs font-medium"
+                        </td>
+                        <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
+                          {item.requisitanteNome || "—"}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
+                          {item.totalCortes ?? 0}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
+                          {item.quantidadeTotal ?? 0}
+                        </td>
+                        <td className="px-4 py-3">
+                          <span
+                            className={`inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium ${statusCfg.classes}`}
                           >
-                            Excluir
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-    )}
+                            {statusCfg.label}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
+                          {item.createdAt
+                            ? new Date(item.createdAt).toLocaleDateString("pt-BR")
+                            : "—"}
+                        </td>
+                        <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                          <div className="flex items-center gap-2">
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              onClick={() => gerarPdfUnico(item.id)}
+                              disabled={gerandoPdf}
+                              className="gap-1 text-xs h-8 px-2"
+                            >
+                              <FileText size={13} />
+                              PDF
+                            </Button>
+                            <button
+                              onClick={() => copiarRequisicao(item)}
+                              className="text-slate-600 dark:text-slate-400 hover:underline text-xs font-medium gap-1 inline-flex items-center"
+                            >
+                              <Copy size={12} />
+                              Copiar
+                            </button>
+                            <Link
+                              href={`/comercial/requisicoes-corte/${item.id}`}
+                              className="text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
+                            >
+                              Ver
+                            </Link>
+                            <button
+                              onClick={() => setDeleteTarget(item)}
+                              className="text-red-600 dark:text-red-400 hover:underline text-xs font-medium"
+                            >
+                              Excluir
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </div>
+      )}
 
       <ConfirmModal
         open={deleteTarget !== null}

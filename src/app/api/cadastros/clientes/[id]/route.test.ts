@@ -61,7 +61,9 @@ describe("DELETE /api/cadastros/clientes/[id]", () => {
   })
 
   it("retorna 404 quando o cliente não existe", async () => {
-    db.transaction = vi.fn((cb: any) => cb({ ...txMock(), delete: vi.fn(() => createQueryBuilder([])) }))
+    db.transaction = vi.fn((cb: any) =>
+      cb({ ...txMock(), delete: vi.fn(() => createQueryBuilder([])) })
+    )
     const res = await del("999")
     expect(res.status).toBe(404)
   })

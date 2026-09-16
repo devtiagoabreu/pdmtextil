@@ -63,11 +63,7 @@ export function RomaneioCard({
               onClick={onToggleExpand}
               className="p-1.5 rounded-md text-slate-400 hover:text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800"
             >
-              {expanded ? (
-                <ChevronUp size={18} />
-              ) : (
-                <ChevronDown size={18} />
-              )}
+              {expanded ? <ChevronUp size={18} /> : <ChevronDown size={18} />}
             </button>
           </div>
         </div>
@@ -100,16 +96,36 @@ export function RomaneioCard({
             <table className="w-full text-sm">
               <thead className="bg-slate-50 dark:bg-slate-800/50">
                 <tr>
-                  <th className="px-3 py-2.5 text-center text-[11px] font-medium text-slate-500 uppercase w-10">#</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Cód. Rolo</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Produto</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Narrativa</th>
-                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">Lote</th>
-                  <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">Metragem</th>
-                  <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">P. Bruto</th>
-                  <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">P. Líquido</th>
-                  <th className="px-4 py-2.5 text-center text-[11px] font-medium text-slate-500 uppercase">Largura</th>
-                  <th className="px-4 py-2.5 text-center text-[11px] font-medium text-slate-500 uppercase">Endereço</th>
+                  <th className="px-3 py-2.5 text-center text-[11px] font-medium text-slate-500 uppercase w-10">
+                    #
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">
+                    Cód. Rolo
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">
+                    Produto
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">
+                    Narrativa
+                  </th>
+                  <th className="px-4 py-2.5 text-left text-[11px] font-medium text-slate-500 uppercase">
+                    Lote
+                  </th>
+                  <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">
+                    Metragem
+                  </th>
+                  <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">
+                    P. Bruto
+                  </th>
+                  <th className="px-4 py-2.5 text-right text-[11px] font-medium text-slate-500 uppercase">
+                    P. Líquido
+                  </th>
+                  <th className="px-4 py-2.5 text-center text-[11px] font-medium text-slate-500 uppercase">
+                    Largura
+                  </th>
+                  <th className="px-4 py-2.5 text-center text-[11px] font-medium text-slate-500 uppercase">
+                    Endereço
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -123,17 +139,24 @@ export function RomaneioCard({
                     if (!lm.has(l)) lm.set(l, [])
                     lm.get(l)!.push(r)
                   }
-                  const prodsSorted = Array.from(prodsMap.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0]))
+                  const prodsSorted = Array.from(prodsMap.entries()).sort((a: any, b: any) =>
+                    a[0].localeCompare(b[0])
+                  )
                   const trs: ReactNode[] = []
                   for (const [prodNome, lotesMap] of prodsSorted) {
-                    const lotsSorted = Array.from(lotesMap.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0]))
+                    const lotsSorted = Array.from(lotesMap.entries()).sort((a: any, b: any) =>
+                      a[0].localeCompare(b[0])
+                    )
                     let prodRolos = 0
                     let prodMetragem = 0
                     let prodPesoBruto = 0
                     let prodPesoLiquido = 0
                     trs.push(
                       <tr key={`prod-${prodNome}`} className="bg-purple-50 dark:bg-purple-950/20">
-                        <td colSpan={10} className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400">
+                        <td
+                          colSpan={10}
+                          className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400"
+                        >
                           PRODUTO: {prodNome}
                         </td>
                       </tr>
@@ -152,45 +175,105 @@ export function RomaneioCard({
                       prodPesoBruto += subPesoBruto
                       prodPesoLiquido += subPesoLiquido
                       trs.push(
-                        <tr key={`lote-${prodNome}-${loteNome}`} className="bg-blue-50 dark:bg-blue-950/30">
-                          <td colSpan={10} className="px-4 py-1.5 text-xs font-bold text-blue-600 dark:text-blue-400">
+                        <tr
+                          key={`lote-${prodNome}-${loteNome}`}
+                          className="bg-blue-50 dark:bg-blue-950/30"
+                        >
+                          <td
+                            colSpan={10}
+                            className="px-4 py-1.5 text-xs font-bold text-blue-600 dark:text-blue-400"
+                          >
                             LOTE {loteNome}
                           </td>
                         </tr>
                       )
                       rolos.forEach((rolo: any, idx: any) => {
                         trs.push(
-                          <tr key={rolo.codigo_rolo} className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors">
-                            <td className="px-3 py-2 text-sm text-slate-500 text-center font-mono text-[12px]">{idx + 1}</td>
-                            <td className="px-4 py-2 text-sm font-medium text-slate-900 dark:text-slate-200 font-mono">{rolo.codigo_rolo}</td>
-                            <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 font-mono text-[12px]">{rolo.produto}</td>
-                            <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 max-w-[200px] truncate" title={rolo.narrativa}>{rolo.narrativa}</td>
-                            <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 font-mono">{rolo.lote_produto}</td>
-                            <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 text-right font-mono">{formatarMetragem(rolo.quantidade)}</td>
-                            <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 text-right font-mono">{formatarPeso(rolo.peso_bruto)}</td>
-                            <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 text-right font-mono">{formatarPeso(rolo.peso_liquido)}</td>
-                            <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 text-center">{rolo.largura ? `${rolo.largura.toFixed(1)}m` : "—"}</td>
-                            <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 text-center font-mono">{rolo.endereco_rolo || "—"}</td>
+                          <tr
+                            key={rolo.codigo_rolo}
+                            className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
+                          >
+                            <td className="px-3 py-2 text-sm text-slate-500 text-center font-mono text-[12px]">
+                              {idx + 1}
+                            </td>
+                            <td className="px-4 py-2 text-sm font-medium text-slate-900 dark:text-slate-200 font-mono">
+                              {rolo.codigo_rolo}
+                            </td>
+                            <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 font-mono text-[12px]">
+                              {rolo.produto}
+                            </td>
+                            <td
+                              className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 max-w-[200px] truncate"
+                              title={rolo.narrativa}
+                            >
+                              {rolo.narrativa}
+                            </td>
+                            <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 font-mono">
+                              {rolo.lote_produto}
+                            </td>
+                            <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 text-right font-mono">
+                              {formatarMetragem(rolo.quantidade)}
+                            </td>
+                            <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 text-right font-mono">
+                              {formatarPeso(rolo.peso_bruto)}
+                            </td>
+                            <td className="px-4 py-2 text-sm text-slate-700 dark:text-slate-300 text-right font-mono">
+                              {formatarPeso(rolo.peso_liquido)}
+                            </td>
+                            <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 text-center">
+                              {rolo.largura ? `${rolo.largura.toFixed(1)}m` : "—"}
+                            </td>
+                            <td className="px-4 py-2 text-sm text-slate-600 dark:text-slate-400 text-center font-mono">
+                              {rolo.endereco_rolo || "—"}
+                            </td>
                           </tr>
                         )
                       })
                       trs.push(
-                        <tr key={`sub-lote-${prodNome}-${loteNome}`} className="bg-slate-50 dark:bg-slate-800/50">
-                          <td colSpan={4} className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 text-right">{rolos.length} rolo(s)</td>
+                        <tr
+                          key={`sub-lote-${prodNome}-${loteNome}`}
+                          className="bg-slate-50 dark:bg-slate-800/50"
+                        >
+                          <td
+                            colSpan={4}
+                            className="px-4 py-2 text-xs font-semibold text-slate-600 dark:text-slate-400 text-right"
+                          >
+                            {rolos.length} rolo(s)
+                          </td>
                           <td></td>
-                          <td className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 text-right font-mono">{formatarMetragem(subMetragem)}</td>
-                          <td className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 text-right font-mono">{formatarPeso(subPesoBruto)}</td>
-                          <td className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 text-right font-mono">{formatarPeso(subPesoLiquido)}</td>
+                          <td className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 text-right font-mono">
+                            {formatarMetragem(subMetragem)}
+                          </td>
+                          <td className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 text-right font-mono">
+                            {formatarPeso(subPesoBruto)}
+                          </td>
+                          <td className="px-4 py-2 text-xs font-semibold text-slate-700 dark:text-slate-300 text-right font-mono">
+                            {formatarPeso(subPesoLiquido)}
+                          </td>
                           <td colSpan={2}></td>
                         </tr>
                       )
                     }
                     trs.push(
-                      <tr key={`sub-prod-${prodNome}`} className="bg-purple-50 dark:bg-purple-950/20">
-                        <td colSpan={5} className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400">SUBTOTAL {prodNome}: {prodRolos} rolo(s)</td>
-                        <td className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400 text-right font-mono">{formatarMetragem(prodMetragem)}</td>
-                        <td className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400 text-right font-mono">{formatarPeso(prodPesoBruto)}</td>
-                        <td className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400 text-right font-mono">{formatarPeso(prodPesoLiquido)}</td>
+                      <tr
+                        key={`sub-prod-${prodNome}`}
+                        className="bg-purple-50 dark:bg-purple-950/20"
+                      >
+                        <td
+                          colSpan={5}
+                          className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400"
+                        >
+                          SUBTOTAL {prodNome}: {prodRolos} rolo(s)
+                        </td>
+                        <td className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400 text-right font-mono">
+                          {formatarMetragem(prodMetragem)}
+                        </td>
+                        <td className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400 text-right font-mono">
+                          {formatarPeso(prodPesoBruto)}
+                        </td>
+                        <td className="px-4 py-2 text-sm font-bold text-purple-700 dark:text-purple-400 text-right font-mono">
+                          {formatarPeso(prodPesoLiquido)}
+                        </td>
                         <td colSpan={2}></td>
                       </tr>
                     )
@@ -203,7 +286,10 @@ export function RomaneioCard({
                   <td className="px-3 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-200 text-center">
                     {grupo.totalRolos}
                   </td>
-                  <td colSpan={3} className="px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-200">
+                  <td
+                    colSpan={3}
+                    className="px-4 py-2.5 text-sm font-bold text-slate-800 dark:text-slate-200"
+                  >
                     Total Geral
                   </td>
                   <td></td>

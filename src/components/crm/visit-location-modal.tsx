@@ -3,9 +3,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { useState } from "react"
 import { MapPin, Navigation, Trash2, ExternalLink, Loader2 } from "lucide-react"
-import {
-  Dialog, DialogContent, DialogHeader, DialogTitle,
-} from "@/components/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 
 type Localizacao = {
   id: number
@@ -27,7 +25,12 @@ interface VisitLocationModalProps {
   onClose: () => void
 }
 
-export default function VisitLocationModal({ visitaId, empresaNome, open, onClose }: VisitLocationModalProps) {
+export default function VisitLocationModal({
+  visitaId,
+  empresaNome,
+  open,
+  onClose,
+}: VisitLocationModalProps) {
   const queryClient = useQueryClient()
   const [observacao, setObservacao] = useState("")
   const [capturing, setCapturing] = useState(false)
@@ -40,7 +43,12 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
   })
 
   const addMutation = useMutation({
-    mutationFn: async (data: { latitude: number; longitude: number; endereco?: string; observacao?: string }) => {
+    mutationFn: async (data: {
+      latitude: number
+      longitude: number
+      endereco?: string
+      observacao?: string
+    }) => {
       const res = await fetch(`/api/crm/visitas/${visitaId}/localizacoes`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -59,9 +67,12 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
 
   const deleteMutation = useMutation({
     mutationFn: async (localizacaoId: number) => {
-      const res = await fetch(`/api/crm/visitas/${visitaId}/localizacoes?localizacaoId=${localizacaoId}`, {
-        method: "DELETE",
-      })
+      const res = await fetch(
+        `/api/crm/visitas/${visitaId}/localizacoes?localizacaoId=${localizacaoId}`,
+        {
+          method: "DELETE",
+        }
+      )
       if (!res.ok) throw new Error("Erro ao excluir")
       return res.json()
     },
@@ -154,7 +165,9 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
                       {loc.latitude.toFixed(6)}, {loc.longitude.toFixed(6)}
                     </p>
                     {loc.endereco && (
-                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{loc.endereco}</p>
+                      <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">
+                        {loc.endereco}
+                      </p>
                     )}
                     {loc.observacao && (
                       <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 italic">
@@ -201,7 +214,10 @@ export default function VisitLocationModal({ visitaId, empresaNome, open, onClos
           )}
 
           {error && (
-            <div role="status" className="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800">
+            <div
+              role="status"
+              className="p-3 rounded-lg bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-800"
+            >
               <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
             </div>
           )}

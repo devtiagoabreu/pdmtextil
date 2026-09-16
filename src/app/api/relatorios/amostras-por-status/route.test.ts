@@ -53,8 +53,14 @@ describe("GET /api/relatorios/amostras-por-status", () => {
 
   it("retorna as estatísticas com o shape esperado", async () => {
     vi.mocked(getServerSession).mockResolvedValue({ user: { id: "1" } } as any)
-    db.execute = vi.fn().mockResolvedValueOnce(stats).mockResolvedValueOnce(porMes).mockResolvedValueOnce(lista)
-    const res = await GET(new NextRequest("http://localhost/api/relatorios/amostras-por-status?status=PENDENTE"))
+    db.execute = vi
+      .fn()
+      .mockResolvedValueOnce(stats)
+      .mockResolvedValueOnce(porMes)
+      .mockResolvedValueOnce(lista)
+    const res = await GET(
+      new NextRequest("http://localhost/api/relatorios/amostras-por-status?status=PENDENTE")
+    )
     expect(res.status).toBe(200)
     const data = await res.json()
     expect(data.stats).toEqual({ total: 4, tecidoCru: 3, acabamento: 1 })

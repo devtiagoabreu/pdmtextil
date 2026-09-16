@@ -2,7 +2,18 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { getSheetById, sheetNoPeriodo } from "@/lib/bi/sheet-loader"
-import { getMetrics, getRevenueByRepresentante, getMonthlyTrend, getGeoDistribution, getAbcCurve, listProdutos, listGrupos, getRepResumo, getClientesResumo, getPrevisao } from "@/lib/bi/sheet-loader"
+import {
+  getMetrics,
+  getRevenueByRepresentante,
+  getMonthlyTrend,
+  getGeoDistribution,
+  getAbcCurve,
+  listProdutos,
+  listGrupos,
+  getRepResumo,
+  getClientesResumo,
+  getPrevisao,
+} from "@/lib/bi/sheet-loader"
 
 export const dynamic = "force-dynamic"
 
@@ -33,7 +44,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ shee
     id: sheet.id,
     title: sheet.title,
     periodo: { de: de || null, ate: ate || null },
-    tabs: sheet.tabs.map(t => ({ name: t.name, header: t.header, rows: t.rows.length })),
+    tabs: sheet.tabs.map((t) => ({ name: t.name, header: t.header, rows: t.rows.length })),
     produtos,
     grupos,
     metrics,

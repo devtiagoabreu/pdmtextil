@@ -27,7 +27,10 @@ function parseTextoEmItens(texto: string): OcrItem[] {
   const itens: OcrItem[] = []
 
   for (const linha of linhas) {
-    const cols = linha.split(/\t+|\s{2,}/).map((c: string) => c.trim()).filter(Boolean)
+    const cols = linha
+      .split(/\t+|\s{2,}/)
+      .map((c: string) => c.trim())
+      .filter(Boolean)
 
     if (cols.length >= 6) {
       itens.push({
@@ -191,7 +194,12 @@ export default function OcrInput({ onItensImportados }: OcrInputProps) {
         Inserir por OCR
       </Button>
 
-      <Dialog open={aberto} onOpenChange={(next) => { if (!next) fechar() }}>
+      <Dialog
+        open={aberto}
+        onOpenChange={(next) => {
+          if (!next) fechar()
+        }}
+      >
         <DialogContent className="max-h-[90vh] max-w-lg overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold text-slate-900 dark:text-slate-50">
@@ -200,130 +208,141 @@ export default function OcrInput({ onItensImportados }: OcrInputProps) {
           </DialogHeader>
 
           <div className="space-y-4">
-              {etapa === "selecao" && (
-                <div className="space-y-3">
-                  <p className="text-sm text-slate-500">
-                    Tire uma foto ou selecione uma imagem com os dados de corte.
-                  </p>
-                  <div className="grid grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => fileInputCameraRef.current?.click()}
-                      className="flex flex-col items-center gap-2 p-6 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-colors"
-                    >
-                      <Camera size={28} className="text-blue-500" />
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Tirar Foto</span>
-                      <span className="text-xs text-slate-400">Câmera do celular</span>
-                    </button>
-                    <button
-                      type="button"
-                      onClick={() => fileInputGaleriaRef.current?.click()}
-                      className="flex flex-col items-center gap-2 p-6 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-colors"
-                    >
-                      <Upload size={28} className="text-blue-500" />
-                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Selecionar</span>
-                      <span className="text-xs text-slate-400">Galeria ou arquivo</span>
-                    </button>
-                  </div>
+            {etapa === "selecao" && (
+              <div className="space-y-3">
+                <p className="text-sm text-slate-500">
+                  Tire uma foto ou selecione uma imagem com os dados de corte.
+                </p>
+                <div className="grid grid-cols-2 gap-3">
+                  <button
+                    type="button"
+                    onClick={() => fileInputCameraRef.current?.click()}
+                    className="flex flex-col items-center gap-2 p-6 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-colors"
+                  >
+                    <Camera size={28} className="text-blue-500" />
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Tirar Foto
+                    </span>
+                    <span className="text-xs text-slate-400">Câmera do celular</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => fileInputGaleriaRef.current?.click()}
+                    className="flex flex-col items-center gap-2 p-6 rounded-xl border-2 border-dashed border-slate-200 dark:border-slate-700 hover:border-blue-400 hover:bg-blue-50 dark:hover:bg-blue-950/20 transition-colors"
+                  >
+                    <Upload size={28} className="text-blue-500" />
+                    <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                      Selecionar
+                    </span>
+                    <span className="text-xs text-slate-400">Galeria ou arquivo</span>
+                  </button>
                 </div>
-              )}
+              </div>
+            )}
 
-              {etapa === "preview" && imagemPreview && (
-                <div className="space-y-3">
-                  <div className="relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
-                    <img
-                      src={imagemPreview}
-                      alt="Preview"
-                      className="w-full max-h-64 object-contain bg-slate-50 dark:bg-slate-800"
-                    />
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      type="button"
-                      variant="outline"
-                      size="sm"
-                      onClick={() => { setEtapa("selecao"); setImagemPreview(null) }}
-                    >
-                      Outra foto
-                    </Button>
-                    <Button
-                      type="button"
-                      size="sm"
-                      onClick={processarOCR}
-                      className="bg-blue-600 hover:bg-blue-700 text-white gap-1"
-                    >
-                      <ImageIcon size={14} />
-                      Extrair texto
-                    </Button>
-                  </div>
+            {etapa === "preview" && imagemPreview && (
+              <div className="space-y-3">
+                <div className="relative rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700">
+                  <img
+                    src={imagemPreview}
+                    alt="Preview"
+                    className="w-full max-h-64 object-contain bg-slate-50 dark:bg-slate-800"
+                  />
                 </div>
-              )}
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      setEtapa("selecao")
+                      setImagemPreview(null)
+                    }}
+                  >
+                    Outra foto
+                  </Button>
+                  <Button
+                    type="button"
+                    size="sm"
+                    onClick={processarOCR}
+                    className="bg-blue-600 hover:bg-blue-700 text-white gap-1"
+                  >
+                    <ImageIcon size={14} />
+                    Extrair texto
+                  </Button>
+                </div>
+              </div>
+            )}
 
-              {etapa === "texto" && (
-                <div className="space-y-3">
-                  {processando && (
-                    <div className="space-y-2">
-                      <div className="flex items-center gap-2 text-sm text-slate-500">
-                        <Loader2 size={16} className="animate-spin" />
-                        Processando imagem... {progresso}%
-                      </div>
-                      <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
-                        <div
-                          role="progressbar"
-                          aria-valuemin={0}
-                          aria-valuemax={100}
-                          aria-valuenow={progresso}
-                          aria-label="Progresso do reconhecimento de texto"
-                          className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                          style={{ width: `${progresso}%` }}
-                        />
-                      </div>
+            {etapa === "texto" && (
+              <div className="space-y-3">
+                {processando && (
+                  <div className="space-y-2">
+                    <div className="flex items-center gap-2 text-sm text-slate-500">
+                      <Loader2 size={16} className="animate-spin" />
+                      Processando imagem... {progresso}%
                     </div>
-                  )}
-
-                  {!processando && (
-                    <>
-                      <div className="flex items-center gap-2">
-                        <Check size={16} className="text-green-500" />
-                        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-                          Texto extraído — revise e ajuste antes de importar
-                        </span>
-                      </div>
-                      <Textarea
-                        value={textoExtraido}
-                        onChange={(e) => setTextoExtraido(e.target.value)}
-                        rows={10}
-                        aria-label="Texto extraído (edite se necessário)"
-                        className="text-xs font-mono"
-                        placeholder="Texto extraído pelo OCR aparecerá aqui..."
+                    <div className="w-full bg-slate-200 dark:bg-slate-700 rounded-full h-2">
+                      <div
+                        role="progressbar"
+                        aria-valuemin={0}
+                        aria-valuemax={100}
+                        aria-valuenow={progresso}
+                        aria-label="Progresso do reconhecimento de texto"
+                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
+                        style={{ width: `${progresso}%` }}
                       />
-                      <p className="text-xs text-slate-400">
-                        Dica: os dados são separados por colunas (tab ou espaços). Cada linha vira um item.
-                      </p>
-                      <div className="flex gap-2 justify-end">
-                        <Button
-                          type="button"
-                          variant="outline"
-                          size="sm"
-                          onClick={() => { setEtapa("preview"); setTextoExtraido("") }}
-                        >
-                          Processar novamente
-                        </Button>
-                        <Button
-                          type="button"
-                          size="sm"
-                          onClick={importarItens}
-                          className="bg-blue-600 hover:bg-blue-700 text-white gap-1"
-                        >
-                          <Check size={14} />
-                          Importar Itens
-                        </Button>
-                      </div>
-                    </>
-                  )}
-                </div>
-              )}
-            </div>
+                    </div>
+                  </div>
+                )}
+
+                {!processando && (
+                  <>
+                    <div className="flex items-center gap-2">
+                      <Check size={16} className="text-green-500" />
+                      <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                        Texto extraído — revise e ajuste antes de importar
+                      </span>
+                    </div>
+                    <Textarea
+                      value={textoExtraido}
+                      onChange={(e) => setTextoExtraido(e.target.value)}
+                      rows={10}
+                      aria-label="Texto extraído (edite se necessário)"
+                      className="text-xs font-mono"
+                      placeholder="Texto extraído pelo OCR aparecerá aqui..."
+                    />
+                    <p className="text-xs text-slate-400">
+                      Dica: os dados são separados por colunas (tab ou espaços). Cada linha vira um
+                      item.
+                    </p>
+                    <div className="flex gap-2 justify-end">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setEtapa("preview")
+                          setTextoExtraido("")
+                        }}
+                      >
+                        Processar novamente
+                      </Button>
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={importarItens}
+                        className="bg-blue-600 hover:bg-blue-700 text-white gap-1"
+                      >
+                        <Check size={14} />
+                        Importar Itens
+                      </Button>
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
     </>

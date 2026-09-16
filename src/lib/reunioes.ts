@@ -49,7 +49,11 @@ export function podeExcluirReuniao(role?: string | null): boolean {
 }
 
 export type ReuniaoPautaInput = { descricao: string }
-export type ReuniaoParticipanteInput = { nome: string; empresa?: string | null; papel?: string | null }
+export type ReuniaoParticipanteInput = {
+  nome: string
+  empresa?: string | null
+  papel?: string | null
+}
 export type ReuniaoEncaminhamentoInput = {
   descricao: string
   responsavel?: string | null
@@ -82,7 +86,12 @@ export type ReuniaoFormData = {
   ata: string | null
   pautas: { descricao: string }[]
   participantes: { nome: string; empresa: string | null; papel: string | null }[]
-  encaminhamentos: { descricao: string; responsavel: string | null; prazo: Date | null; status: string }[]
+  encaminhamentos: {
+    descricao: string
+    responsavel: string | null
+    prazo: Date | null
+    status: string
+  }[]
   links: { rotulo: string; url: string; descricao: string | null }[]
 }
 
@@ -198,21 +207,26 @@ export function validarReuniao(input: Record<string, unknown>): ValidarReuniaoRe
     }))
     .filter((item) => item.nome !== "")
 
-  const encaminhamentos: { descricao: string; responsavel?: unknown; prazo?: unknown; status?: unknown }[] =
-    pickArray(input.encaminhamentos)
-      .map((item) => (item && typeof item === "object" ? (item as Record<string, unknown>) : {}))
-      .map((item) => ({
-        descricao: textoObrigatorioSimples(item.descricao),
-        responsavel: item.responsavel,
-        prazo: item.prazo,
-        status: item.status,
-      }))
-      .filter((item) => item.descricao !== "")
+  const encaminhamentos: {
+    descricao: string
+    responsavel?: unknown
+    prazo?: unknown
+    status?: unknown
+  }[] = pickArray(input.encaminhamentos)
+    .map((item) => (item && typeof item === "object" ? (item as Record<string, unknown>) : {}))
+    .map((item) => ({
+      descricao: textoObrigatorioSimples(item.descricao),
+      responsavel: item.responsavel,
+      prazo: item.prazo,
+      status: item.status,
+    }))
+    .filter((item) => item.descricao !== "")
 
   const encaminhamentosValidados: ReuniaoFormData["encaminhamentos"] = []
   for (const item of encaminhamentos) {
     const statusEnc = textoObrigatorioSimples(item.status) || "PENDENTE"
-    if (!isEnumerado(statusEnc, STATUS_ENCAMINHAMENTO_VALUES)) return { error: "Status de encaminhamento inválido." }
+    if (!isEnumerado(statusEnc, STATUS_ENCAMINHAMENTO_VALUES))
+      return { error: "Status de encaminhamento inválido." }
     const prazo = dataDeEntrada(item.prazo)
     if (item.prazo !== null && item.prazo !== undefined && item.prazo !== "" && !prazo) {
       return { error: "Prazo de encaminhamento inválido." }

@@ -5,7 +5,17 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, useParams, usePathname } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Plane, Loader2, MapPin, Calendar, Users, Wallet, Target, TrendingUp } from "lucide-react"
+import {
+  ArrowLeft,
+  Plane,
+  Loader2,
+  MapPin,
+  Calendar,
+  Users,
+  Wallet,
+  Target,
+  TrendingUp,
+} from "lucide-react"
 import { toast } from "sonner"
 import { ViagemForm, VIAGEM_STATUS_OPTIONS } from "@/components/crm/viagem-form"
 import { linhaParaForm, type InvestimentoLinha } from "@/lib/crm/viagem"
@@ -31,7 +41,7 @@ export default function ViagemDetailPage() {
   const [saving, setSaving] = useState(false)
 
   function setField(field: string, value: string) {
-    setForm(prev => ({ ...prev, [field]: value }))
+    setForm((prev) => ({ ...prev, [field]: value }))
   }
 
   useEffect(() => {
@@ -103,7 +113,12 @@ export default function ViagemDetailPage() {
     return (
       <div className="text-center py-20">
         <p className="text-slate-500">Viagem não encontrada</p>
-        <Link href="/comercial/crm/viagens" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
+        <Link
+          href="/comercial/crm/viagens"
+          className="text-blue-600 hover:underline mt-2 inline-block"
+        >
+          Voltar
+        </Link>
       </div>
     )
   }
@@ -112,35 +127,46 @@ export default function ViagemDetailPage() {
     (acc: number, i: Investimento) => acc + (Number(i.valor) || 0),
     0
   )
-  const statusLabel = VIAGEM_STATUS_OPTIONS.find(s => s.value === viagem.status)?.label || viagem.status
-  const statusColor = STATUS_CORES[viagem.status] || "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+  const statusLabel =
+    VIAGEM_STATUS_OPTIONS.find((s) => s.value === viagem.status)?.label || viagem.status
+  const statusColor =
+    STATUS_CORES[viagem.status] ||
+    "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
 
   return (
     <div className="max-w-3xl animate-fade-in">
       <div className="flex items-center gap-3 mb-6">
-        <button onClick={() => router.back()} className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <button
+          onClick={() => router.back()}
+          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={18} className="text-slate-500" />
         </button>
         <div className="flex-1">
           <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50 flex items-center gap-2">
             <Plane size={20} className="text-blue-600" />
-            {viagem.titulo}{info && <InfoButton content={info} />}
+            {viagem.titulo}
+            {info && <InfoButton content={info} />}
           </h1>
           <div className="flex items-center gap-3 text-sm text-slate-500 dark:text-slate-400 mt-1">
             {viagem.destinoCidade && (
               <span className="flex items-center gap-1">
                 <MapPin size={13} />
-                {viagem.destinoCidade}{viagem.destinoUf ? ` - ${viagem.destinoUf}` : ""}
+                {viagem.destinoCidade}
+                {viagem.destinoUf ? ` - ${viagem.destinoUf}` : ""}
               </span>
             )}
             {viagem.dataInicio && (
               <span className="flex items-center gap-1">
                 <Calendar size={13} />
                 {new Date(viagem.dataInicio + "T12:00:00").toLocaleDateString("pt-BR")}
-                {viagem.dataFim && ` a ${new Date(viagem.dataFim + "T12:00:00").toLocaleDateString("pt-BR")}`}
+                {viagem.dataFim &&
+                  ` a ${new Date(viagem.dataFim + "T12:00:00").toLocaleDateString("pt-BR")}`}
               </span>
             )}
-            <span className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${statusColor}`}>
+            <span
+              className={`inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium ${statusColor}`}
+            >
               {statusLabel}
             </span>
           </div>
@@ -181,7 +207,10 @@ export default function ViagemDetailPage() {
             Possível Retorno
           </div>
           <p className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            {(Number(viagem.possivelRetorno) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+            {(Number(viagem.possivelRetorno) || 0).toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
           </p>
         </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
@@ -190,7 +219,10 @@ export default function ViagemDetailPage() {
             Vendas
           </div>
           <p className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-            {(Number(viagem.vendas) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+            {(Number(viagem.vendas) || 0).toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
           </p>
         </div>
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
@@ -199,15 +231,22 @@ export default function ViagemDetailPage() {
             Retorno Real
           </div>
           <p className="text-2xl font-bold text-emerald-600 dark:text-emerald-400">
-            {(Number(viagem.retornoReal) || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+            {(Number(viagem.retornoReal) || 0).toLocaleString("pt-BR", {
+              style: "currency",
+              currency: "BRL",
+            })}
           </p>
         </div>
       </div>
 
       {viagem.descricao && !editing && (
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 mb-4">
-          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">Descrição</h2>
-          <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">{viagem.descricao}</p>
+          <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-2">
+            Descrição
+          </h2>
+          <p className="text-sm text-slate-700 dark:text-slate-300 whitespace-pre-wrap">
+            {viagem.descricao}
+          </p>
         </div>
       )}
 
@@ -240,18 +279,28 @@ export default function ViagemDetailPage() {
         <>
           {viagem.investimentos.length > 0 && (
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 mb-4">
-              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-3">Investimentos</h2>
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-3">
+                Investimentos
+              </h2>
               <div className="space-y-2">
                 {viagem.investimentos.map((inv) => (
-                  <div key={inv.id} className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-700 px-4 py-2.5 text-sm">
+                  <div
+                    key={inv.id}
+                    className="flex items-center justify-between rounded-lg border border-slate-200 dark:border-slate-700 px-4 py-2.5 text-sm"
+                  >
                     <div>
                       <p className="font-medium text-slate-900 dark:text-slate-100">{inv.tipo}</p>
                       {inv.observacao && (
-                        <p className="text-xs text-slate-500 dark:text-slate-400">{inv.observacao}</p>
+                        <p className="text-xs text-slate-500 dark:text-slate-400">
+                          {inv.observacao}
+                        </p>
                       )}
                     </div>
                     <p className="font-semibold text-slate-900 dark:text-slate-100">
-                      {Number(inv.valor || 0).toLocaleString("pt-BR", { style: "currency", currency: "BRL" })}
+                      {Number(inv.valor || 0).toLocaleString("pt-BR", {
+                        style: "currency",
+                        currency: "BRL",
+                      })}
                     </p>
                   </div>
                 ))}
@@ -260,10 +309,13 @@ export default function ViagemDetailPage() {
           )}
 
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5 mb-4">
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-3">Visitas Vinculadas</h2>
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-3">
+              Visitas Vinculadas
+            </h2>
             {viagem.visitas.length === 0 ? (
               <p className="text-sm text-slate-500 dark:text-slate-400 py-2">
-                Nenhuma visita vinculada. Vincule visitas a esta viagem pelo campo &quot;Viagem&quot; ao criar/editar uma visita.
+                Nenhuma visita vinculada. Vincule visitas a esta viagem pelo campo
+                &quot;Viagem&quot; ao criar/editar uma visita.
               </p>
             ) : (
               <div className="space-y-2">
@@ -277,7 +329,9 @@ export default function ViagemDetailPage() {
                       {v.empresaNome || v.clienteNome || v.nomeAvulso || `Visita #${v.id}`}
                     </span>
                     <span className="text-xs text-slate-500">
-                      {v.dataVisita ? new Date(v.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : ""}
+                      {v.dataVisita
+                        ? new Date(v.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")
+                        : ""}
                       {v.hora ? ` às ${v.hora}` : ""}
                     </span>
                   </Link>

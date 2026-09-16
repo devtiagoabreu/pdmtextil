@@ -40,7 +40,8 @@ describe("DetalheSolicitacaoPage", () => {
 
   it("renderiza o detalhe com dados e ações", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
-      if (method === "GET" && url === "/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO") return { json: [] }
+      if (method === "GET" && url === "/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO")
+        return { json: [] }
       if (method === "GET" && url === "/api/solicitacoes/5/produtos-cru") return { json: [] }
       if (method === "GET" && url === "/api/cadastros/produto-cru") return { json: [] }
       if (method === "GET" && url.startsWith("/api/solicitacoes/5?t=")) return { json: sol }
@@ -52,7 +53,10 @@ describe("DetalheSolicitacaoPage", () => {
 
     await screen.findByRole("heading", { name: /#5 - Cliente Detalhe/ })
     expect(screen.getAllByText("Coleção Verão").length).toBeGreaterThan(0)
-    expect(screen.getByRole("link", { name: /Editar/ })).toHaveAttribute("href", "/comercial/solicitacoes/5/editar")
+    expect(screen.getByRole("link", { name: /Editar/ })).toHaveAttribute(
+      "href",
+      "/comercial/solicitacoes/5/editar"
+    )
     expect(screen.getByRole("button", { name: "Atualizar" })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Excluir" })).toBeInTheDocument()
   })
@@ -60,9 +64,11 @@ describe("DetalheSolicitacaoPage", () => {
   it("vincula produtos à solicitação", async () => {
     let vinculados: ProdutoCru[] = []
     const fetchMock = createFetchMock(({ method, url, body }) => {
-      if (method === "GET" && url === "/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO") return { json: [] }
+      if (method === "GET" && url === "/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO")
+        return { json: [] }
       if (method === "GET" && url === "/api/cadastros/produto-cru") return { json: catalogos }
-      if (method === "GET" && url === "/api/solicitacoes/5/produtos-cru") return { json: vinculados }
+      if (method === "GET" && url === "/api/solicitacoes/5/produtos-cru")
+        return { json: vinculados }
       if (method === "POST" && url === "/api/solicitacoes/5/produtos-cru") {
         vinculados = catalogos.filter((c) => body.produtos.includes(c.id))
         return { json: { success: true } }
@@ -92,9 +98,11 @@ describe("DetalheSolicitacaoPage", () => {
   it("desvincula um produto da solicitação", async () => {
     let vinculados: ProdutoCru[] = [catalogos[0]]
     const fetchMock = createFetchMock(({ method, url }) => {
-      if (method === "GET" && url === "/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO") return { json: [] }
+      if (method === "GET" && url === "/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO")
+        return { json: [] }
       if (method === "GET" && url === "/api/cadastros/produto-cru") return { json: catalogos }
-      if (method === "GET" && url === "/api/solicitacoes/5/produtos-cru") return { json: vinculados }
+      if (method === "GET" && url === "/api/solicitacoes/5/produtos-cru")
+        return { json: vinculados }
       if (method === "DELETE" && url === "/api/solicitacoes/5/produtos-cru") {
         vinculados = []
         return { json: { success: true } }
@@ -116,6 +124,8 @@ describe("DetalheSolicitacaoPage", () => {
       expect(findCall(fetchMock.calls, "/api/solicitacoes/5/produtos-cru", "DELETE")).toBeTruthy()
     })
     expect(toastMock.success).toHaveBeenCalledWith("Produto desvinculado da solicitação")
-    expect(await screen.findByText("Nenhum produto cadastrado para esta solicitação.")).toBeInTheDocument()
+    expect(
+      await screen.findByText("Nenhum produto cadastrado para esta solicitação.")
+    ).toBeInTheDocument()
   })
 })

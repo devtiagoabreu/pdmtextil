@@ -10,12 +10,23 @@ vi.mock("@/lib/ai", async (importOriginal) => {
 })
 
 import { chamarIA } from "@/lib/ai"
-import { analisarEscalacao, analisarLinhas, parecePedidoEscalacao, temIndicioDeLinhas } from "./intencao"
+import {
+  analisarEscalacao,
+  analisarLinhas,
+  parecePedidoEscalacao,
+  temIndicioDeLinhas,
+} from "./intencao"
 
 const chamarIA_mock = chamarIA as unknown as ReturnType<typeof vi.fn>
 
 function respostaIA(conteudo: string) {
-  return { conteudo, provedor: "groq", modelo: "qwen/qwen3.8-27b", nomeChave: "DB key 1", tentativas: 1 }
+  return {
+    conteudo,
+    provedor: "groq",
+    modelo: "qwen/qwen3.8-27b",
+    nomeChave: "DB key 1",
+    tentativas: 1,
+  }
 }
 
 beforeEach(() => {

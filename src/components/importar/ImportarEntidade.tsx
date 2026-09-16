@@ -14,7 +14,11 @@ export interface ImportarEntidadeConfig {
   showModelDownloads?: boolean
   colunasHint?: string
   mensagemSucesso?: (importados: number) => string
-  normalizeResponse?: (data: any) => { total: number; importados: number; erros: { linha: number; erro: string }[] }
+  normalizeResponse?: (data: any) => {
+    total: number
+    importados: number
+    erros: { linha: number; erro: string }[]
+  }
 }
 
 interface ImportarEntidadeProps {
@@ -30,16 +34,35 @@ interface ImportarEntidadeProps {
   }
 }
 
-export function ImportarEntidade({ config, onImportado, buttonVariant = "default", titleSuffix, apiImportConfig }: ImportarEntidadeProps) {
+export function ImportarEntidade({
+  config,
+  onImportado,
+  buttonVariant = "default",
+  titleSuffix,
+  apiImportConfig,
+}: ImportarEntidadeProps) {
   const [modalAberto, setModalAberto] = useState(false)
   const [importando, setImportando] = useState(false)
-  const [resultado, setResultado] = useState<{ total: number; importados: number; erros: { linha: number; erro: string }[] } | null>(null)
+  const [resultado, setResultado] = useState<{
+    total: number
+    importados: number
+    erros: { linha: number; erro: string }[]
+  } | null>(null)
   const [arquivoSelecionado, setArquivoSelecionado] = useState<File | null>(null)
   const [modo, setModo] = useState<"arquivo" | "api">("arquivo")
   const [showApiImport, setShowApiImport] = useState(false)
   const fileInputRef = useRef<HTMLInputElement>(null)
 
-  const { titulo, apiBase, arquivoPrefixo, formDataKey = "arquivo", showModelDownloads = true, colunasHint, normalizeResponse, mensagemSucesso } = config
+  const {
+    titulo,
+    apiBase,
+    arquivoPrefixo,
+    formDataKey = "arquivo",
+    showModelDownloads = true,
+    colunasHint,
+    normalizeResponse,
+    mensagemSucesso,
+  } = config
 
   const baixarModeloCSV = async () => {
     try {
@@ -149,16 +172,27 @@ export function ImportarEntidade({ config, onImportado, buttonVariant = "default
         </button>
       )}
 
-      <DialogPrimitive.Root open={modalAberto} onOpenChange={(next) => { if (!next) setModalAberto(false) }}>
+      <DialogPrimitive.Root
+        open={modalAberto}
+        onOpenChange={(next) => {
+          if (!next) setModalAberto(false)
+        }}
+      >
         <DialogPrimitive.Portal>
-        <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/50" />
-        <DialogPrimitive.Popup className="fixed top-1/2 left-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 max-h-[90vh] overflow-y-auto rounded-xl bg-white dark:bg-slate-900 shadow-xl border border-slate-200 dark:border-slate-800 outline-none">
-          <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 p-4">
-            <DialogPrimitive.Title className="text-lg font-semibold">Importar {titulo}{titleSuffix ? ` — ${titleSuffix}` : ""}</DialogPrimitive.Title>
-            <DialogPrimitive.Close aria-label="Fechar" className="rounded-md p-1 hover:bg-slate-100 dark:hover:bg-slate-800">
-              <X size={20} />
-            </DialogPrimitive.Close>
-          </div>
+          <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/50" />
+          <DialogPrimitive.Popup className="fixed top-1/2 left-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 max-h-[90vh] overflow-y-auto rounded-xl bg-white dark:bg-slate-900 shadow-xl border border-slate-200 dark:border-slate-800 outline-none">
+            <div className="flex items-center justify-between border-b border-slate-200 dark:border-slate-700 p-4">
+              <DialogPrimitive.Title className="text-lg font-semibold">
+                Importar {titulo}
+                {titleSuffix ? ` — ${titleSuffix}` : ""}
+              </DialogPrimitive.Title>
+              <DialogPrimitive.Close
+                aria-label="Fechar"
+                className="rounded-md p-1 hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
+                <X size={20} />
+              </DialogPrimitive.Close>
+            </div>
 
             <div className="p-4">
               {apiImportConfig && (
@@ -192,12 +226,16 @@ export function ImportarEntidade({ config, onImportado, buttonVariant = "default
                     <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-4">
                       <h3 className="font-medium mb-2">Baixar modelos de arquivo:</h3>
                       <div className="flex gap-2">
-                        <button onClick={baixarModeloCSV}
-                          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700">
+                        <button
+                          onClick={baixarModeloCSV}
+                          className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
+                        >
                           <FileSpreadsheet size={16} /> CSV
                         </button>
-                        <button onClick={baixarModeloJSON}
-                          className="flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm text-white hover:bg-purple-700">
+                        <button
+                          onClick={baixarModeloJSON}
+                          className="flex items-center gap-2 rounded-lg bg-purple-600 px-4 py-2 text-sm text-white hover:bg-purple-700"
+                        >
                           <FileJson size={16} /> JSON
                         </button>
                       </div>
@@ -208,14 +246,22 @@ export function ImportarEntidade({ config, onImportado, buttonVariant = "default
                   ) : colunasHint ? (
                     <div className="rounded-lg border border-slate-200 dark:border-slate-700 bg-slate-50 dark:bg-slate-800 p-4">
                       <h3 className="font-medium mb-1">Formato do arquivo</h3>
-                      <p className="text-sm text-slate-500">CSV (separado por vírgula ou ponto e vírgula) ou JSON.</p>
+                      <p className="text-sm text-slate-500">
+                        CSV (separado por vírgula ou ponto e vírgula) ou JSON.
+                      </p>
                       <p className="text-xs text-slate-400 mt-1">{colunasHint}</p>
                     </div>
                   ) : null}
 
                   <div className="relative flex flex-col gap-2">
                     <label className="text-sm font-medium">Selecionar arquivo (CSV ou JSON)</label>
-                    <input ref={fileInputRef} type="file" accept=".csv,.json" onChange={handleFileChange} className="absolute w-0 h-0 overflow-hidden opacity-0" />
+                    <input
+                      ref={fileInputRef}
+                      type="file"
+                      accept=".csv,.json"
+                      onChange={handleFileChange}
+                      className="absolute w-0 h-0 overflow-hidden opacity-0"
+                    />
                     <button
                       onClick={() => fileInputRef.current?.click()}
                       className="w-full rounded-lg border-2 border-dashed border-slate-300 dark:border-slate-600 p-6 text-center hover:border-blue-500 hover:bg-slate-50 dark:hover:bg-slate-800"
@@ -224,7 +270,9 @@ export function ImportarEntidade({ config, onImportado, buttonVariant = "default
                         <div>
                           <FileSpreadsheet className="mx-auto mb-2 text-green-600" size={32} />
                           <p className="text-sm font-medium">{arquivoSelecionado.name}</p>
-                          <p className="text-xs text-slate-500">{(arquivoSelecionado.size / 1024).toFixed(1)} KB</p>
+                          <p className="text-xs text-slate-500">
+                            {(arquivoSelecionado.size / 1024).toFixed(1)} KB
+                          </p>
                         </div>
                       ) : (
                         <div>
@@ -240,18 +288,25 @@ export function ImportarEntidade({ config, onImportado, buttonVariant = "default
                     <div className="rounded-lg bg-slate-100 dark:bg-slate-800 p-4">
                       <h3 className="font-medium mb-2">Resultado da importação:</h3>
                       <p className="text-sm">
-                        <span className="text-green-600 font-semibold">{resultado.importados}</span> importados
+                        <span className="text-green-600 font-semibold">{resultado.importados}</span>{" "}
+                        importados
                         {resultado.total - resultado.importados > 0 && (
-                          <span className="text-red-500 ml-2">{resultado.total - resultado.importados} erros</span>
+                          <span className="text-red-500 ml-2">
+                            {resultado.total - resultado.importados} erros
+                          </span>
                         )}
                       </p>
                       {resultado.erros.length > 0 && (
                         <div className="mt-2 max-h-32 overflow-y-auto text-xs">
                           {resultado.erros.slice(0, 10).map((erro: any) => (
-                            <p key={erro.linha} className="text-red-500">Linha {erro.linha}: {erro.erro}</p>
+                            <p key={erro.linha} className="text-red-500">
+                              Linha {erro.linha}: {erro.erro}
+                            </p>
                           ))}
                           {resultado.erros.length > 10 && (
-                            <p className="text-slate-500 mt-1">... e mais {resultado.erros.length - 10} erros</p>
+                            <p className="text-slate-500 mt-1">
+                              ... e mais {resultado.erros.length - 10} erros
+                            </p>
                           )}
                         </div>
                       )}
@@ -259,12 +314,17 @@ export function ImportarEntidade({ config, onImportado, buttonVariant = "default
                   )}
 
                   <div className="flex justify-end gap-2 pt-2">
-                    <button onClick={() => setModalAberto(false)}
-                      className="rounded-lg px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800">
+                    <button
+                      onClick={() => setModalAberto(false)}
+                      className="rounded-lg px-4 py-2 text-sm text-slate-600 hover:bg-slate-100 dark:hover:bg-slate-800"
+                    >
                       Fechar
                     </button>
-                    <button onClick={handleImportar} disabled={!arquivoSelecionado || importando}
-                      className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50">
+                    <button
+                      onClick={handleImportar}
+                      disabled={!arquivoSelecionado || importando}
+                      className="flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-medium text-white hover:bg-blue-700 disabled:opacity-50"
+                    >
                       {importando && <Loader2 size={16} className="animate-spin" />}
                       {importando ? "Importando..." : "Importar"}
                     </button>
@@ -278,7 +338,10 @@ export function ImportarEntidade({ config, onImportado, buttonVariant = "default
                     Importar via integração com API externa.
                   </p>
                   <button
-                    onClick={() => { setShowApiImport(true); setModalAberto(false) }}
+                    onClick={() => {
+                      setShowApiImport(true)
+                      setModalAberto(false)
+                    }}
                     className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm text-white hover:bg-blue-700"
                   >
                     <Database size={16} /> Abrir Importação via API
@@ -286,7 +349,7 @@ export function ImportarEntidade({ config, onImportado, buttonVariant = "default
                 </div>
               )}
             </div>
-        </DialogPrimitive.Popup>
+          </DialogPrimitive.Popup>
         </DialogPrimitive.Portal>
       </DialogPrimitive.Root>
 
@@ -295,7 +358,10 @@ export function ImportarEntidade({ config, onImportado, buttonVariant = "default
           tela={apiImportConfig.tela}
           existingRecords={[]}
           existingKey={apiImportConfig.existingKey}
-          onImportado={() => { setShowApiImport(false); onImportado?.() }}
+          onImportado={() => {
+            setShowApiImport(false)
+            onImportado?.()
+          }}
           onClose={() => setShowApiImport(false)}
           extraImportParams={apiImportConfig.extraImportParams}
           buscarExistentes={apiImportConfig.buscarExistentes}

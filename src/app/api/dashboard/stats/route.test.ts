@@ -45,7 +45,8 @@ describe("GET /api/dashboard/stats", () => {
 
   it("retorna as estatísticas com o shape esperado", async () => {
     vi.mocked(getServerSession).mockResolvedValue({ user: { id: "1" } } as any)
-    db.execute = vi.fn()
+    db.execute = vi
+      .fn()
       .mockResolvedValueOnce(mensal)
       .mockResolvedValueOnce(agrupado)
       .mockResolvedValueOnce(geralMes)

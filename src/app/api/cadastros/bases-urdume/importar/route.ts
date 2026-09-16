@@ -61,7 +61,7 @@ function parseCSV(texto: string): BaseImport[] {
       const valor = valores[j]
 
       if (campoNormalizado && valor !== undefined && valor.length > 0) {
-        (item as any)[campoNormalizado] = valor
+        ;(item as any)[campoNormalizado] = valor
       }
     }
 
@@ -109,11 +109,17 @@ export async function POST(req: NextRequest) {
     } else if (nomeArquivo.endsWith(".json")) {
       registros = parseJSON(texto)
     } else {
-      return NextResponse.json({ error: "Formato não suportado. Use CSV ou JSON." }, { status: 400 })
+      return NextResponse.json(
+        { error: "Formato não suportado. Use CSV ou JSON." },
+        { status: 400 }
+      )
     }
 
     if (registros.length === 0) {
-      return NextResponse.json({ error: "Nenhum registro válido encontrado no arquivo" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Nenhum registro válido encontrado no arquivo" },
+        { status: 400 }
+      )
     }
 
     const resultados = {
@@ -152,7 +158,10 @@ export async function POST(req: NextRequest) {
         .limit(1)
 
       if (existenteCodigoCompleto[0]) {
-        resultados.erros.push({ linha: i + 2, erro: `Código completo ${codigoCompletoGerado} já existe` })
+        resultados.erros.push({
+          linha: i + 2,
+          erro: `Código completo ${codigoCompletoGerado} já existe`,
+        })
         continue
       }
 
@@ -164,7 +173,10 @@ export async function POST(req: NextRequest) {
           .limit(1)
 
         if (existenteIdInt[0]) {
-          resultados.erros.push({ linha: i + 2, erro: `ID Integração ${reg.idIntegracao} já existe` })
+          resultados.erros.push({
+            linha: i + 2,
+            erro: `ID Integração ${reg.idIntegracao} já existe`,
+          })
           continue
         }
       }
@@ -193,9 +205,10 @@ export async function POST(req: NextRequest) {
         resultados.importados = paraInserir.length
       } catch (err: any) {
         console.error("Erro na inserção em lote:", err)
-        const mensagemErro = err.code === '23505'
-          ? "Registro duplicado na importação"
-          : (err.message || "Erro ao inserir registros")
+        const mensagemErro =
+          err.code === "23505"
+            ? "Registro duplicado na importação"
+            : err.message || "Erro ao inserir registros"
         resultados.erros.push({ linha: 0, erro: mensagemErro })
       }
     }

@@ -131,7 +131,9 @@ export default function ProcessoAtividadeFormPage() {
 
       if (res.ok) {
         toast.success(isEditing ? "Atividade atualizada!" : "Atividade criada!")
-        router.push(processoIdParam ? `/processos/processos/${processoIdParam}` : "/processos/atividades")
+        router.push(
+          processoIdParam ? `/processos/processos/${processoIdParam}` : "/processos/atividades"
+        )
       } else {
         const err = await res.json()
         throw new Error(err.error || "Erro ao salvar")
@@ -145,7 +147,7 @@ export default function ProcessoAtividadeFormPage() {
   }
 
   const handleChange = (field: keyof Atividade, value: string | boolean) => {
-    setAtividade(prev => ({ ...prev, [field]: value }))
+    setAtividade((prev) => ({ ...prev, [field]: value }))
   }
 
   if (loading) {
@@ -159,7 +161,11 @@ export default function ProcessoAtividadeFormPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link href={processoIdParam ? `/processos/processos/${processoIdParam}` : "/processos/atividades"}>
+        <Link
+          href={
+            processoIdParam ? `/processos/processos/${processoIdParam}` : "/processos/atividades"
+          }
+        >
           <Button variant="ghost" size="icon">
             <ArrowLeft size={20} />
           </Button>
@@ -174,16 +180,23 @@ export default function ProcessoAtividadeFormPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="space-y-2">
-          <CampoInfo titulo="Subprocesso" sobre={atividadeCampos.subprocessoId} htmlFor="subprocessoId" obrigatorio />
+          <CampoInfo
+            titulo="Subprocesso"
+            sobre={atividadeCampos.subprocessoId}
+            htmlFor="subprocessoId"
+            obrigatorio
+          />
           <select
             id="subprocessoId"
             value={atividade.subprocessoId}
-            onChange={e => handleChange("subprocessoId", e.target.value)}
+            onChange={(e) => handleChange("subprocessoId", e.target.value)}
             className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
           >
             <option value="">Selecione o subprocesso</option>
             {subprocessos.map((sub) => (
-              <option key={sub.id} value={sub.id}>{sub.nome}</option>
+              <option key={sub.id} value={sub.id}>
+                {sub.nome}
+              </option>
             ))}
           </select>
         </div>
@@ -194,7 +207,7 @@ export default function ProcessoAtividadeFormPage() {
             <Input
               id="nome"
               value={atividade.nome}
-              onChange={e => handleChange("nome", e.target.value)}
+              onChange={(e) => handleChange("nome", e.target.value)}
               placeholder="Encarar materiais"
               required
             />
@@ -204,11 +217,13 @@ export default function ProcessoAtividadeFormPage() {
             <select
               id="tipo"
               value={atividade.tipo}
-              onChange={e => handleChange("tipo", e.target.value)}
+              onChange={(e) => handleChange("tipo", e.target.value)}
               className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
             >
               {Object.entries(ATIVIDADE_TIPO_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+                <option key={value} value={value}>
+                  {label}
+                </option>
               ))}
             </select>
           </div>
@@ -216,11 +231,15 @@ export default function ProcessoAtividadeFormPage() {
 
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
-            <CampoInfo titulo="Responsável" sobre={atividadeCampos.responsavel} htmlFor="responsavel" />
+            <CampoInfo
+              titulo="Responsável"
+              sobre={atividadeCampos.responsavel}
+              htmlFor="responsavel"
+            />
             <Input
               id="responsavel"
               value={atividade.responsavel || ""}
-              onChange={e => handleChange("responsavel", e.target.value)}
+              onChange={(e) => handleChange("responsavel", e.target.value)}
               placeholder="Nome do responsável"
             />
           </div>
@@ -231,18 +250,22 @@ export default function ProcessoAtividadeFormPage() {
               type="number"
               min={0}
               value={atividade.ordem}
-              onChange={e => handleChange("ordem", e.target.value)}
+              onChange={(e) => handleChange("ordem", e.target.value)}
               placeholder="1"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <CampoInfo titulo="Observações" sobre={atividadeCampos.observacoes} htmlFor="observacoes" />
+          <CampoInfo
+            titulo="Observações"
+            sobre={atividadeCampos.observacoes}
+            htmlFor="observacoes"
+          />
           <Textarea
             id="observacoes"
             value={atividade.observacoes || ""}
-            onChange={e => handleChange("observacoes", e.target.value)}
+            onChange={(e) => handleChange("observacoes", e.target.value)}
             placeholder="Observações da atividade"
             rows={2}
           />
@@ -254,7 +277,13 @@ export default function ProcessoAtividadeFormPage() {
         />
 
         <div className="flex items-center gap-2">
-          <input type="checkbox" id="ativo" checked={atividade.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={atividade.ativo}
+            onChange={(e) => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
           <Label htmlFor="ativo">Ativo</Label>
           <InfoButton content={atividadeCampos.ativo} />
         </div>
@@ -264,8 +293,14 @@ export default function ProcessoAtividadeFormPage() {
             {saving && <Loader2 size={16} className="animate-spin" />}
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
-          <Link href={processoIdParam ? `/processos/processos/${processoIdParam}` : "/processos/atividades"}>
-            <Button variant="outline" type="button">Cancelar</Button>
+          <Link
+            href={
+              processoIdParam ? `/processos/processos/${processoIdParam}` : "/processos/atividades"
+            }
+          >
+            <Button variant="outline" type="button">
+              Cancelar
+            </Button>
           </Link>
         </div>
       </form>

@@ -7,17 +7,10 @@ import { eq } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
 export const dynamic = "force-dynamic"
 
-const STATUS_VALIDOS = [
-  "SOLICITADO",
-  "PROCESSANDO",
-  "ATENDIDO",
-]
+const STATUS_VALIDOS = ["SOLICITADO", "PROCESSANDO", "ATENDIDO"]
 
 // PATCH - Mudar status da requisição de corte
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -29,7 +22,10 @@ export async function PATCH(
     const { status, comentario } = await req.json()
 
     if (!status || !STATUS_VALIDOS.includes(status)) {
-      return NextResponse.json({ error: `Status inválido. Use: ${STATUS_VALIDOS.join(", ")}` }, { status: 400 })
+      return NextResponse.json(
+        { error: `Status inválido. Use: ${STATUS_VALIDOS.join(", ")}` },
+        { status: 400 }
+      )
     }
 
     const [requisicaoAtual] = await db
@@ -60,7 +56,14 @@ export async function PATCH(
       session.user.name
     )
 
-    await registrarLog({ tipo: "ATUALIZACAO", acao: "atualizar_status", descricao: `Requisição de corte #${id} alterada para ${status}`, entidade: "RequisicaoCorte", entidadeId: id, usuarioNome: session.user.name })
+    await registrarLog({
+      tipo: "ATUALIZACAO",
+      acao: "atualizar_status",
+      descricao: `Requisição de corte #${id} alterada para ${status}`,
+      entidade: "RequisicaoCorte",
+      entidadeId: id,
+      usuarioNome: session.user.name,
+    })
 
     return NextResponse.json(atualizada)
   } catch (error) {

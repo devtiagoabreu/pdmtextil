@@ -10,7 +10,9 @@ export const emailListas = pgTable("email_listas", {
 
 export const emailListaContatos = pgTable("email_lista_contatos", {
   id: serial("id").primaryKey(),
-  listaId: integer("lista_id").notNull().references(() => emailListas.id, { onDelete: "cascade" }),
+  listaId: integer("lista_id")
+    .notNull()
+    .references(() => emailListas.id, { onDelete: "cascade" }),
   nome: varchar("nome", { length: 255 }).notNull(),
   email: varchar("email", { length: 255 }).notNull(),
   createdAt: timestamp("created_at").defaultNow(),

@@ -13,9 +13,9 @@ import { buildGrupos, extractItems, normalizeRolo } from "./components/utils"
 import { OpCard } from "./components/op-card"
 import { Toolbar } from "./components/toolbar"
 
-const BarcodeScanner = dynamic(() =>
-  import("./components/barcode-scanner").then((m) => m.BarcodeScanner),
-  { ssr: false },
+const BarcodeScanner = dynamic(
+  () => import("./components/barcode-scanner").then((m) => m.BarcodeScanner),
+  { ssr: false }
 )
 
 export default function ConferenciaOpTecidoCruPage() {
@@ -31,7 +31,11 @@ export default function ConferenciaOpTecidoCruPage() {
   const [scanOpen, setScanOpen] = useState(false)
   const [ordemOp, setOrdemOp] = useState<"asc" | "desc">("desc")
 
-  const { data: integracoesData, isLoading: loadingInt, isError: integracoesError } = useQuery<Integracao[]>({
+  const {
+    data: integracoesData,
+    isLoading: loadingInt,
+    isError: integracoesError,
+  } = useQuery<Integracao[]>({
     queryKey: ["integracao-listar", "conferencia-op-tecido-cru"],
     queryFn: async () => {
       const res = await fetch("/api/integracao/listar?tela=conferencia-op-tecido-cru")
@@ -58,11 +62,16 @@ export default function ConferenciaOpTecidoCruPage() {
     return itens.filter(
       (item) =>
         String(item.op).toLowerCase().includes(termo) ||
-        String(item.codigoRolo ?? "").toLowerCase().includes(termo),
+        String(item.codigoRolo ?? "")
+          .toLowerCase()
+          .includes(termo)
     )
   }, [itens, searchTerm])
 
-  const grupos: GrupoOp[] = useMemo(() => buildGrupos(itensFiltrados, ordemOp), [itensFiltrados, ordemOp])
+  const grupos: GrupoOp[] = useMemo(
+    () => buildGrupos(itensFiltrados, ordemOp),
+    [itensFiltrados, ordemOp]
+  )
 
   const buscar = useCallback(async () => {
     if (!selectedId) return
@@ -85,9 +94,7 @@ export default function ConferenciaOpTecidoCruPage() {
       setItens(normalizados)
       const ops = [...new Set(normalizados.map((r) => r.op || "SEM OP"))]
       if (ops.length > 0) setExpandedOp(ops[0])
-      toast.success(
-        `${normalizados.length} rolo(s) de ${ops.length} OP(s) carregado(s)`,
-      )
+      toast.success(`${normalizados.length} rolo(s) de ${ops.length} OP(s) carregado(s)`)
     } catch {
       toast.error("Erro ao buscar dados")
     } finally {
@@ -183,8 +190,8 @@ export default function ConferenciaOpTecidoCruPage() {
             <div className="space-y-3">
               {searchTerm && (
                 <p className="text-xs text-slate-500">
-                  Filtrando por &quot;{searchTerm}&quot; — {itensFiltrados.length} de{" "}
-                  {itens.length} rolo(s)
+                  Filtrando por &quot;{searchTerm}&quot; — {itensFiltrados.length} de {itens.length}{" "}
+                  rolo(s)
                 </p>
               )}
               <div className="space-y-6">
@@ -193,9 +200,7 @@ export default function ConferenciaOpTecidoCruPage() {
                     key={grupo.op}
                     grupo={grupo}
                     expanded={expandedOp === grupo.op}
-                    onToggleExpand={() =>
-                      setExpandedOp(expandedOp === grupo.op ? null : grupo.op)
-                    }
+                    onToggleExpand={() => setExpandedOp(expandedOp === grupo.op ? null : grupo.op)}
                   />
                 ))}
               </div>
@@ -204,7 +209,8 @@ export default function ConferenciaOpTecidoCruPage() {
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center">
               <ScanLine size={44} className="mx-auto text-slate-300 mb-3" />
               <p className="text-sm font-medium text-slate-500">
-                Digite o número da OP ou do rolo, leia o código de barras ou clique em &quot;Carregar Todas&quot;
+                Digite o número da OP ou do rolo, leia o código de barras ou clique em
+                &quot;Carregar Todas&quot;
               </p>
               <p className="text-xs text-slate-400 mt-1">
                 Após carregar, use a busca para filtrar os rolos pela OP ou pelo número do rolo

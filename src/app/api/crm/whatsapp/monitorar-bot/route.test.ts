@@ -12,7 +12,9 @@ vi.mock("@/lib/whatsapp/monitoramento", () => ({ executarMonitoramento: vi.fn() 
 function post(authHeader?: string) {
   const headers = new Headers()
   if (authHeader) headers.set("authorization", authHeader)
-  return POST(new NextRequest("http://localhost/api/crm/whatsapp/monitorar-bot", { method: "POST", headers }))
+  return POST(
+    new NextRequest("http://localhost/api/crm/whatsapp/monitorar-bot", { method: "POST", headers })
+  )
 }
 
 describe("POST /api/crm/whatsapp/monitorar-bot", () => {

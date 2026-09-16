@@ -33,7 +33,7 @@ describe("QueryProvider", () => {
     const { rerender } = render(
       <QueryProvider>
         <ProbeA />
-      </QueryProvider>,
+      </QueryProvider>
     )
     await screen.findByTestId("a")
     expect(calls).toBe(1)
@@ -41,7 +41,7 @@ describe("QueryProvider", () => {
     rerender(
       <QueryProvider>
         <ProbeB />
-      </QueryProvider>,
+      </QueryProvider>
     )
     await screen.findByTestId("b")
     expect(calls).toBe(2)

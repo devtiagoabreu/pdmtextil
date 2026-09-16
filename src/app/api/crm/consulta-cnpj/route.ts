@@ -48,7 +48,12 @@ export async function GET(req: NextRequest) {
       .where(like(representantes.cnpj, `%${cnpj}%`))
       .limit(5)
 
-    return NextResponse.json({ apiData, crmPessoas: crmResult, clientes: clientesResult, representantes: representantesResult })
+    return NextResponse.json({
+      apiData,
+      crmPessoas: crmResult,
+      clientes: clientesResult,
+      representantes: representantesResult,
+    })
   } catch (error) {
     console.error("[GET /api/crm/consulta-cnpj]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })

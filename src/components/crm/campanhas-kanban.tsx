@@ -3,7 +3,14 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
+import {
+  DndContext,
+  DragOverlay,
+  useDraggable,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
 import { useStatuses } from "@/hooks/use-statuses"
 import { DroppableColumn, KanbanSkeleton } from "./kanban-column"
 
@@ -48,10 +55,12 @@ function DraggableCard({ campanha }: { campanha: CampanhaCard }) {
     data: { campanha },
   })
 
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    zIndex: 50,
-  } : undefined
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        zIndex: 50,
+      }
+    : undefined
 
   const handleClick = () => {
     router.push(`/comercial/crm/campanhas/${campanha.id}`)
@@ -69,7 +78,9 @@ function DraggableCard({ campanha }: { campanha: CampanhaCard }) {
       }`}
     >
       <div className="flex items-start justify-between gap-2">
-        <span className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${TIPO_CORES[campanha.tipo] || ""}`}>
+        <span
+          className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${TIPO_CORES[campanha.tipo] || ""}`}
+        >
           {TIPO_LABELS[campanha.tipo] || campanha.tipo}
         </span>
         {campanha.dataInicio && (
@@ -80,9 +91,7 @@ function DraggableCard({ campanha }: { campanha: CampanhaCard }) {
         {campanha.nome}
       </p>
       {campanha.leadsGerados != null && (
-        <p className="text-xs text-slate-500 mt-1">
-          {campanha.leadsGerados} lead(s) gerado(s)
-        </p>
+        <p className="text-xs text-slate-500 mt-1">{campanha.leadsGerados} lead(s) gerado(s)</p>
       )}
     </div>
   )
@@ -93,11 +102,11 @@ export default function CampanhasKanban({ campanhas }: { campanhas: CampanhaCard
   const [activeCard, setActiveCard] = useState<CampanhaCard | null>(null)
   const [cards, setCards] = useState<CampanhaCard[]>(campanhas || [])
 
-  useEffect(() => { setCards(campanhas || []) }, [campanhas])
+  useEffect(() => {
+    setCards(campanhas || [])
+  }, [campanhas])
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  )
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   const hasStatuses = statuses.length > 0
   const effectiveStatuses = hasStatuses ? statuses : DEFAULT_STATUSES
@@ -137,8 +146,8 @@ export default function CampanhasKanban({ campanhas }: { campanhas: CampanhaCard
 
     const statusAntigo = campanha.status
 
-    setCards(prev =>
-      prev.map((c: any) => c.id === campanha.id ? { ...c, status: novoStatus } : c)
+    setCards((prev) =>
+      prev.map((c: any) => (c.id === campanha.id ? { ...c, status: novoStatus } : c))
     )
 
     try {
@@ -153,8 +162,8 @@ export default function CampanhasKanban({ campanhas }: { campanhas: CampanhaCard
       }
       toast.success(`Campanha movida para ${getLabel(novoStatus)}`)
     } catch (err: any) {
-      setCards(prev =>
-        prev.map((c: any) => c.id === campanha.id ? { ...c, status: statusAntigo } : c)
+      setCards((prev) =>
+        prev.map((c: any) => (c.id === campanha.id ? { ...c, status: statusAntigo } : c))
       )
       toast.error(err.message)
     }
@@ -169,7 +178,13 @@ export default function CampanhasKanban({ campanhas }: { campanhas: CampanhaCard
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto pb-2">
           {colunas.map((col: any) => (
-            <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo || col.nome} cor={col.cor} count={col.cards.length}>
+            <DroppableColumn
+              key={col.nome}
+              id={col.nome}
+              rotulo={col.rotulo || col.nome}
+              cor={col.cor}
+              count={col.cards.length}
+            >
               {col.cards.map((card: any) => (
                 <DraggableCard key={`camp-${card.id}`} campanha={card} />
               ))}

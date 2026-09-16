@@ -36,7 +36,9 @@ export function PropostasCard({ empresaId }: { empresaId: string }) {
         <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">Propostas</h2>
         <QuickCreateProposta
           empresaId={empresaId}
-          onCreated={() => queryClient.invalidateQueries({ queryKey: ["crm-pessoa-propostas", empresaId] })}
+          onCreated={() =>
+            queryClient.invalidateQueries({ queryKey: ["crm-pessoa-propostas", empresaId] })
+          }
         />
       </div>
       {propostas.length === 0 ? (
@@ -50,8 +52,14 @@ export function PropostasCard({ empresaId }: { empresaId: string }) {
               className="block p-2.5 rounded-lg border border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
             >
               <div className="flex items-center justify-between gap-2">
-                <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">{prop.titulo}</p>
-                {prop.status && <span className="text-[10px] shrink-0 px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">{prop.status}</span>}
+                <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                  {prop.titulo}
+                </p>
+                {prop.status && (
+                  <span className="text-[10px] shrink-0 px-1.5 py-0.5 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400">
+                    {prop.status}
+                  </span>
+                )}
               </div>
               {formatValor(prop.valor) && (
                 <p className="text-xs text-slate-500 mt-0.5">{formatValor(prop.valor)}</p>

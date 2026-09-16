@@ -41,15 +41,30 @@ describe("POST /api/admin/email-massa/listas/[id]/contatos", () => {
     )
 
     const res = await POST(
-      makeRequest({ contatos: [{ nome: "TIAGO ABREU", email: "devtiagoabreu@gmail.com;faturamento@promodatextil.com.br" }] }),
+      makeRequest({
+        contatos: [
+          {
+            nome: "TIAGO ABREU",
+            email: "devtiagoabreu@gmail.com;faturamento@promodatextil.com.br",
+          },
+        ],
+      }),
       { params: Promise.resolve({ id: "7" }) }
     )
 
     expect(res.status).toBe(200)
     const values = (insertBuilder.values as ReturnType<typeof vi.fn>).mock.calls[0][0]
     expect(values).toHaveLength(2)
-    expect(values[0]).toMatchObject({ listaId: 7, nome: "TIAGO ABREU", email: "devtiagoabreu@gmail.com" })
-    expect(values[1]).toMatchObject({ listaId: 7, nome: "TIAGO ABREU", email: "faturamento@promodatextil.com.br" })
+    expect(values[0]).toMatchObject({
+      listaId: 7,
+      nome: "TIAGO ABREU",
+      email: "devtiagoabreu@gmail.com",
+    })
+    expect(values[1]).toMatchObject({
+      listaId: 7,
+      nome: "TIAGO ABREU",
+      email: "faturamento@promodatextil.com.br",
+    })
   })
 
   it("separa também no contato único com vírgula", async () => {

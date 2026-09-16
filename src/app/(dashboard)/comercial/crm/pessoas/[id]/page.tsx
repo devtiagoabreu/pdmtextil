@@ -18,7 +18,13 @@ import { RepresentantesCard } from "./components/representantes-card"
 import { LeadsCard } from "./components/leads-card"
 import { OportunidadesCard } from "./components/oportunidades-card"
 import { PropostasCard } from "./components/propostas-card"
-import type { Contato, Pessoa, PessoaForm, RepresentanteResult, VinculoRepresentante } from "../types"
+import type {
+  Contato,
+  Pessoa,
+  PessoaForm,
+  RepresentanteResult,
+  VinculoRepresentante,
+} from "../types"
 
 function PessoaDetailPageContent() {
   const router = useRouter()
@@ -66,7 +72,9 @@ function PessoaDetailPageContent() {
   useEffect(() => {
     fetch("/api/crm/contatos?orfao=true")
       .then((r) => r.json())
-      .then((data: Contato[]) => { if (Array.isArray(data)) setOrfaos(data) })
+      .then((data: Contato[]) => {
+        if (Array.isArray(data)) setOrfaos(data)
+      })
       .catch(() => toast.error("Erro ao carregar contatos órfãos"))
   }, [])
 
@@ -81,7 +89,10 @@ function PessoaDetailPageContent() {
 
   async function searchRepresentantes(query: string) {
     setSearchRep(query)
-    if (query.length < 2) { setRepResults([]); return }
+    if (query.length < 2) {
+      setRepResults([])
+      return
+    }
     setSearchingRep(true)
     try {
       const res = await fetch(`/api/representantes?q=${encodeURIComponent(query)}`)
@@ -89,7 +100,8 @@ function PessoaDetailPageContent() {
       const data: RepresentanteResult[] = await res.json()
       const existentes = new Set(vinculos.map((v) => v.representanteId))
       setRepResults(data.filter((r) => !existentes.has(r.id)))
-    } catch {} finally {
+    } catch {
+    } finally {
       setSearchingRep(false)
     }
   }
@@ -103,20 +115,26 @@ function PessoaDetailPageContent() {
       })
       if (!res.ok) throw new Error()
       const novo: VinculoRepresentante = await res.json()
-      setVinculos(prev => [...prev, novo])
+      setVinculos((prev) => [...prev, novo])
       setRepResults([])
       setSearchRep("")
       toast.success("Representante vinculado")
-    } catch { toast.error("Erro ao vincular representante") }
+    } catch {
+      toast.error("Erro ao vincular representante")
+    }
   }
 
   async function removeRepresentante(vinculo: VinculoRepresentante) {
     try {
-      const res = await fetch(`/api/crm/pessoas/${params.id}/representantes?id=${vinculo.id}`, { method: "DELETE" })
+      const res = await fetch(`/api/crm/pessoas/${params.id}/representantes?id=${vinculo.id}`, {
+        method: "DELETE",
+      })
       if (!res.ok) throw new Error()
-      setVinculos(prev => prev.filter((v) => v.id !== vinculo.id))
+      setVinculos((prev) => prev.filter((v) => v.id !== vinculo.id))
       toast.success("Representante removido")
-    } catch { toast.error("Erro ao remover representante") }
+    } catch {
+      toast.error("Erro ao remover representante")
+    }
     setRepToRemove(null)
   }
 
@@ -204,7 +222,7 @@ function PessoaDetailPageContent() {
         ...prev!,
         contatos: (prev!.contatos || []).filter((c: Contato) => c.id !== contatoId),
       }))
-      setOrfaos(prev => [...prev, atualizado])
+      setOrfaos((prev) => [...prev, atualizado])
       toast.success("Contato desvinculado")
     } catch {
       toast.error("Erro ao desvincular contato")
@@ -221,7 +239,7 @@ function PessoaDetailPageContent() {
       if (!res.ok) throw new Error("Erro ao vincular")
       const atualizado: Contato = await res.json()
       setPessoa((prev) => ({ ...prev!, contatos: [...(prev!.contatos || []), atualizado] }))
-      setOrfaos(prev => prev.filter((c: Contato) => c.id !== contatoId))
+      setOrfaos((prev) => prev.filter((c: Contato) => c.id !== contatoId))
       toast.success("Contato vinculado")
     } catch {
       toast.error("Erro ao vincular contato")
@@ -240,7 +258,12 @@ function PessoaDetailPageContent() {
     return (
       <div className="text-center py-20">
         <p className="text-slate-500">Pessoa não encontrada</p>
-        <Link href="/comercial/crm/pessoas" className="text-blue-600 hover:underline mt-2 inline-block">Voltar</Link>
+        <Link
+          href="/comercial/crm/pessoas"
+          className="text-blue-600 hover:underline mt-2 inline-block"
+        >
+          Voltar
+        </Link>
       </div>
     )
   }
@@ -253,7 +276,10 @@ function PessoaDetailPageContent() {
         editing={editing}
         onBack={() => router.back()}
         onSave={handleSave}
-        onCancel={() => { setEditing(false); setForm(pessoa ?? {}) }}
+        onCancel={() => {
+          setEditing(false)
+          setForm(pessoa ?? {})
+        }}
         onEdit={() => setEditing(true)}
         onDelete={() => setShowDelete(true)}
       />
@@ -271,17 +297,31 @@ function PessoaDetailPageContent() {
 
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
           <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4 flex items-center gap-2">
-            <svg className="w-4 h-4 text-purple-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            <svg
+              className="w-4 h-4 text-purple-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                strokeWidth={2}
+                d="M9.75 17L9 20l-1 1h8l-1-1-.75-3M3 13h18M5 17h14a2 2 0 002-2V5a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"
+              />
             </svg>
             Resumo IA
           </h2>
           {pessoa.resumoIa ? (
             <div className="space-y-3 text-sm">
-              <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">{pessoa.resumoIa}</p>
+              <p className="text-slate-700 dark:text-slate-300 whitespace-pre-wrap leading-relaxed">
+                {pessoa.resumoIa}
+              </p>
               {pessoa.sugestaoIa && (
                 <div className="rounded-lg bg-amber-50 dark:bg-amber-950/30 p-3 border border-amber-200 dark:border-amber-900">
-                  <p className="text-xs font-medium text-amber-700 dark:text-amber-400 mb-1">Sugestão da IA</p>
+                  <p className="text-xs font-medium text-amber-700 dark:text-amber-400 mb-1">
+                    Sugestão da IA
+                  </p>
                   <p className="text-sm text-amber-800 dark:text-amber-300">{pessoa.sugestaoIa}</p>
                 </div>
               )}

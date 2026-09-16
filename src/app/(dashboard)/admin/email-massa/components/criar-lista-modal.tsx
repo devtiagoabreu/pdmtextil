@@ -3,7 +3,12 @@
 import { useEffect, useState } from "react"
 import { useQueryClient } from "@tanstack/react-query"
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
@@ -14,20 +19,26 @@ import type { Disparo } from "../types"
 
 export type TipoLista = "lidos" | "clicados" | "falhas"
 
-const CONFIG: Record<TipoLista, { titulo: string; descricao: string; sugestao: (d: Disparo) => string }> = {
+const CONFIG: Record<
+  TipoLista,
+  { titulo: string; descricao: string; sugestao: (d: Disparo) => string }
+> = {
   lidos: {
     titulo: "Criar lista de contatos que leram o e-mail",
-    descricao: "Serão incluídos os contatos deste envio que abriram o e-mail. A lista será salva com observação informando que são os contatos do envio original que foram lidos.",
+    descricao:
+      "Serão incluídos os contatos deste envio que abriram o e-mail. A lista será salva com observação informando que são os contatos do envio original que foram lidos.",
     sugestao: (d) => `Lidos - ${d.nome || d.assunto}`,
   },
   clicados: {
     titulo: "Criar lista de contatos que clicaram",
-    descricao: "Serão incluídos os contatos deste envio que clicaram em pelo menos um link. A lista será salva com observação informando que são os contatos do envio original que efetuaram cliques.",
+    descricao:
+      "Serão incluídos os contatos deste envio que clicaram em pelo menos um link. A lista será salva com observação informando que são os contatos do envio original que efetuaram cliques.",
     sugestao: (d) => `Cliques - ${d.nome || d.assunto}`,
   },
   falhas: {
     titulo: "Criar lista de contatos que falharam",
-    descricao: "Serão incluídos os contatos deste envio cuja entrega falhou. A lista será salva com observação informando que são os contatos do envio original que falharam.",
+    descricao:
+      "Serão incluídos os contatos deste envio cuja entrega falhou. A lista será salva com observação informando que são os contatos do envio original que falharam.",
     sugestao: (d) => `Falhas - ${d.nome || d.assunto}`,
   },
 }

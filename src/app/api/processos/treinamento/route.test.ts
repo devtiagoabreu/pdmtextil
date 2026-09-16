@@ -31,7 +31,9 @@ describe("GET /api/processos/treinamento", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await GET()
     expect(res.status).toBe(401)
   })
@@ -47,7 +49,15 @@ describe("GET /api/processos/treinamento", () => {
         ordem: 1,
         ativo: true,
         createdAt: "2026-01-01",
-        licoes: [{ id: 10, titulo: "O que é um processo", ordem: 1, ativo: true, pathnameRelacionado: "/processos" }],
+        licoes: [
+          {
+            id: 10,
+            titulo: "O que é um processo",
+            ordem: 1,
+            ativo: true,
+            pathnameRelacionado: "/processos",
+          },
+        ],
       },
     ]
     db.select = vi.fn(() => createQueryBuilder(modulos))
@@ -85,7 +95,11 @@ describe("POST /api/processos/treinamento", () => {
       new NextRequest("http://localhost/api/processos/treinamento", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ moduloId: 1, titulo: "Cadastro de Processos", conteudoMd: "## Conteúdo" }),
+        body: JSON.stringify({
+          moduloId: 1,
+          titulo: "Cadastro de Processos",
+          conteudoMd: "## Conteúdo",
+        }),
       })
     )
     expect(res.status).toBe(201)

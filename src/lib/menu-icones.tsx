@@ -126,7 +126,11 @@ export interface OpcaoIcone {
   Icone: LucideIcon
 }
 
-export const ICONE_OPCOES: OpcaoIcone[] = ENTRADAS.map(([nome, valor, Icone]) => ({ valor, nome, Icone }))
+export const ICONE_OPCOES: OpcaoIcone[] = ENTRADAS.map(([nome, valor, Icone]) => ({
+  valor,
+  nome,
+  Icone,
+}))
 
 function normalizar(s: string): string {
   return s

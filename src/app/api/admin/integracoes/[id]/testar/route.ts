@@ -32,7 +32,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const authConfig = (integracao.authConfig || {}) as Record<string, unknown>
     const headers: Record<string, string> = {
       "Content-Type": "application/json",
-      "Accept": "application/json",
+      Accept: "application/json",
     }
 
     const startTime = Date.now()
@@ -78,7 +78,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
             method: "POST",
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
-              "Authorization": `Basic ${encodedCredentials}`,
+              Authorization: `Basic ${encodedCredentials}`,
             },
             body: bodyParams.toString(),
           })

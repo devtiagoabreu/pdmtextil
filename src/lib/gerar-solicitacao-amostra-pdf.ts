@@ -70,10 +70,14 @@ export async function gerarSolicitacaoAmostraPdf(params: {
 
   const [solRes, prodRes] = await Promise.all([
     params.solicitacaoDesenvolvimentoId
-      ? fetch(`/api/solicitacoes/${params.solicitacaoDesenvolvimentoId}`).then((r: any) => r.json()).catch(() => null) as Promise<SolicitacaoData | null>
+      ? (fetch(`/api/solicitacoes/${params.solicitacaoDesenvolvimentoId}`)
+          .then((r: any) => r.json())
+          .catch(() => null) as Promise<SolicitacaoData | null>)
       : null,
     params.produtoCruId
-      ? fetch(`/api/cadastros/produto-cru/${params.produtoCruId}`).then((r: any) => r.json()).catch(() => null) as Promise<ProdutoData | null>
+      ? (fetch(`/api/cadastros/produto-cru/${params.produtoCruId}`)
+          .then((r: any) => r.json())
+          .catch(() => null) as Promise<ProdutoData | null>)
       : null,
   ])
 
@@ -194,8 +198,8 @@ export async function gerarSolicitacaoAmostraPdf(params: {
       solRes.tipo === "DESENVOLVIMENTO_TECELAGEM"
         ? "Desenvolvimento Tecelagem"
         : solRes.tipo === "DESENVOLVIMENTO_BENEFICIAMENTO"
-        ? "Desenvolvimento Beneficiamento"
-        : solRes.tipo || "—"
+          ? "Desenvolvimento Beneficiamento"
+          : solRes.tipo || "—"
     doc.text(tipoLabel, cx3, solLabelY + 4)
 
     doc.setFont("helvetica", "bold").setFontSize(7)
@@ -204,13 +208,7 @@ export async function gerarSolicitacaoAmostraPdf(params: {
     doc.text("CNPJ", cx3, solLabelY + 11)
     doc.setFont("helvetica", "normal").setFontSize(8)
     doc.text(solRes.status || "—", cx1, solLabelY + 15)
-    doc.text(
-      solRes.prazoDesejado
-        ? fmtDataBr(solRes.prazoDesejado)
-        : "—",
-      cx2,
-      solLabelY + 15
-    )
+    doc.text(solRes.prazoDesejado ? fmtDataBr(solRes.prazoDesejado) : "—", cx2, solLabelY + 15)
     doc.text(solRes.cnpj || "—", cx3, solLabelY + 15)
 
     if (temLinksSol) {
@@ -277,9 +275,7 @@ export async function gerarSolicitacaoAmostraPdf(params: {
     doc.setFont("helvetica", "normal").setFontSize(8)
     const compStr =
       prodRes.composicao && prodRes.composicao.length > 0
-        ? prodRes.composicao
-            .map((c: any) => `${c.material} ${c.percentual}%`)
-            .join(" | ")
+        ? prodRes.composicao.map((c: any) => `${c.material} ${c.percentual}%`).join(" | ")
         : "—"
     const compParts = doc.splitTextToSize(compStr, colW - 4)
     doc.text(compParts, cx1, py3 + 4)
@@ -311,7 +307,12 @@ export async function gerarSolicitacaoAmostraPdf(params: {
   }
 
   // ── Seção 3: Amostra ──
-  const tipoLabelAmostra = amostra.tipoAmostra === "TECIDO_CRU" ? "TECIDO CRU" : amostra.tipoAmostra === "ACABAMENTO" ? "ACABAMENTO" : amostra.tipoAmostra
+  const tipoLabelAmostra =
+    amostra.tipoAmostra === "TECIDO_CRU"
+      ? "TECIDO CRU"
+      : amostra.tipoAmostra === "ACABAMENTO"
+        ? "ACABAMENTO"
+        : amostra.tipoAmostra
   const temLinks = amostra.links && amostra.links.length > 0
   const temQuant = amostra.quantidadeProduzida
   const temTear = amostra.dados?.tear
@@ -340,7 +341,11 @@ export async function gerarSolicitacaoAmostraPdf(params: {
   doc.text("Metragem", cx3, ay1)
   doc.setFont("helvetica", "normal").setFontSize(8)
   doc.text(
-    amostra.tipoAmostra === "TECIDO_CRU" ? "Tecido Cru" : amostra.tipoAmostra === "ACABAMENTO" ? "Acabamento" : amostra.tipoAmostra,
+    amostra.tipoAmostra === "TECIDO_CRU"
+      ? "Tecido Cru"
+      : amostra.tipoAmostra === "ACABAMENTO"
+        ? "Acabamento"
+        : amostra.tipoAmostra,
     cx1,
     ay1 + 4
   )

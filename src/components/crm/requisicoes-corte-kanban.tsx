@@ -3,7 +3,14 @@
 import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
-import { DndContext, DragOverlay, useDraggable, PointerSensor, useSensor, useSensors } from "@dnd-kit/core"
+import {
+  DndContext,
+  DragOverlay,
+  useDraggable,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from "@dnd-kit/core"
 import { DroppableColumn, KanbanSkeleton } from "./kanban-column"
 
 interface RequisicaoCard {
@@ -28,10 +35,12 @@ function DraggableCard({ item }: { item: RequisicaoCard }) {
     data: { item },
   })
 
-  const style = transform ? {
-    transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
-    zIndex: 50,
-  } : undefined
+  const style = transform
+    ? {
+        transform: `translate3d(${transform.x}px, ${transform.y}px, 0)`,
+        zIndex: 50,
+      }
+    : undefined
 
   return (
     <div
@@ -44,12 +53,8 @@ function DraggableCard({ item }: { item: RequisicaoCard }) {
         isDragging ? "opacity-50 shadow-lg" : ""
       }`}
     >
-      <p className="text-sm font-bold text-slate-900 dark:text-slate-100">
-        #{item.id}
-      </p>
-      <p className="text-xs text-slate-500 mt-0.5 truncate">
-        {item.requisitanteNome || "—"}
-      </p>
+      <p className="text-sm font-bold text-slate-900 dark:text-slate-100">#{item.id}</p>
+      <p className="text-xs text-slate-500 mt-0.5 truncate">{item.requisitanteNome || "—"}</p>
       <p className="text-xs text-slate-500">
         {item.totalCortes ?? 0} corte(s) · {item.quantidadeTotal ?? 0} m
       </p>
@@ -66,11 +71,11 @@ export default function RequisicoesCorteKanban({ data }: { data: RequisicaoCard[
   const [activeCard, setActiveCard] = useState<RequisicaoCard | null>(null)
   const [cards, setCards] = useState<RequisicaoCard[]>(data || [])
 
-  useEffect(() => { setCards(data || []) }, [data])
+  useEffect(() => {
+    setCards(data || [])
+  }, [data])
 
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
-  )
+  const sensors = useSensors(useSensor(PointerSensor, { activationConstraint: { distance: 5 } }))
 
   const colunas = ["SOLICITADO", "PROCESSANDO", "ATENDIDO"].map((status: any) => ({
     ...STATUS_CONFIG[status],
@@ -97,9 +102,7 @@ export default function RequisicoesCorteKanban({ data }: { data: RequisicaoCard[
 
     const statusAntigo = item.status
 
-    setCards(prev =>
-      prev.map((c: any) => c.id === item.id ? { ...c, status: novoStatus } : c)
-    )
+    setCards((prev) => prev.map((c: any) => (c.id === item.id ? { ...c, status: novoStatus } : c)))
 
     try {
       const res = await fetch(`/api/comercial/requisicoes-corte/${item.id}/status`, {
@@ -111,10 +114,12 @@ export default function RequisicoesCorteKanban({ data }: { data: RequisicaoCard[
         const err = await res.json()
         throw new Error(err.error || "Erro ao alterar status")
       }
-      toast.success(`Requisição #${item.id} movida para ${STATUS_CONFIG[novoStatus]?.rotulo || novoStatus}`)
+      toast.success(
+        `Requisição #${item.id} movida para ${STATUS_CONFIG[novoStatus]?.rotulo || novoStatus}`
+      )
     } catch (err: any) {
-      setCards(prev =>
-        prev.map((c: any) => c.id === item.id ? { ...c, status: statusAntigo } : c)
+      setCards((prev) =>
+        prev.map((c: any) => (c.id === item.id ? { ...c, status: statusAntigo } : c))
       )
       toast.error(err.message)
     }
@@ -125,7 +130,13 @@ export default function RequisicoesCorteKanban({ data }: { data: RequisicaoCard[
       <DndContext sensors={sensors} onDragStart={handleDragStart} onDragEnd={handleDragEnd}>
         <div className="flex-1 min-h-0 flex gap-4 overflow-x-auto pb-2">
           {colunas.map((col: any) => (
-            <DroppableColumn key={col.nome} id={col.nome} rotulo={col.rotulo} cor={col.cor} count={col.cards.length}>
+            <DroppableColumn
+              key={col.nome}
+              id={col.nome}
+              rotulo={col.rotulo}
+              cor={col.cor}
+              count={col.cards.length}
+            >
               {col.cards.map((card: any) => (
                 <DraggableCard key={`req-${card.id}`} item={card} />
               ))}

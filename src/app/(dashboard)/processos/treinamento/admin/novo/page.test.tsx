@@ -13,7 +13,8 @@ describe("NovaLicaoPage", () => {
     navMock.setPathname("/processos/treinamento/admin/novo")
     const handler = ({ method, url }: { method: string; url: string }) => {
       if (method === "GET" && url === "/api/processos/treinamento/modulos") return { json: modulos }
-      if (method === "POST" && url === "/api/processos/treinamento") return { status: 201, json: { id: 99 } }
+      if (method === "POST" && url === "/api/processos/treinamento")
+        return { status: 201, json: { id: 99 } }
       return { json: null }
     }
     fetchMock = createFetchMock(handler)
@@ -34,7 +35,9 @@ describe("NovaLicaoPage", () => {
 
     fireEvent.submit(container.querySelector("form")!)
 
-    await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Módulo e título são obrigatórios"))
+    await waitFor(() =>
+      expect(toastMock.error).toHaveBeenCalledWith("Módulo e título são obrigatórios")
+    )
     expect(findCall(fetchMock.calls, "/api/processos/treinamento", "POST")).toBeUndefined()
   })
 
@@ -70,7 +73,8 @@ describe("NovaLicaoPage", () => {
   it("mostra erro quando o POST falha", async () => {
     const failMock = createFetchMock(({ method, url }: { method: string; url: string }) => {
       if (method === "GET" && url === "/api/processos/treinamento/modulos") return { json: modulos }
-      if (method === "POST" && url === "/api/processos/treinamento") return { status: 500, json: { error: "erro" } }
+      if (method === "POST" && url === "/api/processos/treinamento")
+        return { status: 500, json: { error: "erro" } }
       return { json: null }
     })
     vi.stubGlobal("fetch", failMock.fn)

@@ -57,15 +57,27 @@ describe("chamarIA — prioridade banco (DB) primeiro, env (Vercel) como fallbac
       return Promise.resolve({
         ok: true,
         status: 200,
-        json: vi.fn().mockResolvedValue({ choices: [{ message: { content: "resposta do banco" } }] }),
+        json: vi
+          .fn()
+          .mockResolvedValue({ choices: [{ message: { content: "resposta do banco" } }] }),
       })
     })
     vi.stubGlobal("fetch", fetchMock)
 
     db.select = vi.fn(() =>
       createQueryBuilder([
-        { id: 1, provedor: "groq", nome: "Groq do Banco", chaveApi: "banco-chave", urlBase: null, modelo: "qwen/qwen3.8-27b", ordem: 1, ativo: true, failCount: 0 },
-      ]),
+        {
+          id: 1,
+          provedor: "groq",
+          nome: "Groq do Banco",
+          chaveApi: "banco-chave",
+          urlBase: null,
+          modelo: "qwen/qwen3.8-27b",
+          ordem: 1,
+          ativo: true,
+          failCount: 0,
+        },
+      ])
     )
 
     const res = await chamarIA(MENSAGENS)
@@ -96,8 +108,18 @@ describe("chamarIA — prioridade banco (DB) primeiro, env (Vercel) como fallbac
 
     db.select = vi.fn(() =>
       createQueryBuilder([
-        { id: 1, provedor: "groq", nome: "Groq do Banco", chaveApi: "banco-chave", urlBase: null, modelo: "qwen/qwen3.8-27b", ordem: 1, ativo: true, failCount: 0 },
-      ]),
+        {
+          id: 1,
+          provedor: "groq",
+          nome: "Groq do Banco",
+          chaveApi: "banco-chave",
+          urlBase: null,
+          modelo: "qwen/qwen3.8-27b",
+          ordem: 1,
+          ativo: true,
+          failCount: 0,
+        },
+      ])
     )
 
     const res = await chamarIA(MENSAGENS)
@@ -121,21 +143,33 @@ describe("chamarIA — Gemini", () => {
   it("monta body com systemInstruction e roles user/model em :generateContent", async () => {
     db.select = vi.fn(() =>
       createQueryBuilder([
-        { id: 5, provedor: "gemini", nome: "Gemini", chaveApi: "gem-chave", urlBase: "https://generativelanguage.googleapis.com/v1beta", modelo: "gemini-3.6-flash", ordem: 1, ativo: true, failCount: 0 },
-      ]),
+        {
+          id: 5,
+          provedor: "gemini",
+          nome: "Gemini",
+          chaveApi: "gem-chave",
+          urlBase: "https://generativelanguage.googleapis.com/v1beta",
+          modelo: "gemini-3.6-flash",
+          ordem: 1,
+          ativo: true,
+          failCount: 0,
+        },
+      ])
     )
 
     const fetchMock = vi.fn((_url: string, init: RequestInit) => {
       const body = JSON.parse(String(init?.body))
-      expect(body.contents).toEqual([
-        { role: "user", parts: [{ text: "Ola" }] },
-      ])
+      expect(body.contents).toEqual([{ role: "user", parts: [{ text: "Ola" }] }])
       expect(body.systemInstruction).toEqual({ parts: [{ text: "Voce e um assistente." }] })
       expect(body.generationConfig).toEqual({ temperature: 0.7, maxOutputTokens: 1200 })
       return Promise.resolve({
         ok: true,
         status: 200,
-        json: vi.fn().mockResolvedValue({ candidates: [{ content: { parts: [{ text: "resposta gemini" }] } }] }),
+        json: vi
+          .fn()
+          .mockResolvedValue({
+            candidates: [{ content: { parts: [{ text: "resposta gemini" }] } }],
+          }),
       })
     })
     vi.stubGlobal("fetch", fetchMock)
@@ -145,15 +179,25 @@ describe("chamarIA — Gemini", () => {
     expect(res.conteudo).toBe("resposta gemini")
     expect(res.provedor).toBe("gemini")
     expect(fetchMock.mock.calls[0][0]).toContain(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent"
     )
   })
 
   it("não inclui systemInstruction quando não há mensagem de sistema", async () => {
     db.select = vi.fn(() =>
       createQueryBuilder([
-        { id: 5, provedor: "gemini", nome: "Gemini", chaveApi: "gem-chave", urlBase: "https://generativelanguage.googleapis.com/v1beta", modelo: "gemini-3.6-flash", ordem: 1, ativo: true, failCount: 0 },
-      ]),
+        {
+          id: 5,
+          provedor: "gemini",
+          nome: "Gemini",
+          chaveApi: "gem-chave",
+          urlBase: "https://generativelanguage.googleapis.com/v1beta",
+          modelo: "gemini-3.6-flash",
+          ordem: 1,
+          ativo: true,
+          failCount: 0,
+        },
+      ])
     )
 
     const fetchMock = vi.fn((_url: string, init: RequestInit) => {
@@ -178,8 +222,18 @@ describe("chamarIA — OpenRouter", () => {
   it("usa /chat/completions e envia headers HTTP-Referer e X-Title", async () => {
     db.select = vi.fn(() =>
       createQueryBuilder([
-        { id: 9, provedor: "openrouter", nome: "OpenRouter Principal", chaveApi: "or-chave", urlBase: "https://openrouter.ai/api/v1", modelo: "openai/gpt-4o-mini", ordem: 1, ativo: true, failCount: 0 },
-      ]),
+        {
+          id: 9,
+          provedor: "openrouter",
+          nome: "OpenRouter Principal",
+          chaveApi: "or-chave",
+          urlBase: "https://openrouter.ai/api/v1",
+          modelo: "openai/gpt-4o-mini",
+          ordem: 1,
+          ativo: true,
+          failCount: 0,
+        },
+      ])
     )
 
     const fetchMock = vi.fn((_url: string, init: RequestInit) => {
@@ -188,7 +242,9 @@ describe("chamarIA — OpenRouter", () => {
       return Promise.resolve({
         ok: true,
         status: 200,
-        json: vi.fn().mockResolvedValue({ choices: [{ message: { content: "resposta openrouter" } }] }),
+        json: vi
+          .fn()
+          .mockResolvedValue({ choices: [{ message: { content: "resposta openrouter" } }] }),
       })
     })
     vi.stubGlobal("fetch", fetchMock)
@@ -207,16 +263,28 @@ describe("chamarIA — OpenRouter", () => {
   it("propaga a mensagem de erro rica quando a API retorna erro", async () => {
     db.select = vi.fn(() =>
       createQueryBuilder([
-        { id: 9, provedor: "openrouter", nome: "OpenRouter", chaveApi: "or-chave", urlBase: "https://openrouter.ai/api/v1", modelo: "openai/gpt-4o-mini", ordem: 1, ativo: true, failCount: 0 },
-      ]),
+        {
+          id: 9,
+          provedor: "openrouter",
+          nome: "OpenRouter",
+          chaveApi: "or-chave",
+          urlBase: "https://openrouter.ai/api/v1",
+          modelo: "openai/gpt-4o-mini",
+          ordem: 1,
+          ativo: true,
+          failCount: 0,
+        },
+      ])
     )
 
     const fetchMock = vi.fn(() =>
       Promise.resolve({
         ok: false,
         status: 429,
-        text: vi.fn().mockResolvedValue(JSON.stringify({ error: { message: "Rate limit atingido" } })),
-      }),
+        text: vi
+          .fn()
+          .mockResolvedValue(JSON.stringify({ error: { message: "Rate limit atingido" } })),
+      })
     )
     vi.stubGlobal("fetch", fetchMock)
 
@@ -242,8 +310,18 @@ describe("chamarIA — timeout", () => {
   it("envia AbortSignal.timeout em toda chamada HTTP (sem abortar em resposta normal)", async () => {
     db.select = vi.fn(() =>
       createQueryBuilder([
-        { id: 201, provedor: "groq", nome: "Groq do Banco", chaveApi: "banco-chave-201", urlBase: null, modelo: "qwen/qwen3.8-27b", ordem: 1, ativo: true, failCount: 0 },
-      ]),
+        {
+          id: 201,
+          provedor: "groq",
+          nome: "Groq do Banco",
+          chaveApi: "banco-chave-201",
+          urlBase: null,
+          modelo: "qwen/qwen3.8-27b",
+          ordem: 1,
+          ativo: true,
+          failCount: 0,
+        },
+      ])
     )
 
     const fetchMock = vi.fn((_url: string, init: RequestInit) => {
@@ -252,7 +330,9 @@ describe("chamarIA — timeout", () => {
       return Promise.resolve({
         ok: true,
         status: 200,
-        json: vi.fn().mockResolvedValue({ choices: [{ message: { content: "resposta com timeout" } }] }),
+        json: vi
+          .fn()
+          .mockResolvedValue({ choices: [{ message: { content: "resposta com timeout" } }] }),
       })
     })
     vi.stubGlobal("fetch", fetchMock)
@@ -268,14 +348,26 @@ describe("chamarIA — timeout", () => {
 
     db.select = vi.fn(() =>
       createQueryBuilder([
-        { id: 202, provedor: "groq", nome: "Groq do Banco", chaveApi: "banco-chave-202", urlBase: null, modelo: "qwen/qwen3.8-27b", ordem: 1, ativo: true, failCount: 0 },
-      ]),
+        {
+          id: 202,
+          provedor: "groq",
+          nome: "Groq do Banco",
+          chaveApi: "banco-chave-202",
+          urlBase: null,
+          modelo: "qwen/qwen3.8-27b",
+          ordem: 1,
+          ativo: true,
+          failCount: 0,
+        },
+      ])
     )
 
     const fetchMock = vi.fn((_url: string, init: RequestInit) => {
       const headers = (init.headers ?? {}) as Record<string, string>
       if (headers.Authorization === "Bearer banco-chave-202") {
-        return Promise.reject(Object.assign(new Error("The operation was aborted"), { name: "AbortError" }))
+        return Promise.reject(
+          Object.assign(new Error("The operation was aborted"), { name: "AbortError" })
+        )
       }
       return Promise.resolve({
         ok: true,
@@ -299,10 +391,17 @@ describe("testarChave — Gemini", () => {
       Promise.resolve({
         ok: false,
         status: 404,
-        text: vi.fn().mockResolvedValue(
-          JSON.stringify({ error: { code: 404, message: "models/gemini-1.5-flash is not found for API version v1beta" } }),
-        ),
-      }),
+        text: vi
+          .fn()
+          .mockResolvedValue(
+            JSON.stringify({
+              error: {
+                code: 404,
+                message: "models/gemini-1.5-flash is not found for API version v1beta",
+              },
+            })
+          ),
+      })
     )
     vi.stubGlobal("fetch", fetchMock)
 

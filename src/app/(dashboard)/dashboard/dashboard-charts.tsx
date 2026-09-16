@@ -1,6 +1,19 @@
 "use client"
 
-import { LineChart, Line, BarChart, Bar, PieChart, Pie, Cell, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts"
+import {
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  PieChart,
+  Pie,
+  Cell,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts"
 import { ChartCard } from "@/components/ui/chart-card"
 import { ChartTooltip } from "@/components/ui/chart-tooltip"
 import { AnimatedLine } from "@/components/ui/animated-line"
@@ -22,7 +35,12 @@ interface DashboardChartsProps {
   openModal: (filtro: string) => void
 }
 
-export default function DashboardCharts({ stats, getStatusLabel, getStatusColor, openModal }: DashboardChartsProps) {
+export default function DashboardCharts({
+  stats,
+  getStatusLabel,
+  getStatusColor,
+  openModal,
+}: DashboardChartsProps) {
   return (
     <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
       <ChartCard title="Solicitações por Mês" delay={0}>
@@ -32,7 +50,16 @@ export default function DashboardCharts({ stats, getStatusLabel, getStatusColor,
             <XAxis dataKey="mes" tick={{ fontSize: 11 }} stroke="#94a3b8" />
             <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
             <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} solicitações`} />} />
-            <AnimatedLine type="monotone" dataKey="total" stroke="#6366f1" strokeWidth={2} dot={{ fill: "#6366f1", r: 4 }} activeDot={{ r: 7, stroke: "#6366f1", strokeWidth: 2, fill: "#fff" }} drawDuration={2000} drawDelay={800} />
+            <AnimatedLine
+              type="monotone"
+              dataKey="total"
+              stroke="#6366f1"
+              strokeWidth={2}
+              dot={{ fill: "#6366f1", r: 4 }}
+              activeDot={{ r: 7, stroke: "#6366f1", strokeWidth: 2, fill: "#fff" }}
+              drawDuration={2000}
+              drawDelay={800}
+            />
           </LineChart>
         </ResponsiveContainer>
       </ChartCard>
@@ -46,7 +73,10 @@ export default function DashboardCharts({ stats, getStatusLabel, getStatusColor,
                 value: s.total,
                 fill: getStatusColor(s.status),
               }))}
-              cx="50%" cy="50%" innerRadius={50} outerRadius={90}
+              cx="50%"
+              cy="50%"
+              innerRadius={50}
+              outerRadius={90}
               dataKey="value"
               startAngle={90}
               endAngle={-270}
@@ -75,7 +105,10 @@ export default function DashboardCharts({ stats, getStatusLabel, getStatusColor,
                 onClick={() => openModal(map[s.status] || "pendentes")}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-medium hover:opacity-80 transition-opacity border border-slate-200 dark:border-slate-700"
               >
-                <span className="w-2.5 h-2.5 rounded-full" style={{ backgroundColor: getStatusColor(s.status) }} />
+                <span
+                  className="w-2.5 h-2.5 rounded-full"
+                  style={{ backgroundColor: getStatusColor(s.status) }}
+                />
                 {getStatusLabel(s.status)}: {s.total}
               </button>
             )
@@ -85,15 +118,23 @@ export default function DashboardCharts({ stats, getStatusLabel, getStatusColor,
 
       <ChartCard title="Solicitações por Tipo" delay={600}>
         <ResponsiveContainer width="100%" height={200}>
-          <BarChart data={(stats?.tipoDistribution || []).map((s: any) => ({
-            name: TIPO_LABELS[s.tipo] || s.tipo,
-            total: s.total,
-          }))}>
+          <BarChart
+            data={(stats?.tipoDistribution || []).map((s: any) => ({
+              name: TIPO_LABELS[s.tipo] || s.tipo,
+              total: s.total,
+            }))}
+          >
             <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
             <XAxis dataKey="name" tick={{ fontSize: 11 }} stroke="#94a3b8" />
             <YAxis allowDecimals={false} tick={{ fontSize: 11 }} stroke="#94a3b8" />
             <Tooltip content={<ChartTooltip formatter={(v) => `${v || 0} solicitações`} />} />
-            <Bar dataKey="total" radius={[4, 4, 0, 0]} animationDuration={1800} animationEasing="ease-in-out" animationBegin={1400}>
+            <Bar
+              dataKey="total"
+              radius={[4, 4, 0, 0]}
+              animationDuration={1800}
+              animationEasing="ease-in-out"
+              animationBegin={1400}
+            >
               {(stats?.tipoDistribution || []).map((s: any) => (
                 <Cell key={s.tipo} fill={TIPO_COLORS[s.tipo] || "#6366f1"} />
               ))}

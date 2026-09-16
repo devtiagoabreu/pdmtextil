@@ -69,7 +69,13 @@ export async function GET() {
         .limit(20),
     ])
 
-    return NextResponse.json({ pj: destinatarios.pj, pf: destinatarios.pf, usuarios: listaUsuarios, monitoramento, logs })
+    return NextResponse.json({
+      pj: destinatarios.pj,
+      pf: destinatarios.pf,
+      usuarios: listaUsuarios,
+      monitoramento,
+      logs,
+    })
   } catch (error) {
     console.error("[GET /api/admin/bot-config]", error)
     return NextResponse.json({ error: "Erro interno" }, { status: 500 })
@@ -109,9 +115,9 @@ export async function PUT(req: NextRequest) {
             .from(usuarios)
             .where(inArray(usuarios.id, todosIds))) as { id: number }[])
         : []
-    const encontrados = new Set(usuariosEncontrados.map(u => u.id))
+    const encontrados = new Set(usuariosEncontrados.map((u) => u.id))
     for (const tipo of ["pj", "pf"] as const) {
-      const invalido = ids[tipo].find(id => !encontrados.has(id))
+      const invalido = ids[tipo].find((id) => !encontrados.has(id))
       if (invalido) {
         return NextResponse.json(
           { error: `Usuário inválido para ${tipo === "pj" ? "PJ" : "PF"} (id ${invalido})` },
@@ -121,8 +127,8 @@ export async function PUT(req: NextRequest) {
     }
 
     const valores = [
-      ...ids.pj.map(usuarioId => ({ usuarioId, tipoPessoa: "PJ" as const })),
-      ...ids.pf.map(usuarioId => ({ usuarioId, tipoPessoa: "PF" as const })),
+      ...ids.pj.map((usuarioId) => ({ usuarioId, tipoPessoa: "PJ" as const })),
+      ...ids.pf.map((usuarioId) => ({ usuarioId, tipoPessoa: "PF" as const })),
     ]
 
     await db.transaction(async (tx: any) => {

@@ -5,7 +5,12 @@ import { useQuery } from "@tanstack/react-query"
 import { Plus, Loader2, Search, Check, AlertCircle } from "lucide-react"
 import { toast } from "sonner"
 import {
-  Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogClose,
+  Dialog,
+  DialogTrigger,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogClose,
 } from "@/components/ui/dialog"
 import { SelectUf } from "./select-uf"
 import { SelectCidade } from "./select-cidade"
@@ -157,7 +162,13 @@ export function QuickCreateCliente({ onCreated, open: openProp, onOpenChange }: 
   }
 
   return (
-    <Dialog open={open} onOpenChange={(v) => { setOpen(v); if (!v) resetForm() }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v) => {
+        setOpen(v)
+        if (!v) resetForm()
+      }}
+    >
       {!isControlled && (
         <DialogTrigger
           type="button"
@@ -171,34 +182,43 @@ export function QuickCreateCliente({ onCreated, open: openProp, onOpenChange }: 
         <DialogHeader className="px-4 pt-4 sm:px-6 sm:pt-6">
           <DialogTitle>Novo Cliente</DialogTitle>
         </DialogHeader>
-        <form onSubmit={handleSubmit} className="space-y-4 px-4 pb-4 sm:px-6 sm:pb-6 max-h-[80vh] overflow-y-auto">
+        <form
+          onSubmit={handleSubmit}
+          className="space-y-4 px-4 pb-4 sm:px-6 sm:pb-6 max-h-[80vh] overflow-y-auto"
+        >
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome / Razão Social *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Nome / Razão Social *
+            </label>
             <input
               type="text"
               value={nome}
-              onChange={e => setNome(e.target.value)}
+              onChange={(e) => setNome(e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Razão Social</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Razão Social
+            </label>
             <input
               type="text"
               value={razaoSocial}
-              onChange={e => setRazaoSocial(e.target.value)}
+              onChange={(e) => setRazaoSocial(e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CNPJ *</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              CNPJ *
+            </label>
             <div className="flex gap-2">
               <input
                 type="text"
                 value={cnpj}
-                onChange={e => setCnpj(e.target.value)}
-                onKeyDown={e => e.key === "Enter" && (e.preventDefault(), handleConsultarCnpj())}
+                onChange={(e) => setCnpj(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), handleConsultarCnpj())}
                 className="flex-1 min-w-0 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
                 placeholder="00.000.000/0001-00"
                 required
@@ -219,7 +239,8 @@ export function QuickCreateCliente({ onCreated, open: openProp, onOpenChange }: 
             <div className="rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 p-3 flex items-start gap-2">
               <AlertCircle size={16} className="text-amber-500 mt-0.5 shrink-0" />
               <p className="text-sm text-amber-700 dark:text-amber-300">
-                CNPJ {formatCnpj(cnpj)} não encontrado na Receita Federal. Preencha os dados manualmente.
+                CNPJ {formatCnpj(cnpj)} não encontrado na Receita Federal. Preencha os dados
+                manualmente.
               </p>
             </div>
           )}
@@ -228,7 +249,9 @@ export function QuickCreateCliente({ onCreated, open: openProp, onOpenChange }: 
             <div className="rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 p-3 flex items-start gap-2">
               <Check size={16} className="text-emerald-500 mt-0.5 shrink-0" />
               <div className="text-sm">
-                <p className="font-medium text-emerald-800 dark:text-emerald-300">{apiData.razao_social}</p>
+                <p className="font-medium text-emerald-800 dark:text-emerald-300">
+                  {apiData.razao_social}
+                </p>
                 <p className="text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">
                   {apiData.nome_fantasia} — {apiData.situacao_cadastral}
                 </p>
@@ -238,32 +261,69 @@ export function QuickCreateCliente({ onCreated, open: openProp, onOpenChange }: 
 
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Email</label>
-              <input type="email" value={email} onChange={e => setEmail(e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" placeholder="contato@empresa.com" />
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                placeholder="contato@empresa.com"
+              />
             </div>
             <div>
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Telefone</label>
-              <input type="text" value={telefone} onChange={e => setTelefone(e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" placeholder="(00) 00000-0000" />
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Telefone
+              </label>
+              <input
+                type="text"
+                value={telefone}
+                onChange={(e) => setTelefone(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                placeholder="(00) 00000-0000"
+              />
             </div>
             <div className="sm:col-span-2">
-              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Contato Principal</label>
-              <input type="text" value={contato} onChange={e => setContato(e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" placeholder="Nome do contato" />
+              <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                Contato Principal
+              </label>
+              <input
+                type="text"
+                value={contato}
+                onChange={(e) => setContato(e.target.value)}
+                className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                placeholder="Nome do contato"
+              />
             </div>
           </div>
 
           <div className="border-t border-slate-100 dark:border-slate-800 pt-3">
-            <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">Endereço</p>
+            <p className="text-xs font-semibold text-slate-600 dark:text-slate-400 mb-2">
+              Endereço
+            </p>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Logradouro</label>
-                <input type="text" value={endereco} onChange={e => setEndereco(e.target.value)} className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm" />
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Logradouro
+                </label>
+                <input
+                  type="text"
+                  value={endereco}
+                  onChange={(e) => setEndereco(e.target.value)}
+                  className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm"
+                />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UF</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  UF
+                </label>
                 <SelectUf value={uf} onChange={setUf} />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Cidade
+                </label>
                 <SelectCidade value={cidade} onChange={setCidade} estadoId={estadoId} />
               </div>
             </div>

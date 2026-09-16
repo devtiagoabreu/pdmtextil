@@ -54,26 +54,36 @@ export default function FornecedorFormPage() {
 
   const handleConsultarCnpj = async () => {
     const digits = (fornecedor.cnpj || "").replace(/\D/g, "")
-    if (digits.length !== 14) { toast.error("CNPJ deve ter 14 dígitos"); return }
+    if (digits.length !== 14) {
+      toast.error("CNPJ deve ter 14 dígitos")
+      return
+    }
     setIsConsultandoCnpj(true)
     try {
       const res = await fetch(`/api/crm/consulta-cnpj?cnpj=${digits}`)
       if (!res.ok) throw new Error((await res.json()).error || "Erro na consulta")
       const result = await res.json()
       const api = result.apiData
-      if (!api) { toast.error("CNPJ não encontrado na Receita Federal"); return }
+      if (!api) {
+        toast.error("CNPJ não encontrado na Receita Federal")
+        return
+      }
       setFornecedor((prev) => ({
         ...prev,
         nome: api.nome_fantasia || prev.nome,
         cnpj: api.cnpj || prev.cnpj,
         razaoSocial: api.razao_social || prev.razaoSocial,
-        endereco: [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
+        endereco:
+          [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
         cidade: api.municipio || prev.cidade,
         uf: api.uf || prev.uf,
       }))
       toast.success("Dados preenchidos pela Receita Federal")
-    } catch (err: unknown) { toast.error(err instanceof Error ? err.message : "Erro ao consultar CNPJ") }
-    finally { setIsConsultandoCnpj(false) }
+    } catch (err: unknown) {
+      toast.error(err instanceof Error ? err.message : "Erro ao consultar CNPJ")
+    } finally {
+      setIsConsultandoCnpj(false)
+    }
   }
 
   const { data: fornecedorData, isLoading: loading } = useQuery<Fornecedor>({
@@ -138,7 +148,7 @@ export default function FornecedorFormPage() {
   }
 
   const handleChange = (field: keyof Fornecedor, value: string | boolean) => {
-    setFornecedor(prev => ({ ...prev, [field]: value }))
+    setFornecedor((prev) => ({ ...prev, [field]: value }))
   }
 
   if (loading) {
@@ -158,12 +168,12 @@ export default function FornecedorFormPage() {
           </Button>
         </Link>
         <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-          {isEditing ? "Editar Fornecedor" : "Novo Fornecedor"}
-          {info && <InfoButton content={info} />}
-        </h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            {isEditing ? "Editar Fornecedor" : "Novo Fornecedor"}
+            {info && <InfoButton content={info} />}
+          </h1>
+        </div>
       </div>
-    </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
@@ -172,7 +182,7 @@ export default function FornecedorFormPage() {
             <Input
               id="nome"
               value={fornecedor.nome}
-              onChange={e => handleChange("nome", e.target.value)}
+              onChange={(e) => handleChange("nome", e.target.value)}
               placeholder="Fornecedor XYZ"
               required
             />
@@ -183,7 +193,7 @@ export default function FornecedorFormPage() {
               <Input
                 id="cnpj"
                 value={fornecedor.cnpj || ""}
-                onChange={e => handleChange("cnpj", e.target.value)}
+                onChange={(e) => handleChange("cnpj", e.target.value)}
                 placeholder="00.000.000/0001-00"
                 className="flex-1"
               />
@@ -192,10 +202,16 @@ export default function FornecedorFormPage() {
                 variant="outline"
                 size="sm"
                 onClick={handleConsultarCnpj}
-                disabled={isConsultandoCnpj || (fornecedor.cnpj || "").replace(/\D/g, "").length !== 14}
+                disabled={
+                  isConsultandoCnpj || (fornecedor.cnpj || "").replace(/\D/g, "").length !== 14
+                }
                 className="gap-1 shrink-0"
               >
-                {isConsultandoCnpj ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+                {isConsultandoCnpj ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Search size={14} />
+                )}
                 Consultar
               </Button>
             </div>
@@ -207,7 +223,7 @@ export default function FornecedorFormPage() {
           <Input
             id="razaoSocial"
             value={fornecedor.razaoSocial || ""}
-            onChange={e => handleChange("razaoSocial", e.target.value)}
+            onChange={(e) => handleChange("razaoSocial", e.target.value)}
             placeholder="Razão social completa"
           />
         </div>
@@ -219,7 +235,7 @@ export default function FornecedorFormPage() {
               id="email"
               type="email"
               value={fornecedor.email || ""}
-              onChange={e => handleChange("email", e.target.value)}
+              onChange={(e) => handleChange("email", e.target.value)}
               placeholder="contato@fornecedor.com"
             />
           </div>
@@ -228,7 +244,7 @@ export default function FornecedorFormPage() {
             <Input
               id="telefone"
               value={fornecedor.telefone || ""}
-              onChange={e => handleChange("telefone", e.target.value)}
+              onChange={(e) => handleChange("telefone", e.target.value)}
               placeholder="(11) 99999-9999"
             />
           </div>
@@ -239,7 +255,7 @@ export default function FornecedorFormPage() {
           <Input
             id="contato"
             value={fornecedor.contato || ""}
-            onChange={e => handleChange("contato", e.target.value)}
+            onChange={(e) => handleChange("contato", e.target.value)}
             placeholder="João Silva"
           />
         </div>
@@ -249,7 +265,7 @@ export default function FornecedorFormPage() {
           <Input
             id="endereco"
             value={fornecedor.endereco || ""}
-            onChange={e => handleChange("endereco", e.target.value)}
+            onChange={(e) => handleChange("endereco", e.target.value)}
             placeholder="Rua, número, bairro"
           />
         </div>
@@ -260,7 +276,7 @@ export default function FornecedorFormPage() {
             <Input
               id="cidade"
               value={fornecedor.cidade || ""}
-              onChange={e => handleChange("cidade", e.target.value)}
+              onChange={(e) => handleChange("cidade", e.target.value)}
               placeholder="São Paulo"
             />
           </div>
@@ -269,21 +285,32 @@ export default function FornecedorFormPage() {
             <Input
               id="uf"
               value={fornecedor.uf || ""}
-              onChange={e => handleChange("uf", e.target.value)}
+              onChange={(e) => handleChange("uf", e.target.value)}
               placeholder="SP"
               maxLength={2}
             />
           </div>
         </div>
 
-<div className="flex items-center gap-2">
-          <input type="checkbox" id="ativo" checked={fornecedor.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
+        <div className="flex items-center gap-2">
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={fornecedor.ativo}
+            onChange={(e) => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
           <Label htmlFor="ativo">Ativo</Label>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="idIntegracao">ID Integração (ERP/WMS/CRM/OUTROS)</Label>
-          <Input id="idIntegracao" value={fornecedor.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="Código do sistema externo" />
+          <Input
+            id="idIntegracao"
+            value={fornecedor.idIntegracao || ""}
+            onChange={(e) => handleChange("idIntegracao", e.target.value)}
+            placeholder="Código do sistema externo"
+          />
         </div>
 
         <div className="flex gap-4">
@@ -292,7 +319,9 @@ export default function FornecedorFormPage() {
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
           <Link href="/cadastros/fornecedores">
-            <Button variant="outline" type="button">Cancelar</Button>
+            <Button variant="outline" type="button">
+              Cancelar
+            </Button>
           </Link>
         </div>
       </form>

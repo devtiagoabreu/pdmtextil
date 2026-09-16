@@ -31,6 +31,9 @@ export async function DELETE(
 
     return NextResponse.json({ success: true })
   } catch (error) {
-    return handleApiError(error, "DELETE /api/cadastros/produto-cru/[id]/acabamentos/[aid]/receitas/[rid]")
+    return handleApiError(
+      error,
+      "DELETE /api/cadastros/produto-cru/[id]/acabamentos/[aid]/receitas/[rid]"
+    )
   }
 }

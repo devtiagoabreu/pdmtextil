@@ -35,7 +35,10 @@ const STATUS_LABEL: Record<string, string> = {
   ATENDIDO: "Atendido",
 }
 
-export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orientation: "portrait" | "landscape" = "portrait") {
+export async function gerarRequisicaoCortePdf(
+  data: RequisicaoCorteData,
+  orientation: "portrait" | "landscape" = "portrait"
+) {
   let empresa: Record<string, any> | null = null
   try {
     const res = await fetch("/api/admin/config/empresa")
@@ -81,7 +84,6 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
     return acc + (isNaN(num) ? 0 : num)
   }, 0)
 
-
   // ── Header ──
   let logoImg: HTMLImageElement | null = null
   if (empresa && empresa.logoUrl) {
@@ -102,7 +104,14 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
         const maxW = 18
         const maxH = 18
         const scale = Math.min(maxW / logoImg.width, maxH / logoImg.height, 1)
-        doc.addImage(logoImg, "PNG", margin, (headerH - logoImg.height * scale) / 2, logoImg.width * scale, logoImg.height * scale)
+        doc.addImage(
+          logoImg,
+          "PNG",
+          margin,
+          (headerH - logoImg.height * scale) / 2,
+          logoImg.width * scale,
+          logoImg.height * scale
+        )
       }
 
       const textX = logoImg ? margin + 18 + 8 : margin + 6
@@ -159,11 +168,24 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
     [
       { title: "Status", value: STATUS_LABEL[data.status] || data.status },
       { title: "Requisitante", value: data.requisitanteNome || "—" },
-      { title: "Data de Criação", value: data.createdAt ? new Date(data.createdAt).toLocaleDateString("pt-BR") : "—" },
+      {
+        title: "Data de Criação",
+        value: data.createdAt ? new Date(data.createdAt).toLocaleDateString("pt-BR") : "—",
+      },
     ],
     [
-      { title: "Data Solicitação", value: data.dataSolicitacao ? new Date(data.dataSolicitacao + "T12:00:00").toLocaleDateString("pt-BR") : "—" },
-      { title: "Data Entrega", value: data.dataEntrega ? new Date(data.dataEntrega + "T12:00:00").toLocaleDateString("pt-BR") : "—" },
+      {
+        title: "Data Solicitação",
+        value: data.dataSolicitacao
+          ? new Date(data.dataSolicitacao + "T12:00:00").toLocaleDateString("pt-BR")
+          : "—",
+      },
+      {
+        title: "Data Entrega",
+        value: data.dataEntrega
+          ? new Date(data.dataEntrega + "T12:00:00").toLocaleDateString("pt-BR")
+          : "—",
+      },
       { title: "Entregue por", value: data.entreguePor || "—" },
     ],
     [
@@ -175,7 +197,9 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
 
   const colW = (pageWidth - margin * 2 - 16) / 3
   const infoRowsH = 39
-  const obsParts = data.observacoes ? doc.splitTextToSize(data.observacoes, pageWidth - margin * 2 - 16) : []
+  const obsParts = data.observacoes
+    ? doc.splitTextToSize(data.observacoes, pageWidth - margin * 2 - 16)
+    : []
   const obsBlockH = data.observacoes ? Math.max(14, obsParts.length * 4 + 10) : 0
   const infoBoxH = infoRowsH + 8 + obsBlockH
 
@@ -225,7 +249,9 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
     if (!produtosMap.has(prod)) produtosMap.set(prod, [])
     produtosMap.get(prod)!.push(item)
   }
-  const produtosOrdenados = Array.from(produtosMap.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0]))
+  const produtosOrdenados = Array.from(produtosMap.entries()).sort((a: any, b: any) =>
+    a[0].localeCompare(b[0])
+  )
 
   let numSeq = 0
   let totalGeralQtd = 0
@@ -242,7 +268,10 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
       },
     ])
 
-    const aggMap = new Map<string, { item: RequisicaoCorteData["itens"][0]; qtd: number; count: number; pecas: number[] }>()
+    const aggMap = new Map<
+      string,
+      { item: RequisicaoCorteData["itens"][0]; qtd: number; count: number; pecas: number[] }
+    >()
     for (const item of prodItens) {
       const key = `${item.ordem}||${item.artigo}||${item.cor}||${item.desenho}`
       const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
@@ -281,14 +310,28 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
     totalGeralItens += prodItens.length
 
     tableBody.push([
-      { content: `SUBTOTAL ${prodNome}: ${prodItens.length} item(ns)`, colSpan: NUM_COLS - 1, styles: { fontStyle: "bold", fontSize: 7, fillColor: [233, 213, 255] } },
-      { content: String(prodQtd), styles: { fontStyle: "bold", fontSize: 7, fillColor: [233, 213, 255], halign: "center" } },
+      {
+        content: `SUBTOTAL ${prodNome}: ${prodItens.length} item(ns)`,
+        colSpan: NUM_COLS - 1,
+        styles: { fontStyle: "bold", fontSize: 7, fillColor: [233, 213, 255] },
+      },
+      {
+        content: String(prodQtd),
+        styles: { fontStyle: "bold", fontSize: 7, fillColor: [233, 213, 255], halign: "center" },
+      },
     ])
   }
 
   tableBody.push([
-    { content: `TOTAL GERAL: ${totalGeralItens} item(ns)`, colSpan: NUM_COLS - 1, styles: { fontStyle: "bold", fontSize: 8, fillColor: [191, 219, 254] } },
-    { content: String(totalGeralQtd), styles: { fontStyle: "bold", fontSize: 8, fillColor: [191, 219, 254], halign: "center" } },
+    {
+      content: `TOTAL GERAL: ${totalGeralItens} item(ns)`,
+      colSpan: NUM_COLS - 1,
+      styles: { fontStyle: "bold", fontSize: 8, fillColor: [191, 219, 254] },
+    },
+    {
+      content: String(totalGeralQtd),
+      styles: { fontStyle: "bold", fontSize: 8, fillColor: [191, 219, 254], halign: "center" },
+    },
   ])
 
   const footerId = data.id
@@ -299,7 +342,12 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
     body: tableBody,
     startY: y,
     styles: { fontSize: 7.5, cellPadding: 2 },
-    headStyles: { fillColor: [...corHeader], textColor: [...corHeaderText], fontStyle: "bold", fontSize: 7 },
+    headStyles: {
+      fillColor: [...corHeader],
+      textColor: [...corHeaderText],
+      fontStyle: "bold",
+      fontSize: 7,
+    },
     alternateRowStyles: { fillColor: [...corSecundaria] },
     margin: { left: margin, right: margin, top: 10, bottom: 16 },
     tableLineColor: [...corBorda],
@@ -319,7 +367,9 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
       doc.setTextColor(...corTextoSec)
       doc.setFontSize(7).setFont("helvetica", "normal")
       doc.text(`Requisição de Corte Nº ${footerId}`, margin, pageHeight - 7)
-      doc.text(`Página ${pageData.pageNumber}`, pageWidth - margin, pageHeight - 7, { align: "right" })
+      doc.text(`Página ${pageData.pageNumber}`, pageWidth - margin, pageHeight - 7, {
+        align: "right",
+      })
       doc.setTextColor(...corTexto)
     },
   })
@@ -331,7 +381,10 @@ export async function gerarRequisicaoCortePdf(data: RequisicaoCorteData, orienta
   toast.success("PDF gerado com sucesso!")
 }
 
-export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteData[], orientation: "portrait" | "landscape" = "portrait") {
+export async function gerarRequisicaoCortePdfConsolidado(
+  lista: RequisicaoCorteData[],
+  orientation: "portrait" | "landscape" = "portrait"
+) {
   if (lista.length === 0) return
 
   let empresa: Record<string, any> | null = null
@@ -386,7 +439,14 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
         const maxW = 18
         const maxH = 18
         const scale = Math.min(maxW / logoImg.width, maxH / logoImg.height, 1)
-        doc.addImage(logoImg, "PNG", margin, (headerH - logoImg.height * scale) / 2, logoImg.width * scale, logoImg.height * scale)
+        doc.addImage(
+          logoImg,
+          "PNG",
+          margin,
+          (headerH - logoImg.height * scale) / 2,
+          logoImg.width * scale,
+          logoImg.height * scale
+        )
       }
 
       const textX = logoImg ? margin + 18 + 8 : margin + 6
@@ -427,10 +487,13 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
   }
 
   const totalGeralQtd = lista.reduce((acc: any, r: any) => {
-    return acc + r.itens.reduce((s: any, item: any) => {
-      const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
-      return s + (isNaN(num) ? 0 : num)
-    }, 0)
+    return (
+      acc +
+      r.itens.reduce((s: any, item: any) => {
+        const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
+        return s + (isNaN(num) ? 0 : num)
+      }, 0)
+    )
   }, 0)
 
   const totalGeralItens = lista.reduce((acc: any, r: any) => acc + r.itens.length, 0)
@@ -472,11 +535,24 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
       [
         { title: "Status", value: STATUS_LABEL[data.status] || data.status },
         { title: "Requisitante", value: data.requisitanteNome || "—" },
-        { title: "Data de Criação", value: data.createdAt ? new Date(data.createdAt).toLocaleDateString("pt-BR") : "—" },
+        {
+          title: "Data de Criação",
+          value: data.createdAt ? new Date(data.createdAt).toLocaleDateString("pt-BR") : "—",
+        },
       ],
       [
-        { title: "Data Solicitação", value: data.dataSolicitacao ? new Date(data.dataSolicitacao + "T12:00:00").toLocaleDateString("pt-BR") : "—" },
-        { title: "Data Entrega", value: data.dataEntrega ? new Date(data.dataEntrega + "T12:00:00").toLocaleDateString("pt-BR") : "—" },
+        {
+          title: "Data Solicitação",
+          value: data.dataSolicitacao
+            ? new Date(data.dataSolicitacao + "T12:00:00").toLocaleDateString("pt-BR")
+            : "—",
+        },
+        {
+          title: "Data Entrega",
+          value: data.dataEntrega
+            ? new Date(data.dataEntrega + "T12:00:00").toLocaleDateString("pt-BR")
+            : "—",
+        },
         { title: "Entregue por", value: data.entreguePor || "—" },
       ],
       [
@@ -487,7 +563,9 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
     ]
 
     const infoRowsH = 39
-    const obsPartsC = data.observacoes ? doc.splitTextToSize(data.observacoes, pageWidth - margin * 2 - 16) : []
+    const obsPartsC = data.observacoes
+      ? doc.splitTextToSize(data.observacoes, pageWidth - margin * 2 - 16)
+      : []
     const obsBlockHC = data.observacoes ? Math.max(14, obsPartsC.length * 4 + 10) : 0
     const infoBoxHC = infoRowsH + 8 + obsBlockHC
 
@@ -537,7 +615,9 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
       if (!produtosMapC.has(prod)) produtosMapC.set(prod, [])
       produtosMapC.get(prod)!.push(item)
     }
-    const produtosOrdenadosC = Array.from(produtosMapC.entries()).sort((a: any, b: any) => a[0].localeCompare(b[0]))
+    const produtosOrdenadosC = Array.from(produtosMapC.entries()).sort((a: any, b: any) =>
+      a[0].localeCompare(b[0])
+    )
 
     let numSeqC = 0
     let totalGeralQtdC = 0
@@ -553,7 +633,10 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
         },
       ])
 
-      const aggMapC = new Map<string, { item: RequisicaoCorteData["itens"][0]; qtd: number; count: number; pecas: number[] }>()
+      const aggMapC = new Map<
+        string,
+        { item: RequisicaoCorteData["itens"][0]; qtd: number; count: number; pecas: number[] }
+      >()
       for (const item of prodItens) {
         const key = `${item.ordem}||${item.artigo}||${item.cor}||${item.desenho}`
         const num = parseFloat(item.quantidade.replace(/[^0-9.,]/g, "").replace(",", "."))
@@ -591,14 +674,28 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
       totalGeralQtdC += prodQtd
 
       tableBodyC.push([
-        { content: `SUBTOTAL ${prodNome}: ${prodItens.length} item(ns)`, colSpan: NUM_COLS_C - 1, styles: { fontStyle: "bold", fontSize: 7, fillColor: [233, 213, 255] } },
-        { content: String(prodQtd), styles: { fontStyle: "bold", fontSize: 7, fillColor: [233, 213, 255], halign: "center" } },
+        {
+          content: `SUBTOTAL ${prodNome}: ${prodItens.length} item(ns)`,
+          colSpan: NUM_COLS_C - 1,
+          styles: { fontStyle: "bold", fontSize: 7, fillColor: [233, 213, 255] },
+        },
+        {
+          content: String(prodQtd),
+          styles: { fontStyle: "bold", fontSize: 7, fillColor: [233, 213, 255], halign: "center" },
+        },
       ])
     }
 
     tableBodyC.push([
-      { content: `TOTAL GERAL: ${data.itens.length} item(ns)`, colSpan: NUM_COLS_C - 1, styles: { fontStyle: "bold", fontSize: 8, fillColor: [191, 219, 254] } },
-      { content: String(totalGeralQtdC), styles: { fontStyle: "bold", fontSize: 8, fillColor: [191, 219, 254], halign: "center" } },
+      {
+        content: `TOTAL GERAL: ${data.itens.length} item(ns)`,
+        colSpan: NUM_COLS_C - 1,
+        styles: { fontStyle: "bold", fontSize: 8, fillColor: [191, 219, 254] },
+      },
+      {
+        content: String(totalGeralQtdC),
+        styles: { fontStyle: "bold", fontSize: 8, fillColor: [191, 219, 254], halign: "center" },
+      },
     ])
 
     const footerIdC = data.id
@@ -609,7 +706,12 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
       body: tableBodyC,
       startY: y,
       styles: { fontSize: 7.5, cellPadding: 2 },
-      headStyles: { fillColor: [...corHeader], textColor: [...corHeaderText], fontStyle: "bold", fontSize: 7 },
+      headStyles: {
+        fillColor: [...corHeader],
+        textColor: [...corHeaderText],
+        fontStyle: "bold",
+        fontSize: 7,
+      },
       alternateRowStyles: { fillColor: [...corSecundaria] },
       margin: { left: margin, right: margin, top: 10, bottom: 16 },
       tableLineColor: [...corBorda],
@@ -629,13 +731,18 @@ export async function gerarRequisicaoCortePdfConsolidado(lista: RequisicaoCorteD
         doc.setTextColor(...corTextoSec)
         doc.setFontSize(7).setFont("helvetica", "normal")
         doc.text(`Requisição de Corte Nº ${footerIdC}`, margin, pageHeight - 7)
-        doc.text(`Página ${pageData.pageNumber}`, pageWidth - margin, pageHeight - 7, { align: "right" })
+        doc.text(`Página ${pageData.pageNumber}`, pageWidth - margin, pageHeight - 7, {
+          align: "right",
+        })
         doc.setTextColor(...corTexto)
       },
     })
   }
 
-  const sufixo = lista.length <= 3 ? lista.map((r: any) => r.id).join("-") : `${lista[0].id}-${lista[lista.length - 1].id}`
+  const sufixo =
+    lista.length <= 3
+      ? lista.map((r: any) => r.id).join("-")
+      : `${lista[0].id}-${lista[lista.length - 1].id}`
   doc.save(`requisicoes-corte-${sufixo}.pdf`)
   toast.success(`PDF consolidado com ${lista.length} requisição(ões) gerado!`)
 }

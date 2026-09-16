@@ -1,4 +1,14 @@
-export async function consultarCNPJ(cnpj: string): Promise<{ razaoSocial: string; nomeFantasia: string; situacao: string; endereco: string; bairro: string; cidade: string; uf: string } | null> {
+export async function consultarCNPJ(
+  cnpj: string
+): Promise<{
+  razaoSocial: string
+  nomeFantasia: string
+  situacao: string
+  endereco: string
+  bairro: string
+  cidade: string
+  uf: string
+} | null> {
   try {
     const cnpjLimpo = cnpj.replace(/\D/g, "")
     const res = await fetch(`https://api.opencnpj.org/${cnpjLimpo}`, {

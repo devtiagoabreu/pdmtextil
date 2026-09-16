@@ -3,7 +3,12 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import type { BancoDados } from "./types"
 
@@ -37,13 +42,16 @@ export function CloneDialog({
   onClose,
 }: CloneDialogProps) {
   return (
-    <Dialog open={open} onOpenChange={(v: boolean) => { if (!v) onClose() }}>
+    <Dialog
+      open={open}
+      onOpenChange={(v: boolean) => {
+        if (!v) onClose()
+      }}
+    >
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Clonar Banco de Dados</DialogTitle>
-          <DialogDescription>
-            Clona um banco de dados existente para outro banco.
-          </DialogDescription>
+          <DialogDescription>Clona um banco de dados existente para outro banco.</DialogDescription>
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
@@ -52,29 +60,47 @@ export function CloneDialog({
           </div>
           <div className="space-y-2">
             <Label>Banco de origem</Label>
-            <Input value={sourceDb} onChange={e => setSourceDb(e.target.value)} placeholder="Ex: producao_principal" />
+            <Input
+              value={sourceDb}
+              onChange={(e) => setSourceDb(e.target.value)}
+              placeholder="Ex: producao_principal"
+            />
           </div>
           <div className="space-y-2">
             <Label>Conexão de destino</Label>
             <select
               className="w-full rounded-lg border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 px-3 py-2 text-sm"
               value={destinoId}
-              onChange={e => setDestinoId(e.target.value)}
+              onChange={(e) => setDestinoId(e.target.value)}
             >
               <option value="">Selecione...</option>
-              {lista.filter((c: any) => c.id !== origem?.id).map((c: any) => (
-                <option key={c.id} value={c.id}>{c.nome}</option>
-              ))}
+              {lista
+                .filter((c: any) => c.id !== origem?.id)
+                .map((c: any) => (
+                  <option key={c.id} value={c.id}>
+                    {c.nome}
+                  </option>
+                ))}
             </select>
           </div>
           <div className="space-y-2">
             <Label>Novo banco (destino)</Label>
-            <Input value={targetDb} onChange={e => setTargetDb(e.target.value)} placeholder="Ex: producao_backup" />
+            <Input
+              value={targetDb}
+              onChange={(e) => setTargetDb(e.target.value)}
+              placeholder="Ex: producao_backup"
+            />
           </div>
         </div>
         <DialogFooter>
-          <Button variant="outline" onClick={onClose}>Cancelar</Button>
-          <Button onClick={onConfirm} disabled={loading || !sourceDb || !targetDb || !destinoId} className="gap-2">
+          <Button variant="outline" onClick={onClose}>
+            Cancelar
+          </Button>
+          <Button
+            onClick={onConfirm}
+            disabled={loading || !sourceDb || !targetDb || !destinoId}
+            className="gap-2"
+          >
             {loading && <Loader2 size={16} className="animate-spin" />}
             Clonar
           </Button>

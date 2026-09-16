@@ -1,9 +1,20 @@
-import { pgTable, serial, integer, varchar, text, jsonb, boolean, timestamp } from "drizzle-orm/pg-core"
+import {
+  pgTable,
+  serial,
+  integer,
+  varchar,
+  text,
+  jsonb,
+  boolean,
+  timestamp,
+} from "drizzle-orm/pg-core"
 import { crmTreinoModulos } from "./crm-treino-modulos"
 
 export const crmTreinoLicoes = pgTable("crm_treino_licoes", {
   id: serial("id").primaryKey(),
-  moduloId: integer("modulo_id").notNull().references(() => crmTreinoModulos.id, { onDelete: "cascade" }),
+  moduloId: integer("modulo_id")
+    .notNull()
+    .references(() => crmTreinoModulos.id, { onDelete: "cascade" }),
   titulo: varchar("titulo", { length: 200 }).notNull(),
   conteudoMd: text("conteudo_md").notNull().default(""),
   preRequisitos: text("pre_requisitos"),

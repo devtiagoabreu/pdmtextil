@@ -1,4 +1,15 @@
-import { rejeitarNome, negou, confirmou, parseLinhas, linhasNomes, pareceNome, detectarTipo, extrairDoc, extrairNomeDaResposta, ehSaudacao } from "./validation"
+import {
+  rejeitarNome,
+  negou,
+  confirmou,
+  parseLinhas,
+  linhasNomes,
+  pareceNome,
+  detectarTipo,
+  extrairDoc,
+  extrairNomeDaResposta,
+  ehSaudacao,
+} from "./validation"
 
 export interface MaquinaEstadoResult {
   nextEstado: string
@@ -27,7 +38,10 @@ export function maquinaEstados(
 
   // Saudação em etapas de coleta não avança o fluxo nem conta como tentativa inválida
   // (evita que um cliente que já foi atendido e apenas cumprimenta seja bloqueado).
-  if (ehSaudacao(msgOriginal) && (curEstado.startsWith("COLETANDO_") || curEstado.startsWith("CONFIRMANDO_"))) {
+  if (
+    ehSaudacao(msgOriginal) &&
+    (curEstado.startsWith("COLETANDO_") || curEstado.startsWith("CONFIRMANDO_"))
+  ) {
     return { nextEstado: curEstado, dados, finalizado: !!dados.finalizado }
   }
 
@@ -59,7 +73,12 @@ export function maquinaEstados(
     if (tipoEscolhido) dados.tipoPessoa = tipoEscolhido
     if (doc) dados.documento = doc.doc
     if (!dados.tipoPessoa && doc) dados.tipoPessoa = doc.tipo
-    if (!dados.nome && pareceNome(msgOriginal) && !rejeitarNome(msgOriginal) && msgOriginal.length < 50) {
+    if (
+      !dados.nome &&
+      pareceNome(msgOriginal) &&
+      !rejeitarNome(msgOriginal) &&
+      msgOriginal.length < 50
+    ) {
       dados.nome = msgOriginal
     }
 
@@ -96,8 +115,15 @@ export function maquinaEstados(
     }
   } else if (curEstado === "COLETANDO_INTERESSE") {
     const linhas = parseLinhas(msgOriginal, maxNumero)
-    const temNomeLinha = linhas.map((n: any) => linhaMap[n]?.toLowerCase() || "").some((nome: any) => msg.includes(nome))
-    const escolhidas = linhas.length > 0 ? linhas : (linhasSugeridas && linhasSugeridas.length > 0 ? linhasSugeridas : [])
+    const temNomeLinha = linhas
+      .map((n: any) => linhaMap[n]?.toLowerCase() || "")
+      .some((nome: any) => msg.includes(nome))
+    const escolhidas =
+      linhas.length > 0
+        ? linhas
+        : linhasSugeridas && linhasSugeridas.length > 0
+          ? linhasSugeridas
+          : []
     if (escolhidas.length > 0 || temNomeLinha) {
       dados.linhasInteresse = escolhidas
       dados.linhasInteresseNomes = linhasNomes(escolhidas, linhaMap)
@@ -136,4 +162,3 @@ export function maquinaEstados(
 
   return { nextEstado, dados, finalizado: !!dados.finalizado, enviarCatalogo, needsCnpjLookup }
 }
-

@@ -12,7 +12,12 @@ interface PhotoUploadProps {
   label?: string
 }
 
-export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, label = "Fotos, comprovantes, documentos e outros" }: PhotoUploadProps) {
+export default function PhotoUpload({
+  photos,
+  onPhotosChange,
+  maxPhotos = 20,
+  label = "Fotos, comprovantes, documentos e outros",
+}: PhotoUploadProps) {
   const [uploading, setUploading] = useState(false)
   const [showUrlInput, setShowUrlInput] = useState(false)
   const [urlValue, setUrlValue] = useState("")
@@ -141,8 +146,8 @@ export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, la
           <input
             type="url"
             value={urlValue}
-            onChange={e => setUrlValue(e.target.value)}
-            onKeyDown={e => e.key === "Enter" && (e.preventDefault(), addUrl())}
+            onChange={(e) => setUrlValue(e.target.value)}
+            onKeyDown={(e) => e.key === "Enter" && (e.preventDefault(), addUrl())}
             placeholder="https://..."
             className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
           />
@@ -173,13 +178,14 @@ export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, la
                   src={foto.url}
                   alt={foto.descricao || `Item ${i + 1}`}
                   className="object-cover w-full h-full"
-                  onError={e => {
+                  onError={(e) => {
                     const img = e.target as HTMLImageElement
                     img.style.display = "none"
                     const parent = img.parentElement
                     if (parent && !parent.querySelector(".foto-fallback")) {
                       const span = document.createElement("span")
-                      span.className = "foto-fallback absolute inset-0 flex items-center justify-center text-xs text-slate-400 px-2 text-center"
+                      span.className =
+                        "foto-fallback absolute inset-0 flex items-center justify-center text-xs text-slate-400 px-2 text-center"
                       span.textContent = "Anexo / link"
                       parent.appendChild(span)
                     }
@@ -190,8 +196,8 @@ export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, la
                 <input
                   type="text"
                   value={foto.descricao}
-                  onChange={e => updateDescricao(i, e.target.value)}
-                  onKeyDown={e => {
+                  onChange={(e) => updateDescricao(i, e.target.value)}
+                  onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       e.preventDefault()
                       commitDescricao(i)
@@ -226,9 +232,7 @@ export default function PhotoUpload({ photos, onPhotosChange, maxPhotos = 20, la
       ) : (
         <div className="border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl p-6 text-center">
           <Camera size={24} className="mx-auto text-slate-300 dark:text-slate-600 mb-2" />
-          <p className="text-xs text-slate-400">
-            Nenhum anexo adicionado
-          </p>
+          <p className="text-xs text-slate-400">Nenhum anexo adicionado</p>
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}

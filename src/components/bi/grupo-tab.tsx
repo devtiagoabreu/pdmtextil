@@ -28,8 +28,8 @@ export function GrupoTab({
   grupoReps,
   loadingClientes,
 }: Props) {
-  const filteredGrupos = grupoList.filter(g =>
-    g.toLowerCase().includes(searchGrupo.toLowerCase()),
+  const filteredGrupos = grupoList.filter((g) =>
+    g.toLowerCase().includes(searchGrupo.toLowerCase())
   )
 
   return (
@@ -45,13 +45,13 @@ export function GrupoTab({
             <input
               type="text"
               value={searchGrupo}
-              onChange={e => setSearchGrupo(e.target.value)}
+              onChange={(e) => setSearchGrupo(e.target.value)}
               placeholder="Buscar artigo (ex: K1820, T0093)..."
               className="w-full pl-9 pr-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
             />
           </div>
           <div className="max-h-[400px] overflow-y-auto space-y-1">
-            {filteredGrupos.slice(0, 300).map(g => (
+            {filteredGrupos.slice(0, 300).map((g) => (
               <button
                 key={g}
                 onClick={() => onSelectGrupo(g)}
@@ -73,7 +73,9 @@ export function GrupoTab({
         {!selectedGrupo && (
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-8 text-center">
             <Layers className="w-12 h-12 mx-auto text-slate-300 dark:text-slate-600 mb-3" />
-            <p className="text-sm text-slate-500">Selecione um artigo ao lado para ver os clientes</p>
+            <p className="text-sm text-slate-500">
+              Selecione um artigo ao lado para ver os clientes
+            </p>
           </div>
         )}
 
@@ -86,7 +88,8 @@ export function GrupoTab({
         {selectedGrupo && !loadingClientes && (
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
             <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300 mb-3">
-              Clientes que compraram do artigo: <span className="text-indigo-600 dark:text-indigo-400">{selectedGrupo}</span>
+              Clientes que compraram do artigo:{" "}
+              <span className="text-indigo-600 dark:text-indigo-400">{selectedGrupo}</span>
             </h3>
 
             <ClientesTable clientes={clientesData} />
@@ -99,7 +102,13 @@ export function GrupoTab({
               <Users className="w-4 h-4 text-indigo-500" />
               Top Representantes do Artigo
             </h3>
-            <RankList items={grupoReps.slice(0, 5)} metric="totalVendas" format={(v: number) => `R$ ${v.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}`} />
+            <RankList
+              items={grupoReps.slice(0, 5)}
+              metric="totalVendas"
+              format={(v: number) =>
+                `R$ ${v.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}`
+              }
+            />
           </div>
         )}
 
@@ -109,8 +118,22 @@ export function GrupoTab({
               <BarChart data={clientesData.slice(0, 10)} layout="vertical" margin={{ left: 20 }}>
                 <CartesianGrid strokeDasharray="3 3" stroke="#e2e8f0" />
                 <XAxis type="number" tick={{ fontSize: 10 }} stroke="#94a3b8" />
-                <YAxis dataKey="razaoSocial" type="category" tick={{ fontSize: 9 }} stroke="#94a3b8" width={150} />
-                <Tooltip content={<ChartTooltip formatter={(v: number) => `R$ ${v.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}`} />} />
+                <YAxis
+                  dataKey="razaoSocial"
+                  type="category"
+                  tick={{ fontSize: 9 }}
+                  stroke="#94a3b8"
+                  width={150}
+                />
+                <Tooltip
+                  content={
+                    <ChartTooltip
+                      formatter={(v: number) =>
+                        `R$ ${v.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}`
+                      }
+                    />
+                  }
+                />
                 <Bar dataKey="totalFaturado" radius={[0, 4, 4, 0]} fill="#06b6d4" />
               </BarChart>
             </ResponsiveContainer>

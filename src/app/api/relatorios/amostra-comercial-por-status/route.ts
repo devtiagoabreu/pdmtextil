@@ -21,7 +21,8 @@ export async function GET(req: NextRequest) {
 
     const conditions = []
     if (status) conditions.push(eq(requisicoesAmostraComercial.status, status))
-    if (dataInicio) conditions.push(gte(requisicoesAmostraComercial.createdAt, new Date(dataInicio)))
+    if (dataInicio)
+      conditions.push(gte(requisicoesAmostraComercial.createdAt, new Date(dataInicio)))
     if (dataFim) conditions.push(lte(requisicoesAmostraComercial.createdAt, new Date(dataFim)))
 
     const whereClause = conditions.length > 0 ? and(...conditions) : undefined
@@ -86,9 +87,12 @@ export async function GET(req: NextRequest) {
     })
   } catch (error) {
     console.error("[GET /api/relatorios/amostra-comercial-por-status]", error)
-    return NextResponse.json({
-      error: "Erro interno",
-      detail: "Erro interno",
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Erro interno",
+        detail: "Erro interno",
+      },
+      { status: 500 }
+    )
   }
 }

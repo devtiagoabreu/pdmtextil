@@ -76,7 +76,10 @@ export const PDM_CAMPOS_POR_TELA: Record<string, { label: string; value: string 
 }
 
 export function getPdmCampos(telas: string): { label: string; value: string }[] {
-  const telasArr = telas.split(",").map((t: any) => t.trim()).filter(Boolean)
+  const telasArr = telas
+    .split(",")
+    .map((t: any) => t.trim())
+    .filter(Boolean)
   const campos = new Map<string, { label: string; value: string }>()
   for (const c of PDM_CAMPOS_POR_TELA.default) campos.set(c.value, c)
   for (const t of telasArr) {
@@ -88,7 +91,17 @@ export function getPdmCampos(telas: string): { label: string; value: string }[] 
 
 export function getAuthPlaceholder(tipo: TipoAuth): string {
   const examples: Record<TipoAuth, string> = {
-    oauth2: JSON.stringify({ grant_type: "client_credentials", client_id: "xxx", client_secret: "xxx", token_url: "https://...", scope: "read" }, null, 2),
+    oauth2: JSON.stringify(
+      {
+        grant_type: "client_credentials",
+        client_id: "xxx",
+        client_secret: "xxx",
+        token_url: "https://...",
+        scope: "read",
+      },
+      null,
+      2
+    ),
     basic: JSON.stringify({ username: "admin", password: "123456" }, null, 2),
     api_key: JSON.stringify({ key: "abc123", key_name: "x-api-key", in: "header" }, null, 2),
     bearer: JSON.stringify({ token: "abc123xyz" }, null, 2),

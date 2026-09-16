@@ -37,15 +37,18 @@ export async function PUT(req: NextRequest) {
     const existing = await db.select().from(emailConfig).limit(1)
 
     if (existing.length > 0) {
-      await db.update(emailConfig).set({
-        host: body.host || "smtp.gmail.com",
-        port: body.port || 587,
-        user: body.user,
-        pass: encrypt(body.pass),
-        fromName: body.fromName || "PDM Têxtil",
-        ativo: body.ativo ?? true,
-        updatedAt: new Date(),
-      }).where(eq(emailConfig.id, existing[0].id))
+      await db
+        .update(emailConfig)
+        .set({
+          host: body.host || "smtp.gmail.com",
+          port: body.port || 587,
+          user: body.user,
+          pass: encrypt(body.pass),
+          fromName: body.fromName || "PDM Têxtil",
+          ativo: body.ativo ?? true,
+          updatedAt: new Date(),
+        })
+        .where(eq(emailConfig.id, existing[0].id))
     } else {
       await db.insert(emailConfig).values({
         host: body.host || "smtp.gmail.com",

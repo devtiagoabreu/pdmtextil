@@ -26,19 +26,68 @@ function buildFetchMock() {
         ],
       }
     }
-    if (method === "GET" && url.startsWith(`/api/crm/whatsapp/chat?remoteJid=${encodeURIComponent(JID)}`)) {
+    if (
+      method === "GET" &&
+      url.startsWith(`/api/crm/whatsapp/chat?remoteJid=${encodeURIComponent(JID)}`)
+    ) {
       return {
         status: 200,
         json: {
           mensagens: [
-            { id: 1, remoteJid: JID, mensagem: "Ola", tipo: "RECEBIDA", status: "RECEBIDA", createdAt: "2026-09-05T10:00:00Z" },
-            { id: 2, remoteJid: JID, mensagem: "Enviada 1", tipo: "ENVIADA", status: "ENTREGUE", createdAt: "2026-09-05T10:01:00Z" },
-            { id: 3, remoteJid: JID, mensagem: "Enviada 2", tipo: "ENVIADA", status: "LIDA", createdAt: "2026-09-05T10:02:00Z" },
-            { id: 4, remoteJid: JID, mensagem: "Enviada 3", tipo: "ENVIADA", status: "ERRO", createdAt: "2026-09-05T10:03:00Z" },
-            { id: 5, remoteJid: JID, mensagem: "Enviada 4", tipo: "ENVIADA", status: "ENVIADA", createdAt: "2026-09-05T10:04:00Z" },
+            {
+              id: 1,
+              remoteJid: JID,
+              mensagem: "Ola",
+              tipo: "RECEBIDA",
+              status: "RECEBIDA",
+              createdAt: "2026-09-05T10:00:00Z",
+            },
+            {
+              id: 2,
+              remoteJid: JID,
+              mensagem: "Enviada 1",
+              tipo: "ENVIADA",
+              status: "ENTREGUE",
+              createdAt: "2026-09-05T10:01:00Z",
+            },
+            {
+              id: 3,
+              remoteJid: JID,
+              mensagem: "Enviada 2",
+              tipo: "ENVIADA",
+              status: "LIDA",
+              createdAt: "2026-09-05T10:02:00Z",
+            },
+            {
+              id: 4,
+              remoteJid: JID,
+              mensagem: "Enviada 3",
+              tipo: "ENVIADA",
+              status: "ERRO",
+              createdAt: "2026-09-05T10:03:00Z",
+            },
+            {
+              id: 5,
+              remoteJid: JID,
+              mensagem: "Enviada 4",
+              tipo: "ENVIADA",
+              status: "ENVIADA",
+              createdAt: "2026-09-05T10:04:00Z",
+            },
           ],
-          conversa: { remoteJid: JID, estado: "HUMANO_ASSUMINDO", dados: {}, updatedAt: "2026-09-05T10:00:00Z" },
-          lead: { id: 42, nome: "Maria Silva", celular: "5519988887777", tipoPessoa: "PJ", status: "NOVO" },
+          conversa: {
+            remoteJid: JID,
+            estado: "HUMANO_ASSUMINDO",
+            dados: {},
+            updatedAt: "2026-09-05T10:00:00Z",
+          },
+          lead: {
+            id: 42,
+            nome: "Maria Silva",
+            celular: "5519988887777",
+            tipoPessoa: "PJ",
+            status: "NOVO",
+          },
         },
       }
     }

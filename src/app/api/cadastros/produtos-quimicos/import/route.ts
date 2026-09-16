@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
     if (isJson) {
       const data = JSON.parse(text)
       const items = Array.isArray(data) ? data : [data]
-      const paraInserir: typeof produtosQuimicos.$inferInsert[] = []
+      const paraInserir: (typeof produtosQuimicos.$inferInsert)[] = []
       for (const item of items) {
         paraInserir.push({
           codigo: item.codigo,
@@ -52,9 +52,14 @@ export async function POST(req: NextRequest) {
     } else {
       const headerLine = lines[0].toLowerCase()
       const delimiter = headerLine.includes(";") ? ";" : ","
-      const startIndex = headerLine.includes("codigo") || headerLine.includes("código") || headerLine.includes("nome") ? 1 : 0
+      const startIndex =
+        headerLine.includes("codigo") ||
+        headerLine.includes("código") ||
+        headerLine.includes("nome")
+          ? 1
+          : 0
 
-      const paraInserir: typeof produtosQuimicos.$inferInsert[] = []
+      const paraInserir: (typeof produtosQuimicos.$inferInsert)[] = []
       for (let i = startIndex; i < lines.length; i++) {
         const parts = lines[i].split(delimiter)
         if (parts.length < 2) continue

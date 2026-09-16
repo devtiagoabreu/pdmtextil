@@ -6,7 +6,14 @@ import { roles } from "@/lib/db/schema/roles"
 import { eq } from "drizzle-orm"
 export const dynamic = "force-dynamic"
 
-const MODULOS = ["SOLICITACOES", "PRODUTO_CRU", "CADASTROS", "AMOSTRAS", "USUARIOS", "CONFIGURACOES"]
+const MODULOS = [
+  "SOLICITACOES",
+  "PRODUTO_CRU",
+  "CADASTROS",
+  "AMOSTRAS",
+  "USUARIOS",
+  "CONFIGURACOES",
+]
 const PERMISSOES = ["VIEW", "INSERT", "UPDATE", "DELETE"]
 
 export type PermissoesMap = Record<string, string[]>

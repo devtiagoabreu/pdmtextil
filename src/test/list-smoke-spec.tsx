@@ -87,7 +87,10 @@ export function listSmokeSpec(cfg: ListSmokeSpecConfig) {
       if (!cfg.newLinkText || !cfg.newHref) return
       renderPage(cfg.component)
       await screen.findByText(cfg.firstItemText)
-      expect(screen.getByRole("link", { name: cfg.newLinkText })).toHaveAttribute("href", cfg.newHref)
+      expect(screen.getByRole("link", { name: cfg.newLinkText })).toHaveAttribute(
+        "href",
+        cfg.newHref
+      )
     })
 
     it("contém link de edição por item", async () => {

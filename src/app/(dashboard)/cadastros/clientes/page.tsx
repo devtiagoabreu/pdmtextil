@@ -45,7 +45,11 @@ export default function ClientesPage() {
   const [deleteBlocked, setDeleteBlocked] = useState(false)
   const [showApiImport, setShowApiImport] = useState(false)
 
-  const { data: clientes = [], isLoading, refetch } = useQuery({
+  const {
+    data: clientes = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["clientes"],
     queryFn: fetchClientes,
   })
@@ -90,11 +94,27 @@ export default function ClientesPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <ImportarEntidade config={{ titulo: "Clientes", apiBase: "cadastros/clientes", arquivoPrefixo: "clientes" }} onImportado={() => refetch()} />
-          <ExportarDados data={filteredClientes} columns={[
-            { key: "nome", label: "Nome" }, { key: "cnpj", label: "CNPJ" }, { key: "email", label: "Email" },
-            { key: "telefone", label: "Telefone" }, { key: "cidade", label: "Cidade" }, { key: "uf", label: "UF" },
-          ]} filename="clientes" title="Clientes" />
+          <ImportarEntidade
+            config={{
+              titulo: "Clientes",
+              apiBase: "cadastros/clientes",
+              arquivoPrefixo: "clientes",
+            }}
+            onImportado={() => refetch()}
+          />
+          <ExportarDados
+            data={filteredClientes}
+            columns={[
+              { key: "nome", label: "Nome" },
+              { key: "cnpj", label: "CNPJ" },
+              { key: "email", label: "Email" },
+              { key: "telefone", label: "Telefone" },
+              { key: "cidade", label: "Cidade" },
+              { key: "uf", label: "UF" },
+            ]}
+            filename="clientes"
+            title="Clientes"
+          />
           <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
             <Database size={16} />
             Importar via API
@@ -126,21 +146,35 @@ export default function ClientesPage() {
             <Loader2 className="animate-spin text-slate-400" size={24} />
           </div>
         ) : filteredClientes.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
-            Nenhum cliente encontrado
-          </div>
+          <div className="p-8 text-center text-slate-500">Nenhum cliente encontrado</div>
         ) : (
           <table className="w-full">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Nome</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">CNPJ</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Email</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Telefone</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Cidade/UF</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID Integração</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Nome
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  CNPJ
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Email
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Telefone
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Cidade/UF
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  ID Integração
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Status
+                </th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -149,26 +183,35 @@ export default function ClientesPage() {
                   key={cliente.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 >
-                  <td className="p-4 text-sm font-medium"><Link href={`/comercial/clientes/${cliente.id}`}>{cliente.nome}</Link></td>
+                  <td className="p-4 text-sm font-medium">
+                    <Link href={`/comercial/clientes/${cliente.id}`}>{cliente.nome}</Link>
+                  </td>
                   <td className="p-4 text-sm text-slate-500">{cliente.cnpj || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{cliente.email || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">{cliente.telefone || "—"}</td>
                   <td className="p-4 text-sm text-slate-500">
                     {cliente.cidade && cliente.uf ? `${cliente.cidade}/${cliente.uf}` : "—"}
                   </td>
-                  <td className="p-4 text-sm font-mono text-xs text-slate-500">{cliente.idIntegracao || "—"}</td>
+                  <td className="p-4 text-sm font-mono text-xs text-slate-500">
+                    {cliente.idIntegracao || "—"}
+                  </td>
                   <td className="p-4">
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                      cliente.ativo
-                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                        : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                    }`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                        cliente.ativo
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                          : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                      }`}
+                    >
                       {cliente.ativo ? "Ativo" : "Inativo"}
                     </span>
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/comercial/clientes/${cliente.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Link
+                        href={`/comercial/clientes/${cliente.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
@@ -197,12 +240,16 @@ export default function ClientesPage() {
       <ConfirmModal
         open={deleteTarget !== null}
         title={deleteBlocked ? "Exclusão não permitida" : "Excluir cliente?"}
-        message={deleteBlocked
-          ? "Este cliente possui cadastros vinculados e não pode ser excluído."
-          : `Tem certeza que deseja excluir?`}
-        subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
-          : undefined}
+        message={
+          deleteBlocked
+            ? "Este cliente possui cadastros vinculados e não pode ser excluído."
+            : `Tem certeza que deseja excluir?`
+        }
+        subMessage={
+          deleteBlocked
+            ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+            : undefined
+        }
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}
         loading={deleteLoading}

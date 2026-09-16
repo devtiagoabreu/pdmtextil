@@ -3,7 +3,9 @@ import { crmViagens } from "./crm-viagens"
 
 export const crmViagensInvestimentos = pgTable("crm_viagens_investimentos", {
   id: serial("id").primaryKey(),
-  viagemId: integer("viagem_id").notNull().references(() => crmViagens.id, { onDelete: "cascade" }),
+  viagemId: integer("viagem_id")
+    .notNull()
+    .references(() => crmViagens.id, { onDelete: "cascade" }),
   tipo: varchar("tipo", { length: 30 }).notNull(),
   valor: numeric("valor", { precision: 12, scale: 2 }),
   observacao: text("observacao"),

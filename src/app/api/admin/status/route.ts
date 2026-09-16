@@ -15,9 +15,7 @@ export async function GET(req: NextRequest) {
 
     const tipo = req.nextUrl.searchParams.get("tipo")
     const query = db.select().from(status).orderBy(asc(status.ordem), asc(status.nome))
-    const lista = tipo
-      ? await query.where(eq(status.tipo, tipo))
-      : await query
+    const lista = tipo ? await query.where(eq(status.tipo, tipo)) : await query
 
     return NextResponse.json(lista)
   } catch (error) {
@@ -38,19 +36,25 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "nome e tipo são obrigatórios" }, { status: 400 })
     }
 
-    const [item] = await db.insert(status).values({
-      nome,
-      rotulo: rotulo || nome,
-      tipo,
-      cor: cor || null,
-      ordem: ordem ?? 0,
-      ativo: ativo !== undefined ? ativo : true,
-    }).returning()
+    const [item] = await db
+      .insert(status)
+      .values({
+        nome,
+        rotulo: rotulo || nome,
+        tipo,
+        cor: cor || null,
+        ordem: ordem ?? 0,
+        ativo: ativo !== undefined ? ativo : true,
+      })
+      .returning()
 
     return NextResponse.json(item, { status: 201 })
   } catch (error: any) {
     if (error?.code === "23505") {
-      return NextResponse.json({ error: "Já existe um status com este nome para este tipo" }, { status: 409 })
+      return NextResponse.json(
+        { error: "Já existe um status com este nome para este tipo" },
+        { status: 409 }
+      )
     }
     console.error("[POST /api/admin/status]", error)
     return NextResponse.json({ error: "Erro interno" }, { status: 500 })
@@ -69,20 +73,27 @@ export async function PUT(req: NextRequest) {
       return NextResponse.json({ error: "id é obrigatório" }, { status: 400 })
     }
 
-    const [item] = await db.update(status).set({
-      ...(nome !== undefined && { nome }),
-      ...(rotulo !== undefined && { rotulo }),
-      ...(tipo !== undefined && { tipo }),
-      ...(cor !== undefined && { cor }),
-      ...(ordem !== undefined && { ordem }),
-      ...(ativo !== undefined && { ativo }),
-      updatedAt: new Date(),
-    }).where(eq(status.id, id)).returning()
+    const [item] = await db
+      .update(status)
+      .set({
+        ...(nome !== undefined && { nome }),
+        ...(rotulo !== undefined && { rotulo }),
+        ...(tipo !== undefined && { tipo }),
+        ...(cor !== undefined && { cor }),
+        ...(ordem !== undefined && { ordem }),
+        ...(ativo !== undefined && { ativo }),
+        updatedAt: new Date(),
+      })
+      .where(eq(status.id, id))
+      .returning()
 
     return NextResponse.json(item)
   } catch (error: any) {
     if (error?.code === "23505") {
-      return NextResponse.json({ error: "Já existe um status com este nome para este tipo" }, { status: 409 })
+      return NextResponse.json(
+        { error: "Já existe um status com este nome para este tipo" },
+        { status: 409 }
+      )
     }
     console.error("[PUT /api/admin/status]", error)
     return NextResponse.json({ error: "Erro interno" }, { status: 500 })

@@ -20,14 +20,25 @@ export async function PUT(
     const { id, aid } = await params
     const body = await req.json()
 
-    const isAprovacao = body.status ? (body.status.startsWith("APROVADA") || body.status === "REPROVADA") : false
+    const isAprovacao = body.status
+      ? body.status.startsWith("APROVADA") || body.status === "REPROVADA"
+      : false
 
-    if (isAprovacao && !["COMERCIAL", "ADMIN", "SUDO", "PCP", "TECELAGEM"].includes(session.user?.role ?? "")) {
-      return NextResponse.json({ error: "Apenas COMERCIAL, ADMIN, SUDO, PCP e TECELAGEM podem aprovar/reprovar amostras" }, { status: 403 })
+    if (
+      isAprovacao &&
+      !["COMERCIAL", "ADMIN", "SUDO", "PCP", "TECELAGEM"].includes(session.user?.role ?? "")
+    ) {
+      return NextResponse.json(
+        { error: "Apenas COMERCIAL, ADMIN, SUDO, PCP e TECELAGEM podem aprovar/reprovar amostras" },
+        { status: 403 }
+      )
     }
 
     if (isAprovacao && !body.motivoAprovacao?.trim()) {
-      return NextResponse.json({ error: "Motivo é obrigatório para aprovar ou reprovar" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Motivo é obrigatório para aprovar ou reprovar" },
+        { status: 400 }
+      )
     }
 
     // Buscar estado atual para pegar o historico e observacoes existentes
@@ -46,9 +57,15 @@ export async function PUT(
 
     // Se for reprovação, anexa o motivo nas observações
     const observacoesAtual = atual?.observacoes || ""
-    const observacoesFinal = body.status === "REPROVADA" && body.motivoAprovacao?.trim()
-      ? [observacoesAtual, `⛔ Reprovado por ${session.user.name}: ${body.motivoAprovacao.trim()}`].filter(Boolean).join("\n")
-      : body.observacoes
+    const observacoesFinal =
+      body.status === "REPROVADA" && body.motivoAprovacao?.trim()
+        ? [
+            observacoesAtual,
+            `⛔ Reprovado por ${session.user.name}: ${body.motivoAprovacao.trim()}`,
+          ]
+            .filter(Boolean)
+            .join("\n")
+        : body.observacoes
 
     if (body.status && body.status !== statusAnterior) {
       historicoAtual.push({
@@ -96,14 +113,14 @@ export async function PUT(
       if (isAprovacao) {
         await notificar(
           body.status.startsWith("APROVADA") ? "AMOSTRA_APROVADA" : "AMOSTRA_REPROVADA",
-           `Amostra #${aid} do produto #${id} foi ${body.status.startsWith("APROVADA") ? "aprovada" : "reprovada"} por ${session.user.name}${body.motivoAprovacao ? ` — Motivo: ${body.motivoAprovacao}` : ""}`,
+          `Amostra #${aid} do produto #${id} foi ${body.status.startsWith("APROVADA") ? "aprovada" : "reprovada"} por ${session.user.name}${body.motivoAprovacao ? ` — Motivo: ${body.motivoAprovacao}` : ""}`,
           `/cadastros/produto-cru/${id}?tab=amostras&amostraId=amostra-${aid}`,
           session.user.name
         )
       } else {
         await notificar(
           "AMOSTRA_ATUALIZADA",
-           `Amostra #${aid} do produto #${id} foi editada por ${session.user.name}`,
+          `Amostra #${aid} do produto #${id} foi editada por ${session.user.name}`,
           `/cadastros/produto-cru/${id}?tab=amostras&amostraId=amostra-${aid}`,
           session.user.name
         )
@@ -122,12 +139,20 @@ export async function PUT(
           .update(solicitacoes)
           .set({ status: "PILOTAGEM", updatedAt: new Date() })
           .where(eq(solicitacoes.id, prod.solicitacaoDesenvolvimentoId))
-        await notificar("SOLICITACAO_ATUALIZADA", `Solicitação #${prod.solicitacaoDesenvolvimentoId} avançou para Pilotagem (amostra tecido cru #${aid})`, `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`, session.user.name)
+        await notificar(
+          "SOLICITACAO_ATUALIZADA",
+          `Solicitação #${prod.solicitacaoDesenvolvimentoId} avançou para Pilotagem (amostra tecido cru #${aid})`,
+          `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`,
+          session.user.name
+        )
       }
     }
 
     // Se a amostra estava em produção e foi reprovada, volta solicitação para Em Desenvolvimento
-    if (body.status === "REPROVADA" && (statusAnterior === "EM_PRODUCAO_TEC" || statusAnterior === "EM_PRODUCAO_BEN")) {
+    if (
+      body.status === "REPROVADA" &&
+      (statusAnterior === "EM_PRODUCAO_TEC" || statusAnterior === "EM_PRODUCAO_BEN")
+    ) {
       const [prod] = await db
         .select({ solicitacaoDesenvolvimentoId: produtosCru.solicitacaoDesenvolvimentoId })
         .from(produtosCru)
@@ -138,11 +163,23 @@ export async function PUT(
           .update(solicitacoes)
           .set({ status: "EM_DESENVOLVIMENTO", updatedAt: new Date() })
           .where(eq(solicitacoes.id, prod.solicitacaoDesenvolvimentoId))
-        await notificar("SOLICITACAO_ATUALIZADA", `Solicitação #${prod.solicitacaoDesenvolvimentoId} voltou para Em Desenvolvimento (amostra tecido cru #${aid} reprovada)`, `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`, session.user.name)
+        await notificar(
+          "SOLICITACAO_ATUALIZADA",
+          `Solicitação #${prod.solicitacaoDesenvolvimentoId} voltou para Em Desenvolvimento (amostra tecido cru #${aid} reprovada)`,
+          `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`,
+          session.user.name
+        )
       }
     }
 
-    await registrarLog({ tipo: "ATUALIZACAO", acao: "atualizar_status", descricao: `Amostra tecido cru #${aid} alterada para ${body.status}`, entidade: "AmostraTecidoCru", entidadeId: parseInt(aid), usuarioNome: session.user.name })
+    await registrarLog({
+      tipo: "ATUALIZACAO",
+      acao: "atualizar_status",
+      descricao: `Amostra tecido cru #${aid} alterada para ${body.status}`,
+      entidade: "AmostraTecidoCru",
+      entidadeId: parseInt(aid),
+      usuarioNome: session.user.name,
+    })
 
     return NextResponse.json(atualizado)
   } catch (error) {
@@ -173,7 +210,7 @@ export async function DELETE(
 
     await notificar(
       "AMOSTRA_EXCLUIDA",
-       `Amostra #${aid} do produto #${id} foi excluída por ${session.user.name}`,
+      `Amostra #${aid} do produto #${id} foi excluída por ${session.user.name}`,
       `/cadastros/produto-cru/${id}?tab=amostras`,
       session.user.name
     )

@@ -12,7 +12,12 @@ vi.mock("@/lib/whatsapp/abandon-checker", () => ({ verificarAbandonos: vi.fn() }
 function post(authHeader?: string) {
   const headers = new Headers()
   if (authHeader) headers.set("authorization", authHeader)
-  return POST(new NextRequest("http://localhost/api/crm/whatsapp/verificar-abandonos", { method: "POST", headers }))
+  return POST(
+    new NextRequest("http://localhost/api/crm/whatsapp/verificar-abandonos", {
+      method: "POST",
+      headers,
+    })
+  )
 }
 
 describe("POST /api/crm/whatsapp/verificar-abandonos", () => {

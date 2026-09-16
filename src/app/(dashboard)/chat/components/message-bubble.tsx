@@ -49,17 +49,14 @@ export function MessageBubble({
               value={editText}
               onChange={(e) => setEditText(e.target.value)}
               className={`w-full rounded-lg border px-3 py-2 text-sm resize-none min-h-[60px] ${
-                isMine ? "border-blue-300 bg-blue-50 text-slate-900" : "border-slate-300 bg-white text-slate-900"
+                isMine
+                  ? "border-blue-300 bg-blue-50 text-slate-900"
+                  : "border-slate-300 bg-white text-slate-900"
               }`}
               autoFocus
             />
             <div className="flex gap-2 justify-end">
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={onCancelEdit}
-                className="h-7 text-xs"
-              >
+              <Button size="sm" variant="ghost" onClick={onCancelEdit} className="h-7 text-xs">
                 Cancelar
               </Button>
               <Button
@@ -73,11 +70,16 @@ export function MessageBubble({
             </div>
           </div>
         ) : (
-          <p className="whitespace-pre-wrap break-words">{renderMensagem(msg.mensagem, allUsers)}</p>
+          <p className="whitespace-pre-wrap break-words">
+            {renderMensagem(msg.mensagem, allUsers)}
+          </p>
         )}
         <div className={`flex items-center gap-1 mt-1 ${isMine ? "justify-end" : "justify-start"}`}>
           <span className={`text-[10px] ${isMine ? "text-blue-200" : "text-slate-400"}`}>
-            {new Date(msg.createdAt).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" })}
+            {new Date(msg.createdAt).toLocaleTimeString("pt-BR", {
+              hour: "2-digit",
+              minute: "2-digit",
+            })}
           </span>
           {isMine && <CheckCheck size={12} className="text-blue-200" />}
           {podeEditar && !editing && (

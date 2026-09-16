@@ -50,9 +50,7 @@ export default function ViagemRotaMapa({ pontos }: { pontos: PontoMapa[] }) {
             : `<strong>${grupo.ordem.length} visitas neste ponto</strong><br>` +
               grupo.ordem.map((n, i) => `<strong>${n}.</strong> ${grupo.rotulos[i]}`).join("<br>") +
               `<br><span style="color:#64748b">${coords}</span>`
-          L.marker([grupo.latitude, grupo.longitude], { icon: icone })
-            .addTo(mapa)
-            .bindPopup(popup)
+          L.marker([grupo.latitude, grupo.longitude], { icon: icone }).addTo(mapa).bindPopup(popup)
         })
         if (latlngs.length === 1) {
           mapa.setView(latlngs[0], 14)
@@ -112,7 +110,9 @@ export default function ViagemRotaMapa({ pontos }: { pontos: PontoMapa[] }) {
       })
       L.marker([resultado.latitude, resultado.longitude], { icon: icone })
         .addTo(mapa)
-        .bindPopup(`<strong>${resultado.rotulo}</strong><br><span style="color:#64748b">${formatarCoordenadas(resultado.latitude, resultado.longitude)}</span>`)
+        .bindPopup(
+          `<strong>${resultado.rotulo}</strong><br><span style="color:#64748b">${formatarCoordenadas(resultado.latitude, resultado.longitude)}</span>`
+        )
         .openPopup()
     })
   }
@@ -130,10 +130,17 @@ export default function ViagemRotaMapa({ pontos }: { pontos: PontoMapa[] }) {
   return (
     <div className="space-y-2">
       <div className="relative">
-        <div ref={containerRef} className="h-64 w-full rounded-xl overflow-hidden z-0 relative" data-testid="mapa-roteiro" />
+        <div
+          ref={containerRef}
+          className="h-64 w-full rounded-xl overflow-hidden z-0 relative"
+          data-testid="mapa-roteiro"
+        />
         <div className="absolute top-2 right-2 z-[1000] w-64" data-testid="mapa-busca">
           <div className="relative">
-            <Search size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            <Search
+              size={14}
+              className="absolute left-2.5 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+            />
             <input
               type="text"
               value={termo}
@@ -142,7 +149,12 @@ export default function ViagemRotaMapa({ pontos }: { pontos: PontoMapa[] }) {
               aria-label="Buscar local no mapa"
               className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-900 py-1.5 pl-8 pr-7 text-sm shadow-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
-            {buscando && <Loader2 size={14} className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 animate-spin" />}
+            {buscando && (
+              <Loader2
+                size={14}
+                className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 animate-spin"
+              />
+            )}
           </div>
           {resultados.length > 0 && (
             <ul className="mt-1 rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 shadow-lg max-h-48 overflow-y-auto">
@@ -154,21 +166,34 @@ export default function ViagemRotaMapa({ pontos }: { pontos: PontoMapa[] }) {
                     className="w-full text-left px-3 py-2 text-xs text-slate-700 dark:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800"
                   >
                     <span className="block truncate">{r.rotulo}</span>
-                    <span className="block text-[10px] text-slate-400">{formatarCoordenadas(r.latitude, r.longitude)}</span>
+                    <span className="block text-[10px] text-slate-400">
+                      {formatarCoordenadas(r.latitude, r.longitude)}
+                    </span>
                   </button>
                 </li>
               ))}
             </ul>
           )}
           {foco && (
-            <div role="status" className="mt-1 rounded-lg bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 px-2.5 py-1.5">
-              <p className="text-[10px] font-medium text-amber-800 dark:text-amber-300">{foco.rotulo}</p>
-              <p className="text-[10px] text-amber-700 dark:text-amber-400">Coordenadas: {formatarCoordenadas(foco.latitude, foco.longitude)}</p>
+            <div
+              role="status"
+              className="mt-1 rounded-lg bg-amber-100 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-800 px-2.5 py-1.5"
+            >
+              <p className="text-[10px] font-medium text-amber-800 dark:text-amber-300">
+                {foco.rotulo}
+              </p>
+              <p className="text-[10px] text-amber-700 dark:text-amber-400">
+                Coordenadas: {formatarCoordenadas(foco.latitude, foco.longitude)}
+              </p>
             </div>
           )}
         </div>
       </div>
-      {erro && <p role="status" className="text-xs text-slate-400">Não foi possível carregar o mapa do trajeto.</p>}
+      {erro && (
+        <p role="status" className="text-xs text-slate-400">
+          Não foi possível carregar o mapa do trajeto.
+        </p>
+      )}
     </div>
   )
 }

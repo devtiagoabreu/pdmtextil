@@ -30,7 +30,11 @@ export default function ProcessoAreasPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
 
-  const { data: areas = [], isLoading, refetch } = useQuery({
+  const {
+    data: areas = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["proc-areas"],
     queryFn: async () => {
       const res = await fetch("/api/processos/areas")
@@ -104,18 +108,26 @@ export default function ProcessoAreasPage() {
             <Loader2 className="animate-spin text-slate-400" size={24} />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
-            Nenhuma área encontrada
-          </div>
+          <div className="p-8 text-center text-slate-500">Nenhuma área encontrada</div>
         ) : (
           <table className="w-full">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Nome</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Site</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Descrição</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Nome
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Site
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Descrição
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Status
+                </th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -131,19 +143,26 @@ export default function ProcessoAreasPage() {
                     </Link>
                   </td>
                   <td className="p-4 text-sm text-slate-500">{area.siteNome || "—"}</td>
-                  <td className="p-4 text-sm text-slate-500 line-clamp-1">{area.descricao || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500 line-clamp-1">
+                    {area.descricao || "—"}
+                  </td>
                   <td className="p-4">
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                      area.ativo
-                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                        : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                    }`}>
+                    <span
+                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                        area.ativo
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                          : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                      }`}
+                    >
                       {area.ativo ? "Ativo" : "Inativo"}
                     </span>
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/processos/areas/${area.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Link
+                        href={`/processos/areas/${area.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
@@ -172,12 +191,16 @@ export default function ProcessoAreasPage() {
       <ConfirmModal
         open={deleteTarget !== null}
         title={deleteBlocked ? "Exclusão não permitida" : "Excluir área?"}
-        message={deleteBlocked
-          ? "Esta área possui processos vinculados e não pode ser excluída."
-          : "Tem certeza que deseja excluir?"}
-        subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir."
-          : undefined}
+        message={
+          deleteBlocked
+            ? "Esta área possui processos vinculados e não pode ser excluída."
+            : "Tem certeza que deseja excluir?"
+        }
+        subMessage={
+          deleteBlocked
+            ? "Remova ou desvincule os registros associados antes de excluir."
+            : undefined
+        }
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}
         loading={deleteLoading}

@@ -69,7 +69,12 @@ export async function POST(req: NextRequest) {
       usuarioNome: session.user.name,
     })
 
-    await notificar("ATIVO_CATEGORIA_CRIADA", `Categoria cadastrada: ${nova.nome}`, `/ativos/categorias`, session.user.name)
+    await notificar(
+      "ATIVO_CATEGORIA_CRIADA",
+      `Categoria cadastrada: ${nova.nome}`,
+      `/ativos/categorias`,
+      session.user.name
+    )
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {

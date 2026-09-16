@@ -13,10 +13,7 @@ export async function GET(req: NextRequest) {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
-    const lista = await db
-      .select()
-      .from(procEmpresas)
-      .orderBy(desc(procEmpresas.createdAt))
+    const lista = await db.select().from(procEmpresas).orderBy(desc(procEmpresas.createdAt))
 
     return NextResponse.json(lista)
   } catch (error) {
@@ -55,7 +52,12 @@ export async function POST(req: NextRequest) {
       usuarioNome: session.user.name,
     })
 
-    await notificar("PROC_EMPRESA_CRIADA", `Empresa cadastrada: ${nova.nome}`, `/processos/empresas/${nova.id}`, session.user.name)
+    await notificar(
+      "PROC_EMPRESA_CRIADA",
+      `Empresa cadastrada: ${nova.nome}`,
+      `/processos/empresas/${nova.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {

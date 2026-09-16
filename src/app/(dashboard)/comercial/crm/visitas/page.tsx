@@ -4,23 +4,55 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
-import {Suspense, useState, useEffect, useCallback, useRef} from "react"
+import { Suspense, useState, useEffect, useCallback, useRef } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
-import { PlusCircle, CalendarDays, Table, Columns, Search, MapPin, Navigation, Users, User, ChevronLeft, ChevronRight, CalendarRange, X, Trash2, CheckSquare, AlertTriangle, Link as LinkIcon } from "lucide-react"
+import {
+  PlusCircle,
+  CalendarDays,
+  Table,
+  Columns,
+  Search,
+  MapPin,
+  Navigation,
+  Users,
+  User,
+  ChevronLeft,
+  ChevronRight,
+  CalendarRange,
+  X,
+  Trash2,
+  CheckSquare,
+  AlertTriangle,
+  Link as LinkIcon,
+} from "lucide-react"
 import { toast } from "sonner"
 import { useStatuses } from "@/hooks/use-statuses"
 import dynamic from "next/dynamic"
 import { PageSkeleton } from "@/components/ui/page-skeleton"
 import type { VisitaResumo } from "./types"
 
-const VisitasCalendario = dynamic(() => import("@/components/crm/visitas-calendario"), { ssr: false })
+const VisitasCalendario = dynamic(() => import("@/components/crm/visitas-calendario"), {
+  ssr: false,
+})
 const VisitasKanban = dynamic(() => import("@/components/crm/visitas-kanban"), { ssr: false })
-const FloatableKanban = dynamic(() => import("@/components/crm/floatable-kanban").then((m) => m.FloatableKanban), { ssr: false })
-const VisitLocationModal = dynamic(() => import("@/components/crm/visit-location-modal"), { ssr: false })
+const FloatableKanban = dynamic(
+  () => import("@/components/crm/floatable-kanban").then((m) => m.FloatableKanban),
+  { ssr: false }
+)
+const VisitLocationModal = dynamic(() => import("@/components/crm/visit-location-modal"), {
+  ssr: false,
+})
 
 const PAGE_SIZE = 50
 
-async function fetchVisitasPaginated(params: { mine: boolean; page: number; q: string; dataInicio: string; dataFim: string; avulsas: boolean }): Promise<{ data: VisitaResumo[]; total: number; totalPages: number }> {
+async function fetchVisitasPaginated(params: {
+  mine: boolean
+  page: number
+  q: string
+  dataInicio: string
+  dataFim: string
+  avulsas: boolean
+}): Promise<{ data: VisitaResumo[]; total: number; totalPages: number }> {
   const sp = new URLSearchParams()
   sp.set("page", String(params.page))
   sp.set("limit", String(PAGE_SIZE))
@@ -66,7 +98,9 @@ function VisitasPageContent() {
   const [search, setSearch] = useState("")
   const [debouncedSearch, setDebouncedSearch] = useState("")
   const [page, setPage] = useState(1)
-  const [modo, setModo] = useState<ModoVisao>(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
+  const [modo, setModo] = useState<ModoVisao>(
+    searchParams.get("view") === "kanban" ? "kanban" : "tabela"
+  )
   const [selectedVisita, setSelectedVisita] = useState<{ id: number; nome: string } | null>(null)
   const [dataInicio, setDataInicio] = useState("")
   const [dataFim, setDataFim] = useState("")
@@ -87,7 +121,9 @@ function VisitasPageContent() {
   }, [])
 
   useEffect(() => {
-    return () => { if (debounceRef.current) clearTimeout(debounceRef.current) }
+    return () => {
+      if (debounceRef.current) clearTimeout(debounceRef.current)
+    }
   }, [])
 
   const isTableMode = modo === "tabela"
@@ -105,9 +141,29 @@ function VisitasPageContent() {
     retry: 1,
   })
 
-  const { data: tableData, isLoading: tableLoading } = useQuery<{ data: VisitaResumo[]; total: number; totalPages: number }>({
-    queryKey: ["crm-visitas-table", visitasFilter, page, debouncedSearch, dataInicio, dataFim, filterAvulsas],
-    queryFn: () => fetchVisitasPaginated({ mine: visitasFilter === "minhas", page, q: debouncedSearch, dataInicio, dataFim, avulsas: filterAvulsas }),
+  const { data: tableData, isLoading: tableLoading } = useQuery<{
+    data: VisitaResumo[]
+    total: number
+    totalPages: number
+  }>({
+    queryKey: [
+      "crm-visitas-table",
+      visitasFilter,
+      page,
+      debouncedSearch,
+      dataInicio,
+      dataFim,
+      filterAvulsas,
+    ],
+    queryFn: () =>
+      fetchVisitasPaginated({
+        mine: visitasFilter === "minhas",
+        page,
+        q: debouncedSearch,
+        dataInicio,
+        dataFim,
+        avulsas: filterAvulsas,
+      }),
     retry: 1,
     enabled: isTableMode,
   })
@@ -123,7 +179,7 @@ function VisitasPageContent() {
   const tableRows = tableData?.data || []
   const totalRows = tableData?.total || 0
   const totalPages = tableData?.totalPages || 0
-  const visitas = isTableMode ? tableRows : (allVisitas || [])
+  const visitas = isTableMode ? tableRows : allVisitas || []
 
   const fromRow = totalRows === 0 ? 0 : (page - 1) * PAGE_SIZE + 1
   const toRow = Math.min(page * PAGE_SIZE, totalRows)
@@ -173,12 +229,17 @@ function VisitasPageContent() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Visitas{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Visitas{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {isLoading ? "Carregando..." : isTableMode
-              ? totalRows > 0 ? `${fromRow}-${toRow} de ${totalRows} visita(s)` : "0 visitas"
-              : `${visitas.length} visita(s)`
-            }
+            {isLoading
+              ? "Carregando..."
+              : isTableMode
+                ? totalRows > 0
+                  ? `${fromRow}-${toRow} de ${totalRows} visita(s)`
+                  : "0 visitas"
+                : `${visitas.length} visita(s)`}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -271,7 +332,10 @@ function VisitasPageContent() {
             <input
               type="date"
               value={dataInicio}
-              onChange={e => { setDataInicio(e.target.value); setPage(1) }}
+              onChange={(e) => {
+                setDataInicio(e.target.value)
+                setPage(1)
+              }}
               aria-label="Data inicial do período"
               className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -279,13 +343,20 @@ function VisitasPageContent() {
             <input
               type="date"
               value={dataFim}
-              onChange={e => { setDataFim(e.target.value); setPage(1) }}
+              onChange={(e) => {
+                setDataFim(e.target.value)
+                setPage(1)
+              }}
               aria-label="Data final do período"
               className="rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-3 py-2 text-xs focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
             {(dataInicio || dataFim) && (
               <button
-                onClick={() => { setDataInicio(""); setDataFim(""); setPage(1) }}
+                onClick={() => {
+                  setDataInicio("")
+                  setDataFim("")
+                  setPage(1)
+                }}
                 className="p-1.5 rounded-lg text-slate-400 hover:text-red-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors min-h-[32px] min-w-[32px] flex items-center justify-center"
                 title="Limpar período"
               >
@@ -306,12 +377,14 @@ function VisitasPageContent() {
             <p className="text-xs text-orange-600 dark:text-orange-400">
               {filterAvulsas
                 ? "Mostrando apenas visitas avulsas"
-                : "Visitas sem cliente ou pessoa vinculada. Vincule para associar a um registro existente."
-              }
+                : "Visitas sem cliente ou pessoa vinculada. Vincule para associar a um registro existente."}
             </p>
           </div>
           <button
-            onClick={() => { setFilterAvulsas(!filterAvulsas); setPage(1) }}
+            onClick={() => {
+              setFilterAvulsas(!filterAvulsas)
+              setPage(1)
+            }}
             className={`text-xs font-medium px-3 py-1.5 rounded-lg transition-colors shrink-0 ${
               filterAvulsas
                 ? "bg-orange-200 dark:bg-orange-800 text-orange-800 dark:text-orange-200 hover:bg-orange-300 dark:hover:bg-orange-700"
@@ -338,7 +411,9 @@ function VisitasPageContent() {
               <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
             </div>
           ) : (
-            <FloatableKanban tipo="VISITA"><VisitasKanban visitas={visitas || []} /></FloatableKanban>
+            <FloatableKanban tipo="VISITA">
+              <VisitasKanban visitas={visitas || []} />
+            </FloatableKanban>
           )
         ) : isLoading ? (
           <div className="flex justify-center py-20">
@@ -348,7 +423,9 @@ function VisitasPageContent() {
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <CalendarDays className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              {debouncedSearch ? "Nenhuma visita encontrada para essa busca" : "Nenhuma visita encontrada"}
+              {debouncedSearch
+                ? "Nenhuma visita encontrada para essa busca"
+                : "Nenhuma visita encontrada"}
             </p>
           </div>
         ) : (
@@ -372,13 +449,27 @@ function VisitasPageContent() {
                         className="rounded border-slate-300 dark:border-slate-600 text-blue-600 focus:ring-blue-500"
                       />
                     </th>
-                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Data</th>
-                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Entidade</th>
-                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Oportunidade</th>
-                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Tipo</th>
-                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Status</th>
-                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">Criado por</th>
-                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Ações</th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                      Data
+                    </th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                      Entidade
+                    </th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">
+                      Oportunidade
+                    </th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                      Tipo
+                    </th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                      Status
+                    </th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">
+                      Criado por
+                    </th>
+                    <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                      Ações
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -387,15 +478,18 @@ function VisitasPageContent() {
                       key={v.id}
                       className={`hover:bg-slate-50 dark:hover:bg-slate-800/50 ${selectedIds.includes(v.id) ? "bg-blue-50 dark:bg-blue-950/30" : ""}`}
                     >
-                      <td className="px-2 py-2 md:px-4 md:py-3 w-10" onClick={(e) => e.stopPropagation()}>
+                      <td
+                        className="px-2 py-2 md:px-4 md:py-3 w-10"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <input
                           type="checkbox"
                           checked={selectedIds.includes(v.id)}
                           onChange={(e) => {
                             if (e.target.checked) {
-                              setSelectedIds(prev => [...prev, v.id])
+                              setSelectedIds((prev) => [...prev, v.id])
                             } else {
-                              setSelectedIds(prev => prev.filter(id => id !== v.id))
+                              setSelectedIds((prev) => prev.filter((id) => id !== v.id))
                             }
                           }}
                           aria-label={`Selecionar visita de ${v.nomeAvulso || v.empresaNome || v.clienteNome || "registro sem identificação"}`}
@@ -403,10 +497,16 @@ function VisitasPageContent() {
                         />
                       </td>
                       <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-900 dark:text-slate-200 whitespace-nowrap">
-                        {v.dataVisita ? new Date(v.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}{v.hora ? ` ${v.hora}` : ""}
+                        {v.dataVisita
+                          ? new Date(v.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")
+                          : "—"}
+                        {v.hora ? ` ${v.hora}` : ""}
                       </td>
                       <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200">
-                        <Link href={`/comercial/crm/visitas/${v.id}`} className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors">
+                        <Link
+                          href={`/comercial/crm/visitas/${v.id}`}
+                          className="hover:text-blue-600 dark:hover:text-blue-400 transition-colors"
+                        >
                           {!v.empresaId && !v.clienteId ? (
                             <span className="inline-flex items-center gap-1">
                               <span className="text-orange-500 font-semibold">Avulsa:</span>
@@ -417,9 +517,13 @@ function VisitasPageContent() {
                           )}
                         </Link>
                       </td>
-                      <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 dark:text-slate-400 hidden sm:table-cell">{v.oportunidadeTitulo || "—"}</td>
+                      <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 dark:text-slate-400 hidden sm:table-cell">
+                        {v.oportunidadeTitulo || "—"}
+                      </td>
                       <td className="px-2 py-2 md:px-4 md:py-3">
-                        <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${TIPO_CORES[v.tipo] || ""}`}>
+                        <span
+                          className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${TIPO_CORES[v.tipo] || ""}`}
+                        >
                           {TIPO_LABELS[v.tipo] || v.tipo}
                         </span>
                       </td>
@@ -434,7 +538,9 @@ function VisitasPageContent() {
                           {getLabel(v.status)}
                         </span>
                       </td>
-                      <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 dark:text-slate-400 hidden md:table-cell">{v.criadoPorNome || "—"}</td>
+                      <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 dark:text-slate-400 hidden md:table-cell">
+                        {v.criadoPorNome || "—"}
+                      </td>
                       <td className="px-2 py-2 md:px-4 md:py-3">
                         <div className="flex items-center gap-1">
                           {(v.endereco || v.cidade) && (
@@ -452,7 +558,10 @@ function VisitasPageContent() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
-                              setSelectedVisita({ id: v.id, nome: v.nomeAvulso || v.empresaNome || v.clienteNome || "Visita" })
+                              setSelectedVisita({
+                                id: v.id,
+                                nome: v.nomeAvulso || v.empresaNome || v.clienteNome || "Visita",
+                              })
                             }}
                             className="p-2 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-950/50 transition-colors"
                             title="Gerenciar localizações"
@@ -474,7 +583,7 @@ function VisitasPageContent() {
                 </p>
                 <div className="flex items-center gap-1">
                   <button
-                    onClick={() => setPage(p => Math.max(1, p - 1))}
+                    onClick={() => setPage((p) => Math.max(1, p - 1))}
                     disabled={page === 1}
                     className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
                   >
@@ -506,7 +615,7 @@ function VisitasPageContent() {
                     )
                   })}
                   <button
-                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                    onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
                     disabled={page === totalPages}
                     className="p-2 rounded-lg text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-30 disabled:cursor-not-allowed transition-colors min-h-[36px] min-w-[36px] flex items-center justify-center"
                   >
@@ -536,7 +645,9 @@ function VisitasPageContent() {
             defaultValue=""
             className="bg-slate-800 dark:bg-slate-200 text-white dark:text-slate-900 text-xs rounded-lg px-3 py-2 border-0 focus:ring-2 focus:ring-blue-500 min-h-[36px]"
           >
-            <option value="" disabled>Mudar status...</option>
+            <option value="" disabled>
+              Mudar status...
+            </option>
             <option value="AGENDADA">Agendada</option>
             <option value="EM_ANDAMENTO">Em Andamento</option>
             <option value="REALIZADA">Realizada</option>

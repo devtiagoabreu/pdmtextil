@@ -38,7 +38,11 @@ type Resultado = {
 }
 
 export default function RelatorioTempoStatus() {
-  const { statuses, getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
+  const {
+    statuses,
+    getLabel: getStatusLabel,
+    getColor: getStatusColor,
+  } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
   const [expandido, setExpandido] = useState<number | null>(null)
   const [filtroStatus, setFiltroStatus] = useState("")
   const [filtroDataInicio, setFiltroDataInicio] = useState("")
@@ -47,7 +51,11 @@ export default function RelatorioTempoStatus() {
   const [aplicadoDataInicio, setAplicadoDataInicio] = useState("")
   const [aplicadoDataFim, setAplicadoDataFim] = useState("")
 
-  const { data, isLoading: loading, refetch: fetchData } = useQuery<any>({
+  const {
+    data,
+    isLoading: loading,
+    refetch: fetchData,
+  } = useQuery<any>({
     queryKey: ["relatorio-tempo-status", aplicadoStatus, aplicadoDataInicio, aplicadoDataFim],
     queryFn: async () => {
       const params = new URLSearchParams()
@@ -80,40 +88,60 @@ export default function RelatorioTempoStatus() {
         t.duracaoLabel,
       ])
     )
-    exportCSV("tempo-status", ["Solicitação", "Cliente", "Status Atual", "Status", "Entrada", "Saída", "Duração"], rows)
+    exportCSV(
+      "tempo-status",
+      ["Solicitação", "Cliente", "Status Atual", "Status", "Entrada", "Saída", "Duração"],
+      rows
+    )
     setTimeout(() => {
-      exportCSV("tempo-status-resumo", ["#", "Cliente", "Status", "Tempo Total", "Trocas"], resultados.map((r: any) => [
-        r.id,
-        r.cliente,
-        r.statusAtualLabel,
-        r.tempoTotalLabel,
-        r.trocasStatus,
-      ]))
+      exportCSV(
+        "tempo-status-resumo",
+        ["#", "Cliente", "Status", "Tempo Total", "Trocas"],
+        resultados.map((r: any) => [
+          r.id,
+          r.cliente,
+          r.statusAtualLabel,
+          r.tempoTotalLabel,
+          r.trocasStatus,
+        ])
+      )
     }, 200)
   }
 
   async function handleExportPDF() {
     await exportPDFRelatorio({
       title: "Relatório de Tempo em cada Status",
-      stats: stats ? {
-        "Total": stats.totalSolicitacoes,
-        "Concluídas": stats.concluidas,
-        "Tempo Médio": `${stats.tempoMedioHoras}h`,
-        "Média Trocas": stats.mediaTrocasStatus,
-      } : undefined,
+      stats: stats
+        ? {
+            Total: stats.totalSolicitacoes,
+            Concluídas: stats.concluidas,
+            "Tempo Médio": `${stats.tempoMedioHoras}h`,
+            "Média Trocas": stats.mediaTrocasStatus,
+          }
+        : undefined,
       tables: [
-        { headers: ["#", "Cliente", "Status", "Tempo Total", "Trocas"], rows: resultados.map((r: any) => [
-          `#${r.id}`, r.cliente, r.statusAtualLabel, r.tempoTotalLabel, r.trocasStatus,
-        ])},
-        { headers: ["Solicitação", "Status", "Entrada", "Saída", "Duração"], rows: resultados.flatMap((r: any) =>
-          r.timeline.map((t: any) => [
-            `#${r.id} - ${r.cliente}`,
-            t.statusLabel,
-            t.entrada ? new Date(t.entrada).toLocaleString("pt-BR") : "-",
-            t.saida ? new Date(t.saida).toLocaleString("pt-BR") : "Em andamento",
-            t.duracaoLabel,
-          ])
-        )},
+        {
+          headers: ["#", "Cliente", "Status", "Tempo Total", "Trocas"],
+          rows: resultados.map((r: any) => [
+            `#${r.id}`,
+            r.cliente,
+            r.statusAtualLabel,
+            r.tempoTotalLabel,
+            r.trocasStatus,
+          ]),
+        },
+        {
+          headers: ["Solicitação", "Status", "Entrada", "Saída", "Duração"],
+          rows: resultados.flatMap((r: any) =>
+            r.timeline.map((t: any) => [
+              `#${r.id} - ${r.cliente}`,
+              t.statusLabel,
+              t.entrada ? new Date(t.entrada).toLocaleString("pt-BR") : "-",
+              t.saida ? new Date(t.saida).toLocaleString("pt-BR") : "Em andamento",
+              t.duracaoLabel,
+            ])
+          ),
+        },
       ],
     })
   }
@@ -124,7 +152,10 @@ export default function RelatorioTempoStatus() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Tempo em cada Status (Solic. de Desenvolvimento){info && <InfoButton content={info} />}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+          Relatório: Tempo em cada Status (Solic. de Desenvolvimento)
+          {info && <InfoButton content={info} />}
+        </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
           Acompanhe o tempo que cada solicitação de desenvolvimento permaneceu em cada status
         </p>
@@ -144,7 +175,9 @@ export default function RelatorioTempoStatus() {
           >
             <option value="">Todos</option>
             {statuses.map((st: any) => (
-              <option key={st.nome} value={st.nome}>{st.rotulo || st.nome}</option>
+              <option key={st.nome} value={st.nome}>
+                {st.rotulo || st.nome}
+              </option>
             ))}
           </select>
         </div>
@@ -173,10 +206,16 @@ export default function RelatorioTempoStatus() {
           Filtrar
         </button>
         <div className="flex-1" />
-        <button onClick={handleExportCSV} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+        <button
+          onClick={handleExportCSV}
+          className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
+        >
           CSV
         </button>
-        <button onClick={handleExportPDF} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+        <button
+          onClick={handleExportPDF}
+          className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
+        >
           PDF
         </button>
       </div>
@@ -185,20 +224,34 @@ export default function RelatorioTempoStatus() {
       {stats && (
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 p-4">
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Solicitações</p>
-            <p className="text-3xl font-bold text-slate-700 dark:text-slate-200 mt-1">{stats.totalSolicitacoes}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              Total Solicitações
+            </p>
+            <p className="text-3xl font-bold text-slate-700 dark:text-slate-200 mt-1">
+              {stats.totalSolicitacoes}
+            </p>
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-green-50 dark:bg-green-950/50 p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Concluídas</p>
-            <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">{stats.concluidas}</p>
+            <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">
+              {stats.concluidas}
+            </p>
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-indigo-50 dark:bg-indigo-950/50 p-4">
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Tempo Médio (horas)</p>
-            <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400 mt-1">{stats.tempoMedioHoras}h</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              Tempo Médio (horas)
+            </p>
+            <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400 mt-1">
+              {stats.tempoMedioHoras}h
+            </p>
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-purple-50 dark:bg-purple-950/50 p-4">
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Média Trocas de Status</p>
-            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-1">{stats.mediaTrocasStatus}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              Média Trocas de Status
+            </p>
+            <p className="text-3xl font-bold text-purple-600 dark:text-purple-400 mt-1">
+              {stats.mediaTrocasStatus}
+            </p>
           </div>
         </div>
       )}
@@ -210,22 +263,33 @@ export default function RelatorioTempoStatus() {
         ) : resultados.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900">
             <Clock className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhum resultado</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Nenhum resultado
+            </p>
           </div>
         ) : (
           resultados.map((r: any) => (
-            <div key={r.id} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+            <div
+              key={r.id}
+              className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden"
+            >
               {/* Header */}
               <button
                 onClick={() => setExpandido(expandido === r.id ? null : r.id)}
                 className="w-full flex items-center justify-between p-4 hover:bg-slate-50 dark:hover:bg-slate-800/50 text-left"
               >
                 <div className="flex items-center gap-3">
-                  <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">#{r.id}</span>
+                  <span className="text-sm font-semibold text-slate-800 dark:text-slate-100">
+                    #{r.id}
+                  </span>
                   <span className="text-sm text-slate-600 dark:text-slate-300">{r.cliente}</span>
                   <span className="text-xs text-slate-400">{TIPO_LABELS[r.tipo] || r.tipo}</span>
-                  <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium`}
-                    style={{ backgroundColor: hexToRgba(getStatusColor(r.statusAtual), 0.12), color: getStatusColor(r.statusAtual) }}
+                  <span
+                    className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium`}
+                    style={{
+                      backgroundColor: hexToRgba(getStatusColor(r.statusAtual), 0.12),
+                      color: getStatusColor(r.statusAtual),
+                    }}
                   >
                     {r.statusAtualLabel}
                   </span>
@@ -246,13 +310,18 @@ export default function RelatorioTempoStatus() {
                     <div className="space-y-3">
                       {r.timeline.map((t: any, i: any) => {
                         const cor = getStatusColor(t.status)
-                        const larguraPct = r.timeline.reduce((a: any, x: any) => a + x.duracaoMs, 0) > 0
-                          ? (t.duracaoMs / r.timeline.reduce((a: any, x: any) => a + x.duracaoMs, 0)) * 100
-                          : 0
+                        const larguraPct =
+                          r.timeline.reduce((a: any, x: any) => a + x.duracaoMs, 0) > 0
+                            ? (t.duracaoMs /
+                                r.timeline.reduce((a: any, x: any) => a + x.duracaoMs, 0)) *
+                              100
+                            : 0
                         return (
                           <div key={`${t.entrada}-${t.status}`} className="flex items-center gap-3">
                             <div className="w-36 shrink-0 text-right">
-                              <span className="text-xs font-medium" style={{ color: cor }}>{t.statusLabel}</span>
+                              <span className="text-xs font-medium" style={{ color: cor }}>
+                                {t.statusLabel}
+                              </span>
                             </div>
                             <div className="flex-1 h-6 rounded-md bg-slate-100 dark:bg-slate-800 overflow-hidden">
                               <div

@@ -39,7 +39,11 @@ export async function POST() {
         results.push({ table: table.name, status: "ADDED" })
       } catch (e) {
         // Se der erro, provavelmente já existe
-        results.push({ table: table.name, status: "EXISTS_OR_ERROR", error: String(e).substring(0, 50) })
+        results.push({
+          table: table.name,
+          status: "EXISTS_OR_ERROR",
+          error: String(e).substring(0, 50),
+        })
       }
     }
 

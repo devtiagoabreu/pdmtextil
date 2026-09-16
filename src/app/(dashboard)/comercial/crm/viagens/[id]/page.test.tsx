@@ -20,7 +20,14 @@ const viagem = {
     { id: 10, viagemId: 1, tipo: "PASSAGEM", valor: "500", observacao: "Voo ida e volta" },
   ],
   visitas: [
-    { id: 3, dataVisita: "2026-07-02", hora: "10:00", empresaNome: "Tecelagem Alpha", clienteNome: null, nomeAvulso: null },
+    {
+      id: 3,
+      dataVisita: "2026-07-02",
+      hora: "10:00",
+      empresaNome: "Tecelagem Alpha",
+      clienteNome: null,
+      nomeAvulso: null,
+    },
   ],
 }
 
@@ -56,7 +63,8 @@ describe("ViagemDetailPage", () => {
   it("edita e salva via PUT", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
       if (method === "GET" && url === "/api/crm/viagens/1") return { json: viagem }
-      if (method === "PUT" && url === "/api/crm/viagens/1") return { json: { ...viagem, titulo: "Feira 2026" } }
+      if (method === "PUT" && url === "/api/crm/viagens/1")
+        return { json: { ...viagem, titulo: "Feira 2026" } }
       if (method === "GET" && url === "/api/crm/estados") return { json: [] }
       return { json: null }
     })
@@ -72,7 +80,9 @@ describe("ViagemDetailPage", () => {
       const call = findCall(fetchMock.calls, "/api/crm/viagens/1", "PUT")
       expect(call).toBeDefined()
       expect(call!.body.titulo).toBe("Feira 2026")
-      expect(call!.body.investimentos).toEqual([{ tipo: "PASSAGEM", valor: 500, observacao: "Voo ida e volta" }])
+      expect(call!.body.investimentos).toEqual([
+        { tipo: "PASSAGEM", valor: 500, observacao: "Voo ida e volta" },
+      ])
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Viagem atualizada"))
   })

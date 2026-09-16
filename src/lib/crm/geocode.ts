@@ -109,7 +109,11 @@ export async function geocodificarEndereco(enderecoTexto: string): Promise<Coord
   }
 }
 
-async function consultarStructured(street?: string, city?: string, state?: string): Promise<Coordenadas | null> {
+async function consultarStructured(
+  street?: string,
+  city?: string,
+  state?: string
+): Promise<Coordenadas | null> {
   try {
     const url = new URL(NOMINATIM_URL)
     if (street) url.searchParams.set("street", street)
@@ -143,7 +147,9 @@ async function consultarStructured(street?: string, city?: string, state?: strin
   }
 }
 
-export async function geocodificarCamposEndereco(campos: EnderecoCampos): Promise<Coordenadas | null> {
+export async function geocodificarCamposEndereco(
+  campos: EnderecoCampos
+): Promise<Coordenadas | null> {
   const texto = montarEnderecoTexto(campos)
   const chave = normalizar(texto)
   if (chave.length < 10) return null
@@ -189,7 +195,10 @@ async function consultarCampos(campos: EnderecoCampos, chave: string): Promise<C
   return consultarProgressivo(chave, montarEnderecoTexto(campos))
 }
 
-async function consultarProgressivo(chave: string, enderecoTexto: string): Promise<Coordenadas | null> {
+async function consultarProgressivo(
+  chave: string,
+  enderecoTexto: string
+): Promise<Coordenadas | null> {
   for (const candidato of candidatosEndereco(enderecoTexto)) {
     const candidatoNormalizado = normalizar(candidato)
     const conhecido = cache.get(candidatoNormalizado)

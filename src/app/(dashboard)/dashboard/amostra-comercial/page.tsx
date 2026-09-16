@@ -10,13 +10,44 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useStatuses, hexToRgba } from "@/hooks/use-statuses"
 
-const AmostraComercialCharts = dynamic(() => import("./charts").then((m) => m.AmostraComercialCharts), { ssr: false })
+const AmostraComercialCharts = dynamic(
+  () => import("./charts").then((m) => m.AmostraComercialCharts),
+  { ssr: false }
+)
 
 const MAIN_CARDS = [
-  { key: "total", label: "Total", color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800", icon: ClipboardList, statField: "total" },
-  { key: "pendentes", label: "Pendentes", color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/50", icon: FlaskConical, statField: "pendentes" },
-  { key: "em-producao", label: "Em Produção", color: "text-blue-600 dark:text-blue-400", bg: "bg-blue-50 dark:bg-blue-950/50", icon: FlaskConical, statField: "emProducao" },
-  { key: "concluidos", label: "Concluídos", color: "text-green-600 dark:text-green-400", bg: "bg-green-50 dark:bg-green-950/50", icon: FlaskConical, statField: "concluidos" },
+  {
+    key: "total",
+    label: "Total",
+    color: "text-slate-700 dark:text-slate-200",
+    bg: "bg-slate-100 dark:bg-slate-800",
+    icon: ClipboardList,
+    statField: "total",
+  },
+  {
+    key: "pendentes",
+    label: "Pendentes",
+    color: "text-amber-600 dark:text-amber-400",
+    bg: "bg-amber-50 dark:bg-amber-950/50",
+    icon: FlaskConical,
+    statField: "pendentes",
+  },
+  {
+    key: "em-producao",
+    label: "Em Produção",
+    color: "text-blue-600 dark:text-blue-400",
+    bg: "bg-blue-50 dark:bg-blue-950/50",
+    icon: FlaskConical,
+    statField: "emProducao",
+  },
+  {
+    key: "concluidos",
+    label: "Concluídos",
+    color: "text-green-600 dark:text-green-400",
+    bg: "bg-green-50 dark:bg-green-950/50",
+    icon: FlaskConical,
+    statField: "concluidos",
+  },
 ]
 
 export default function DashboardAmostraComercial() {
@@ -32,7 +63,10 @@ export default function DashboardAmostraComercial() {
 
   useEffect(() => {
     fetch("/api/dashboard/amostra-comercial-stats")
-      .then((r: any) => { if (!r.ok) throw new Error(`HTTP ${r.status}`); return r.json() })
+      .then((r: any) => {
+        if (!r.ok) throw new Error(`HTTP ${r.status}`)
+        return r.json()
+      })
       .then(setStats)
       .catch((e: any) => setError(e.message))
       .finally(() => setLoading(false))
@@ -59,24 +93,27 @@ export default function DashboardAmostraComercial() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
 
-  const statusCards = stats?.statusConfigs?.map((c: any) => {
-    const dist = stats?.statusDistribution?.find((d: any) => d.status === c.nome)
-    return {
-      key: `status-${c.nome}`,
-      label: c.rotulo || c.nome,
-      color: `text-[${c.cor}]`,
-      bg: "bg-white dark:bg-slate-900",
-      icon: null,
-      total: dist?.total || 0,
-      cor: c.cor,
-    }
-  }) || []
+  const statusCards =
+    stats?.statusConfigs?.map((c: any) => {
+      const dist = stats?.statusDistribution?.find((d: any) => d.status === c.nome)
+      return {
+        key: `status-${c.nome}`,
+        label: c.rotulo || c.nome,
+        color: `text-[${c.cor}]`,
+        bg: "bg-white dark:bg-slate-900",
+        icon: null,
+        total: dist?.total || 0,
+        cor: c.cor,
+      }
+    }) || []
 
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Dashboard — Amostras Comerciais{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Dashboard — Amostras Comerciais{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             Acompanhe as requisições de amostra comercial
           </p>
@@ -89,7 +126,10 @@ export default function DashboardAmostraComercial() {
         <div className="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 p-6 text-center">
           <p className="text-red-600 dark:text-red-400 font-medium">Erro ao carregar dados</p>
           <p className="text-sm text-red-500 dark:text-red-500 mt-1">{error}</p>
-          <button onClick={() => window.location.reload()} className="mt-4 text-sm text-blue-600 dark:text-blue-400 hover:underline">
+          <button
+            onClick={() => window.location.reload()}
+            className="mt-4 text-sm text-blue-600 dark:text-blue-400 hover:underline"
+          >
             Tentar novamente
           </button>
         </div>
@@ -104,10 +144,14 @@ export default function DashboardAmostraComercial() {
                 className={`rounded-xl border border-slate-200 dark:border-slate-800 ${stat.bg} p-4 card-hover text-left w-full cursor-pointer transition-shadow hover:shadow-md`}
               >
                 <div className="flex items-center justify-between">
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{stat.label}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                    {stat.label}
+                  </p>
                   <stat.icon size={16} className="text-slate-400 dark:text-slate-500" />
                 </div>
-                <p className={`text-3xl font-bold mt-1 ${stat.color}`}>{stats?.[stat.statField] ?? 0}</p>
+                <p className={`text-3xl font-bold mt-1 ${stat.color}`}>
+                  {stats?.[stat.statField] ?? 0}
+                </p>
               </button>
             ))}
           </div>
@@ -121,10 +165,17 @@ export default function DashboardAmostraComercial() {
                   onClick={() => openModal(card.key, card.label)}
                   className={`rounded-xl border border-slate-200 dark:border-slate-800 ${card.bg} p-3 card-hover text-left w-full cursor-pointer transition-shadow hover:shadow-md`}
                 >
-                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">{card.label}</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 font-medium truncate">
+                    {card.label}
+                  </p>
                   <div className="flex items-center gap-2 mt-1">
-                    <div className="w-3 h-3 rounded-full shrink-0" style={{ backgroundColor: card.cor || "#94a3b8" }} />
-                    <p className="text-2xl font-bold" style={{ color: card.cor || "#94a3b8" }}>{card.total}</p>
+                    <div
+                      className="w-3 h-3 rounded-full shrink-0"
+                      style={{ backgroundColor: card.cor || "#94a3b8" }}
+                    />
+                    <p className="text-2xl font-bold" style={{ color: card.cor || "#94a3b8" }}>
+                      {card.total}
+                    </p>
                   </div>
                 </button>
               ))}
@@ -134,46 +185,80 @@ export default function DashboardAmostraComercial() {
           <AmostraComercialCharts stats={stats} getLabel={getLabel} getColor={getColor} />
 
           <div>
-            <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-3">Requisições Recentes</h2>
+            <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-3">
+              Requisições Recentes
+            </h2>
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
               {!stats?.recent || stats.recent.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
                   <ClipboardList className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma requisição recente</p>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">As requisições aparecerão aqui</p>
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                    Nenhuma requisição recente
+                  </p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                    As requisições aparecerão aqui
+                  </p>
                 </div>
               ) : (
                 <table className="w-full">
                   <thead className="border-b border-slate-200 dark:border-slate-800">
                     <tr>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">#</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Título</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Cliente</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Produto</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Data</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                        #
+                      </th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                        Título
+                      </th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                        Cliente
+                      </th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                        Produto
+                      </th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                        Status
+                      </th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                        Data
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {stats.recent.map((a: any, i: number) => (
-                      <tr key={`req-${a.id}-${i}`} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                        <td className="p-4 text-sm font-medium text-slate-700 dark:text-slate-300">#{a.id}</td>
-                        <td className="p-4 text-sm text-slate-600 dark:text-slate-300">{a.titulo || "—"}</td>
+                      <tr
+                        key={`req-${a.id}-${i}`}
+                        className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                      >
+                        <td className="p-4 text-sm font-medium text-slate-700 dark:text-slate-300">
+                          #{a.id}
+                        </td>
+                        <td className="p-4 text-sm text-slate-600 dark:text-slate-300">
+                          {a.titulo || "—"}
+                        </td>
                         <td className="p-4 text-sm text-slate-500">{a.cliente || "—"}</td>
                         <td className="p-4 text-sm">
-                          <Link href={`/cadastros/produto-cru/${a.produtoCruId}`} className="flex items-center gap-1.5 group">
+                          <Link
+                            href={`/cadastros/produto-cru/${a.produtoCruId}`}
+                            className="flex items-center gap-1.5 group"
+                          >
                             <div>
                               <span className="text-xs text-slate-400">{a.produtoCodigo}</span>
                               <p className="text-xs text-slate-500 mt-0.5">{a.produtoDescricao}</p>
                             </div>
-                            <ExternalLink size={12} className="text-slate-300 group-hover:text-blue-500 shrink-0" />
+                            <ExternalLink
+                              size={12}
+                              className="text-slate-300 group-hover:text-blue-500 shrink-0"
+                            />
                           </Link>
                         </td>
                         <td className="p-4">
-                          <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{
-                            backgroundColor: hexToRgba(getColor(a.status), 0.15),
-                            color: getColor(a.status),
-                          }}>
+                          <span
+                            className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                            style={{
+                              backgroundColor: hexToRgba(getColor(a.status), 0.15),
+                              color: getColor(a.status),
+                            }}
+                          >
                             {getLabel(a.status)}
                           </span>
                         </td>
@@ -190,13 +275,26 @@ export default function DashboardAmostraComercial() {
         </>
       )}
 
-      <DialogPrimitive.Root open={!!modalFiltro} onOpenChange={(next) => { if (!next) setModalFiltro(null) }}>
+      <DialogPrimitive.Root
+        open={!!modalFiltro}
+        onOpenChange={(next) => {
+          if (!next) setModalFiltro(null)
+        }}
+      >
         <DialogPrimitive.Portal>
-          <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/50" onClick={() => setModalFiltro(null)} />
+          <DialogPrimitive.Backdrop
+            className="fixed inset-0 z-50 bg-black/50"
+            onClick={() => setModalFiltro(null)}
+          />
           <DialogPrimitive.Popup className="fixed top-1/2 left-1/2 z-50 w-full max-w-3xl -translate-x-1/2 -translate-y-1/2 max-h-[75vh] flex flex-col rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xl outline-none">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
-              <DialogPrimitive.Title className="text-lg font-semibold text-slate-900 dark:text-slate-50">{modalTitle}</DialogPrimitive.Title>
-              <DialogPrimitive.Close aria-label="Fechar" className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
+              <DialogPrimitive.Title className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                {modalTitle}
+              </DialogPrimitive.Title>
+              <DialogPrimitive.Close
+                aria-label="Fechar"
+                className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
                 <X size={18} className="text-slate-500" />
               </DialogPrimitive.Close>
             </div>
@@ -223,13 +321,20 @@ export default function DashboardAmostraComercial() {
                         <p className="text-xs text-slate-400 truncate">{item.cliente}</p>
                       </div>
                       <div className="flex items-center gap-3 ml-3 shrink-0">
-                        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{
-                          backgroundColor: hexToRgba(getColor(item.status), 0.15),
-                          color: getColor(item.status),
-                        }}>
+                        <span
+                          className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                          style={{
+                            backgroundColor: hexToRgba(getColor(item.status), 0.15),
+                            color: getColor(item.status),
+                          }}
+                        >
                           {getLabel(item.status)}
                         </span>
-                        <span className="text-xs text-slate-400">{item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : ""}</span>
+                        <span className="text-xs text-slate-400">
+                          {item.createdAt
+                            ? new Date(item.createdAt).toLocaleDateString("pt-BR")
+                            : ""}
+                        </span>
                       </div>
                     </Link>
                   ))}

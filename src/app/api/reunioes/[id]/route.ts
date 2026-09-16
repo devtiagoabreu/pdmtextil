@@ -15,10 +15,7 @@ function idInvalido(id: string): boolean {
   return Number.isNaN(n) || n <= 0
 }
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -39,10 +36,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -81,19 +75,13 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
     if (!podeExcluirReuniao(auth.session.user?.role)) {
-      return NextResponse.json(
-        { error: "Sem permissão para excluir reuniões." },
-        { status: 403 }
-      )
+      return NextResponse.json({ error: "Sem permissão para excluir reuniões." }, { status: 403 })
     }
 
     const { id: idParam } = await params
@@ -110,7 +98,11 @@ export async function DELETE(
       return NextResponse.json({ error: "Reunião não encontrada" }, { status: 404 })
     }
 
-    await notificarDelecao("Reunião", String(deletada[0]?.titulo || deletada[0]?.id), auth.session.user?.name)
+    await notificarDelecao(
+      "Reunião",
+      String(deletada[0]?.titulo || deletada[0]?.id),
+      auth.session.user?.name
+    )
 
     return NextResponse.json({ ok: true })
   } catch (error) {

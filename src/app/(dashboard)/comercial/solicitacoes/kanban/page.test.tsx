@@ -17,7 +17,7 @@ describe("KanbanSolicitacoesPage", () => {
         onmessageerror: ((ev: MessageEvent) => void) | null = null
         postMessage() {}
         close() {}
-      },
+      }
     )
     const fetchMock = createFetchMock(({ url }) => {
       if (url === "/api/admin/status?tipo=SOLICITACAO_DESENVOLVIMENTO") return { json: [] }
@@ -31,9 +31,17 @@ describe("KanbanSolicitacoesPage", () => {
   it("renderiza o kanban com as ações de navegação", async () => {
     renderPage(<KanbanSolicitacoesPage />)
 
-    expect(screen.getByRole("heading", { name: /Kanban — Solicitações de Desenvolvimento/ })).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Lista" })).toHaveAttribute("href", "/comercial/solicitacoes")
-    expect(screen.getByRole("link", { name: /Nova/ })).toHaveAttribute("href", "/comercial/solicitacoes/nova")
+    expect(
+      screen.getByRole("heading", { name: /Kanban — Solicitações de Desenvolvimento/ })
+    ).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Lista" })).toHaveAttribute(
+      "href",
+      "/comercial/solicitacoes"
+    )
+    expect(screen.getByRole("link", { name: /Nova/ })).toHaveAttribute(
+      "href",
+      "/comercial/solicitacoes/nova"
+    )
     expect(screen.getByRole("button", { name: "Flutuar" })).toBeInTheDocument()
   })
 })

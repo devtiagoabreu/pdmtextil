@@ -25,7 +25,9 @@ const filaItem = {
   pushName: "Maria",
   mensagem: "Oi",
   executionId: "x",
-  payload: { rawText: "{\"data\":{\"key\":{\"remoteJid\":\"5519988887777@s.whatsapp.net\"}},\"texto\":\"Oi\"}" },
+  payload: {
+    rawText: '{"data":{"key":{"remoteJid":"5519988887777@s.whatsapp.net"}},"texto":"Oi"}',
+  },
   status: "PENDENTE",
   tentativas: 0,
   maxTentativas: 3,
@@ -38,7 +40,9 @@ const filaItem = {
 function post(authHeader?: string) {
   const headers = new Headers()
   if (authHeader) headers.set("authorization", authHeader)
-  return POST(new NextRequest("http://localhost/api/crm/whatsapp/processar-fila", { method: "POST", headers }))
+  return POST(
+    new NextRequest("http://localhost/api/crm/whatsapp/processar-fila", { method: "POST", headers })
+  )
 }
 
 const filaItemStaleProcessando = {
@@ -85,7 +89,9 @@ describe("POST /api/crm/whatsapp/processar-fila (drain)", () => {
 
   it("marca FALHOU quando executarFluxo devolve erro", async () => {
     process.env.CRON_SECRET = "s3cr3t"
-    vi.mocked(executarFluxo).mockResolvedValue(NextResponse.json({ error: "x" }, { status: 500 }) as any)
+    vi.mocked(executarFluxo).mockResolvedValue(
+      NextResponse.json({ error: "x" }, { status: 500 }) as any
+    )
     db.select = vi.fn()
     vi.mocked(db.select).mockImplementation(() => createQueryBuilder([filaItem]))
 

@@ -45,19 +45,21 @@ export async function generateBackup(connectionString: string): Promise<AsyncIte
           [table]
         )
 
-        const columns: ColumnInfo[] = colResult.rows.map((r: {
-          column_name: string
-          data_type: string
-          is_nullable: string
-          column_default: string | null
-          is_identity: string
-        }) => ({
-          name: r.column_name,
-          type: r.data_type,
-          nullable: r.is_nullable === "YES",
-          default: r.column_default,
-          isIdentity: r.is_identity === "YES",
-        }))
+        const columns: ColumnInfo[] = colResult.rows.map(
+          (r: {
+            column_name: string
+            data_type: string
+            is_nullable: string
+            column_default: string | null
+            is_identity: string
+          }) => ({
+            name: r.column_name,
+            type: r.data_type,
+            nullable: r.is_nullable === "YES",
+            default: r.column_default,
+            isIdentity: r.is_identity === "YES",
+          })
+        )
 
         const colDefs = columns
           .map((col: any) => {

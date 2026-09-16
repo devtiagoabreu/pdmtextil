@@ -44,7 +44,9 @@ describe("NovoClientePage", () => {
       expect(call!.body.nome).toBe("Nova Firma")
       expect(call!.body.cnpj).toBe("00.111.222/0001-33")
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Cliente cadastrado com sucesso!"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Cliente cadastrado com sucesso!")
+    )
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/clientes/99")
   })
 })

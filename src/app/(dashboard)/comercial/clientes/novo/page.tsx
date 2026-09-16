@@ -52,7 +52,7 @@ export default function NovoClientePage() {
   }, [form.uf, estados])
 
   function setField(field: string, value: string) {
-    setForm(prev => ({ ...prev, [field]: value }))
+    setForm((prev) => ({ ...prev, [field]: value }))
   }
 
   async function handleSubmit(e: React.FormEvent) {
@@ -92,16 +92,24 @@ export default function NovoClientePage() {
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
       <div className="flex items-center gap-3">
-        <Link href="/comercial/clientes" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link
+          href="/comercial/clientes"
+          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Novo Cliente{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+            Novo Cliente{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500">Cadastre um novo cliente no sistema</p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
+      <form
+        onSubmit={handleSubmit}
+        className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5"
+      >
         <div className="grid gap-5 sm:grid-cols-2">
           <div className="sm:col-span-2">
             <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
@@ -110,7 +118,7 @@ export default function NovoClientePage() {
             <input
               type="text"
               value={form.nome}
-              onChange={e => setField("nome", e.target.value)}
+              onChange={(e) => setField("nome", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
@@ -122,110 +130,142 @@ export default function NovoClientePage() {
             <input
               type="text"
               value={form.cnpj}
-              onChange={e => setField("cnpj", e.target.value)}
+              onChange={(e) => setField("cnpj", e.target.value)}
               placeholder="00.000.000/0000-00"
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               required
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Razão Social</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Razão Social
+            </label>
             <input
               type="text"
               value={form.razaoSocial}
-              onChange={e => setField("razaoSocial", e.target.value)}
+              onChange={(e) => setField("razaoSocial", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Segmento</label>
-            <SelectSegmento value={form.segmento} onChange={v => setField("segmento", v)} />
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Segmento
+            </label>
+            <SelectSegmento value={form.segmento} onChange={(v) => setField("segmento", v)} />
           </div>
 
           <div className="sm:col-span-2">
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">Contato</h3>
+            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">
+              Contato
+            </h3>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome do Contato</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Nome do Contato
+            </label>
             <input
               type="text"
               value={form.contato}
-              onChange={e => setField("contato", e.target.value)}
+              onChange={(e) => setField("contato", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Telefone</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Telefone
+            </label>
             <input
               type="text"
               value={form.telefone}
-              onChange={e => setField("telefone", e.target.value)}
+              onChange={(e) => setField("telefone", e.target.value)}
               placeholder="(00) 0000-0000"
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Celular</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Celular
+            </label>
             <input
               type="text"
               value={form.celular}
-              onChange={e => setField("celular", e.target.value)}
+              onChange={(e) => setField("celular", e.target.value)}
               placeholder="(00) 00000-0000"
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">E-mail</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              E-mail
+            </label>
             <input
               type="email"
               value={form.email}
-              onChange={e => setField("email", e.target.value)}
+              onChange={(e) => setField("email", e.target.value)}
               placeholder="contato@exemplo.com"
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">E-mail para NF-e</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              E-mail para NF-e
+            </label>
             <input
               type="email"
               value={form.emailNf}
-              onChange={e => setField("emailNf", e.target.value)}
+              onChange={(e) => setField("emailNf", e.target.value)}
               placeholder="nf@exemplo.com"
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div className="sm:col-span-2">
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">Endereço</h3>
+            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">
+              Endereço
+            </h3>
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Endereço</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Endereço
+            </label>
             <input
               type="text"
               value={form.endereco}
-              onChange={e => setField("endereco", e.target.value)}
+              onChange={(e) => setField("endereco", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UF</label>
-            <SelectUf value={form.uf} onChange={v => setField("uf", v)} />
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              UF
+            </label>
+            <SelectUf value={form.uf} onChange={(v) => setField("uf", v)} />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
-            <SelectCidade value={form.cidade} onChange={v => setField("cidade", v)} estadoId={estadoId} />
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Cidade
+            </label>
+            <SelectCidade
+              value={form.cidade}
+              onChange={(v) => setField("cidade", v)}
+              estadoId={estadoId}
+            />
           </div>
 
           <div className="sm:col-span-2">
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">Integração</h3>
+            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">
+              Integração
+            </h3>
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">ID Integração (ERP/WMS/CRM/OUTROS)</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              ID Integração (ERP/WMS/CRM/OUTROS)
+            </label>
             <input
               type="text"
               value={form.idIntegracao}
-              onChange={e => setField("idIntegracao", e.target.value)}
+              onChange={(e) => setField("idIntegracao", e.target.value)}
               placeholder="Código do sistema externo"
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />

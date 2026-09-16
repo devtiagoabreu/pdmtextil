@@ -79,7 +79,11 @@ declare module "react-hook-form" {
   export const Controller: React.FC<{
     name: string
     control?: any
-    render: (data: { field: ControllerField; fieldState: ControllerFieldState; formState: any }) => React.ReactElement
+    render: (data: {
+      field: ControllerField
+      fieldState: ControllerFieldState
+      formState: any
+    }) => React.ReactElement
     rules?: any
     defaultValue?: any
     shouldUnregister?: boolean
@@ -155,9 +159,10 @@ declare module "next-auth" {
 }
 
 declare module "next-auth/react" {
-  export function useSession<R extends boolean = false>(
-    options?: { required?: R; onUnauthenticated?: () => void }
-  ): {
+  export function useSession<R extends boolean = false>(options?: {
+    required?: R
+    onUnauthenticated?: () => void
+  }): {
     data: R extends true ? any : any
     status: "loading" | "authenticated" | "unauthenticated"
     update: (data?: any) => Promise<any>
@@ -172,10 +177,20 @@ declare module "next-auth/react" {
 
 declare module "drizzle-orm" {
   export type AnyColumn = { name: string; table: { [key: string]: any } }
-  export type SQL = { sql: string; params: any[]; toSQL: () => SQL; as: (alias: string) => SQLWrapper; mapWith: (fn: any) => SQLWrapper }
-  export type SQLWrapper = { toSQL: () => SQL; as: (alias: string) => SQLWrapper; mapWith: (fn: any) => SQLWrapper }
+  export type SQL = {
+    sql: string
+    params: any[]
+    toSQL: () => SQL
+    as: (alias: string) => SQLWrapper
+    mapWith: (fn: any) => SQLWrapper
+  }
+  export type SQLWrapper = {
+    toSQL: () => SQL
+    as: (alias: string) => SQLWrapper
+    mapWith: (fn: any) => SQLWrapper
+  }
   export type SelectedFields<T extends Record<string, any> = Record<string, any>> = T
-  
+
   export function eq(a: AnyColumn | SQLWrapper, b: any): SQLWrapper
   export function and(...conditions: (SQLWrapper | undefined)[]): SQLWrapper | undefined
   export function or(...conditions: (SQLWrapper | undefined)[]): SQLWrapper | undefined
@@ -234,8 +249,14 @@ declare module "drizzle-orm/pg-core" {
   export const timestamp: any
   export const varchar: any
   export const boolean: any
-  export function jsonb(name: string, config?: any): { $type<T>(): any; default(v: any): any; notNull(): any }
-  export function json(name: string, config?: any): { $type<T>(): any; default(v: any): any; notNull(): any }
+  export function jsonb(
+    name: string,
+    config?: any
+  ): { $type<T>(): any; default(v: any): any; notNull(): any }
+  export function json(
+    name: string,
+    config?: any
+  ): { $type<T>(): any; default(v: any): any; notNull(): any }
   export const numeric: any
   export const doublePrecision: any
   export const date: any
@@ -254,9 +275,8 @@ declare module "bpmn-moddle" {
     constructor(packages?: Record<string, any>)
     fromXML(
       xmlStr: string,
-      type: string,
+      type: string
     ): Promise<{ rootElement: Record<string, any>; references: any[]; warnings: string[] }>
     toXML(element: any, opts?: { format?: boolean }): Promise<{ xml: string }>
   }
 }
-

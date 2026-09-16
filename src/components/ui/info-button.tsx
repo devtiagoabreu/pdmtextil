@@ -46,15 +46,22 @@ export function InfoButton({ content }: InfoButtonProps) {
 
             <div className="p-5 space-y-5">
               <div>
-                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">{content.description}</p>
+                <p className="text-sm text-slate-600 dark:text-slate-400 leading-relaxed">
+                  {content.description}
+                </p>
               </div>
 
               {content.rules && content.rules.length > 0 && (
                 <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Regras de Negócio</h3>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                    Regras de Negócio
+                  </h3>
                   <ul className="space-y-2">
                     {content.rules.map((rule: any, i: any) => (
-                      <li key={i} className="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-400">
+                      <li
+                        key={i}
+                        className="flex items-start gap-2 text-sm text-slate-600 dark:text-slate-400"
+                      >
                         <span className="mt-1.5 w-1.5 h-1.5 rounded-full bg-blue-400 shrink-0" />
                         {rule}
                       </li>
@@ -65,12 +72,18 @@ export function InfoButton({ content }: InfoButtonProps) {
 
               {content.fields && content.fields.length > 0 && (
                 <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Campos</h3>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                    Campos
+                  </h3>
                   <div className="space-y-2">
                     {content.fields.map((field: any, i: any) => (
                       <div key={i} className="flex items-start gap-2">
-                        <span className="text-xs font-medium text-blue-600 dark:text-blue-400 shrink-0 min-w-[100px]">{field.name}</span>
-                        <span className="text-sm text-slate-600 dark:text-slate-400">{field.desc}</span>
+                        <span className="text-xs font-medium text-blue-600 dark:text-blue-400 shrink-0 min-w-[100px]">
+                          {field.name}
+                        </span>
+                        <span className="text-sm text-slate-600 dark:text-slate-400">
+                          {field.desc}
+                        </span>
                       </div>
                     ))}
                   </div>
@@ -79,12 +92,21 @@ export function InfoButton({ content }: InfoButtonProps) {
 
               {content.examples && content.examples.length > 0 && (
                 <div>
-                  <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Exemplos Práticos</h3>
+                  <h3 className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                    Exemplos Práticos
+                  </h3>
                   <div className="space-y-3">
                     {content.examples.map((ex: any, i: any) => (
-                      <div key={i} className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50/60 dark:bg-blue-950/30 p-3">
-                        <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-1">{ex.title}</p>
-                        <p className="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap">{ex.desc}</p>
+                      <div
+                        key={i}
+                        className="rounded-lg border border-blue-200 dark:border-blue-800 bg-blue-50/60 dark:bg-blue-950/30 p-3"
+                      >
+                        <p className="text-sm font-semibold text-blue-700 dark:text-blue-300 mb-1">
+                          {ex.title}
+                        </p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 whitespace-pre-wrap">
+                          {ex.desc}
+                        </p>
                       </div>
                     ))}
                   </div>

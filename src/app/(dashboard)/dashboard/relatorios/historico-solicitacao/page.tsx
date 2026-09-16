@@ -1,9 +1,21 @@
 "use client"
 
-import {Suspense, useEffect, useMemo, useRef, useState, type ReactNode} from "react"
+import { Suspense, useEffect, useMemo, useRef, useState, type ReactNode } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter, useSearchParams, usePathname } from "next/navigation"
-import { BarChart3, Search, Clock, FileText, FlaskConical, CheckCircle, XCircle, AlertCircle, ExternalLink, Activity, History } from "lucide-react"
+import {
+  BarChart3,
+  Search,
+  Clock,
+  FileText,
+  FlaskConical,
+  CheckCircle,
+  XCircle,
+  AlertCircle,
+  ExternalLink,
+  Activity,
+  History,
+} from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { exportPDFRelatorio } from "@/lib/export-utils"
@@ -28,7 +40,12 @@ function HistoricoSolicitacaoPageContent() {
 
   const id = selectedId ? parseInt(selectedId) : 0
 
-  const { data, isLoading: loading, isError, error } = useQuery<any>({
+  const {
+    data,
+    isLoading: loading,
+    isError,
+    error,
+  } = useQuery<any>({
     queryKey: ["relatorio-historico-solicitacao", id],
     enabled: !!id,
     queryFn: async () => {
@@ -54,7 +71,10 @@ function HistoricoSolicitacaoPageContent() {
   const idTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null)
 
   useEffect(() => {
-    fetch("/api/solicitacoes?limit=200").then((r: any) => r.json()).then(setSolicitacoesList).catch(console.error)
+    fetch("/api/solicitacoes?limit=200")
+      .then((r: any) => r.json())
+      .then(setSolicitacoesList)
+      .catch(console.error)
   }, [])
 
   useEffect(() => {
@@ -70,11 +90,14 @@ function HistoricoSolicitacaoPageContent() {
   const filteredSolicitacoes = useMemo(() => {
     if (!searchText) return solicitacoesList.slice(0, 50)
     const q = searchText.toLowerCase()
-    return solicitacoesList.filter((s: any) =>
-      s.id.toString().includes(q) ||
-      s.cliente.toLowerCase().includes(q) ||
-      (s.projeto && s.projeto.toLowerCase().includes(q))
-    ).slice(0, 50)
+    return solicitacoesList
+      .filter(
+        (s: any) =>
+          s.id.toString().includes(q) ||
+          s.cliente.toLowerCase().includes(q) ||
+          (s.projeto && s.projeto.toLowerCase().includes(q))
+      )
+      .slice(0, 50)
   }, [solicitacoesList, searchText])
 
   function selectSolicitacao(id: number) {
@@ -90,20 +113,32 @@ function HistoricoSolicitacaoPageContent() {
         let desc = ""
         let detalhes: string[] | undefined
         if (h.acao === "CRIACAO") desc = h.mensagem || "Solicitação criada"
-        else if (h.acao === "MUDANCA_STATUS") desc = h.mensagem || `Status: ${h.de || "?"} —  ${h.para || "?"}`
+        else if (h.acao === "MUDANCA_STATUS")
+          desc = h.mensagem || `Status: ${h.de || "?"} —  ${h.para || "?"}`
         else if (h.acao === "ALTERACAO" && h.mensagens?.length > 0) {
           desc = "Campos alterados"
           detalhes = h.mensagens
         } else desc = h.mensagens?.[0] || h.acao
-        entries.push({ id: `h-${h.id ?? (h.data + "-" + h.acao + "-" + h.usuario)}`, data: h.data, tipo: "historico", usuario: h.usuario || "Sistema", descricao: desc, detalhes, acao: h.acao })
+        entries.push({
+          id: `h-${h.id ?? h.data + "-" + h.acao + "-" + h.usuario}`,
+          data: h.data,
+          tipo: "historico",
+          usuario: h.usuario || "Sistema",
+          descricao: desc,
+          detalhes,
+          acao: h.acao,
+        })
       }
     }
     for (const l of logs) {
       entries.push({
-        id: `l-${l.id ?? (l.createdAt + "-" + l.acao + "-" + l.usuarioNome)}`,
-        data: l.createdAt, tipo: "log", usuario: l.usuarioNome || "Sistema",
-        descricao: l.descricao || `${l.acao} (${l.tipo})`, acao: l.acao,
-        detalhes: l.dados ? [JSON.stringify(l.dados)] : undefined
+        id: `l-${l.id ?? l.createdAt + "-" + l.acao + "-" + l.usuarioNome}`,
+        data: l.createdAt,
+        tipo: "log",
+        usuario: l.usuarioNome || "Sistema",
+        descricao: l.descricao || `${l.acao} (${l.tipo})`,
+        acao: l.acao,
+        detalhes: l.dados ? [JSON.stringify(l.dados)] : undefined,
       })
     }
     entries.sort((a: any, b: any) => new Date(a.data).getTime() - new Date(b.data).getTime())
@@ -113,7 +148,8 @@ function HistoricoSolicitacaoPageContent() {
   async function handleExportPDF() {
     if (!solicitacao) return
     const clienteLabel = solicitacao.cliente
-    const tipoLabel = solicitacao.tipo === "DESENVOLVIMENTO_TECELAGEM" ? "Tecelagem" : "Beneficiamento"
+    const tipoLabel =
+      solicitacao.tipo === "DESENVOLVIMENTO_TECELAGEM" ? "Tecelagem" : "Beneficiamento"
     const statusLabel = solicitacao.status
 
     const amostraRows: (string | number | null | undefined)[][] = []
@@ -127,7 +163,12 @@ function HistoricoSolicitacaoPageContent() {
         for (const ac of prod.acabamentos) {
           if (ac.amostras && ac.amostras.length > 0) {
             for (const aa of ac.amostras) {
-              amostraRows.push([prod.codigoPdm, aa.descricao || `#${aa.id}`, `${ac.tipoAcabamento}`, aa.status])
+              amostraRows.push([
+                prod.codigoPdm,
+                aa.descricao || `#${aa.id}`,
+                `${ac.tipoAcabamento}`,
+                aa.status,
+              ])
             }
           }
         }
@@ -144,15 +185,19 @@ function HistoricoSolicitacaoPageContent() {
 
     tables.push({
       headers: ["#", "Cliente", "Projeto", "Status", "Tipo", "Criado em", "Prazo"],
-      rows: [[
-        solicitacao.id,
-        clienteLabel,
-        solicitacao.projeto || "-",
-        statusLabel,
-        tipoLabel,
-        solicitacao.createdAt ? new Date(solicitacao.createdAt).toLocaleDateString("pt-BR") : "-",
-        solicitacao.prazoDesejado ? new Date(solicitacao.prazoDesejado).toLocaleDateString("pt-BR") : "-",
-      ]]
+      rows: [
+        [
+          solicitacao.id,
+          clienteLabel,
+          solicitacao.projeto || "-",
+          statusLabel,
+          tipoLabel,
+          solicitacao.createdAt ? new Date(solicitacao.createdAt).toLocaleDateString("pt-BR") : "-",
+          solicitacao.prazoDesejado
+            ? new Date(solicitacao.prazoDesejado).toLocaleDateString("pt-BR")
+            : "-",
+        ],
+      ],
     })
 
     if (amostraRows.length > 0) {
@@ -166,11 +211,11 @@ function HistoricoSolicitacaoPageContent() {
     await exportPDFRelatorio({
       title: `Histórico — Solicitação #${solicitacao.id}`,
       stats: {
-        "Cliente": clienteLabel,
-        "Status": statusLabel,
-        "Tipo": tipoLabel,
-        "Produtos": produtos.length,
-        "Eventos": timeline.length,
+        Cliente: clienteLabel,
+        Status: statusLabel,
+        Tipo: tipoLabel,
+        Produtos: produtos.length,
+        Eventos: timeline.length,
       },
       tables,
       filename: `historico-solicitacao-${solicitacao.id}`,
@@ -188,7 +233,8 @@ function HistoricoSolicitacaoPageContent() {
           Histórico de Solicitação de Desenvolvimento{info && <InfoButton content={info} />}
         </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-          Acompanhe todo o histórico de uma solicitação de desenvolvimento: dados, produtos, amostras e timeline
+          Acompanhe todo o histórico de uma solicitação de desenvolvimento: dados, produtos,
+          amostras e timeline
         </p>
       </div>
 
@@ -197,12 +243,18 @@ function HistoricoSolicitacaoPageContent() {
           <div className="flex-1 min-w-[260px] relative">
             <label className="block text-xs text-slate-400 mb-1">Buscar solicitação</label>
             <div className="relative">
-              <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+              <Search
+                size={16}
+                className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+              />
               <input
                 type="text"
                 placeholder="Digite ID, cliente ou projeto..."
                 value={searchText}
-                onChange={(e) => { setSearchText(e.target.value); setShowDropdown(true) }}
+                onChange={(e) => {
+                  setSearchText(e.target.value)
+                  setShowDropdown(true)
+                }}
                 onFocus={() => setShowDropdown(true)}
                 className="w-full h-10 pl-9 pr-3 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
               />
@@ -289,7 +341,10 @@ function HistoricoSolicitacaoPageContent() {
                   Exportar
                 </button>
               </div>
-              <Link href={pathname} className="h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 text-sm hover:bg-slate-50 dark:hover:bg-slate-800 inline-flex items-center">
+              <Link
+                href={pathname}
+                className="h-10 px-3 rounded-lg border border-slate-200 dark:border-slate-700 text-slate-500 text-sm hover:bg-slate-50 dark:hover:bg-slate-800 inline-flex items-center"
+              >
                 Limpar
               </Link>
             </>
@@ -298,7 +353,9 @@ function HistoricoSolicitacaoPageContent() {
       </div>
 
       {isError && error && (
-        <div className="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 p-4 text-sm text-red-600 dark:text-red-400">{error instanceof Error ? error.message : "Erro ao carregar histórico"}</div>
+        <div className="rounded-xl border border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-950/50 p-4 text-sm text-red-600 dark:text-red-400">
+          {error instanceof Error ? error.message : "Erro ao carregar histórico"}
+        </div>
       )}
 
       {loading && <div className="text-center py-16 text-slate-500">Carregando histórico...</div>}
@@ -306,7 +363,9 @@ function HistoricoSolicitacaoPageContent() {
       {!selectedId && !loading && (
         <div className="flex flex-col items-center justify-center py-24 text-center">
           <BarChart3 className="w-16 h-16 text-slate-200 dark:text-slate-700 mb-4" />
-          <p className="text-base font-medium text-slate-400 dark:text-slate-500">Selecione uma solicitação para ver o histórico completo</p>
+          <p className="text-base font-medium text-slate-400 dark:text-slate-500">
+            Selecione uma solicitação para ver o histórico completo
+          </p>
         </div>
       )}
 
@@ -320,53 +379,73 @@ function HistoricoSolicitacaoPageContent() {
                   Solicitação #{solicitacao.id}
                 </h2>
                 <p className="text-sm text-slate-500 mt-1">
-                  {solicitacao.cliente}{solicitacao.projeto && ` — ${solicitacao.projeto}`}
+                  {solicitacao.cliente}
+                  {solicitacao.projeto && ` — ${solicitacao.projeto}`}
                 </p>
               </div>
-              <Link href={`/comercial/solicitacoes/${solicitacao.id}`} className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700">
+              <Link
+                href={`/comercial/solicitacoes/${solicitacao.id}`}
+                className="inline-flex items-center gap-1 text-sm text-blue-600 hover:text-blue-700"
+              >
                 <ExternalLink size={14} /> Abrir
               </Link>
             </div>
             <div className="grid grid-cols-2 md:grid-cols-4 gap-y-3 gap-x-6 text-sm">
               <div>
                 <span className="text-xs text-slate-400 block">Status</span>
-                <span className="font-medium text-slate-700 dark:text-slate-300"><StatusBadge status={solicitacao.status} /></span>
+                <span className="font-medium text-slate-700 dark:text-slate-300">
+                  <StatusBadge status={solicitacao.status} />
+                </span>
               </div>
               <div>
                 <span className="text-xs text-slate-400 block">Tipo</span>
                 <span className="font-medium text-slate-700 dark:text-slate-300">
-                  {solicitacao.tipo === "DESENVOLVIMENTO_TECELAGEM" ? "Tecelagem" : "Beneficiamento"}
+                  {solicitacao.tipo === "DESENVOLVIMENTO_TECELAGEM"
+                    ? "Tecelagem"
+                    : "Beneficiamento"}
                 </span>
               </div>
               <div>
                 <span className="text-xs text-slate-400 block">Solicitante</span>
-                <span className="font-medium text-slate-700 dark:text-slate-300">{solicitacao.solicitanteNome || "—"}</span>
+                <span className="font-medium text-slate-700 dark:text-slate-300">
+                  {solicitacao.solicitanteNome || "—"}
+                </span>
               </div>
               <div>
                 <span className="text-xs text-slate-400 block">Responsável</span>
-                <span className="font-medium text-slate-700 dark:text-slate-300">{solicitacao.responsavelNome || "—"}</span>
+                <span className="font-medium text-slate-700 dark:text-slate-300">
+                  {solicitacao.responsavelNome || "—"}
+                </span>
               </div>
               <div>
                 <span className="text-xs text-slate-400 block">Criado em</span>
                 <span className="font-medium text-slate-700 dark:text-slate-300">
-                  {solicitacao.createdAt ? new Date(solicitacao.createdAt).toLocaleString("pt-BR") : "—"}
+                  {solicitacao.createdAt
+                    ? new Date(solicitacao.createdAt).toLocaleString("pt-BR")
+                    : "—"}
                 </span>
               </div>
               <div>
                 <span className="text-xs text-slate-400 block">Prazo desejado</span>
                 <span className="font-medium text-slate-700 dark:text-slate-300">
-                  {solicitacao.prazoDesejado ? new Date(solicitacao.prazoDesejado).toLocaleDateString("pt-BR") : "—"}
+                  {solicitacao.prazoDesejado
+                    ? new Date(solicitacao.prazoDesejado).toLocaleDateString("pt-BR")
+                    : "—"}
                 </span>
               </div>
               <div>
                 <span className="text-xs text-slate-400 block">Concluído em</span>
                 <span className="font-medium text-slate-700 dark:text-slate-300">
-                  {solicitacao.dataConclusao ? new Date(solicitacao.dataConclusao).toLocaleDateString("pt-BR") : "—"}
+                  {solicitacao.dataConclusao
+                    ? new Date(solicitacao.dataConclusao).toLocaleDateString("pt-BR")
+                    : "—"}
                 </span>
               </div>
               <div>
                 <span className="text-xs text-slate-400 block">CNPJ</span>
-                <span className="font-medium text-slate-700 dark:text-slate-300">{solicitacao.cnpj || "—"}</span>
+                <span className="font-medium text-slate-700 dark:text-slate-300">
+                  {solicitacao.cnpj || "—"}
+                </span>
               </div>
             </div>
           </div>
@@ -385,10 +464,15 @@ function HistoricoSolicitacaoPageContent() {
                   <div key={prod.id} className="p-6">
                     <div className="flex items-start justify-between mb-3">
                       <div>
-                        <Link href={`/cadastros/produto-cru/${prod.id}`} className="text-sm font-semibold text-blue-600 hover:text-blue-700">
+                        <Link
+                          href={`/cadastros/produto-cru/${prod.id}`}
+                          className="text-sm font-semibold text-blue-600 hover:text-blue-700"
+                        >
                           {prod.codigoPdm}
                         </Link>
-                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">{prod.descricao}</p>
+                        <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">
+                          {prod.descricao}
+                        </p>
                       </div>
                       <StatusBadge status={prod.status} />
                     </div>
@@ -401,8 +485,13 @@ function HistoricoSolicitacaoPageContent() {
                         </h4>
                         <div className="space-y-1">
                           {prod.amostras.map((a: any) => (
-                            <div key={a.id} className="flex items-center gap-3 text-xs bg-slate-50 dark:bg-slate-800/50 rounded-lg px-3 py-2">
-                              <span className="font-medium text-slate-700 dark:text-slate-300">{a.descricao || `Amostra #${a.id}`}</span>
+                            <div
+                              key={a.id}
+                              className="flex items-center gap-3 text-xs bg-slate-50 dark:bg-slate-800/50 rounded-lg px-3 py-2"
+                            >
+                              <span className="font-medium text-slate-700 dark:text-slate-300">
+                                {a.descricao || `Amostra #${a.id}`}
+                              </span>
                               <StatusBadge status={a.status} />
                             </div>
                           ))}
@@ -418,22 +507,33 @@ function HistoricoSolicitacaoPageContent() {
                         </h4>
                         <div className="space-y-2">
                           {prod.acabamentos.map((ac: any) => (
-                            <div key={ac.id} className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3">
+                            <div
+                              key={ac.id}
+                              className="bg-slate-50 dark:bg-slate-800/50 rounded-lg p-3"
+                            >
                               <div className="flex items-center gap-2 text-xs mb-1.5">
-                                <span className="font-medium text-slate-700 dark:text-slate-300">{ac.tipoAcabamento}</span>
-                                {ac.descricao && <span className="text-slate-400">— {ac.descricao}</span>}
+                                <span className="font-medium text-slate-700 dark:text-slate-300">
+                                  {ac.tipoAcabamento}
+                                </span>
+                                {ac.descricao && (
+                                  <span className="text-slate-400">— {ac.descricao}</span>
+                                )}
                               </div>
                               {ac.amostras && ac.amostras.length > 0 ? (
                                 <div className="space-y-1 pl-2">
                                   {ac.amostras.map((aa: any) => (
                                     <div key={aa.id} className="flex items-center gap-3 text-xs">
-                                      <span className="text-slate-500">{aa.descricao || `Amostra #${aa.id}`}</span>
+                                      <span className="text-slate-500">
+                                        {aa.descricao || `Amostra #${aa.id}`}
+                                      </span>
                                       <StatusBadge status={aa.status} />
                                     </div>
                                   ))}
                                 </div>
                               ) : (
-                                <p className="text-[10px] text-slate-400 italic pl-2">Sem amostras</p>
+                                <p className="text-[10px] text-slate-400 italic pl-2">
+                                  Sem amostras
+                                </p>
                               )}
                             </div>
                           ))}
@@ -441,9 +541,12 @@ function HistoricoSolicitacaoPageContent() {
                       </div>
                     )}
 
-                    {(!prod.amostras || prod.amostras.length === 0) && (!prod.acabamentos || prod.acabamentos.length === 0) && (
-                      <p className="text-xs text-slate-400 italic">Nenhuma amostra vinculada a este produto</p>
-                    )}
+                    {(!prod.amostras || prod.amostras.length === 0) &&
+                      (!prod.acabamentos || prod.acabamentos.length === 0) && (
+                        <p className="text-xs text-slate-400 italic">
+                          Nenhuma amostra vinculada a este produto
+                        </p>
+                      )}
                   </div>
                 ))}
               </div>
@@ -459,11 +562,17 @@ function HistoricoSolicitacaoPageContent() {
             {timeline.length > 0 ? (
               <div className="space-y-0 max-h-[600px] overflow-y-auto">
                 {timeline.map((entry: any) => (
-                  <TimelineItem key={entry.id} entry={entry} isLast={timeline[timeline.length - 1]?.id === entry.id} />
+                  <TimelineItem
+                    key={entry.id}
+                    entry={entry}
+                    isLast={timeline[timeline.length - 1]?.id === entry.id}
+                  />
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-slate-400 italic text-center py-8">Nenhum evento registrado</p>
+              <p className="text-sm text-slate-400 italic text-center py-8">
+                Nenhum evento registrado
+              </p>
             )}
           </div>
         </>
@@ -483,11 +592,15 @@ function StatusBadge({ status }: { status: string }) {
     CONCLUIDO: "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400",
     EM_PRODUCAO_TEC: "bg-cyan-50 text-cyan-600 dark:bg-cyan-950/50 dark:text-cyan-400",
     EM_PRODUCAO_BEN: "bg-purple-50 text-purple-600 dark:bg-purple-950/50 dark:text-purple-400",
-    APROVADO_DESENVOLVIMENTO: "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400",
-    APROVADO_COMERCIAL: "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400",
+    APROVADO_DESENVOLVIMENTO:
+      "bg-indigo-50 text-indigo-600 dark:bg-indigo-950/50 dark:text-indigo-400",
+    APROVADO_COMERCIAL:
+      "bg-emerald-50 text-emerald-600 dark:bg-emerald-950/50 dark:text-emerald-400",
   }
   return (
-    <span className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ml-1 ${colors[status] || "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}>
+    <span
+      className={`inline-flex rounded-full px-2 py-0.5 text-[10px] font-medium ml-1 ${colors[status] || "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"}`}
+    >
       {status}
     </span>
   )
@@ -513,14 +626,18 @@ function TimelineItem({ entry, isLast }: { entry: TimelineEntry; isLast: boolean
       </div>
       <div className={`pb-4 ${isLast ? "" : ""}`}>
         <div className="flex items-center gap-2 mt-0.5">
-          <span className="text-xs font-medium text-slate-800 dark:text-slate-200">{entry.usuario}</span>
+          <span className="text-xs font-medium text-slate-800 dark:text-slate-200">
+            {entry.usuario}
+          </span>
           <span className="text-[10px] text-slate-400">{date.toLocaleString("pt-BR")}</span>
         </div>
         <p className="text-sm text-slate-600 dark:text-slate-400 mt-0.5">{entry.descricao}</p>
         {entry.detalhes && entry.detalhes.length > 0 && (
           <ul className="mt-1 space-y-0.5">
             {entry.detalhes.map((d: any, i: any) => (
-              <li key={d} className="text-xs text-slate-500 dark:text-slate-500">⬢ {d}</li>
+              <li key={d} className="text-xs text-slate-500 dark:text-slate-500">
+                ⬢ {d}
+              </li>
             ))}
           </ul>
         )}

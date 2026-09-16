@@ -31,7 +31,14 @@ describe("verificarAbandonos", () => {
     }
     vi.mocked(db.select).mockReset()
     vi.mocked(db.select).mockImplementationOnce(() =>
-      mk([{ remoteJid: "5519999999999@s.whatsapp.net", estado: "AGUARDANDO_REPRESENTANTE", dados: null, updatedAt: new Date() }])
+      mk([
+        {
+          remoteJid: "5519999999999@s.whatsapp.net",
+          estado: "AGUARDANDO_REPRESENTANTE",
+          dados: null,
+          updatedAt: new Date(),
+        },
+      ])
     )
     vi.mocked(db.select).mockImplementationOnce(() => mk([]))
     vi.mocked(db.insert).mockReturnValue(createQueryBuilder(undefined))

@@ -41,7 +41,8 @@ describe("CampanhaDetailPage", () => {
   it("edita e salva via PUT", async () => {
     const fetchMock = createFetchMock(({ method, url }) => {
       if (method === "GET" && url === "/api/crm/campanhas/1") return { json: campanha }
-      if (method === "PUT" && url === "/api/crm/campanhas/1") return { json: { ...campanha, nome: "Lançamento Verão 2026" } }
+      if (method === "PUT" && url === "/api/crm/campanhas/1")
+        return { json: { ...campanha, nome: "Lançamento Verão 2026" } }
       return { json: null }
     })
     vi.stubGlobal("fetch", fetchMock.fn)

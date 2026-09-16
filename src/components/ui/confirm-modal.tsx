@@ -31,7 +31,12 @@ export function ConfirmModal({
   const isDanger = variant === "danger"
 
   return (
-    <DialogPrimitive.Root open={open} onOpenChange={(next) => { if (!next) onCancel() }}>
+    <DialogPrimitive.Root
+      open={open}
+      onOpenChange={(next) => {
+        if (!next) onCancel()
+      }}
+    >
       <DialogPrimitive.Portal>
         <DialogPrimitive.Backdrop
           className="fixed inset-0 z-50 bg-black/50 backdrop-blur-sm"
@@ -40,7 +45,9 @@ export function ConfirmModal({
         />
         <DialogPrimitive.Popup
           className="fixed inset-0 z-50 flex items-center justify-center p-4 outline-none"
-          aria-describedby={subMessage ? "confirm-modal-message confirm-modal-submessage" : "confirm-modal-message"}
+          aria-describedby={
+            subMessage ? "confirm-modal-message confirm-modal-submessage" : "confirm-modal-message"
+          }
         >
           <div className="relative bg-white dark:bg-slate-900 rounded-xl shadow-2xl border border-slate-200 dark:border-slate-700 w-full max-w-md mx-auto animate-fade-in">
             <DialogPrimitive.Close
@@ -51,17 +58,35 @@ export function ConfirmModal({
             </DialogPrimitive.Close>
 
             <div className="p-6">
-              <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${isDanger ? "bg-red-100 dark:bg-red-900/30" : "bg-amber-100 dark:bg-amber-900/30"}`}>
-                <AlertTriangle className={isDanger ? "text-red-600 dark:text-red-400" : "text-amber-600 dark:text-amber-400"} size={24} aria-hidden="true" />
+              <div
+                className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full ${isDanger ? "bg-red-100 dark:bg-red-900/30" : "bg-amber-100 dark:bg-amber-900/30"}`}
+              >
+                <AlertTriangle
+                  className={
+                    isDanger
+                      ? "text-red-600 dark:text-red-400"
+                      : "text-amber-600 dark:text-amber-400"
+                  }
+                  size={24}
+                  aria-hidden="true"
+                />
               </div>
               <span className="sr-only">{isDanger ? "Atenção" : "Confirmação"}</span>
 
               <DialogPrimitive.Title className="text-center text-lg font-semibold text-slate-900 dark:text-slate-50 mb-2">
                 {title}
               </DialogPrimitive.Title>
-              <p id="confirm-modal-message" className="text-center text-sm text-slate-600 dark:text-slate-400">{message}</p>
+              <p
+                id="confirm-modal-message"
+                className="text-center text-sm text-slate-600 dark:text-slate-400"
+              >
+                {message}
+              </p>
               {subMessage && (
-                <p id="confirm-modal-submessage" className="text-center text-xs text-slate-500 dark:text-slate-500 mt-2 bg-slate-50 dark:bg-slate-800 rounded-lg p-3">
+                <p
+                  id="confirm-modal-submessage"
+                  className="text-center text-xs text-slate-500 dark:text-slate-500 mt-2 bg-slate-50 dark:bg-slate-800 rounded-lg p-3"
+                >
                   {subMessage}
                 </p>
               )}
@@ -81,9 +106,7 @@ export function ConfirmModal({
                 onClick={onConfirm}
                 disabled={loading}
                 className={`flex-1 px-4 py-2.5 text-sm font-medium rounded-lg text-white disabled:opacity-50 transition-colors flex items-center justify-center gap-2 ${
-                  isDanger
-                    ? "bg-red-600 hover:bg-red-700"
-                    : "bg-amber-600 hover:bg-amber-700"
+                  isDanger ? "bg-red-600 hover:bg-red-700" : "bg-amber-600 hover:bg-amber-700"
                 }`}
               >
                 {loading && <Loader2 size={14} className="animate-spin" />}

@@ -40,13 +40,18 @@ describe("DELETE /api/clientes/[id]", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await del("5")
     expect(res.status).toBe(401)
   })
 
   it("retorna 403 para usuário não administrador", async () => {
-    vi.mocked(requireAuth).mockResolvedValue({ session: { user: { id: "2", role: "CRM" } }, userId: 2 } as any)
+    vi.mocked(requireAuth).mockResolvedValue({
+      session: { user: { id: "2", role: "CRM" } },
+      userId: 2,
+    } as any)
     const res = await del("5")
     expect(res.status).toBe(403)
     expect(await res.json()).toEqual({ error: "Apenas administradores podem excluir clientes" })

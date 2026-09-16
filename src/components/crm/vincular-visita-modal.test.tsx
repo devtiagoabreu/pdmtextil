@@ -30,7 +30,7 @@ function setup() {
   })
   vi.stubGlobal("fetch", fetchMock.fn)
   const utils = renderPage(
-    <VincularVisitaModal visitaId={8} open onClose={onClose} onLinked={onLinked} />,
+    <VincularVisitaModal visitaId={8} open onClose={onClose} onLinked={onLinked} />
   )
   return { onClose, onLinked, fetchMock, container: utils.container }
 }
@@ -112,7 +112,10 @@ describe("VincularVisitaModal", () => {
 
     await waitFor(() => {
       const post = findCall(fetchMock.calls, "/api/crm/pessoas", "POST")
-      expect(post?.body).toMatchObject({ razaoSocial: "Nova Pessoa Ltda", cnpj: "12.345.678/0001-90" })
+      expect(post?.body).toMatchObject({
+        razaoSocial: "Nova Pessoa Ltda",
+        cnpj: "12.345.678/0001-90",
+      })
       const link = findCall(fetchMock.calls, "/api/crm/visitas/8", "PUT")
       expect(link?.body).toMatchObject({ empresaId: 3, clienteId: null, nomeAvulso: null })
     })

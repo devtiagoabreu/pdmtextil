@@ -70,6 +70,9 @@ export async function enviarMensagem(numero: string, texto: string): Promise<Env
       externalId: data?.key?.id || data?.key?.remoteJid || null,
     }
   } catch (error) {
-    return { sucesso: false, erro: `Erro ao conectar com Evolution API: ${(error as Error).message}` }
+    return {
+      sucesso: false,
+      erro: `Erro ao conectar com Evolution API: ${(error as Error).message}`,
+    }
   }
 }

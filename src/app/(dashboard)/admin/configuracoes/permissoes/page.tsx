@@ -45,7 +45,7 @@ export default function PermissoesPage() {
   }, [])
 
   const togglePerm = (roleName: string, modulo: string, permissao: string) => {
-    setRolePerms(prev => {
+    setRolePerms((prev) => {
       const next = { ...prev }
       const rolePerms = { ...(next[roleName] || {}) }
       const modPerms = [...(rolePerms[modulo] || [])]
@@ -60,7 +60,7 @@ export default function PermissoesPage() {
   }
 
   const toggleModulo = (roleName: string, modulo: string, checked: boolean) => {
-    setRolePerms(prev => {
+    setRolePerms((prev) => {
       const next = { ...prev }
       const rolePerms = { ...(next[roleName] || {}) }
       rolePerms[modulo] = checked ? [...(data?.permissoes || [])] : []
@@ -103,15 +103,22 @@ export default function PermissoesPage() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link href="/admin/configuracoes" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link
+          href="/admin/configuracoes"
+          className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={20} />
         </Link>
         <div>
           <div className="flex items-center gap-2">
             <Shield className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Permissões por Perfil{info && <InfoButton content={info} />}</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+              Permissões por Perfil{info && <InfoButton content={info} />}
+            </h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">Gerencie o que cada perfil pode acessar no sistema</p>
+          <p className="text-sm text-slate-500 mt-1">
+            Gerencie o que cada perfil pode acessar no sistema
+          </p>
         </div>
       </div>
 
@@ -119,40 +126,54 @@ export default function PermissoesPage() {
         <table className="w-full text-sm">
           <thead>
             <tr className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900">
-              <th className="p-3 text-left font-semibold text-slate-700 dark:text-slate-300 min-w-[140px]">Perfil</th>
+              <th className="p-3 text-left font-semibold text-slate-700 dark:text-slate-300 min-w-[140px]">
+                Perfil
+              </th>
               {data.modulos.map((mod: any) => (
-                <th key={mod} className="p-3 text-center font-semibold text-slate-700 dark:text-slate-300 min-w-[140px]" colSpan={data.permissoes.length}>
+                <th
+                  key={mod}
+                  className="p-3 text-center font-semibold text-slate-700 dark:text-slate-300 min-w-[140px]"
+                  colSpan={data.permissoes.length}
+                >
                   {mod.replace(/_/g, " ")}
                 </th>
               ))}
             </tr>
             <tr className="border-b border-slate-200 dark:border-slate-800">
               <th className="p-2" />
-              {data.modulos.map((mod: any) => (
+              {data.modulos.map((mod: any) =>
                 data.permissoes.map((perm: any) => (
-                  <th key={`${mod}-${perm}`} className="p-2 text-center text-xs font-medium text-slate-500 dark:text-slate-400 w-16">
+                  <th
+                    key={`${mod}-${perm}`}
+                    className="p-2 text-center text-xs font-medium text-slate-500 dark:text-slate-400 w-16"
+                  >
                     {perm}
                   </th>
                 ))
-              ))}
+              )}
             </tr>
           </thead>
           <tbody>
             {data.roles.map((role: any) => {
               const perms = rolePerms[role.name] || {}
               return (
-                <tr key={role.name} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-                  <td className="p-3 font-medium text-slate-800 dark:text-slate-200">{role.label}</td>
-                    {data.modulos.map((mod: any) => {
-                      const modPerms = Array.isArray(perms[mod]) ? perms[mod] : []
-                      const allChecked = data.permissoes.every((p: any) => modPerms.includes(p))
+                <tr
+                  key={role.name}
+                  className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+                >
+                  <td className="p-3 font-medium text-slate-800 dark:text-slate-200">
+                    {role.label}
+                  </td>
+                  {data.modulos.map((mod: any) => {
+                    const modPerms = Array.isArray(perms[mod]) ? perms[mod] : []
+                    const allChecked = data.permissoes.every((p: any) => modPerms.includes(p))
                     return (
                       <td key={mod} className="p-0" colSpan={data.permissoes.length}>
                         <div className="flex items-center justify-center gap-0">
                           <input
                             type="checkbox"
                             checked={allChecked}
-                            onChange={e => toggleModulo(role.name, mod, e.target.checked)}
+                            onChange={(e) => toggleModulo(role.name, mod, e.target.checked)}
                             title="Marcar/desmarcar todas"
                             className="mr-1 h-3.5 w-3.5 accent-blue-600"
                           />

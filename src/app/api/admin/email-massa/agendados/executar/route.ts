@@ -14,7 +14,8 @@ export async function POST(req: NextRequest) {
     const cronSecret = process.env.CRON_SECRET
     const session = await getServerSession(authOptions).catch(() => null)
     const isAdmin =
-      session && (session.user.role === "ADMIN" || session.user.role === "SUDO" || session.user.role === "CRM")
+      session &&
+      (session.user.role === "ADMIN" || session.user.role === "SUDO" || session.user.role === "CRM")
     if (!(cronSecret && authHeader === `Bearer ${cronSecret}`) && !isAdmin) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
@@ -37,7 +38,7 @@ export async function POST(req: NextRequest) {
         const result = await criarDisparo({
           nome: agendado.nome,
           para: agendado.para,
-          listas: agendado.listas as number[] || undefined,
+          listas: (agendado.listas as number[]) || undefined,
           assunto: agendado.assunto,
           html: agendado.html,
           preheader: agendado.preheader || "",

@@ -6,7 +6,17 @@ import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import { useState } from "react"
 import { useRouter, usePathname } from "next/navigation"
-import { PlusCircle, Target, Search, Table, Columns, Users, User, Pencil, Trash2 } from "lucide-react"
+import {
+  PlusCircle,
+  Target,
+  Search,
+  Table,
+  Columns,
+  Users,
+  User,
+  Pencil,
+  Trash2,
+} from "lucide-react"
 import { toast } from "sonner"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import OportunidadesKanban from "@/components/crm/oportunidades-kanban"
@@ -49,7 +59,11 @@ export default function OportunidadesPage() {
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
 
-  const { data: oportunidades, isLoading, refetch } = useQuery<Oportunidade[]>({
+  const {
+    data: oportunidades,
+    isLoading,
+    refetch,
+  } = useQuery<Oportunidade[]>({
     queryKey: ["crm-oportunidades", visitasFilter],
     queryFn: () => fetchOportunidades(visitasFilter === "minhas"),
     retry: 1,
@@ -75,7 +89,8 @@ export default function OportunidadesPage() {
   }
 
   const filterState = useListFilters(
-    { searchFields: ["titulo", "empresaNome", "clienteNome", "responsavelNome"],
+    {
+      searchFields: ["titulo", "empresaNome", "clienteNome", "responsavelNome"],
       statusOptions: [
         { value: "NOVO", label: "Novo" },
         { value: "QUALIFICACAO", label: "Qualificação" },
@@ -92,16 +107,22 @@ export default function OportunidadesPage() {
 
   function formatarMoeda(valor: string | null | undefined) {
     if (!valor) return "-"
-    return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(Number(valor))
+    return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(
+      Number(valor)
+    )
   }
 
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Oportunidades{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Oportunidades{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {isLoading ? "Carregando..." : `${filteredData.length} de ${(oportunidades || []).length} total`}
+            {isLoading
+              ? "Carregando..."
+              : `${filteredData.length} de ${(oportunidades || []).length} total`}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -164,107 +185,143 @@ export default function OportunidadesPage() {
       </div>
 
       {modo === "tabela" && (
-      <>
-      <ListFilters
-        config={{
-          searchFields: ["titulo", "empresaNome", "clienteNome", "responsavelNome"],
-          statusOptions: [
-            { value: "NOVO", label: "Novo" },
-            { value: "QUALIFICACAO", label: "Qualificação" },
-            { value: "PROPOSTA", label: "Proposta" },
-            { value: "NEGOCIACAO", label: "Negociação" },
-            { value: "FECHADO_GANHO", label: "Fechado Ganho" },
-            { value: "FECHADO_PERDIDO", label: "Fechado Perdido" },
-          ],
-          dateField: "createdAt",
-        }}
-        data={oportunidades || []}
-        filterState={filterState}
-        placeholder="Buscar por título ou pessoa..."
-      />
+        <>
+          <ListFilters
+            config={{
+              searchFields: ["titulo", "empresaNome", "clienteNome", "responsavelNome"],
+              statusOptions: [
+                { value: "NOVO", label: "Novo" },
+                { value: "QUALIFICACAO", label: "Qualificação" },
+                { value: "PROPOSTA", label: "Proposta" },
+                { value: "NEGOCIACAO", label: "Negociação" },
+                { value: "FECHADO_GANHO", label: "Fechado Ganho" },
+                { value: "FECHADO_PERDIDO", label: "Fechado Perdido" },
+              ],
+              dateField: "createdAt",
+            }}
+            data={oportunidades || []}
+            filterState={filterState}
+            placeholder="Buscar por título ou pessoa..."
+          />
 
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
-        {isLoading ? (
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+            {isLoading ? (
+              <div className="flex justify-center py-20">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+              </div>
+            ) : filteredData.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <Target className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                  Nenhuma oportunidade encontrada
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                    <tr>
+                      <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                        Título
+                      </th>
+                      <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                        Pessoa
+                      </th>
+                      <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">
+                        Valor Est.
+                      </th>
+                      <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                        Status
+                      </th>
+                      <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">
+                        Responsável
+                      </th>
+                      <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">
+                        Prob.
+                      </th>
+                      <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">
+                        Data
+                      </th>
+                      <th className="px-2 py-2 md:px-4 md:py-3 text-right text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                        Ações
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {filteredData.map((op) => (
+                      <tr key={op.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
+                        <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200 whitespace-nowrap">
+                          <Link
+                            href={`/comercial/crm/oportunidades/${op.id}`}
+                            className="hover:underline"
+                          >
+                            {op.titulo}
+                          </Link>
+                        </td>
+                        <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500">
+                          {op.empresaNome || op.clienteNome || "—"}
+                        </td>
+                        <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell whitespace-nowrap">
+                          {formatarMoeda(op.valorEstimado)}
+                        </td>
+                        <td className="px-2 py-2 md:px-4 md:py-3">
+                          <span
+                            className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[op.status] || ""}`}
+                          >
+                            {STATUS_LABELS[op.status] || op.status}
+                          </span>
+                        </td>
+                        <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">
+                          {op.responsavelNome || "—"}
+                        </td>
+                        <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell">
+                          {op.probabilidade ?? 0}%
+                        </td>
+                        <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 whitespace-nowrap hidden sm:table-cell">
+                          {op.createdAt ? new Date(op.createdAt).toLocaleDateString("pt-BR") : "—"}
+                        </td>
+                        <td className="px-2 py-2 md:px-4 md:py-3 text-right">
+                          <div className="flex items-center justify-end gap-1">
+                            <Link
+                              href={`/comercial/crm/oportunidades/${op.id}`}
+                              className="p-1 text-slate-400 hover:text-blue-600 rounded transition-colors"
+                              title="Editar oportunidade"
+                            >
+                              <Pencil size={15} />
+                            </Link>
+                            <button
+                              type="button"
+                              className="p-1 text-slate-400 hover:text-red-600 rounded transition-colors"
+                              title="Excluir oportunidade"
+                              onClick={() => {
+                                setDeleteTarget(op)
+                                setDeleteBlocked(false)
+                              }}
+                            >
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </>
+      )}
+
+      {modo === "kanban" &&
+        (isLoading ? (
           <div className="flex justify-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
-        ) : filteredData.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <Target className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma oportunidade encontrada</p>
-          </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                <tr>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Título</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Pessoa</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Valor Est.</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Status</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">Responsável</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Prob.</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Data</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-right text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredData.map((op) => (
-                  <tr
-                    key={op.id}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                  >
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200 whitespace-nowrap">
-                      <Link href={`/comercial/crm/oportunidades/${op.id}`} className="hover:underline">
-                        {op.titulo}
-                      </Link>
-                    </td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500">{op.empresaNome || op.clienteNome || "—"}</td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell whitespace-nowrap">{formatarMoeda(op.valorEstimado)}</td>
-                    <td className="px-2 py-2 md:px-4 md:py-3">
-                      <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[op.status] || ""}`}>
-                        {STATUS_LABELS[op.status] || op.status}
-                      </span>
-                    </td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">{op.responsavelNome || "—"}</td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden sm:table-cell">{op.probabilidade ?? 0}%</td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 whitespace-nowrap hidden sm:table-cell">
-                      {op.createdAt ? new Date(op.createdAt).toLocaleDateString("pt-BR") : "—"}
-                    </td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-right">
-                      <div className="flex items-center justify-end gap-1">
-                        <Link href={`/comercial/crm/oportunidades/${op.id}`} className="p-1 text-slate-400 hover:text-blue-600 rounded transition-colors" title="Editar oportunidade">
-                          <Pencil size={15} />
-                        </Link>
-                        <button
-                          type="button"
-                          className="p-1 text-slate-400 hover:text-red-600 rounded transition-colors"
-                          title="Excluir oportunidade"
-                          onClick={() => { setDeleteTarget(op); setDeleteBlocked(false) }}
-                        >
-                          <Trash2 size={15} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
-      </>
-      )}
-
-      {modo === "kanban" && (
-        isLoading ? (
-          <div className="flex justify-center py-20">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
-          </div>
-        ) : (
-          <FloatableKanban tipo="OPORTUNIDADE"><OportunidadesKanban oportunidades={oportunidades || []} /></FloatableKanban>
-        )
-      )}
+          <FloatableKanban tipo="OPORTUNIDADE">
+            <OportunidadesKanban oportunidades={oportunidades || []} />
+          </FloatableKanban>
+        ))}
 
       <ConfirmModal
         open={deleteTarget !== null}
@@ -275,7 +332,10 @@ export default function OportunidadesPage() {
         variant="danger"
         loading={deleteLoading}
         onConfirm={handleDelete}
-        onCancel={() => { setDeleteTarget(null); setDeleteBlocked(false) }}
+        onCancel={() => {
+          setDeleteTarget(null)
+          setDeleteBlocked(false)
+        }}
       />
     </div>
   )

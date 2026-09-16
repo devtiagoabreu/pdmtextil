@@ -25,7 +25,7 @@ export function CommandSearch() {
       return
     }
     const filtered = searchItems(query).filter(
-      (item) => ehAdministrador || !item.href.startsWith("/admin"),
+      (item) => ehAdministrador || !item.href.startsWith("/admin")
     )
     setResults(filtered)
     setSelectedIndex(0)
@@ -47,12 +47,15 @@ export function CommandSearch() {
     return () => document.removeEventListener("mousedown", handleClickOutside)
   }, [])
 
-  const navigate = useCallback((item: SearchItem) => {
-    setQuery("")
-    setIsOpen(false)
-    inputRef.current?.blur()
-    router.push(item.href)
-  }, [router])
+  const navigate = useCallback(
+    (item: SearchItem) => {
+      setQuery("")
+      setIsOpen(false)
+      inputRef.current?.blur()
+      router.push(item.href)
+    },
+    [router]
+  )
 
   const listboxId = "command-search-listbox"
   const expanded = isOpen && results.length > 0
@@ -88,7 +91,9 @@ export function CommandSearch() {
         placeholder="Buscar telas, cadastros..."
         value={query}
         onChange={(e) => setQuery(e.target.value)}
-        onFocus={() => { if (results.length > 0) setIsOpen(true) }}
+        onFocus={() => {
+          if (results.length > 0) setIsOpen(true)
+        }}
         onKeyDown={handleKeyDown}
         className="h-9 w-64 rounded-lg border border-slate-200 bg-slate-50 pl-9 pr-4 text-sm outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 dark:border-slate-700 dark:bg-slate-900 dark:text-slate-100 dark:placeholder-slate-500"
       />
@@ -116,8 +121,12 @@ export function CommandSearch() {
               }`}
             >
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-slate-800 dark:text-slate-200">{item.label}</p>
-                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">{item.description}</p>
+                <p className="text-sm font-medium text-slate-800 dark:text-slate-200">
+                  {item.label}
+                </p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 truncate">
+                  {item.description}
+                </p>
               </div>
               <span className="shrink-0 rounded-md bg-slate-100 dark:bg-slate-800 px-2 py-0.5 text-[10px] font-medium text-slate-500 dark:text-slate-400">
                 {item.module}

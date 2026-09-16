@@ -22,14 +22,42 @@ const oportunidade = {
 const oportunidadeComPropostas = {
   ...oportunidade,
   propostas: [
-    { id: 10, titulo: "Orçamento Malha - Tecelagem Alpha", valor: "5000", status: "ENVIADA", createdAt: "2026-07-02T10:00:00Z" },
-    { id: 11, titulo: "Orçamento Rev.2 - Malha", valor: "4800", status: "REVISAO", createdAt: "2026-07-05T10:00:00Z" },
+    {
+      id: 10,
+      titulo: "Orçamento Malha - Tecelagem Alpha",
+      valor: "5000",
+      status: "ENVIADA",
+      createdAt: "2026-07-02T10:00:00Z",
+    },
+    {
+      id: 11,
+      titulo: "Orçamento Rev.2 - Malha",
+      valor: "4800",
+      status: "REVISAO",
+      createdAt: "2026-07-05T10:00:00Z",
+    },
   ],
 }
 
 const statuses = [
-  { id: 1, nome: "NOVO", rotulo: "Novo", tipo: "OPORTUNIDADE", cor: "#3b82f6", ordem: 1, ativo: true },
-  { id: 2, nome: "NEGOCIACAO", rotulo: "Negociação", tipo: "OPORTUNIDADE", cor: "#f97316", ordem: 4, ativo: true },
+  {
+    id: 1,
+    nome: "NOVO",
+    rotulo: "Novo",
+    tipo: "OPORTUNIDADE",
+    cor: "#3b82f6",
+    ordem: 1,
+    ativo: true,
+  },
+  {
+    id: 2,
+    nome: "NEGOCIACAO",
+    rotulo: "Negociação",
+    tipo: "OPORTUNIDADE",
+    cor: "#f97316",
+    ordem: 4,
+    ativo: true,
+  },
 ]
 
 describe("DetalheOportunidadePage", () => {
@@ -37,7 +65,8 @@ describe("DetalheOportunidadePage", () => {
 
   beforeEach(() => {
     const handler = ({ method, url }: { method: string; url: string }) => {
-      if (method === "GET" && url === "/api/admin/status?tipo=OPORTUNIDADE") return { json: statuses }
+      if (method === "GET" && url === "/api/admin/status?tipo=OPORTUNIDADE")
+        return { json: statuses }
       if (method === "GET" && url === "/api/crm/oportunidades/1") return { json: oportunidade }
       if (method === "PUT" && url === "/api/crm/oportunidades/1") return { json: oportunidade }
       if (method === "DELETE" && url === "/api/crm/oportunidades/1") return { json: { ok: true } }
@@ -52,7 +81,9 @@ describe("DetalheOportunidadePage", () => {
     navMock.setPathname("/comercial/crm/oportunidades/1")
     renderPage(<DetalheOportunidadePage />)
 
-    expect(await screen.findByRole("heading", { name: /Venda de malha 100% algodão/ })).toBeInTheDocument()
+    expect(
+      await screen.findByRole("heading", { name: /Venda de malha 100% algodão/ })
+    ).toBeInTheDocument()
     expect(screen.getAllByText("Tecelagem Alpha").length).toBeGreaterThan(0)
     expect(screen.getByText("R$ 5.000,00")).toBeInTheDocument()
     expect(screen.getByText("50%")).toBeInTheDocument()
@@ -107,13 +138,18 @@ describe("DetalheOportunidadePage", () => {
     renderPage(<DetalheOportunidadePage />)
 
     expect(await screen.findByText("Oportunidade não encontrada")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Voltar" })).toHaveAttribute("href", "/comercial/crm/oportunidades")
+    expect(screen.getByRole("link", { name: "Voltar" })).toHaveAttribute(
+      "href",
+      "/comercial/crm/oportunidades"
+    )
   })
 
   it("exibe o grid de propostas vinculadas à oportunidade", async () => {
     const gridMock = createFetchMock(({ method, url }) => {
-      if (method === "GET" && url === "/api/admin/status?tipo=OPORTUNIDADE") return { json: statuses }
-      if (method === "GET" && url === "/api/crm/oportunidades/1") return { json: oportunidadeComPropostas }
+      if (method === "GET" && url === "/api/admin/status?tipo=OPORTUNIDADE")
+        return { json: statuses }
+      if (method === "GET" && url === "/api/crm/oportunidades/1")
+        return { json: oportunidadeComPropostas }
       return { json: null }
     })
     vi.stubGlobal("fetch", gridMock.fn)
@@ -136,8 +172,10 @@ describe("DetalheOportunidadePage", () => {
 
   it('o botão "Nova Proposta" aponta para criar vinclado à oportunidade', async () => {
     const buttonMock = createFetchMock(({ method, url }) => {
-      if (method === "GET" && url === "/api/admin/status?tipo=OPORTUNIDADE") return { json: statuses }
-      if (method === "GET" && url === "/api/crm/oportunidades/1") return { json: oportunidadeComPropostas }
+      if (method === "GET" && url === "/api/admin/status?tipo=OPORTUNIDADE")
+        return { json: statuses }
+      if (method === "GET" && url === "/api/crm/oportunidades/1")
+        return { json: oportunidadeComPropostas }
       return { json: null }
     })
     vi.stubGlobal("fetch", buttonMock.fn)
@@ -154,8 +192,10 @@ describe("DetalheOportunidadePage", () => {
 
   it("exibe estado vazio quando a oportunidade não tem propostas", async () => {
     const emptyMock = createFetchMock(({ method, url }) => {
-      if (method === "GET" && url === "/api/admin/status?tipo=OPORTUNIDADE") return { json: statuses }
-      if (method === "GET" && url === "/api/crm/oportunidades/1") return { json: { ...oportunidade, propostas: [] } }
+      if (method === "GET" && url === "/api/admin/status?tipo=OPORTUNIDADE")
+        return { json: statuses }
+      if (method === "GET" && url === "/api/crm/oportunidades/1")
+        return { json: { ...oportunidade, propostas: [] } }
       return { json: null }
     })
     vi.stubGlobal("fetch", emptyMock.fn)
@@ -163,22 +203,49 @@ describe("DetalheOportunidadePage", () => {
     navMock.setPathname("/comercial/crm/oportunidades/1")
     renderPage(<DetalheOportunidadePage />)
 
-    expect(await screen.findByText("Nenhuma proposta vinculada a esta oportunidade.")).toBeInTheDocument()
+    expect(
+      await screen.findByText("Nenhuma proposta vinculada a esta oportunidade.")
+    ).toBeInTheDocument()
   })
 
   it("exibe os cards de faturamentos e pedidos de venda da oportunidade", async () => {
     const docsMock = createFetchMock(({ method, url }) => {
-      if (method === "GET" && url === "/api/admin/status?tipo=OPORTUNIDADE") return { json: statuses }
+      if (method === "GET" && url === "/api/admin/status?tipo=OPORTUNIDADE")
+        return { json: statuses }
       if (method === "GET" && url === "/api/crm/oportunidades/1") {
         return {
           json: {
             ...oportunidade,
             faturamentos: [
-              { id: 10, numero: "NF-001", status: "EMITIDO", origem: "MANUAL", total: 1250, dataEmissao: null, createdAt: "2026-09-01T10:00:00Z" },
-              { id: 11, numero: "NF-002", status: "RECEBIDO", origem: "ERP", total: 850, dataEmissao: null, createdAt: "2026-09-02T10:00:00Z" },
+              {
+                id: 10,
+                numero: "NF-001",
+                status: "EMITIDO",
+                origem: "MANUAL",
+                total: 1250,
+                dataEmissao: null,
+                createdAt: "2026-09-01T10:00:00Z",
+              },
+              {
+                id: 11,
+                numero: "NF-002",
+                status: "RECEBIDO",
+                origem: "ERP",
+                total: 850,
+                dataEmissao: null,
+                createdAt: "2026-09-02T10:00:00Z",
+              },
             ],
             pedidosVenda: [
-              { id: 20, numero: "PV-001", status: "ABERTO", origem: "MANUAL", total: 600, dataEmissao: null, createdAt: "2026-09-03T10:00:00Z" },
+              {
+                id: 20,
+                numero: "PV-001",
+                status: "ABERTO",
+                origem: "MANUAL",
+                total: 600,
+                dataEmissao: null,
+                createdAt: "2026-09-03T10:00:00Z",
+              },
             ],
           },
         }
@@ -196,9 +263,21 @@ describe("DetalheOportunidadePage", () => {
     expect(screen.getByText("PV-001")).toBeInTheDocument()
     expect(screen.getByText("R$ 2.100,00")).toBeInTheDocument()
     expect(screen.getAllByText("R$ 600,00").length).toBeGreaterThan(0)
-    expect(screen.getByRole("link", { name: /Novo Faturamento/ })).toHaveAttribute("href", "/comercial/crm/faturamentos/novo?oportunidadeId=1")
-    expect(screen.getByRole("link", { name: /Novo Pedido/ })).toHaveAttribute("href", "/comercial/crm/pedidos-venda/novo?oportunidadeId=1")
-    expect(screen.getByRole("link", { name: /NF-001/ })).toHaveAttribute("href", "/comercial/crm/faturamentos/10")
-    expect(screen.getByRole("link", { name: /PV-001/ })).toHaveAttribute("href", "/comercial/crm/pedidos-venda/20")
+    expect(screen.getByRole("link", { name: /Novo Faturamento/ })).toHaveAttribute(
+      "href",
+      "/comercial/crm/faturamentos/novo?oportunidadeId=1"
+    )
+    expect(screen.getByRole("link", { name: /Novo Pedido/ })).toHaveAttribute(
+      "href",
+      "/comercial/crm/pedidos-venda/novo?oportunidadeId=1"
+    )
+    expect(screen.getByRole("link", { name: /NF-001/ })).toHaveAttribute(
+      "href",
+      "/comercial/crm/faturamentos/10"
+    )
+    expect(screen.getByRole("link", { name: /PV-001/ })).toHaveAttribute(
+      "href",
+      "/comercial/crm/pedidos-venda/20"
+    )
   })
 })

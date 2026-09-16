@@ -5,16 +5,16 @@ import { produtoCruAmostra } from "@/lib/db/schema/produto-cru"
 import { eq } from "drizzle-orm"
 import { notificar, registrarLog } from "@/lib/notificar"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
     const { session } = auth
     const id = parseInt((await params).id)
-    const lista = await db.select().from(produtoCruAmostra).where(eq(produtoCruAmostra.produtoCruId, id))
+    const lista = await db
+      .select()
+      .from(produtoCruAmostra)
+      .where(eq(produtoCruAmostra.produtoCruId, id))
 
     return NextResponse.json(lista)
   } catch (error) {
@@ -23,10 +23,7 @@ export async function GET(
   }
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -45,13 +42,15 @@ export async function POST(
         observacoes: body.observacoes || null,
         quantidadeProduzida: body.quantidadeProduzida || null,
         idIntegracaoErpCru: body.idIntegracaoErpCru || null,
-        historico: [{
-          data: new Date().toISOString(),
-          usuario: session.user.name,
-          usuarioId: userIdResult,
-          acao: "CRIACAO",
-          status: body.status || "PENDENTE",
-        }],
+        historico: [
+          {
+            data: new Date().toISOString(),
+            usuario: session.user.name,
+            usuarioId: userIdResult,
+            acao: "CRIACAO",
+            status: body.status || "PENDENTE",
+          },
+        ],
       })
       .returning({
         id: produtoCruAmostra.id,
@@ -75,7 +74,14 @@ export async function POST(
       session.user.name
     )
 
-    await registrarLog({ tipo: "CADASTRO", acao: "criar", descricao: `Amostra de tecido cru #${novo.id} criada para produto #${id}`, entidade: "AmostraTecidoCru", entidadeId: novo.id, usuarioNome: session.user.name })
+    await registrarLog({
+      tipo: "CADASTRO",
+      acao: "criar",
+      descricao: `Amostra de tecido cru #${novo.id} criada para produto #${id}`,
+      entidade: "AmostraTecidoCru",
+      entidadeId: novo.id,
+      usuarioNome: session.user.name,
+    })
 
     return NextResponse.json(novo)
   } catch (error) {

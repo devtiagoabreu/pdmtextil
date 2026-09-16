@@ -3,7 +3,9 @@ import { crmFaturamentos } from "./crm-faturamentos"
 
 export const crmFaturamentoItens = pgTable("crm_faturamento_itens", {
   id: serial("id").primaryKey(),
-  faturamentoId: integer("faturamento_id").notNull().references(() => crmFaturamentos.id, { onDelete: "cascade" }),
+  faturamentoId: integer("faturamento_id")
+    .notNull()
+    .references(() => crmFaturamentos.id, { onDelete: "cascade" }),
   produto: varchar("produto", { length: 300 }).notNull(),
   codigo: varchar("codigo", { length: 100 }),
   unidade: varchar("unidade", { length: 20 }).notNull().default("METROS"),

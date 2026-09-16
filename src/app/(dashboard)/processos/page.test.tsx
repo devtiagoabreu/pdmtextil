@@ -24,9 +24,18 @@ describe("ProcessosHomePage", () => {
     renderPage(<ProcessosHomePage />)
 
     expect(screen.getByRole("heading", { name: "Engenharia de Processos" })).toBeInTheDocument()
-    expect((await screen.findByText("Empresas")).closest("a")).toHaveAttribute("href", "/processos/empresas")
-    expect(screen.getByText("Processos").closest("a")).toHaveAttribute("href", "/processos/processos")
-    expect(screen.getByText("Atividades").closest("a")).toHaveAttribute("href", "/processos/atividades")
+    expect((await screen.findByText("Empresas")).closest("a")).toHaveAttribute(
+      "href",
+      "/processos/empresas"
+    )
+    expect(screen.getByText("Processos").closest("a")).toHaveAttribute(
+      "href",
+      "/processos/processos"
+    )
+    expect(screen.getByText("Atividades").closest("a")).toHaveAttribute(
+      "href",
+      "/processos/atividades"
+    )
 
     await waitFor(() => expect(screen.getByText("Hierarquia do mapeamento")).toBeInTheDocument())
     expect(screen.getByText("2", { selector: "span" })).toBeInTheDocument()

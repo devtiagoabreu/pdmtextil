@@ -26,7 +26,13 @@ describe("NovaPessoaPage", () => {
               nome_fantasia: "Alpha Confecções",
               situacao_cadastral: "Ativa",
               cnae_principal: "1412601",
-              cnaes: [{ codigo: "1412601", descricao: "Confecção de peças do vestuário", is_principal: true }],
+              cnaes: [
+                {
+                  codigo: "1412601",
+                  descricao: "Confecção de peças do vestuário",
+                  is_principal: true,
+                },
+              ],
               logradouro: "Rua das Flores",
               numero: "100",
               complemento: "",
@@ -60,7 +66,9 @@ describe("NovaPessoaPage", () => {
   it("renderiza o formulário com Pessoa Jurídica padrão", async () => {
     renderPage(<NovaPessoaPage />)
 
-    expect(await screen.findByRole("heading", { name: "Nova Pessoa (Negócio)" })).toBeInTheDocument()
+    expect(
+      await screen.findByRole("heading", { name: "Nova Pessoa (Negócio)" })
+    ).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Pessoa Jurídica" })).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Pessoa Física" })).toBeInTheDocument()
     expect(screen.getByText(/Razão Social/)).toBeInTheDocument()
@@ -92,12 +100,16 @@ describe("NovaPessoaPage", () => {
     fireEvent.change(textboxes[6], { target: { value: "contato@beta.com" } })
 
     const comboboxes = screen.getAllByRole("combobox")
-    await waitFor(() => expect(screen.getByRole("option", { name: "Tecelagem" })).toBeInTheDocument())
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "Tecelagem" })).toBeInTheDocument()
+    )
     fireEvent.change(comboboxes[0], { target: { value: "Tecelagem" } })
     fireEvent.change(comboboxes[1], { target: { value: "ME" } })
     fireEvent.change(comboboxes[2], { target: { value: "SP" } })
 
-    await waitFor(() => expect(screen.getByRole("option", { name: "São Paulo" })).toBeInTheDocument())
+    await waitFor(() =>
+      expect(screen.getByRole("option", { name: "São Paulo" })).toBeInTheDocument()
+    )
     const comboboxesApos = screen.getAllByRole("combobox")
     fireEvent.change(comboboxesApos[3], { target: { value: "São Paulo" } })
 
@@ -130,7 +142,9 @@ describe("NovaPessoaPage", () => {
         observacoes: "",
       })
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Pessoa cadastrada com sucesso"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Pessoa cadastrada com sucesso")
+    )
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/crm/pessoas/5")
   })
 
@@ -152,7 +166,9 @@ describe("NovaPessoaPage", () => {
     expect(screen.getByDisplayValue("01000000")).toBeInTheDocument()
     expect(screen.getByText("Tecelagem Alpha Ltda")).toBeInTheDocument()
     expect(screen.getByText(/Ativa/)).toBeInTheDocument()
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Dados preenchidos automaticamente"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Dados preenchidos automaticamente")
+    )
   })
 
   it("mostra aviso quando o CNPJ não é encontrado", async () => {
@@ -163,8 +179,12 @@ describe("NovaPessoaPage", () => {
     fireEvent.change(textboxes[2], { target: { value: "00.000.000/0000-00" } })
     fireEvent.click(screen.getByRole("button", { name: "Consultar" }))
 
-    await waitFor(() => expect(screen.getByText(/não encontrado na Receita Federal/)).toBeInTheDocument())
-    await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("CNPJ não encontrado na Receita Federal"))
+    await waitFor(() =>
+      expect(screen.getByText(/não encontrado na Receita Federal/)).toBeInTheDocument()
+    )
+    await waitFor(() =>
+      expect(toastMock.error).toHaveBeenCalledWith("CNPJ não encontrado na Receita Federal")
+    )
   })
 
   it("vincula representante e envia vínculo na criação", async () => {
@@ -190,7 +210,9 @@ describe("NovaPessoaPage", () => {
       expect(call).toBeDefined()
       expect(call!.body).toEqual({ representanteId: 1 })
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Pessoa cadastrada com sucesso"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Pessoa cadastrada com sucesso")
+    )
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/crm/pessoas/5")
   })
 })

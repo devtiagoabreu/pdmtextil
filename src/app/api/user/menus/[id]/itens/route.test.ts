@@ -21,7 +21,7 @@ function post(body: unknown) {
       body: JSON.stringify(body),
       headers: { "Content-Type": "application/json" },
     }),
-    { params: Promise.resolve({ id: "100" }) },
+    { params: Promise.resolve({ id: "100" }) }
   )
 }
 
@@ -33,7 +33,7 @@ describe("POST /api/user/menus/[id]/itens", () => {
 
   it("retorna 401 quando não autenticado", async () => {
     vi.mocked(requireAuth).mockResolvedValue(
-      NextResponse.json({ error: "Não autorizado" }, { status: 401 }) as any,
+      NextResponse.json({ error: "Não autorizado" }, { status: 401 }) as any
     )
     const res = await post({ titulo: "X", url: "/cadastros/clientes" })
     expect(res.status).toBe(401)
@@ -55,7 +55,9 @@ describe("POST /api/user/menus/[id]/itens", () => {
 
   it("permite página admin para usuário admin", async () => {
     vi.mocked(requireAuth).mockResolvedValue(session("ADMIN") as any)
-    db.insert = vi.fn(() => createQueryBuilder([{ id: 10, userMenuId: 100, url: "/admin/usuarios" }]))
+    db.insert = vi.fn(() =>
+      createQueryBuilder([{ id: 10, userMenuId: 100, url: "/admin/usuarios" }])
+    )
     const res = await post({ titulo: "Usuários", url: "/admin/usuarios" })
     expect(res.status).toBe(201)
     expect(db.insert).toHaveBeenCalled()
@@ -63,7 +65,9 @@ describe("POST /api/user/menus/[id]/itens", () => {
 
   it("cria item válido", async () => {
     vi.mocked(requireAuth).mockResolvedValue(session("CRM") as any)
-    db.insert = vi.fn(() => createQueryBuilder([{ id: 10, userMenuId: 100, url: "/cadastros/clientes" }]))
+    db.insert = vi.fn(() =>
+      createQueryBuilder([{ id: 10, userMenuId: 100, url: "/cadastros/clientes" }])
+    )
     const res = await post({ titulo: "Clientes", url: "/cadastros/clientes" })
     expect(res.status).toBe(201)
     const data = await res.json()

@@ -2,21 +2,29 @@ import { NextRequest, NextResponse } from "next/server"
 import { getServerSession } from "next-auth"
 import { authOptions } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { produtoCruReceita as receitas, produtoCruReceitaItem as receitaItens } from "@/lib/db/schema"
+import {
+  produtoCruReceita as receitas,
+  produtoCruReceitaItem as receitaItens,
+} from "@/lib/db/schema"
 import { eq, max } from "drizzle-orm"
 import { validateReceitaChain } from "@/lib/validate-ownership"
 export const dynamic = "force-dynamic"
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: Promise<{ id: string, aid: string, asid: string, rid: string }> }
+  { params }: { params: Promise<{ id: string; aid: string; asid: string; rid: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
     const { id, aid, asid, rid } = await params
-    const err = await validateReceitaChain(parseInt(id), parseInt(aid), parseInt(asid), parseInt(rid))
+    const err = await validateReceitaChain(
+      parseInt(id),
+      parseInt(aid),
+      parseInt(asid),
+      parseInt(rid)
+    )
     if (err) return err
     const receitaId = parseInt(rid)
 
@@ -26,21 +34,28 @@ export async function POST(
     const resultado = await db.transaction(async (tx: any) => {
       const originalId = original.receitaOriginalId || original.id
 
-      const maxVersao = await tx.select({ max: max(receitas.versao) })
+      const maxVersao = await tx
+        .select({ max: max(receitas.versao) })
         .from(receitas)
         .where(eq(receitas.receitaOriginalId, originalId))
 
       const ultimaVersao = maxVersao[0]?.max || 1
 
-      const [nova] = await tx.insert(receitas).values({
-        amostraId: parseInt(asid),
-        descricao: original.descricao,
-        instrucoes: original.instrucoes,
-        versao: ultimaVersao + 1,
-        receitaOriginalId: originalId,
-      }).returning()
+      const [nova] = await tx
+        .insert(receitas)
+        .values({
+          amostraId: parseInt(asid),
+          descricao: original.descricao,
+          instrucoes: original.instrucoes,
+          versao: ultimaVersao + 1,
+          receitaOriginalId: originalId,
+        })
+        .returning()
 
-      const itensOriginais = await tx.select().from(receitaItens).where(eq(receitaItens.receitaId, receitaId))
+      const itensOriginais = await tx
+        .select()
+        .from(receitaItens)
+        .where(eq(receitaItens.receitaId, receitaId))
 
       if (itensOriginais.length > 0) {
         await tx.insert(receitaItens).values(

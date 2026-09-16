@@ -7,10 +7,7 @@ import bcrypt from "bcryptjs"
 import { handleApiError } from "@/lib/api-error"
 import { notificarDelecao } from "@/lib/notificar"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -43,10 +40,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -72,7 +66,10 @@ export async function PUT(
       updateData.password = await bcrypt.hash(body.password, 10)
     }
 
-    await db.update(usuarios).set(updateData).where(eq(usuarios.id, parseInt(id)))
+    await db
+      .update(usuarios)
+      .set(updateData)
+      .where(eq(usuarios.id, parseInt(id)))
 
     return NextResponse.json({ success: true })
   } catch (error: any) {
@@ -84,10 +81,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -101,7 +95,10 @@ export async function DELETE(
     const userId = parseInt(id)
 
     if (userId === userIdResult) {
-      return NextResponse.json({ error: "Você não pode excluir o próprio usuário" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Você não pode excluir o próprio usuário" },
+        { status: 400 }
+      )
     }
 
     await db.delete(usuarios).where(eq(usuarios.id, userId))

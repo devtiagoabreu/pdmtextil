@@ -2,11 +2,23 @@
 
 import { useQuery } from "@tanstack/react-query"
 import Link from "next/link"
-import {Suspense, useState} from "react"
+import { Suspense, useState } from "react"
 import { useRouter, usePathname, useSearchParams } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import { PlusCircle, UserCircle, Search, Table, Columns, Database, Building2, Eye, Pencil, Trash2, ExternalLink } from "lucide-react"
+import {
+  PlusCircle,
+  UserCircle,
+  Search,
+  Table,
+  Columns,
+  Database,
+  Building2,
+  Eye,
+  Pencil,
+  Trash2,
+  ExternalLink,
+} from "lucide-react"
 import PessoasKanban from "@/components/crm/pessoas-kanban"
 import { FloatableKanban } from "@/components/crm/floatable-kanban"
 import ImportarApiModal from "@/components/integracao/ImportarApiModal"
@@ -37,20 +49,27 @@ function CrmPessoasPageContent() {
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const info = getInfoContent(pathname)
-  const [modo, setModo] = useState<"tabela" | "kanban">(searchParams.get("view") === "kanban" ? "kanban" : "tabela")
+  const [modo, setModo] = useState<"tabela" | "kanban">(
+    searchParams.get("view") === "kanban" ? "kanban" : "tabela"
+  )
   const [showApiImport, setShowApiImport] = useState(false)
   const [showCnpjSearch, setShowCnpjSearch] = useState(false)
   const [deleteTarget, setDeleteTarget] = useState<Pessoa | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
 
-  const { data: empresas, isLoading, refetch } = useQuery<Pessoa[]>({
+  const {
+    data: empresas,
+    isLoading,
+    refetch,
+  } = useQuery<Pessoa[]>({
     queryKey: ["crm-pessoas"],
     queryFn: fetchEmpresas,
     retry: 1,
   })
 
   const filterState = useListFilters(
-    { searchFields: ["nome", "razaoSocial", "cpf", "cnpj", "segmento", "responsavelNome"],
+    {
+      searchFields: ["nome", "razaoSocial", "cpf", "cnpj", "segmento", "responsavelNome"],
       statusOptions: [
         { value: "NOVO", label: "Novo" },
         { value: "QUALIFICADO", label: "Qualificado" },
@@ -100,9 +119,13 @@ function CrmPessoasPageContent() {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Pessoas (Negócios){info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Pessoas (Negócios){info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
-            {isLoading ? "Carregando..." : `${filteredData.length} de ${(empresas || []).length} total`}
+            {isLoading
+              ? "Carregando..."
+              : `${filteredData.length} de ${(empresas || []).length} total`}
           </p>
         </div>
         <div className="flex flex-wrap items-center gap-2">
@@ -130,11 +153,21 @@ function CrmPessoasPageContent() {
               Kanban
             </button>
           </div>
-          <Button variant="outline" size="sm" onClick={() => setShowCnpjSearch(true)} className="gap-1.5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowCnpjSearch(true)}
+            className="gap-1.5"
+          >
             <Building2 size={14} />
             Buscar CNPJ
           </Button>
-          <Button variant="outline" size="sm" onClick={() => setShowApiImport(true)} className="gap-1.5">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => setShowApiImport(true)}
+            className="gap-1.5"
+          >
             <Database size={14} />
             Importar via API
           </Button>
@@ -166,117 +199,159 @@ function CrmPessoasPageContent() {
       />
 
       {modo === "tabela" && (
-      <>
-
-      <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
-        {isLoading ? (
-          <div className="flex justify-center py-20">
-            <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
-          </div>
-        ) : filteredData.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-20 text-center">
-            <UserCircle className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma pessoa encontrada</p>
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
-                <tr>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Tipo</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Nome</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Documento</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden lg:table-cell">Segmento</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">Responsável</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Status</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">Data</th>
-                  <th className="px-2 py-2 md:px-4 md:py-3 text-right text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">Ações</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                {filteredData.map((emp: Pessoa) => (
-                  <tr
-                    key={emp.id}
-                    className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
-                  >
-                    <td className="px-2 py-2 md:px-4 md:py-3">
-                      {emp.tipoPessoa ? (
-                        <span className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
-                          emp.tipoPessoa === "PF"
-                            ? "text-purple-600 bg-purple-50 dark:bg-purple-950/50 dark:text-purple-400"
-                            : "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50 dark:text-cyan-400"
-                        }`}>
-                          {emp.tipoPessoa === "PF" ? "PF" : "PJ"}
-                        </span>
-                      ) : "—"}
-                    </td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200 whitespace-nowrap"><Link href={`/comercial/crm/pessoas/${emp.id}`} className="hover:underline">{nomeExibicao(emp)}</Link></td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-mono text-slate-500 hidden sm:table-cell">{documento(emp)}</td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden lg:table-cell">{emp.segmento || "—"}</td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">{emp.responsavelNome || "—"}</td>
-                    <td className="px-2 py-2 md:px-4 md:py-3">
-                      <span className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[emp.status ?? ""] || "text-slate-600 bg-slate-100"}`}>
-                        {emp.status}
-                      </span>
-                    </td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 whitespace-nowrap hidden sm:table-cell">
-                      {emp.createdAt ? new Date(emp.createdAt).toLocaleDateString("pt-BR") : "—"}
-                    </td>
-                    <td className="px-2 py-2 md:px-4 md:py-3 text-right" onClick={e => e.stopPropagation()}>
-                      <div className="flex items-center justify-end gap-1">
-                        <Link
-                          href={`/comercial/crm/pessoas/${emp.id}`}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/50 transition-colors"
-                          title="Ver detalhes"
-                        >
-                          <Eye size={14} />
-                        </Link>
-                        <Link
-                          href={`/comercial/crm/pessoas/${emp.id}?edit=true`}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/50 transition-colors"
-                          title="Editar"
-                        >
-                          <Pencil size={14} />
-                        </Link>
-                        {mapsUrl(emp) && (
-                          <a
-                            href={mapsUrl(emp)!}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-colors"
-                            title="Abrir no Google Maps"
+        <>
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
+            {isLoading ? (
+              <div className="flex justify-center py-20">
+                <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
+              </div>
+            ) : filteredData.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-20 text-center">
+                <UserCircle className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
+                <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                  Nenhuma pessoa encontrada
+                </p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
+                    <tr>
+                      <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                        Tipo
+                      </th>
+                      <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                        Nome
+                      </th>
+                      <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">
+                        Documento
+                      </th>
+                      <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden lg:table-cell">
+                        Segmento
+                      </th>
+                      <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden md:table-cell">
+                        Responsável
+                      </th>
+                      <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                        Status
+                      </th>
+                      <th className="px-2 py-2 md:px-4 md:py-3 text-left text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap hidden sm:table-cell">
+                        Data
+                      </th>
+                      <th className="px-2 py-2 md:px-4 md:py-3 text-right text-[10px] md:text-xs font-medium text-slate-500 dark:text-slate-400 uppercase whitespace-nowrap">
+                        Ações
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                    {filteredData.map((emp: Pessoa) => (
+                      <tr
+                        key={emp.id}
+                        className="hover:bg-slate-50 dark:hover:bg-slate-800/50 cursor-pointer"
+                      >
+                        <td className="px-2 py-2 md:px-4 md:py-3">
+                          {emp.tipoPessoa ? (
+                            <span
+                              className={`inline-flex text-[10px] px-1.5 py-0.5 rounded-full font-medium ${
+                                emp.tipoPessoa === "PF"
+                                  ? "text-purple-600 bg-purple-50 dark:bg-purple-950/50 dark:text-purple-400"
+                                  : "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50 dark:text-cyan-400"
+                              }`}
+                            >
+                              {emp.tipoPessoa === "PF" ? "PF" : "PJ"}
+                            </span>
+                          ) : (
+                            "—"
+                          )}
+                        </td>
+                        <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-medium text-slate-900 dark:text-slate-200 whitespace-nowrap">
+                          <Link
+                            href={`/comercial/crm/pessoas/${emp.id}`}
+                            className="hover:underline"
                           >
-                            <ExternalLink size={14} />
-                          </a>
-                        )}
-                        <button
-                          onClick={() => setDeleteTarget(emp)}
-                          className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 transition-colors"
-                          title="Excluir"
+                            {nomeExibicao(emp)}
+                          </Link>
+                        </td>
+                        <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm font-mono text-slate-500 hidden sm:table-cell">
+                          {documento(emp)}
+                        </td>
+                        <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden lg:table-cell">
+                          {emp.segmento || "—"}
+                        </td>
+                        <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 hidden md:table-cell">
+                          {emp.responsavelNome || "—"}
+                        </td>
+                        <td className="px-2 py-2 md:px-4 md:py-3">
+                          <span
+                            className={`inline-flex text-[10px] px-1.5 md:px-2 py-0.5 rounded-full font-medium ${STATUS_CORES[emp.status ?? ""] || "text-slate-600 bg-slate-100"}`}
+                          >
+                            {emp.status}
+                          </span>
+                        </td>
+                        <td className="px-2 py-2 md:px-4 md:py-3 text-xs md:text-sm text-slate-500 whitespace-nowrap hidden sm:table-cell">
+                          {emp.createdAt
+                            ? new Date(emp.createdAt).toLocaleDateString("pt-BR")
+                            : "—"}
+                        </td>
+                        <td
+                          className="px-2 py-2 md:px-4 md:py-3 text-right"
+                          onClick={(e) => e.stopPropagation()}
                         >
-                          <Trash2 size={14} />
-                        </button>
-                      </div>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+                          <div className="flex items-center justify-end gap-1">
+                            <Link
+                              href={`/comercial/crm/pessoas/${emp.id}`}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-blue-600 hover:bg-blue-50 dark:hover:bg-blue-950/50 transition-colors"
+                              title="Ver detalhes"
+                            >
+                              <Eye size={14} />
+                            </Link>
+                            <Link
+                              href={`/comercial/crm/pessoas/${emp.id}?edit=true`}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-amber-600 hover:bg-amber-50 dark:hover:bg-amber-950/50 transition-colors"
+                              title="Editar"
+                            >
+                              <Pencil size={14} />
+                            </Link>
+                            {mapsUrl(emp) && (
+                              <a
+                                href={mapsUrl(emp)!}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="p-1.5 rounded-lg text-slate-400 hover:text-emerald-600 hover:bg-emerald-50 dark:hover:bg-emerald-950/50 transition-colors"
+                                title="Abrir no Google Maps"
+                              >
+                                <ExternalLink size={14} />
+                              </a>
+                            )}
+                            <button
+                              onClick={() => setDeleteTarget(emp)}
+                              className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 transition-colors"
+                              title="Excluir"
+                            >
+                              <Trash2 size={14} />
+                            </button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-        )}
-      </div>
-      </>
+        </>
       )}
 
-      {modo === "kanban" && (
-        isLoading ? (
+      {modo === "kanban" &&
+        (isLoading ? (
           <div className="flex justify-center py-20">
             <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
           </div>
         ) : (
-          <FloatableKanban tipo="PESSOA"><PessoasKanban pessoas={filteredData} /></FloatableKanban>
-        )
-      )}
+          <FloatableKanban tipo="PESSOA">
+            <PessoasKanban pessoas={filteredData} />
+          </FloatableKanban>
+        ))}
 
       {showApiImport && (
         <ImportarApiModal

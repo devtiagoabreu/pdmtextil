@@ -6,12 +6,27 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useRouter, usePathname } from "next/navigation"
 import Link from "next/link"
-import { ArrowLeft, Save, Search, Trash2, Users, UserPlus, Loader2, AlertCircle, CheckCircle2 } from "lucide-react"
+import {
+  ArrowLeft,
+  Save,
+  Search,
+  Trash2,
+  Users,
+  UserPlus,
+  Loader2,
+  AlertCircle,
+  CheckCircle2,
+} from "lucide-react"
 import { toast } from "sonner"
 import { SelectUf } from "@/components/crm/select-uf"
 import { SelectCidade } from "@/components/crm/select-cidade"
 import { SelectSegmento } from "@/components/crm/select-segmento"
-import type { ConsultaCnpjData, PessoaForm, RepresentanteResult, VinculoRepresentante } from "../types"
+import type {
+  ConsultaCnpjData,
+  PessoaForm,
+  RepresentanteResult,
+  VinculoRepresentante,
+} from "../types"
 
 export default function NovaPessoaPage() {
   const router = useRouter()
@@ -71,7 +86,10 @@ export default function NovaPessoaPage() {
 
   async function searchRepresentantes(query: string) {
     setSearchRep(query)
-    if (query.length < 2) { setRepResults([]); return }
+    if (query.length < 2) {
+      setRepResults([])
+      return
+    }
     setSearchingRep(true)
     try {
       const res = await fetch(`/api/representantes?q=${encodeURIComponent(query)}`)
@@ -79,25 +97,29 @@ export default function NovaPessoaPage() {
       const data: RepresentanteResult[] = await res.json()
       const existentes = new Set(vinculos.map((v) => v.representanteId))
       setRepResults(data.filter((r) => !existentes.has(r.id)))
-    } catch {} finally {
+    } catch {
+    } finally {
       setSearchingRep(false)
     }
   }
 
   function addRepresentante(representante: RepresentanteResult) {
     if (vinculos.find((v) => v.representanteId === representante.id)) return
-    setVinculos(prev => [...prev, {
-      id: Date.now(),
-      representanteId: representante.id,
-      representanteNome: representante.nome || "",
-      representante: { nome: representante.nome || "" },
-    }])
+    setVinculos((prev) => [
+      ...prev,
+      {
+        id: Date.now(),
+        representanteId: representante.id,
+        representanteNome: representante.nome || "",
+        representante: { nome: representante.nome || "" },
+      },
+    ])
     setRepResults([])
     setSearchRep("")
   }
 
   function removeRepresentante(id: number) {
-    setVinculos(prev => prev.filter((v) => v.representanteId !== id))
+    setVinculos((prev) => prev.filter((v) => v.representanteId !== id))
   }
 
   function setField(field: string, value: string) {
@@ -144,7 +166,10 @@ export default function NovaPessoaPage() {
         cnpj: formatCnpj(digits),
         razaoSocial: api.razao_social || prev.razaoSocial,
         nomeFantasia: api.nome_fantasia || prev.nomeFantasia,
-        segmento: api.cnaes?.find((c) => c.is_principal)?.descricao || api.cnae_principal_descricao || prev.segmento,
+        segmento:
+          api.cnaes?.find((c) => c.is_principal)?.descricao ||
+          api.cnae_principal_descricao ||
+          prev.segmento,
         endereco: api.logradouro || prev.endereco,
         numero: api.numero || prev.numero,
         complemento: api.complemento || prev.complemento,
@@ -152,7 +177,9 @@ export default function NovaPessoaPage() {
         cidade: api.municipio || prev.cidade,
         uf: api.uf || prev.uf,
         cep: api.cep || prev.cep,
-        telefone: prev.telefone || (api.telefones?.[0] ? `${api.telefones[0].ddd}${api.telefones[0].numero}` : ""),
+        telefone:
+          prev.telefone ||
+          (api.telefones?.[0] ? `${api.telefones[0].ddd}${api.telefones[0].numero}` : ""),
       }))
       toast.success("Dados preenchidos automaticamente")
     } catch (err: unknown) {
@@ -206,18 +233,30 @@ export default function NovaPessoaPage() {
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
       <div className="flex items-center gap-3">
-        <Link href="/comercial/crm/pessoas" className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link
+          href="/comercial/crm/pessoas"
+          className="p-1.5 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Nova Pessoa (Negócio){info && <InfoButton content={info} />}</h1>
-          <p className="text-sm text-slate-500">Cadastrar um negócio (pessoa física ou jurídica) no CRM</p>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+            Nova Pessoa (Negócio){info && <InfoButton content={info} />}
+          </h1>
+          <p className="text-sm text-slate-500">
+            Cadastrar um negócio (pessoa física ou jurídica) no CRM
+          </p>
         </div>
       </div>
 
-      <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
+      <form
+        onSubmit={handleSubmit}
+        className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5"
+      >
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">Tipo</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-2">
+            Tipo
+          </label>
           <div className="flex gap-2">
             <button
               type="button"
@@ -248,21 +287,25 @@ export default function NovaPessoaPage() {
           {tipoPessoa === "PF" ? (
             <>
               <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome *</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Nome *
+                </label>
                 <input
                   type="text"
                   value={form.nome || ""}
-                  onChange={e => setField("nome", e.target.value)}
+                  onChange={(e) => setField("nome", e.target.value)}
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CPF</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  CPF
+                </label>
                 <input
                   type="text"
                   value={form.cpf || ""}
-                  onChange={e => setField("cpf", e.target.value)}
+                  onChange={(e) => setField("cpf", e.target.value)}
                   placeholder="000.000.000-00"
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -271,32 +314,40 @@ export default function NovaPessoaPage() {
           ) : (
             <>
               <div className="sm:col-span-2">
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Razão Social *</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Razão Social *
+                </label>
                 <input
                   type="text"
                   value={form.razaoSocial}
-                  onChange={e => setField("razaoSocial", e.target.value)}
+                  onChange={(e) => setField("razaoSocial", e.target.value)}
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                   required
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Nome Fantasia</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  Nome Fantasia
+                </label>
                 <input
                   type="text"
                   value={form.nomeFantasia}
-                  onChange={e => setField("nomeFantasia", e.target.value)}
+                  onChange={(e) => setField("nomeFantasia", e.target.value)}
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CNPJ</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+                  CNPJ
+                </label>
                 <div className="flex gap-2">
                   <input
                     type="text"
                     value={form.cnpj}
-                    onChange={e => setField("cnpj", e.target.value)}
-                    onKeyDown={e => e.key === "Enter" && (e.preventDefault(), handleConsultarCnpj())}
+                    onChange={(e) => setField("cnpj", e.target.value)}
+                    onKeyDown={(e) =>
+                      e.key === "Enter" && (e.preventDefault(), handleConsultarCnpj())
+                    }
                     placeholder="00.000.000/0000-00"
                     className="flex-1 min-w-0 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
                   />
@@ -306,7 +357,11 @@ export default function NovaPessoaPage() {
                     disabled={consulting}
                     className="shrink-0 inline-flex items-center gap-1.5 px-3 py-2 text-sm font-medium text-cyan-600 bg-cyan-50 hover:bg-cyan-100 dark:bg-cyan-950/50 dark:hover:bg-cyan-950/80 border border-cyan-200 dark:border-cyan-800 rounded-lg transition-colors disabled:opacity-50"
                   >
-                    {consulting ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+                    {consulting ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Search size={14} />
+                    )}
                     <span className="hidden sm:inline">Consultar</span>
                   </button>
                 </div>
@@ -325,7 +380,9 @@ export default function NovaPessoaPage() {
             <div className="sm:col-span-2 rounded-lg border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 p-3 flex items-start gap-2">
               <CheckCircle2 size={16} className="text-emerald-500 mt-0.5 shrink-0" />
               <div className="text-sm">
-                <p className="font-medium text-emerald-800 dark:text-emerald-300">{apiData.razao_social}</p>
+                <p className="font-medium text-emerald-800 dark:text-emerald-300">
+                  {apiData.razao_social}
+                </p>
                 <p className="text-emerald-600 dark:text-emerald-400 text-xs mt-0.5">
                   {apiData.nome_fantasia} — {apiData.situacao_cadastral}
                 </p>
@@ -333,14 +390,18 @@ export default function NovaPessoaPage() {
             </div>
           )}
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Segmento</label>
-            <SelectSegmento value={form.segmento ?? ""} onChange={v => setField("segmento", v)} />
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Segmento
+            </label>
+            <SelectSegmento value={form.segmento ?? ""} onChange={(v) => setField("segmento", v)} />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Porte</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Porte
+            </label>
             <select
               value={form.porte}
-              onChange={e => setField("porte", e.target.value)}
+              onChange={(e) => setField("porte", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             >
               <option value="">Selecione...</option>
@@ -352,123 +413,157 @@ export default function NovaPessoaPage() {
             </select>
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Site</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Site
+            </label>
             <input
               type="url"
               value={form.site}
-              onChange={e => setField("site", e.target.value)}
+              onChange={(e) => setField("site", e.target.value)}
               placeholder="https://"
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div className="sm:col-span-2">
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">Contato</h3>
+            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">
+              Contato
+            </h3>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Telefone</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Telefone
+            </label>
             <input
               type="text"
               value={form.telefone}
-              onChange={e => setField("telefone", e.target.value)}
+              onChange={(e) => setField("telefone", e.target.value)}
               placeholder="(00) 0000-0000"
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Celular</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Celular
+            </label>
             <input
               type="text"
               value={form.celular}
-              onChange={e => setField("celular", e.target.value)}
+              onChange={(e) => setField("celular", e.target.value)}
               placeholder="(00) 00000-0000"
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">E-mail</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              E-mail
+            </label>
             <input
               type="email"
               value={form.email}
-              onChange={e => setField("email", e.target.value)}
+              onChange={(e) => setField("email", e.target.value)}
               placeholder="contato@exemplo.com"
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">E-mail para NF-e</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              E-mail para NF-e
+            </label>
             <input
               type="email"
               value={form.emailNf}
-              onChange={e => setField("emailNf", e.target.value)}
+              onChange={(e) => setField("emailNf", e.target.value)}
               placeholder="nf@exemplo.com"
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
 
           <div className="sm:col-span-2">
-            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">Endereço</h3>
+            <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200 border-b border-slate-100 dark:border-slate-800 pb-2">
+              Endereço
+            </h3>
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Logradouro</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Logradouro
+            </label>
             <input
               type="text"
               value={form.endereco}
-              onChange={e => setField("endereco", e.target.value)}
+              onChange={(e) => setField("endereco", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Número</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Número
+            </label>
             <input
               type="text"
               value={form.numero}
-              onChange={e => setField("numero", e.target.value)}
+              onChange={(e) => setField("numero", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Complemento</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Complemento
+            </label>
             <input
               type="text"
               value={form.complemento}
-              onChange={e => setField("complemento", e.target.value)}
+              onChange={(e) => setField("complemento", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Bairro</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Bairro
+            </label>
             <input
               type="text"
               value={form.bairro}
-              onChange={e => setField("bairro", e.target.value)}
+              onChange={(e) => setField("bairro", e.target.value)}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">CEP</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              CEP
+            </label>
             <input
               type="text"
               value={form.cep}
-              onChange={e => setField("cep", e.target.value)}
+              onChange={(e) => setField("cep", e.target.value)}
               placeholder="00.000-000"
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">UF</label>
-            <SelectUf value={form.uf ?? ""} onChange={v => setField("uf", v)} />
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              UF
+            </label>
+            <SelectUf value={form.uf ?? ""} onChange={(v) => setField("uf", v)} />
           </div>
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Cidade</label>
-            <SelectCidade value={form.cidade ?? ""} onChange={v => setField("cidade", v)} estadoId={estadoId} />
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Cidade
+            </label>
+            <SelectCidade
+              value={form.cidade ?? ""}
+              onChange={(v) => setField("cidade", v)}
+              estadoId={estadoId}
+            />
           </div>
 
           <div className="sm:col-span-2">
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Observações</label>
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Observações
+            </label>
             <textarea
               value={form.observacoes}
-              onChange={e => setField("observacoes", e.target.value)}
+              onChange={(e) => setField("observacoes", e.target.value)}
               rows={3}
               className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
@@ -484,9 +579,18 @@ export default function NovaPessoaPage() {
           {vinculos.length > 0 && (
             <div className="mb-3 space-y-2">
               {vinculos.map((v: VinculoRepresentante) => (
-                <div key={v.id || v.representanteId} className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 rounded-lg px-3 py-2">
-                  <span className="text-sm text-slate-700 dark:text-slate-300">{v.representanteNome}</span>
-                  <button type="button" onClick={() => removeRepresentante(v.representanteId ?? 0)} className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-slate-400 hover:text-red-600">
+                <div
+                  key={v.id || v.representanteId}
+                  className="flex items-center justify-between bg-slate-50 dark:bg-slate-800/50 rounded-lg px-3 py-2"
+                >
+                  <span className="text-sm text-slate-700 dark:text-slate-300">
+                    {v.representanteNome}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => removeRepresentante(v.representanteId ?? 0)}
+                    className="p-1 rounded hover:bg-red-100 dark:hover:bg-red-900/30 text-slate-400 hover:text-red-600"
+                  >
                     <Trash2 size={14} />
                   </button>
                 </div>
@@ -497,15 +601,23 @@ export default function NovaPessoaPage() {
           <div className="relative">
             <div className="flex items-center gap-2">
               <div className="relative flex-1">
-                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                <Search
+                  size={14}
+                  className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                />
                 <input
                   type="text"
                   value={searchRep}
-                  onChange={e => searchRepresentantes(e.target.value)}
+                  onChange={(e) => searchRepresentantes(e.target.value)}
                   placeholder="Buscar representante pelo nome..."
                   className="w-full rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 pl-9 pr-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
-                {searchingRep && <Loader2 size={14} className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-slate-400" />}
+                {searchingRep && (
+                  <Loader2
+                    size={14}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 animate-spin text-slate-400"
+                  />
+                )}
               </div>
             </div>
             {repResults.length > 0 && (

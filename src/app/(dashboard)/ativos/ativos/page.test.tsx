@@ -66,7 +66,9 @@ describe("AtivosAtivosPage", () => {
     renderPage(<AtivosAtivosPage />)
     await screen.findByText("EXT-001")
 
-    const search = screen.getByPlaceholderText("Buscar por código, nome, categoria ou localização...")
+    const search = screen.getByPlaceholderText(
+      "Buscar por código, nome, categoria ou localização..."
+    )
     fireEvent.change(search, { target: { value: "EXT-001" } })
     expect(screen.getByText("EXT-001")).toBeInTheDocument()
     expect(screen.queryByText("EXT-002")).not.toBeInTheDocument()
@@ -88,16 +90,20 @@ describe("AtivosAtivosPage", () => {
     await screen.findByText("EXT-001")
 
     const row = screen.getByText("EXT-001").closest("tr")!
-    const trash = within(row).getAllByRole("button").find((b) => !b.closest("a"))!
+    const trash = within(row)
+      .getAllByRole("button")
+      .find((b) => !b.closest("a"))!
     fireEvent.click(trash)
 
     const dialog = screen.getByRole("dialog", { name: "Excluir ativo?" })
     fireEvent.click(within(dialog).getByRole("button", { name: "Excluir" }))
 
     await waitFor(() =>
-      expect(findCall(fetchMock.calls, "/api/ativos/ativos/1", "DELETE")).toBeDefined(),
+      expect(findCall(fetchMock.calls, "/api/ativos/ativos/1", "DELETE")).toBeDefined()
     )
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Ativo excluído com sucesso"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Ativo excluído com sucesso")
+    )
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
   })
 
@@ -107,12 +113,14 @@ describe("AtivosAtivosPage", () => {
     await screen.findByText("EXT-002")
 
     const row = screen.getByText("EXT-002").closest("tr")!
-    const trash = within(row).getAllByRole("button").find((b) => !b.closest("a"))!
+    const trash = within(row)
+      .getAllByRole("button")
+      .find((b) => !b.closest("a"))!
     fireEvent.click(trash)
 
     fireEvent.click(screen.getByRole("button", { name: "Excluir" }))
     await waitFor(() =>
-      expect(findCall(fetchMock.calls, "/api/ativos/ativos/2", "DELETE")).toBeDefined(),
+      expect(findCall(fetchMock.calls, "/api/ativos/ativos/2", "DELETE")).toBeDefined()
     )
     const blockedDialog = await screen.findByRole("dialog", { name: "Exclusão não permitida" })
     expect(blockedDialog).toHaveTextContent(/não pode ser exclu/)
@@ -126,7 +134,13 @@ describe("AtivosAtivosPage", () => {
     renderPage(<AtivosAtivosPage />)
     await screen.findByText("EXT-001")
 
-    expect(screen.getByRole("link", { name: "Novo Ativo" })).toHaveAttribute("href", "/ativos/ativos/novo")
-    expect(screen.getByText("Extintor Galpão A").closest("a")).toHaveAttribute("href", "/ativos/ativos/1")
+    expect(screen.getByRole("link", { name: "Novo Ativo" })).toHaveAttribute(
+      "href",
+      "/ativos/ativos/novo"
+    )
+    expect(screen.getByText("Extintor Galpão A").closest("a")).toHaveAttribute(
+      "href",
+      "/ativos/ativos/1"
+    )
   })
 })

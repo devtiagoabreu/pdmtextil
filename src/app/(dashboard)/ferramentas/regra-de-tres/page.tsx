@@ -23,7 +23,10 @@ interface GrandezaComposta {
 
 function novaGrandezaComp(nome: string): GrandezaComposta {
   return {
-    id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now() + Math.random()),
+    id:
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : String(Date.now() + Math.random()),
     nome,
     valorAntigo: "",
     valorNovo: "",
@@ -50,25 +53,36 @@ export default function RegraDeTresPage() {
   const infos: Record<TipoRegra, { titulo: string; exemplo: string; preencher: () => void }> = {
     "simples-direta": {
       titulo: "Regra de Três Simples Direta",
-      exemplo: "3 cadernos custam R$ 15. Quanto custam 5 cadernos?\n\nA: Quantidade de cadernos (3  → 5)\nB: Preço (15  → X)\n\n3/5 = 15/X  → X = (15 × 5) / 3 = 25",
+      exemplo:
+        "3 cadernos custam R$ 15. Quanto custam 5 cadernos?\n\nA: Quantidade de cadernos (3  → 5)\nB: Preço (15  → X)\n\n3/5 = 15/X  → X = (15 × 5) / 3 = 25",
       preencher: () => {
-        setGrandezas([{ nome: "A", valor: 3 }, { nome: "B", valor: 5 }, { nome: "C", valor: 15 }])
+        setGrandezas([
+          { nome: "A", valor: 3 },
+          { nome: "B", valor: 5 },
+          { nome: "C", valor: 15 },
+        ])
         setReferencia("")
         setResultado(null)
       },
     },
     "simples-inversa": {
       titulo: "Regra de Três Simples Inversa",
-      exemplo: "4 pessoas fazem um trabalho em 6 dias. Em quantos dias 8 pessoas fariam?\n\nA: Pessoas (4  → 8)\nB: Dias (6  → X)\n\n4/8 = X/6  → X = (4 × 6) / 8 = 3",
+      exemplo:
+        "4 pessoas fazem um trabalho em 6 dias. Em quantos dias 8 pessoas fariam?\n\nA: Pessoas (4  → 8)\nB: Dias (6  → X)\n\n4/8 = X/6  → X = (4 × 6) / 8 = 3",
       preencher: () => {
-        setGrandezas([{ nome: "A", valor: 4 }, { nome: "B", valor: 8 }, { nome: "C", valor: 6 }])
+        setGrandezas([
+          { nome: "A", valor: 4 },
+          { nome: "B", valor: 8 },
+          { nome: "C", valor: 6 },
+        ])
         setReferencia("")
         setResultado(null)
       },
     },
-    "composta": {
+    composta: {
       titulo: "Regra de Três Composta",
-      exemplo: "5 máquinas produzem 100 peças em 2 dias. Quantas peças 8 máquinas produzirão em 3 dias?\n\nA: Máquinas (5  → 8)\nB: Dias (2  → 3)\nReferência: Peças (100  → X)\n\nX = (8 × 3 × 100) / (5 × 2) = 240",
+      exemplo:
+        "5 máquinas produzem 100 peças em 2 dias. Quantas peças 8 máquinas produzirão em 3 dias?\n\nA: Máquinas (5  → 8)\nB: Dias (2  → 3)\nReferência: Peças (100  → X)\n\nX = (8 × 3 × 100) / (5 × 2) = 240",
       preencher: () => {
         const a = novaGrandezaComp("Máquinas")
         a.valorAntigo = 5
@@ -84,31 +98,39 @@ export default function RegraDeTresPage() {
   }
 
   function handleGrandezaChange(idx: number, field: keyof Grandeza, value: string) {
-    setGrandezas(prev => prev.map((g: any, i: any) =>
-      i === idx ? { ...g, [field]: field === "nome" ? value : value === "" ? "" : Number(value) } : g
-    ))
+    setGrandezas((prev) =>
+      prev.map((g: any, i: any) =>
+        i === idx
+          ? { ...g, [field]: field === "nome" ? value : value === "" ? "" : Number(value) }
+          : g
+      )
+    )
     setResultado(null)
   }
 
   function handleGrandezaCompChange(idx: number, field: keyof GrandezaComposta, value: string) {
-    setGrandezasComp(prev => prev.map((g: any, i: any) =>
-      i === idx ? { ...g, [field]: field === "nome" ? value : value === "" ? "" : Number(value) } : g
-    ))
+    setGrandezasComp((prev) =>
+      prev.map((g: any, i: any) =>
+        i === idx
+          ? { ...g, [field]: field === "nome" ? value : value === "" ? "" : Number(value) }
+          : g
+      )
+    )
     setResultado(null)
   }
 
   function addGrandezaComp() {
     const next = String.fromCharCode(65 + grandezasComp.length)
-    setGrandezasComp(prev => [...prev, novaGrandezaComp(next)])
+    setGrandezasComp((prev) => [...prev, novaGrandezaComp(next)])
   }
 
   function remGrandeza(idx: number) {
-    setGrandezas(prev => prev.filter((_: any, i: any) => i !== idx))
+    setGrandezas((prev) => prev.filter((_: any, i: any) => i !== idx))
     setResultado(null)
   }
 
   function remGrandezaComp(idx: number) {
-    setGrandezasComp(prev => prev.filter((_: any, i: any) => i !== idx))
+    setGrandezasComp((prev) => prev.filter((_: any, i: any) => i !== idx))
     setResultado(null)
   }
 
@@ -151,33 +173,49 @@ export default function RegraDeTresPage() {
   return (
     <div className="max-w-2xl mx-auto space-y-6 animate-fade-in">
       <div className="flex items-center gap-4">
-        <Link href="/ferramentas" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link
+          href="/ferramentas"
+          className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={20} />
         </Link>
         <div>
           <div className="flex items-center gap-2">
             <Calculator className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Calculadora de Regra de Três{info && <InfoButton content={info} />}</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+              Calculadora de Regra de Três{info && <InfoButton content={info} />}
+            </h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">Resolve regra de três simples (direta/inversa) e composta</p>
+          <p className="text-sm text-slate-500 mt-1">
+            Resolve regra de três simples (direta/inversa) e composta
+          </p>
         </div>
       </div>
 
       {/* Tipo */}
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 p-6 space-y-4 bg-white dark:bg-slate-900">
-        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">Tipo de Regra</label>
+        <label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          Tipo de Regra
+        </label>
         <div className="flex flex-wrap gap-2">
           {(["simples-direta", "simples-inversa", "composta"] as const).map((t: any) => (
             <button
               key={t}
-              onClick={() => { setTipo(t); setResultado(null) }}
+              onClick={() => {
+                setTipo(t)
+                setResultado(null)
+              }}
               className={`px-4 py-2 rounded-lg text-sm font-medium transition-all ${
                 tipo === t
                   ? "bg-blue-600 text-white shadow-sm"
                   : "bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-800 dark:text-slate-300 dark:hover:bg-slate-700"
               }`}
             >
-              {t === "simples-direta" ? "Simples Direta" : t === "simples-inversa" ? "Simples Inversa" : "Composta"}
+              {t === "simples-direta"
+                ? "Simples Direta"
+                : t === "simples-inversa"
+                  ? "Simples Inversa"
+                  : "Composta"}
             </button>
           ))}
           <button
@@ -192,9 +230,14 @@ export default function RegraDeTresPage() {
         {infoAberta && infos[infoAberta as TipoRegra] && (
           <div className="p-4 rounded-lg bg-blue-50 dark:bg-blue-950/30 text-sm text-slate-700 dark:text-slate-300 border border-blue-200 dark:border-blue-800">
             <p className="font-semibold mb-1">{infos[infoAberta as TipoRegra].titulo}</p>
-            <pre className="whitespace-pre-wrap font-sans">{infos[infoAberta as TipoRegra].exemplo}</pre>
+            <pre className="whitespace-pre-wrap font-sans">
+              {infos[infoAberta as TipoRegra].exemplo}
+            </pre>
             <button
-              onClick={() => { infos[infoAberta as TipoRegra].preencher(); setInfoAberta(null) }}
+              onClick={() => {
+                infos[infoAberta as TipoRegra].preencher()
+                setInfoAberta(null)
+              }}
               className="mt-3 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 text-xs font-medium transition-colors"
             >
               Preencher campos com este exemplo
@@ -214,7 +257,7 @@ export default function RegraDeTresPage() {
               <input
                 type="number"
                 value={grandezas[0]?.valor ?? ""}
-                onChange={e => handleGrandezaChange(0, "valor", e.target.value)}
+                onChange={(e) => handleGrandezaChange(0, "valor", e.target.value)}
                 className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
                 placeholder="Ex: 3"
               />
@@ -224,7 +267,7 @@ export default function RegraDeTresPage() {
               <input
                 type="number"
                 value={grandezas[1]?.valor ?? ""}
-                onChange={e => handleGrandezaChange(1, "valor", e.target.value)}
+                onChange={(e) => handleGrandezaChange(1, "valor", e.target.value)}
                 className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
                 placeholder="Ex: 5"
               />
@@ -234,7 +277,7 @@ export default function RegraDeTresPage() {
               <input
                 type="number"
                 value={grandezas[2]?.valor ?? ""}
-                onChange={e => handleGrandezaChange(2, "valor", e.target.value)}
+                onChange={(e) => handleGrandezaChange(2, "valor", e.target.value)}
                 className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
                 placeholder="Ex: 15"
               />
@@ -248,25 +291,28 @@ export default function RegraDeTresPage() {
               <span className="text-center">Valor novo</span>
             </div>
             {grandezasComp.map((g: any, idx: any) => (
-              <div key={g.id} className="grid grid-cols-[100px_120px_120px_32px] gap-2 items-center">
+              <div
+                key={g.id}
+                className="grid grid-cols-[100px_120px_120px_32px] gap-2 items-center"
+              >
                 <input
                   type="text"
                   value={g.nome}
-                  onChange={e => handleGrandezaCompChange(idx, "nome", e.target.value)}
+                  onChange={(e) => handleGrandezaCompChange(idx, "nome", e.target.value)}
                   className="px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-center font-mono"
                   maxLength={12}
                 />
                 <input
                   type="number"
                   value={g.valorAntigo}
-                  onChange={e => handleGrandezaCompChange(idx, "valorAntigo", e.target.value)}
+                  onChange={(e) => handleGrandezaCompChange(idx, "valorAntigo", e.target.value)}
                   className="px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-center w-full"
                   placeholder="Antigo"
                 />
                 <input
                   type="number"
                   value={g.valorNovo}
-                  onChange={e => handleGrandezaCompChange(idx, "valorNovo", e.target.value)}
+                  onChange={(e) => handleGrandezaCompChange(idx, "valorNovo", e.target.value)}
                   className="px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm text-center w-full"
                   placeholder="Novo"
                 />
@@ -294,7 +340,9 @@ export default function RegraDeTresPage() {
                 <input
                   type="number"
                   value={referencia}
-                  onChange={e => setReferencia(e.target.value === "" ? "" : Number(e.target.value))}
+                  onChange={(e) =>
+                    setReferencia(e.target.value === "" ? "" : Number(e.target.value))
+                  }
                   className="w-32 px-2 py-1.5 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm"
                   placeholder="Ex: 100"
                 />

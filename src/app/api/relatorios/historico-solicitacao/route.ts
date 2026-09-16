@@ -3,7 +3,12 @@ import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { usuarios } from "@/lib/db/schema/usuarios"
-import { produtosCru, produtoCruAmostra, produtoCruAcabamento, produtoCruAcabamentoAmostra } from "@/lib/db/schema/produto-cru"
+import {
+  produtosCru,
+  produtoCruAmostra,
+  produtoCruAcabamento,
+  produtoCruAcabamentoAmostra,
+} from "@/lib/db/schema/produto-cru"
 import { logs as logsTable } from "@/lib/db/schema/logs"
 import { eq, inArray, and, or, desc, asc } from "drizzle-orm"
 import { alias } from "drizzle-orm/pg-core"
@@ -92,7 +97,10 @@ export async function GET(req: NextRequest) {
 
     const logsConditions: any[] = [
       and(eq(logsTable.entidade, "Solicitacao"), eq(logsTable.entidadeId, solicitacaoId)),
-      and(eq(logsTable.entidade, "SolicitacaoDesenvolvimento"), eq(logsTable.entidadeId, solicitacaoId)),
+      and(
+        eq(logsTable.entidade, "SolicitacaoDesenvolvimento"),
+        eq(logsTable.entidadeId, solicitacaoId)
+      ),
     ]
     if (produtoIds.length > 0) {
       logsConditions.push(
@@ -124,9 +132,12 @@ export async function GET(req: NextRequest) {
     })
   } catch (error) {
     console.error("[GET /api/relatorios/historico-solicitacao]", error)
-    return NextResponse.json({
-      error: "Erro interno do servidor",
-      detail: "Erro interno",
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Erro interno do servidor",
+        detail: "Erro interno",
+      },
+      { status: 500 }
+    )
   }
 }

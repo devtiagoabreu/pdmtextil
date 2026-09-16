@@ -4,7 +4,9 @@ import { usuarios } from "./usuarios"
 
 export const crmPesquisasSatisfacao = pgTable("crm_pesquisas_satisfacao", {
   id: serial("id").primaryKey(),
-  visitaId: integer("visita_id").notNull().references(() => crmVisitas.id, { onDelete: "cascade" }),
+  visitaId: integer("visita_id")
+    .notNull()
+    .references(() => crmVisitas.id, { onDelete: "cascade" }),
   email: varchar("email", { length: 255 }).notNull(),
   nome: varchar("nome", { length: 255 }),
   token: varchar("token", { length: 64 }).notNull().unique(),

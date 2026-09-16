@@ -1,4 +1,13 @@
-import type { SheetTab, BiSheet, Relationship, ProductClient, AbcItem, RepResumo, ClienteResumo, Previsao } from "./types"
+import type {
+  SheetTab,
+  BiSheet,
+  Relationship,
+  ProductClient,
+  AbcItem,
+  RepResumo,
+  ClienteResumo,
+  Previsao,
+} from "./types"
 import { db } from "@/lib/db"
 import { biSheets } from "@/lib/db/schema/bi-sheets"
 import { configGeral } from "@/lib/db/schema/config-geral"
@@ -46,8 +55,10 @@ function parseCsvLine(line: string): string[] {
   for (let i = 0; i < line.length; i++) {
     const ch = line[i]
     if (ch === '"') {
-      if (inQuotes && line[i + 1] === '"') { current += '"'; i++ }
-      else inQuotes = !inQuotes
+      if (inQuotes && line[i + 1] === '"') {
+        current += '"'
+        i++
+      } else inQuotes = !inQuotes
     } else if (ch === "," && !inQuotes) {
       result.push(current.trim())
       current = ""
@@ -92,7 +103,7 @@ async function discoverTabs(sheetId: string): Promise<{ name: string; gid: numbe
     let m: RegExpExecArray | null
     while ((m = re.exec(html))) {
       const gid = Number(m[2])
-      if (!tabs.some(t => t.gid === gid)) tabs.push({ name: m[1], gid })
+      if (!tabs.some((t) => t.gid === gid)) tabs.push({ name: m[1], gid })
     }
     return tabs.length > 0 ? tabs : null
   } catch {
@@ -104,7 +115,7 @@ function parseCsv(text: string): { header: string[]; rows: Record<string, string
   const lines = text.trim().split("\n")
   if (lines.length < 2) return { header: [], rows: [] }
 
-  const header = parseCsvLine(lines[0]).map(h => h.toUpperCase().replace(/[^a-z0-9_]/gi, ""))
+  const header = parseCsvLine(lines[0]).map((h) => h.toUpperCase().replace(/[^a-z0-9_]/gi, ""))
   const rows: Record<string, string>[] = []
 
   for (let i = 1; i < lines.length; i++) {
@@ -126,7 +137,7 @@ function detectRelationships(tabs: SheetTab[]): Relationship[] {
     for (let j = i + 1; j < tabs.length; j++) {
       const a = tabs[i]
       const b = tabs[j]
-      const commonCols = a.header.filter(col => b.header.includes(col))
+      const commonCols = a.header.filter((col) => b.header.includes(col))
       for (const col of commonCols) {
         rels.push({
           fromTab: a.name,
@@ -162,11 +173,18 @@ async function fetchAndParse(url: string): Promise<BiSheet> {
     let emptyCount = 0
     while (emptyCount < 3 && gid < 200) {
       const csv = await fetchTabCsv(id, gid)
-      if (!csv) { emptyCount++; gid++; continue }
+      if (!csv) {
+        emptyCount++
+        gid++
+        continue
+      }
       emptyCount = 0
 
       const { header, rows } = parseCsv(csv)
-      if (header.length === 0) { gid++; continue }
+      if (header.length === 0) {
+        gid++
+        continue
+      }
 
       tabs.push({ name: `aba_${tabs.length + 1}`, gid, header, rows })
       gid++
@@ -254,11 +272,14 @@ export async function loadSheet(url: string, opts: { force?: boolean } = {}): Pr
 
 // --- Query helpers ---
 
-export function queryTabRows(tab: SheetTab, filters: Record<string, string>): Record<string, string>[] {
-  return tab.rows.filter(row =>
+export function queryTabRows(
+  tab: SheetTab,
+  filters: Record<string, string>
+): Record<string, string>[] {
+  return tab.rows.filter((row) =>
     Object.entries(filters).every(([k, v]) =>
-      (row[k] ?? "").toLowerCase().includes(v.toLowerCase()),
-    ),
+      (row[k] ?? "").toLowerCase().includes(v.toLowerCase())
+    )
   )
 }
 
@@ -280,9 +301,9 @@ function parseDataMovto(val: string): Date | null {
 
 function filterTabByPeriod(tab: SheetTab, de: Date | null, ate: Date | null): SheetTab {
   if (!de && !ate) return tab
-  const dateCol = tab.header.find(h => /^DATA_?MOVTO$/i.test(h))
+  const dateCol = tab.header.find((h) => /^DATA_?MOVTO$/i.test(h))
   if (!dateCol) return tab
-  const rows = tab.rows.filter(r => {
+  const rows = tab.rows.filter((r) => {
     const t = parseDataMovto(r[dateCol])
     if (!t) return false
     if (de && t < de) return false
@@ -304,27 +325,30 @@ export function sheetNoPeriodo(sheet: BiSheet, de?: string | null, ate?: string 
     if (!Number.isNaN(a.getTime())) ateD = a
   }
   if (!deD && !ateD) return sheet
-  return { ...sheet, tabs: sheet.tabs.map(t => filterTabByPeriod(t, deD, ateD)) }
+  return { ...sheet, tabs: sheet.tabs.map((t) => filterTabByPeriod(t, deD, ateD)) }
 }
 
 function getFatTab(sheet: BiSheet): SheetTab | undefined {
-  const candidatos = sheet.tabs.filter(t => t.header.includes("PRODUTO"))
+  const candidatos = sheet.tabs.filter((t) => t.header.includes("PRODUTO"))
   const pool = candidatos.length > 0 ? candidatos : sheet.tabs
   return [...pool].sort((a, b) => b.rows.length - a.rows.length)[0]
 }
 
 function aggregateClientes(rows: Record<string, string>[]): ProductClient[] {
-  const clientMap = new Map<string, {
-    razaoSocial: string
-    cidade: string
-    uf: string
-    ultimaData: string
-    totalFaturado: number
-    ticketMedio: number
-    ultimaNF: string
-    quantidadeTotal: number
-    count: number
-  }>()
+  const clientMap = new Map<
+    string,
+    {
+      razaoSocial: string
+      cidade: string
+      uf: string
+      ultimaData: string
+      totalFaturado: number
+      ticketMedio: number
+      ultimaNF: string
+      quantidadeTotal: number
+      count: number
+    }
+  >()
 
   for (const r of rows) {
     const key = r["RAZAOSOCIAL"] || r["RAZAO_SOCIAL"] || "unknown"
@@ -354,7 +378,7 @@ function aggregateClientes(rows: Record<string, string>[]): ProductClient[] {
   }
 
   const result = [...clientMap.values()]
-  result.forEach(c => {
+  result.forEach((c) => {
     c.ticketMedio = c.count > 0 ? c.totalFaturado / c.count : 0
   })
   result.sort((a, b) => b.ultimaData.localeCompare(a.ultimaData))
@@ -367,14 +391,14 @@ export function listClientesByProduto(sheet: BiSheet, codigoProduto: string): Pr
   const fatTab = getFatTab(sheet)
   if (!fatTab) return []
 
-  return aggregateClientes(fatTab.rows.filter(r => (r["PRODUTO"] ?? "").includes(codigoProduto)))
+  return aggregateClientes(fatTab.rows.filter((r) => (r["PRODUTO"] ?? "").includes(codigoProduto)))
 }
 
 export function listClientesByGrupo(sheet: BiSheet, grupo: string): ProductClient[] {
   const fatTab = getFatTab(sheet)
   if (!fatTab) return []
 
-  return aggregateClientes(fatTab.rows.filter(r => rowGrupo(r) === grupo))
+  return aggregateClientes(fatTab.rows.filter((r) => rowGrupo(r) === grupo))
 }
 
 export function listGrupos(sheet: BiSheet): string[] {
@@ -403,11 +427,11 @@ export function listProdutos(sheet: BiSheet): string[] {
 
 export function getAbcCurve(sheet: BiSheet): AbcItem[] {
   const abcTab =
-    sheet.tabs.find(t => /abc|curva/i.test(t.name)) ||
-    sheet.tabs.find(t => t.name.includes("4"))
+    sheet.tabs.find((t) => /abc|curva/i.test(t.name)) ||
+    sheet.tabs.find((t) => t.name.includes("4"))
   if (!abcTab) return []
 
-  return abcTab.rows.map(r => ({
+  return abcTab.rows.map((r) => ({
     grupo: r["GRUPO"] || "",
     valorTotal: parseNumber(r["VALORTOTALR"] || r["VALOR_TOTAL_R"] || r["VALORTOTAL"] || "0"),
     percentual: parseNumber(r["SOBRETOTAL"] || r["_SOBRE_TOTAL"] || "0"),
@@ -452,7 +476,10 @@ export function getRevenueByRepresentante(sheet: BiSheet) {
   const repMap = new Map<string, number>()
   for (const r of fatTab.rows) {
     const rep = r["NOMEREPRESENANTE"] || r["NOME_REPRESENANTE"] || "Sem representante"
-    repMap.set(rep, (repMap.get(rep) || 0) + parseNumber(r["VALORSAIDA"] || r["VALOR_SAIDA"] || "0"))
+    repMap.set(
+      rep,
+      (repMap.get(rep) || 0) + parseNumber(r["VALORSAIDA"] || r["VALOR_SAIDA"] || "0")
+    )
   }
 
   return [...repMap.entries()]
@@ -512,10 +539,19 @@ function aggregateReps(rows: Record<string, string>[]): RepResumo[] {
   const clientesPorRep = new Map<string, Set<string>>()
 
   for (const r of rows) {
-    const nome = (r["NOME_REPRESENANTE"] || r["NOMEREPRESENANTE"] || "").trim() || "Sem representante"
+    const nome =
+      (r["NOME_REPRESENANTE"] || r["NOMEREPRESENANTE"] || "").trim() || "Sem representante"
     let e = map.get(nome)
     if (!e) {
-      e = { nome, totalVendas: 0, totalQtd: 0, count: 0, ticketMedio: 0, numClientes: 0, ultimaData: "" }
+      e = {
+        nome,
+        totalVendas: 0,
+        totalQtd: 0,
+        count: 0,
+        ticketMedio: 0,
+        numClientes: 0,
+        ultimaData: "",
+      }
       map.set(nome, e)
       clientesPorRep.set(nome, new Set())
     }
@@ -529,7 +565,7 @@ function aggregateReps(rows: Record<string, string>[]): RepResumo[] {
   }
 
   const result = [...map.values()]
-  result.forEach(e => {
+  result.forEach((e) => {
     e.ticketMedio = e.count > 0 ? e.totalVendas / e.count : 0
     e.numClientes = clientesPorRep.get(e.nome)?.size ?? 0
   })
@@ -546,7 +582,7 @@ export function getRepResumo(sheet: BiSheet): RepResumo[] {
 export function getRepsByGrupo(sheet: BiSheet, grupo: string): RepResumo[] {
   const fatTab = getFatTab(sheet)
   if (!fatTab) return []
-  return aggregateReps(fatTab.rows.filter(r => rowGrupo(r) === grupo))
+  return aggregateReps(fatTab.rows.filter((r) => rowGrupo(r) === grupo))
 }
 
 function classificarCurva(intervalo: number | null, nCompras: number): string {
@@ -568,22 +604,33 @@ export function getClientesResumo(sheet: BiSheet): ClienteResumo[] {
   const todayT = today.getTime()
   const DAY = 86400000
 
-  const map = new Map<string, {
-    razaoSocial: string
-    cidade: string
-    uf: string
-    totalVendas: number
-    totalQtd: number
-    count: number
-    dates: number[]
-  }>()
+  const map = new Map<
+    string,
+    {
+      razaoSocial: string
+      cidade: string
+      uf: string
+      totalVendas: number
+      totalQtd: number
+      count: number
+      dates: number[]
+    }
+  >()
 
   for (const r of fatTab.rows) {
     const nome = (r["RAZAO_SOCIAL"] || r["RAZAOSOCIAL"] || "").trim()
     if (!nome) continue
     let e = map.get(nome)
     if (!e) {
-      e = { razaoSocial: nome, cidade: r["CIDADE"] || "", uf: r["UF"] || "", totalVendas: 0, totalQtd: 0, count: 0, dates: [] }
+      e = {
+        razaoSocial: nome,
+        cidade: r["CIDADE"] || "",
+        uf: r["UF"] || "",
+        totalVendas: 0,
+        totalQtd: 0,
+        count: 0,
+        dates: [],
+      }
       map.set(nome, e)
     }
     e.totalVendas += rowValor(r)
@@ -601,17 +648,19 @@ export function getClientesResumo(sheet: BiSheet): ClienteResumo[] {
 
     const intervalos: number[] = []
     for (let i = 1; i < unique.length; i++) intervalos.push((unique[i] - unique[i - 1]) / DAY)
-    const intervaloMedio = intervalos.length > 0
-      ? intervalos.reduce((s, x) => s + x, 0) / intervalos.length
-      : null
+    const intervaloMedio =
+      intervalos.length > 0 ? intervalos.reduce((s, x) => s + x, 0) / intervalos.length : null
 
     const diasDesdeUltima = ultima ? Math.floor((todayT - ultima) / DAY) : null
     const classificacao = classificarCurva(intervaloMedio, unique.length)
-    const alerta = !!intervaloMedio && diasDesdeUltima !== null &&
+    const alerta =
+      !!intervaloMedio &&
+      diasDesdeUltima !== null &&
       diasDesdeUltima > Math.max(intervaloMedio * 1.5, 14)
 
     const spanMeses = primeira && ultima ? Math.max(1, (ultima - primeira) / DAY / 30.44) : 1
-    const proximaCompra = ultima && intervaloMedio ? new Date(ultima + intervaloMedio * DAY).toISOString() : null
+    const proximaCompra =
+      ultima && intervaloMedio ? new Date(ultima + intervaloMedio * DAY).toISOString() : null
 
     result.push({
       razaoSocial: e.razaoSocial,
@@ -629,9 +678,10 @@ export function getClientesResumo(sheet: BiSheet): ClienteResumo[] {
       diasDesdeUltima,
       proximaCompra,
       alerta,
-      alertaMotivo: alerta && intervaloMedio && diasDesdeUltima !== null
-        ? `Sem comprar há ${Math.round(diasDesdeUltima)} dias (frequência média de ${Math.round(intervaloMedio)} dias)`
-        : null,
+      alertaMotivo:
+        alerta && intervaloMedio && diasDesdeUltima !== null
+          ? `Sem comprar há ${Math.round(diasDesdeUltima)} dias (frequência média de ${Math.round(intervaloMedio)} dias)`
+          : null,
     })
   }
 
@@ -700,4 +750,3 @@ export function getPrevisao(sheet: BiSheet): Previsao {
     projecaoProximoMes,
   }
 }
-

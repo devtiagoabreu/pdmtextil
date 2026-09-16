@@ -25,7 +25,9 @@ describe("PermissoesPage", () => {
     setup()
     renderPage(<PermissoesPage />)
 
-    expect(await screen.findByRole("heading", { name: "Permissões por Perfil" })).toBeInTheDocument()
+    expect(
+      await screen.findByRole("heading", { name: "Permissões por Perfil" })
+    ).toBeInTheDocument()
     expect(screen.getByText("Comercial")).toBeInTheDocument()
     expect(screen.getByText("CLIENTES")).toBeInTheDocument()
     expect(screen.getAllByText("CREATE").length).toBeGreaterThan(0)

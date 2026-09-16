@@ -17,7 +17,7 @@ describe("KanbanAmostraComercialPage", () => {
         onmessageerror: ((ev: MessageEvent) => void) | null = null
         postMessage() {}
         close() {}
-      },
+      }
     )
     const fetchMock = createFetchMock(({ url }) => {
       if (url === "/api/admin/status?tipo=AMOSTRA_COMERCIAL") return { json: [] }
@@ -31,9 +31,17 @@ describe("KanbanAmostraComercialPage", () => {
   it("renderiza o kanban com as ações de navegação", async () => {
     renderPage(<KanbanAmostraComercialPage />)
 
-    expect(screen.getByRole("heading", { name: /Kanban — Amostras Comerciais/ })).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Lista" })).toHaveAttribute("href", "/comercial/requisicoes-amostra-comercial")
-    expect(screen.getByRole("link", { name: /Nova/ })).toHaveAttribute("href", "/comercial/requisicoes-amostra-comercial/novo")
+    expect(
+      screen.getByRole("heading", { name: /Kanban — Amostras Comerciais/ })
+    ).toBeInTheDocument()
+    expect(screen.getByRole("link", { name: "Lista" })).toHaveAttribute(
+      "href",
+      "/comercial/requisicoes-amostra-comercial"
+    )
+    expect(screen.getByRole("link", { name: /Nova/ })).toHaveAttribute(
+      "href",
+      "/comercial/requisicoes-amostra-comercial/novo"
+    )
     expect(screen.getByRole("button", { name: "Flutuar" })).toBeInTheDocument()
   })
 })

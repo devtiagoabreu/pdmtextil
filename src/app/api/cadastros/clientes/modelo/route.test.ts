@@ -8,7 +8,19 @@ vi.mock("@/lib/auth", () => ({ authOptions: {} }))
 modeloRouteSpec({
   title: "GET /api/cadastros/clientes/modelo",
   GET,
-  csvHeader: ["nome", "cnpj", "razaoSocial", "email", "telefone", "contato", "endereco", "cidade", "uf", "idIntegracao", "ativo"],
+  csvHeader: [
+    "nome",
+    "cnpj",
+    "razaoSocial",
+    "email",
+    "telefone",
+    "contato",
+    "endereco",
+    "cidade",
+    "uf",
+    "idIntegracao",
+    "ativo",
+  ],
   filename: "clientes_modelo.csv",
   modelo: "Clientes",
 })

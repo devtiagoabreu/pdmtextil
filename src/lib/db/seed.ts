@@ -10,18 +10,45 @@ async function seed() {
   const seedPassword = process.env.SEED_PASSWORD || "123456"
   const passwordHash = await bcrypt.hash(seedPassword, 10)
   await db.insert(usuarios).values([
-    { email: "comercial@promoda.com", password: passwordHash, name: "Ana Comercial", role: "COMERCIAL", ativo: true },
-    { email: "tecelagem@promoda.com", password: passwordHash, name: "Carlos Tecelagem", role: "TECELAGEM", ativo: true },
-    { email: "beneficiamento@promoda.com", password: passwordHash, name: "Mariana Beneficiamento", role: "BENEFICIAMENTO", ativo: true },
-    { email: "admin@promoda.com", password: passwordHash, name: "Admin Sistema", role: "ADMIN", ativo: true },
+    {
+      email: "comercial@promoda.com",
+      password: passwordHash,
+      name: "Ana Comercial",
+      role: "COMERCIAL",
+      ativo: true,
+    },
+    {
+      email: "tecelagem@promoda.com",
+      password: passwordHash,
+      name: "Carlos Tecelagem",
+      role: "TECELAGEM",
+      ativo: true,
+    },
+    {
+      email: "beneficiamento@promoda.com",
+      password: passwordHash,
+      name: "Mariana Beneficiamento",
+      role: "BENEFICIAMENTO",
+      ativo: true,
+    },
+    {
+      email: "admin@promoda.com",
+      password: passwordHash,
+      name: "Admin Sistema",
+      role: "ADMIN",
+      ativo: true,
+    },
   ])
 
   // Menus CRM para o perfil COMERCIAL
-  const [menuCrm] = await db.insert(userMenus).values({
-    role: "COMERCIAL",
-    titulo: "CRM",
-    ordem: 1,
-  }).returning()
+  const [menuCrm] = await db
+    .insert(userMenus)
+    .values({
+      role: "COMERCIAL",
+      titulo: "CRM",
+      ordem: 1,
+    })
+    .returning()
 
   await db.insert(userMenuItens).values([
     { userMenuId: menuCrm.id, titulo: "Dashboard", url: "/comercial/crm", ordem: 0 },
@@ -29,8 +56,18 @@ async function seed() {
     { userMenuId: menuCrm.id, titulo: "Segmentos", url: "/comercial/crm/segmentos", ordem: 2 },
     { userMenuId: menuCrm.id, titulo: "Contatos", url: "/comercial/crm/contatos", ordem: 3 },
     { userMenuId: menuCrm.id, titulo: "Leads", url: "/comercial/crm/leads", ordem: 4 },
-    { userMenuId: menuCrm.id, titulo: "Oportunidades", url: "/comercial/crm/oportunidades", ordem: 5 },
-    { userMenuId: menuCrm.id, titulo: "Oportunidades (Kanban)", url: "/comercial/crm/oportunidades/kanban", ordem: 6 },
+    {
+      userMenuId: menuCrm.id,
+      titulo: "Oportunidades",
+      url: "/comercial/crm/oportunidades",
+      ordem: 5,
+    },
+    {
+      userMenuId: menuCrm.id,
+      titulo: "Oportunidades (Kanban)",
+      url: "/comercial/crm/oportunidades/kanban",
+      ordem: 6,
+    },
     { userMenuId: menuCrm.id, titulo: "Visitas", url: "/comercial/crm/visitas", ordem: 7 },
     { userMenuId: menuCrm.id, titulo: "Viagens", url: "/comercial/crm/viagens", ordem: 8 },
     { userMenuId: menuCrm.id, titulo: "Tarefas", url: "/comercial/crm/tarefas", ordem: 9 },
@@ -38,17 +75,30 @@ async function seed() {
     { userMenuId: menuCrm.id, titulo: "Regiões", url: "/comercial/crm/regioes", ordem: 11 },
     { userMenuId: menuCrm.id, titulo: "Equipes", url: "/comercial/crm/equipes", ordem: 12 },
     { userMenuId: menuCrm.id, titulo: "Campanhas", url: "/comercial/crm/campanhas", ordem: 13 },
-    { userMenuId: menuCrm.id, titulo: "Conversas WhatsApp", url: "/comercial/crm/conversas", ordem: 14 },
-    { userMenuId: menuCrm.id, titulo: "Notificações", url: "/comercial/crm/notificacoes", ordem: 15 },
+    {
+      userMenuId: menuCrm.id,
+      titulo: "Conversas WhatsApp",
+      url: "/comercial/crm/conversas",
+      ordem: 14,
+    },
+    {
+      userMenuId: menuCrm.id,
+      titulo: "Notificações",
+      url: "/comercial/crm/notificacoes",
+      ordem: 15,
+    },
     { userMenuId: menuCrm.id, titulo: "Relatórios", url: "/comercial/crm/relatorios", ordem: 16 },
   ])
 
   // Menu CRM para role CRM
-  const [menuCrmRole] = await db.insert(userMenus).values({
-    role: "CRM",
-    titulo: "CRM",
-    ordem: 1,
-  }).returning()
+  const [menuCrmRole] = await db
+    .insert(userMenus)
+    .values({
+      role: "CRM",
+      titulo: "CRM",
+      ordem: 1,
+    })
+    .returning()
 
   await db.insert(userMenuItens).values([
     { userMenuId: menuCrmRole.id, titulo: "Dashboard", url: "/comercial/crm", ordem: 0 },
@@ -56,8 +106,18 @@ async function seed() {
     { userMenuId: menuCrmRole.id, titulo: "Segmentos", url: "/comercial/crm/segmentos", ordem: 2 },
     { userMenuId: menuCrmRole.id, titulo: "Leads", url: "/comercial/crm/leads", ordem: 3 },
     { userMenuId: menuCrmRole.id, titulo: "Contatos", url: "/comercial/crm/contatos", ordem: 4 },
-    { userMenuId: menuCrmRole.id, titulo: "Oportunidades", url: "/comercial/crm/oportunidades", ordem: 5 },
-    { userMenuId: menuCrmRole.id, titulo: "Oportunidades (Kanban)", url: "/comercial/crm/oportunidades/kanban", ordem: 6 },
+    {
+      userMenuId: menuCrmRole.id,
+      titulo: "Oportunidades",
+      url: "/comercial/crm/oportunidades",
+      ordem: 5,
+    },
+    {
+      userMenuId: menuCrmRole.id,
+      titulo: "Oportunidades (Kanban)",
+      url: "/comercial/crm/oportunidades/kanban",
+      ordem: 6,
+    },
     { userMenuId: menuCrmRole.id, titulo: "Visitas", url: "/comercial/crm/visitas", ordem: 7 },
     { userMenuId: menuCrmRole.id, titulo: "Viagens", url: "/comercial/crm/viagens", ordem: 8 },
     { userMenuId: menuCrmRole.id, titulo: "Tarefas", url: "/comercial/crm/tarefas", ordem: 9 },
@@ -65,17 +125,35 @@ async function seed() {
     { userMenuId: menuCrmRole.id, titulo: "Regiões", url: "/comercial/crm/regioes", ordem: 11 },
     { userMenuId: menuCrmRole.id, titulo: "Equipes", url: "/comercial/crm/equipes", ordem: 12 },
     { userMenuId: menuCrmRole.id, titulo: "Campanhas", url: "/comercial/crm/campanhas", ordem: 13 },
-    { userMenuId: menuCrmRole.id, titulo: "Conversas WhatsApp", url: "/comercial/crm/conversas", ordem: 14 },
-    { userMenuId: menuCrmRole.id, titulo: "Notificações", url: "/comercial/crm/notificacoes", ordem: 15 },
-    { userMenuId: menuCrmRole.id, titulo: "Relatórios", url: "/comercial/crm/relatorios", ordem: 16 },
+    {
+      userMenuId: menuCrmRole.id,
+      titulo: "Conversas WhatsApp",
+      url: "/comercial/crm/conversas",
+      ordem: 14,
+    },
+    {
+      userMenuId: menuCrmRole.id,
+      titulo: "Notificações",
+      url: "/comercial/crm/notificacoes",
+      ordem: 15,
+    },
+    {
+      userMenuId: menuCrmRole.id,
+      titulo: "Relatórios",
+      url: "/comercial/crm/relatorios",
+      ordem: 16,
+    },
   ])
 
   // Menu CRM também visível para ADMIN
-  const [menuCrmAdmin] = await db.insert(userMenus).values({
-    role: "ADMIN",
-    titulo: "CRM",
-    ordem: 2,
-  }).returning()
+  const [menuCrmAdmin] = await db
+    .insert(userMenus)
+    .values({
+      role: "ADMIN",
+      titulo: "CRM",
+      ordem: 2,
+    })
+    .returning()
 
   await db.insert(userMenuItens).values([
     { userMenuId: menuCrmAdmin.id, titulo: "Dashboard", url: "/comercial/crm", ordem: 0 },
@@ -83,35 +161,88 @@ async function seed() {
     { userMenuId: menuCrmAdmin.id, titulo: "Segmentos", url: "/comercial/crm/segmentos", ordem: 2 },
     { userMenuId: menuCrmAdmin.id, titulo: "Contatos", url: "/comercial/crm/contatos", ordem: 3 },
     { userMenuId: menuCrmAdmin.id, titulo: "Leads", url: "/comercial/crm/leads", ordem: 4 },
-    { userMenuId: menuCrmAdmin.id, titulo: "Oportunidades", url: "/comercial/crm/oportunidades", ordem: 5 },
-    { userMenuId: menuCrmAdmin.id, titulo: "Oportunidades (Kanban)", url: "/comercial/crm/oportunidades/kanban", ordem: 6 },
+    {
+      userMenuId: menuCrmAdmin.id,
+      titulo: "Oportunidades",
+      url: "/comercial/crm/oportunidades",
+      ordem: 5,
+    },
+    {
+      userMenuId: menuCrmAdmin.id,
+      titulo: "Oportunidades (Kanban)",
+      url: "/comercial/crm/oportunidades/kanban",
+      ordem: 6,
+    },
     { userMenuId: menuCrmAdmin.id, titulo: "Visitas", url: "/comercial/crm/visitas", ordem: 7 },
     { userMenuId: menuCrmAdmin.id, titulo: "Viagens", url: "/comercial/crm/viagens", ordem: 8 },
     { userMenuId: menuCrmAdmin.id, titulo: "Tarefas", url: "/comercial/crm/tarefas", ordem: 9 },
-    { userMenuId: menuCrmAdmin.id, titulo: "Propostas", url: "/comercial/crm/propostas", ordem: 10 },
+    {
+      userMenuId: menuCrmAdmin.id,
+      titulo: "Propostas",
+      url: "/comercial/crm/propostas",
+      ordem: 10,
+    },
     { userMenuId: menuCrmAdmin.id, titulo: "Regiões", url: "/comercial/crm/regioes", ordem: 11 },
     { userMenuId: menuCrmAdmin.id, titulo: "Equipes", url: "/comercial/crm/equipes", ordem: 12 },
-    { userMenuId: menuCrmAdmin.id, titulo: "Campanhas", url: "/comercial/crm/campanhas", ordem: 13 },
-    { userMenuId: menuCrmAdmin.id, titulo: "Conversas WhatsApp", url: "/comercial/crm/conversas", ordem: 14 },
-    { userMenuId: menuCrmAdmin.id, titulo: "Notificações", url: "/comercial/crm/notificacoes", ordem: 15 },
-    { userMenuId: menuCrmAdmin.id, titulo: "Relatórios", url: "/comercial/crm/relatorios", ordem: 16 },
+    {
+      userMenuId: menuCrmAdmin.id,
+      titulo: "Campanhas",
+      url: "/comercial/crm/campanhas",
+      ordem: 13,
+    },
+    {
+      userMenuId: menuCrmAdmin.id,
+      titulo: "Conversas WhatsApp",
+      url: "/comercial/crm/conversas",
+      ordem: 14,
+    },
+    {
+      userMenuId: menuCrmAdmin.id,
+      titulo: "Notificações",
+      url: "/comercial/crm/notificacoes",
+      ordem: 15,
+    },
+    {
+      userMenuId: menuCrmAdmin.id,
+      titulo: "Relatórios",
+      url: "/comercial/crm/relatorios",
+      ordem: 16,
+    },
   ])
 
   // Menu Processos para role ADMIN
-  const [menuProcessosAdmin] = await db.insert(userMenus).values({
-    role: "ADMIN",
-    titulo: "Processos",
-    ordem: 3,
-  }).returning()
+  const [menuProcessosAdmin] = await db
+    .insert(userMenus)
+    .values({
+      role: "ADMIN",
+      titulo: "Processos",
+      ordem: 3,
+    })
+    .returning()
 
   await db.insert(userMenuItens).values([
     { userMenuId: menuProcessosAdmin.id, titulo: "Mapa de Processos", url: "/processos", ordem: 0 },
     { userMenuId: menuProcessosAdmin.id, titulo: "Empresas", url: "/processos/empresas", ordem: 1 },
     { userMenuId: menuProcessosAdmin.id, titulo: "Sites", url: "/processos/sites", ordem: 2 },
     { userMenuId: menuProcessosAdmin.id, titulo: "Áreas", url: "/processos/areas", ordem: 3 },
-    { userMenuId: menuProcessosAdmin.id, titulo: "Processos", url: "/processos/processos", ordem: 4 },
-    { userMenuId: menuProcessosAdmin.id, titulo: "Subprocessos", url: "/processos/subprocessos", ordem: 5 },
-    { userMenuId: menuProcessosAdmin.id, titulo: "Atividades", url: "/processos/atividades", ordem: 6 },
+    {
+      userMenuId: menuProcessosAdmin.id,
+      titulo: "Processos",
+      url: "/processos/processos",
+      ordem: 4,
+    },
+    {
+      userMenuId: menuProcessosAdmin.id,
+      titulo: "Subprocessos",
+      url: "/processos/subprocessos",
+      ordem: 5,
+    },
+    {
+      userMenuId: menuProcessosAdmin.id,
+      titulo: "Atividades",
+      url: "/processos/atividades",
+      ordem: 6,
+    },
     { userMenuId: menuProcessosAdmin.id, titulo: "Diagramas", url: "/processos/visual", ordem: 7 },
   ])
 

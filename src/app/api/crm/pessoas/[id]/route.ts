@@ -20,10 +20,7 @@ import { eq, and, ne, or, inArray } from "drizzle-orm"
 import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -50,10 +47,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -120,7 +114,11 @@ export async function PUT(
 
     const nomePessoa = atualizada.nome || atualizada.razaoSocial || "Pessoa"
 
-    if (body.status === "CONVERTIDO_CLIENTE" && existente.status !== "CONVERTIDO_CLIENTE" && atualizada.cnpj) {
+    if (
+      body.status === "CONVERTIDO_CLIENTE" &&
+      existente.status !== "CONVERTIDO_CLIENTE" &&
+      atualizada.cnpj
+    ) {
       try {
         if (!atualizada.clienteId) {
           const [existenteCliente] = await db
@@ -130,20 +128,25 @@ export async function PUT(
             .limit(1)
 
           if (existenteCliente) {
-            await db.update(crmPessoas)
+            await db
+              .update(crmPessoas)
               .set({ clienteId: existenteCliente.id })
               .where(eq(crmPessoas.id, atualizada.id))
             atualizada.clienteId = existenteCliente.id
           } else {
-            const [novoCliente] = await db.insert(clientes).values({
-              nome: atualizada.nomeFantasia || atualizada.razaoSocial || "",
-              cnpj: atualizada.cnpj,
-              razaoSocial: atualizada.razaoSocial || "",
-              endereco: atualizada.endereco || null,
-              cidade: atualizada.cidade || null,
-              uf: atualizada.uf || null,
-            }).returning()
-            await db.update(crmPessoas)
+            const [novoCliente] = await db
+              .insert(clientes)
+              .values({
+                nome: atualizada.nomeFantasia || atualizada.razaoSocial || "",
+                cnpj: atualizada.cnpj,
+                razaoSocial: atualizada.razaoSocial || "",
+                endereco: atualizada.endereco || null,
+                cidade: atualizada.cidade || null,
+                uf: atualizada.uf || null,
+              })
+              .returning()
+            await db
+              .update(crmPessoas)
               .set({ clienteId: novoCliente.id })
               .where(eq(crmPessoas.id, atualizada.id))
             atualizada.clienteId = novoCliente.id
@@ -163,7 +166,12 @@ export async function PUT(
       usuarioNome: session.user.name,
     })
 
-    await notificar("PESSOA_ATUALIZADA", `Pessoa atualizada: ${nomePessoa}`, `/comercial/crm/pessoas/${atualizada.id}`, session.user.name)
+    await notificar(
+      "PESSOA_ATUALIZADA",
+      `Pessoa atualizada: ${nomePessoa}`,
+      `/comercial/crm/pessoas/${atualizada.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(atualizada)
   } catch (error) {
@@ -171,10 +179,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -186,58 +191,85 @@ export async function DELETE(
     const empresaId = parseInt(id)
 
     await db.transaction(async (tx: any) => {
-      const contatosIds = (await tx
-        .select({ id: crmContatos.id })
-        .from(crmContatos)
-        .where(eq(crmContatos.empresaId, empresaId))).map((r: any) => r.id)
+      const contatosIds = (
+        await tx
+          .select({ id: crmContatos.id })
+          .from(crmContatos)
+          .where(eq(crmContatos.empresaId, empresaId))
+      ).map((r: any) => r.id)
 
-      const leadsIds = (await tx
-        .select({ id: crmLeads.id })
-        .from(crmLeads)
-        .where(eq(crmLeads.pessoaId, empresaId))).map((r: any) => r.id)
+      const leadsIds = (
+        await tx.select({ id: crmLeads.id }).from(crmLeads).where(eq(crmLeads.pessoaId, empresaId))
+      ).map((r: any) => r.id)
 
-      const oportunidadesIds = (await tx
-        .select({ id: crmOportunidades.id })
-        .from(crmOportunidades)
-        .where(or(
-          eq(crmOportunidades.empresaId, empresaId),
-          leadsIds.length ? inArray(crmOportunidades.leadId, leadsIds) : undefined,
-          contatosIds.length ? inArray(crmOportunidades.contatoId, contatosIds) : undefined,
-        ))).map((r: any) => r.id)
+      const oportunidadesIds = (
+        await tx
+          .select({ id: crmOportunidades.id })
+          .from(crmOportunidades)
+          .where(
+            or(
+              eq(crmOportunidades.empresaId, empresaId),
+              leadsIds.length ? inArray(crmOportunidades.leadId, leadsIds) : undefined,
+              contatosIds.length ? inArray(crmOportunidades.contatoId, contatosIds) : undefined
+            )
+          )
+      ).map((r: any) => r.id)
 
-      const visitasIds = (await tx
-        .select({ id: crmVisitas.id })
-        .from(crmVisitas)
-        .where(or(
-          eq(crmVisitas.empresaId, empresaId),
-          oportunidadesIds.length ? inArray(crmVisitas.oportunidadeId, oportunidadesIds) : undefined,
-          contatosIds.length ? inArray(crmVisitas.contatoId, contatosIds) : undefined,
-        ))).map((r: any) => r.id)
+      const visitasIds = (
+        await tx
+          .select({ id: crmVisitas.id })
+          .from(crmVisitas)
+          .where(
+            or(
+              eq(crmVisitas.empresaId, empresaId),
+              oportunidadesIds.length
+                ? inArray(crmVisitas.oportunidadeId, oportunidadesIds)
+                : undefined,
+              contatosIds.length ? inArray(crmVisitas.contatoId, contatosIds) : undefined
+            )
+          )
+      ).map((r: any) => r.id)
 
       if (visitasIds.length) {
-        const pesquisasIds = (await tx
-          .select({ id: crmPesquisasSatisfacao.id })
-          .from(crmPesquisasSatisfacao)
-          .where(inArray(crmPesquisasSatisfacao.visitaId, visitasIds))).map((r: any) => r.id)
+        const pesquisasIds = (
+          await tx
+            .select({ id: crmPesquisasSatisfacao.id })
+            .from(crmPesquisasSatisfacao)
+            .where(inArray(crmPesquisasSatisfacao.visitaId, visitasIds))
+        ).map((r: any) => r.id)
 
         if (pesquisasIds.length) {
-          await tx.delete(crmPesquisasRespostas).where(inArray(crmPesquisasRespostas.pesquisaId, pesquisasIds))
-          await tx.delete(crmPesquisasSatisfacao).where(inArray(crmPesquisasSatisfacao.id, pesquisasIds))
+          await tx
+            .delete(crmPesquisasRespostas)
+            .where(inArray(crmPesquisasRespostas.pesquisaId, pesquisasIds))
+          await tx
+            .delete(crmPesquisasSatisfacao)
+            .where(inArray(crmPesquisasSatisfacao.id, pesquisasIds))
         }
 
-        await tx.delete(crmVisitasLocalizacoes).where(inArray(crmVisitasLocalizacoes.visitaId, visitasIds))
+        await tx
+          .delete(crmVisitasLocalizacoes)
+          .where(inArray(crmVisitasLocalizacoes.visitaId, visitasIds))
         await tx.delete(crmVisitas).where(inArray(crmVisitas.id, visitasIds))
       }
 
       if (oportunidadesIds.length) {
-        await tx.delete(crmTarefas).where(or(
-          eq(crmTarefas.empresaId, empresaId),
-          inArray(crmTarefas.oportunidadeId, oportunidadesIds),
-        ))
-        await tx.delete(crmPropostas).where(or(
-          eq(crmPropostas.empresaId, empresaId),
-          inArray(crmPropostas.oportunidadeId, oportunidadesIds),
-        ))
+        await tx
+          .delete(crmTarefas)
+          .where(
+            or(
+              eq(crmTarefas.empresaId, empresaId),
+              inArray(crmTarefas.oportunidadeId, oportunidadesIds)
+            )
+          )
+        await tx
+          .delete(crmPropostas)
+          .where(
+            or(
+              eq(crmPropostas.empresaId, empresaId),
+              inArray(crmPropostas.oportunidadeId, oportunidadesIds)
+            )
+          )
         await tx.delete(crmOportunidades).where(inArray(crmOportunidades.id, oportunidadesIds))
       } else {
         await tx.delete(crmTarefas).where(eq(crmTarefas.empresaId, empresaId))
@@ -248,10 +280,14 @@ export async function DELETE(
         await tx.delete(crmLeads).where(inArray(crmLeads.id, leadsIds))
       }
 
-      await tx.delete(crmWhatsappMensagens).where(or(
-        eq(crmWhatsappMensagens.empresaId, empresaId),
-        contatosIds.length ? inArray(crmWhatsappMensagens.contatoId, contatosIds) : undefined,
-      ))
+      await tx
+        .delete(crmWhatsappMensagens)
+        .where(
+          or(
+            eq(crmWhatsappMensagens.empresaId, empresaId),
+            contatosIds.length ? inArray(crmWhatsappMensagens.contatoId, contatosIds) : undefined
+          )
+        )
       await tx.delete(crmTimelineEventos).where(eq(crmTimelineEventos.empresaId, empresaId))
 
       if (contatosIds.length) {

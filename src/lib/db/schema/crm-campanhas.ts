@@ -1,4 +1,13 @@
-import { pgTable, serial, varchar, integer, numeric, timestamp, date, text } from "drizzle-orm/pg-core"
+import {
+  pgTable,
+  serial,
+  varchar,
+  integer,
+  numeric,
+  timestamp,
+  date,
+  text,
+} from "drizzle-orm/pg-core"
 import { usuarios } from "./usuarios"
 
 export const crmCampanhas = pgTable("crm_campanhas", {

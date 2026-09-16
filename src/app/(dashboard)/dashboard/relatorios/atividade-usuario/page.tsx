@@ -9,7 +9,10 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { exportCSV, exportPDFRelatorio } from "@/lib/export-utils"
 
-const AtividadeUsuarioCharts = dynamic(() => import("./charts").then((m) => m.AtividadeUsuarioCharts), { ssr: false })
+const AtividadeUsuarioCharts = dynamic(
+  () => import("./charts").then((m) => m.AtividadeUsuarioCharts),
+  { ssr: false }
+)
 
 const TIPO_CORES: Record<string, string> = {
   DELECAO: "#ef4444",
@@ -38,7 +41,13 @@ export default function RelatorioAtividadeUsuario() {
   const [aplicadoTipo, setAplicadoTipo] = useState("")
 
   const { data, isLoading: loading } = useQuery<any>({
-    queryKey: ["relatorio-atividade-usuario", aplicadoDataInicio, aplicadoDataFim, aplicadoUsuario, aplicadoTipo],
+    queryKey: [
+      "relatorio-atividade-usuario",
+      aplicadoDataInicio,
+      aplicadoDataFim,
+      aplicadoUsuario,
+      aplicadoTipo,
+    ],
     queryFn: async () => {
       const params = new URLSearchParams()
       if (aplicadoDataInicio) params.set("dataInicio", aplicadoDataInicio)
@@ -65,17 +74,29 @@ export default function RelatorioAtividadeUsuario() {
   }
 
   function handleExportCSV() {
-    exportCSV("atividade-usuario", ["Usuário", "Ações"], porUsuario.map((u: any) => [u.usuario, u.total]))
+    exportCSV(
+      "atividade-usuario",
+      ["Usuário", "Ações"],
+      porUsuario.map((u: any) => [u.usuario, u.total])
+    )
     setTimeout(() => {
-      exportCSV("atividade-por-tipo", ["Tipo", "Total"], porTipo.map((t: any) => [TIPO_LABELS[t.tipo] || t.tipo, t.total]))
+      exportCSV(
+        "atividade-por-tipo",
+        ["Tipo", "Total"],
+        porTipo.map((t: any) => [TIPO_LABELS[t.tipo] || t.tipo, t.total])
+      )
       setTimeout(() => {
-        exportCSV("atividades-recentes", ["Data", "Usuário", "Tipo", "Ação", "Descrição"], recentes.map((r: any) => [
-          r.createdAt ? new Date(r.createdAt).toLocaleString("pt-BR") : "-",
-          r.usuario || "-",
-          TIPO_LABELS[r.tipo] || r.tipo,
-          r.acao,
-          r.descricao || "-",
-        ]))
+        exportCSV(
+          "atividades-recentes",
+          ["Data", "Usuário", "Tipo", "Ação", "Descrição"],
+          recentes.map((r: any) => [
+            r.createdAt ? new Date(r.createdAt).toLocaleString("pt-BR") : "-",
+            r.usuario || "-",
+            TIPO_LABELS[r.tipo] || r.tipo,
+            r.acao,
+            r.descricao || "-",
+          ])
+        )
       }, 200)
     }, 200)
   }
@@ -83,20 +104,28 @@ export default function RelatorioAtividadeUsuario() {
   async function handleExportPDF() {
     await exportPDFRelatorio({
       title: "Relatório de Atividade por Usuário",
-      stats: stats ? {
-        "Total Ações": stats.total,
-        "Usuários Ativos": stats.totalUsuarios,
-      } : undefined,
+      stats: stats
+        ? {
+            "Total Ações": stats.total,
+            "Usuários Ativos": stats.totalUsuarios,
+          }
+        : undefined,
       tables: [
         { headers: ["Usuário", "Ações"], rows: porUsuario.map((u: any) => [u.usuario, u.total]) },
-        { headers: ["Tipo", "Total"], rows: porTipo.map((t: any) => [TIPO_LABELS[t.tipo] || t.tipo, t.total]) },
-        { headers: ["Data", "Usuário", "Tipo", "Ação", "Descrição"], rows: recentes.map((r: any) => [
-          r.createdAt ? new Date(r.createdAt).toLocaleString("pt-BR") : "-",
-          r.usuario || "-",
-          TIPO_LABELS[r.tipo] || r.tipo,
-          r.acao,
-          r.descricao || "-",
-        ])},
+        {
+          headers: ["Tipo", "Total"],
+          rows: porTipo.map((t: any) => [TIPO_LABELS[t.tipo] || t.tipo, t.total]),
+        },
+        {
+          headers: ["Data", "Usuário", "Tipo", "Ação", "Descrição"],
+          rows: recentes.map((r: any) => [
+            r.createdAt ? new Date(r.createdAt).toLocaleString("pt-BR") : "-",
+            r.usuario || "-",
+            TIPO_LABELS[r.tipo] || r.tipo,
+            r.acao,
+            r.descricao || "-",
+          ]),
+        },
       ],
     })
   }
@@ -107,7 +136,9 @@ export default function RelatorioAtividadeUsuario() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Relatório: Atividade por Usuário{info && <InfoButton content={info} />}</h1>
+        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+          Relatório: Atividade por Usuário{info && <InfoButton content={info} />}
+        </h1>
         <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
           Registro de ações realizadas por cada usuário no sistema
         </p>
@@ -145,7 +176,9 @@ export default function RelatorioAtividadeUsuario() {
           >
             <option value="">Todos</option>
             {usuariosDisponiveis.map((u: any) => (
-              <option key={u} value={u}>{u}</option>
+              <option key={u} value={u}>
+                {u}
+              </option>
             ))}
           </select>
         </div>
@@ -158,7 +191,9 @@ export default function RelatorioAtividadeUsuario() {
           >
             <option value="">Todos</option>
             {tiposDisponiveis.map((t: any) => (
-              <option key={t} value={t}>{TIPO_LABELS[t] || t}</option>
+              <option key={t} value={t}>
+                {TIPO_LABELS[t] || t}
+              </option>
             ))}
           </select>
         </div>
@@ -169,10 +204,16 @@ export default function RelatorioAtividadeUsuario() {
           Filtrar
         </button>
         <div className="flex-1" />
-        <button onClick={handleExportCSV} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+        <button
+          onClick={handleExportCSV}
+          className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
+        >
           CSV
         </button>
-        <button onClick={handleExportPDF} className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800">
+        <button
+          onClick={handleExportPDF}
+          className="h-9 px-3 rounded-lg border border-slate-200 text-slate-600 text-sm font-medium hover:bg-slate-50 dark:border-slate-700 dark:text-slate-400 dark:hover:bg-slate-800"
+        >
           PDF
         </button>
       </div>
@@ -182,22 +223,36 @@ export default function RelatorioAtividadeUsuario() {
         <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-100 dark:bg-slate-800 p-4">
             <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Total Ações</p>
-            <p className="text-3xl font-bold text-slate-700 dark:text-slate-200 mt-1">{stats.total}</p>
+            <p className="text-3xl font-bold text-slate-700 dark:text-slate-200 mt-1">
+              {stats.total}
+            </p>
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-indigo-50 dark:bg-indigo-950/50 p-4">
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Usuários Ativos</p>
-            <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400 mt-1">{stats.totalUsuarios}</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              Usuários Ativos
+            </p>
+            <p className="text-3xl font-bold text-indigo-600 dark:text-indigo-400 mt-1">
+              {stats.totalUsuarios}
+            </p>
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-blue-50 dark:bg-blue-950/50 p-4">
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Primeira Atividade</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              Primeira Atividade
+            </p>
             <p className="text-lg font-bold text-blue-600 dark:text-blue-400 mt-1">
-              {stats.primeiraAtividade ? new Date(stats.primeiraAtividade).toLocaleDateString("pt-BR") : "-"}
+              {stats.primeiraAtividade
+                ? new Date(stats.primeiraAtividade).toLocaleDateString("pt-BR")
+                : "-"}
             </p>
           </div>
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-purple-50 dark:bg-purple-950/50 p-4">
-            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">Última Atividade</p>
+            <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+              Última Atividade
+            </p>
             <p className="text-lg font-bold text-purple-600 dark:text-purple-400 mt-1">
-              {stats.ultimaAtividade ? new Date(stats.ultimaAtividade).toLocaleDateString("pt-BR") : "-"}
+              {stats.ultimaAtividade
+                ? new Date(stats.ultimaAtividade).toLocaleDateString("pt-BR")
+                : "-"}
             </p>
           </div>
         </div>
@@ -208,34 +263,53 @@ export default function RelatorioAtividadeUsuario() {
       {/* Recent activity log */}
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
         <div className="p-4 border-b border-slate-100 dark:border-slate-800">
-          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">Atividades Recentes</h3>
+          <h3 className="text-sm font-semibold text-slate-700 dark:text-slate-300">
+            Atividades Recentes
+          </h3>
         </div>
         {loading ? (
           <div className="text-center py-8 text-slate-500">Carregando...</div>
         ) : recentes.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-center">
             <Activity className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma atividade encontrada</p>
+            <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+              Nenhuma atividade encontrada
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
               <thead>
                 <tr className="border-b border-slate-100 dark:border-slate-800">
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Data</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Usuário</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Tipo</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Ação</th>
-                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">Descrição</th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Data
+                  </th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Usuário
+                  </th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Tipo
+                  </th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Ação
+                  </th>
+                  <th className="text-left p-3 text-xs font-medium text-slate-500 uppercase">
+                    Descrição
+                  </th>
                 </tr>
               </thead>
               <tbody>
                 {recentes.map((r: any) => (
-                  <tr key={r.id} className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30">
+                  <tr
+                    key={r.id}
+                    className="border-b border-slate-50 dark:border-slate-800/50 hover:bg-slate-50 dark:hover:bg-slate-800/30"
+                  >
                     <td className="p-3 text-xs text-slate-500 whitespace-nowrap">
                       {r.createdAt ? new Date(r.createdAt).toLocaleString("pt-BR") : "-"}
                     </td>
-                    <td className="p-3 font-medium text-slate-700 dark:text-slate-300">{r.usuario || "-"}</td>
+                    <td className="p-3 font-medium text-slate-700 dark:text-slate-300">
+                      {r.usuario || "-"}
+                    </td>
                     <td className="p-3">
                       <span
                         className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
@@ -248,7 +322,9 @@ export default function RelatorioAtividadeUsuario() {
                       </span>
                     </td>
                     <td className="p-3 text-slate-600 dark:text-slate-400">{r.acao}</td>
-                    <td className="p-3 text-slate-500 text-xs max-w-xs truncate">{r.descricao || "-"}</td>
+                    <td className="p-3 text-slate-500 text-xs max-w-xs truncate">
+                      {r.descricao || "-"}
+                    </td>
                   </tr>
                 ))}
               </tbody>

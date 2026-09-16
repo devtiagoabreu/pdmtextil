@@ -31,7 +31,9 @@ export function SortableItem({
   onCancelEdit,
   onDelete,
 }: SortableItemProps) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: item.id })
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
+    id: item.id,
+  })
 
   const style = {
     transform: transform ? `translate3d(${transform.x}px, ${transform.y}px, 0)` : undefined,
@@ -58,13 +60,13 @@ export function SortableItem({
         <div className="flex items-center gap-2 flex-1">
           <Input
             value={editTitulo}
-            onChange={e => onChangeTitulo(e.target.value)}
+            onChange={(e) => onChangeTitulo(e.target.value)}
             className="h-8 text-sm max-w-[200px]"
             placeholder="Título"
           />
           <Input
             value={editUrl}
-            onChange={e => onChangeUrl(e.target.value)}
+            onChange={(e) => onChangeUrl(e.target.value)}
             className="h-8 text-sm flex-1 font-mono"
             placeholder="/url"
           />

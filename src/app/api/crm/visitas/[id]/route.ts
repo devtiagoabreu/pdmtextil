@@ -19,10 +19,7 @@ import { temEndereco, type EnderecoCampos } from "@/lib/crm/endereco"
 import { geocodificarCamposEndereco } from "@/lib/crm/geocode"
 import crypto from "crypto"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -105,10 +102,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -129,19 +123,36 @@ export async function PUT(
 
     const userRole = auth.session.user?.role ?? ""
     if (userRole !== "ADMIN" && userRole !== "SUDO" && existente.criadoPor !== auth.userId) {
-      return NextResponse.json({ error: "Apenas o criador da visita pode editá-la" }, { status: 403 })
+      return NextResponse.json(
+        { error: "Apenas o criador da visita pode editá-la" },
+        { status: 403 }
+      )
     }
 
     const values: Record<string, any> = { updatedAt: new Date() }
-    if (body.empresaId !== undefined) { values.empresaId = body.empresaId; values.nomeAvulso = null }
-    if (body.clienteId !== undefined) { values.clienteId = body.clienteId; values.nomeAvulso = null }
+    if (body.empresaId !== undefined) {
+      values.empresaId = body.empresaId
+      values.nomeAvulso = null
+    }
+    if (body.clienteId !== undefined) {
+      values.clienteId = body.clienteId
+      values.nomeAvulso = null
+    }
     if (body.nomeAvulso !== undefined) values.nomeAvulso = body.nomeAvulso
     if (body.oportunidadeId !== undefined) values.oportunidadeId = body.oportunidadeId
     if (body.contatoId !== undefined) values.contatoId = body.contatoId
-    if (body.viagemId !== undefined) values.viagemId = body.viagemId ? parseInt(body.viagemId) : null
-    if (body.representanteId !== undefined) values.representanteId = body.representanteId ? parseInt(body.representanteId) : null
-    if (body.representanteNome !== undefined) values.representanteNome = body.representanteNome || null
-    if (body.propostaId !== undefined) values.propostaId = body.propostaId ? (typeof body.propostaId === "number" ? body.propostaId : parseInt(body.propostaId)) : null
+    if (body.viagemId !== undefined)
+      values.viagemId = body.viagemId ? parseInt(body.viagemId) : null
+    if (body.representanteId !== undefined)
+      values.representanteId = body.representanteId ? parseInt(body.representanteId) : null
+    if (body.representanteNome !== undefined)
+      values.representanteNome = body.representanteNome || null
+    if (body.propostaId !== undefined)
+      values.propostaId = body.propostaId
+        ? typeof body.propostaId === "number"
+          ? body.propostaId
+          : parseInt(body.propostaId)
+        : null
     if (body.dataVisita !== undefined) values.dataVisita = body.dataVisita
     if (body.hora !== undefined) values.hora = body.hora || null
     if (body.tipo !== undefined) values.tipo = body.tipo
@@ -158,7 +169,9 @@ export async function PUT(
     if (body.fotos !== undefined) values.fotos = body.fotos
     if (body.duracaoEstimada !== undefined) values.duracaoEstimada = body.duracaoEstimada
 
-    const veioEndereco = ["endereco", "numero", "complemento", "bairro", "cidade", "uf"].some((campo) => body[campo] !== undefined)
+    const veioEndereco = ["endereco", "numero", "complemento", "bairro", "cidade", "uf"].some(
+      (campo) => body[campo] !== undefined
+    )
     if (veioEndereco) {
       const coordsEndereco = await buscarCoordenadasDaVisita(existente, body)
       values.enderecoLat = coordsEndereco?.latitude ?? null
@@ -186,18 +199,30 @@ export async function PUT(
           empresaId: existente.empresaId,
           tipo: "VISITA",
           descricao: `Visita alterada para "${body.status}"${body.status === "REALIZADA" && body.relato ? " — relato registrado" : ""}${body.status === "CANCELADA" && body.motivoCancelamento ? ` — motivo: ${body.motivoCancelamento}` : ""}`,
-          metadados: { visitaId: atualizada.id, statusAnterior: existente.status, statusNovo: body.status },
+          metadados: {
+            visitaId: atualizada.id,
+            statusAnterior: existente.status,
+            statusNovo: body.status,
+          },
         })
       }
 
       if (body.status === "REALIZADA") {
-        enviarPesquisaSatisfacao(atualizada.id, existente.empresaId, existente.clienteId, atualizada.contatoId).catch((err: any) =>
-          console.error("[AUTO SURVEY] Erro ao enviar pesquisa:", err.message)
-        )
+        enviarPesquisaSatisfacao(
+          atualizada.id,
+          existente.empresaId,
+          existente.clienteId,
+          atualizada.contatoId
+        ).catch((err: any) => console.error("[AUTO SURVEY] Erro ao enviar pesquisa:", err.message))
       }
     }
 
-    await notificar("VISITA_ATUALIZADA", `Visita #${id} ${body.status ? `alterada para ${body.status}` : "atualizada"}`, `/comercial/crm/visitas/${atualizada.id}`, session.user.name)
+    await notificar(
+      "VISITA_ATUALIZADA",
+      `Visita #${id} ${body.status ? `alterada para ${body.status}` : "atualizada"}`,
+      `/comercial/crm/visitas/${atualizada.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(atualizada)
   } catch (error) {
@@ -205,24 +230,33 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
     const userRole = auth.session.user?.role ?? ""
-    if (userRole !== "ADMIN" && userRole !== "SUDO" && userRole !== "COMERCIAL" && userRole !== "CRM") {
+    if (
+      userRole !== "ADMIN" &&
+      userRole !== "SUDO" &&
+      userRole !== "COMERCIAL" &&
+      userRole !== "CRM"
+    ) {
       return NextResponse.json({ error: "Apenas administradores podem excluir" }, { status: 403 })
     }
 
     const { id } = await params
     const visitaId = parseInt(id)
 
-    const [existente] = await db.select({ criadoPor: crmVisitas.criadoPor, googleEventId: crmVisitas.googleEventId }).from(crmVisitas).where(eq(crmVisitas.id, visitaId)).limit(1)
+    const [existente] = await db
+      .select({ criadoPor: crmVisitas.criadoPor, googleEventId: crmVisitas.googleEventId })
+      .from(crmVisitas)
+      .where(eq(crmVisitas.id, visitaId))
+      .limit(1)
     if (userRole !== "ADMIN" && userRole !== "SUDO" && existente?.criadoPor !== auth.userId) {
-      return NextResponse.json({ error: "Apenas o criador da visita pode excluí-la" }, { status: 403 })
+      return NextResponse.json(
+        { error: "Apenas o criador da visita pode excluí-la" },
+        { status: 403 }
+      )
     }
 
     if (existente?.googleEventId) {
@@ -304,7 +338,11 @@ async function enviarPesquisaSatisfacao(
 
     if (empresaId) {
       const [pessoa] = await db
-        .select({ email: crmPessoas.email, nome: crmPessoas.razaoSocial, nomeFantasia: crmPessoas.nomeFantasia })
+        .select({
+          email: crmPessoas.email,
+          nome: crmPessoas.razaoSocial,
+          nomeFantasia: crmPessoas.nomeFantasia,
+        })
         .from(crmPessoas)
         .where(eq(crmPessoas.id, empresaId))
         .limit(1)

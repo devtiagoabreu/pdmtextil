@@ -34,7 +34,7 @@ const TIPO_COLORS: Record<string, string> = {
 }
 
 const FILTROS_DASH = [
-              { key: "total-mes", label: "Total", icon: "solicitacao" },
+  { key: "total-mes", label: "Total", icon: "solicitacao" },
   { key: "pendentes", label: "Pendentes", icon: "solicitacao" },
   { key: "em-desenvolvimento", label: "Em Desenvolvimento", icon: "solicitacao" },
   { key: "pilotagem", label: "Pilotagem", icon: "solicitacao" },
@@ -47,7 +47,9 @@ export default function DashboardPage() {
   const { data: session } = useSession()
   const firstName = session?.user?.name?.split(" ")[0] || "Usuário"
 
-  const { getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
+  const { getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses(
+    "SOLICITACAO_DESENVOLVIMENTO"
+  )
 
   const [modalFiltro, setModalFiltro] = useState<string | null>(null)
   const [modalTitle, setModalTitle] = useState("")
@@ -125,13 +127,62 @@ export default function DashboardPage() {
           {/* Stats cards */}
           <div className="grid grid-cols-2 gap-4 lg:grid-cols-7">
             {[
-              { key: "total-mes", label: "Total geral", value: stats?.totalGeral ?? 0, color: "text-slate-700 dark:text-slate-200", bg: "bg-slate-100 dark:bg-slate-800", delay: 0 },
-              { key: "pendentes", label: "Pendentes", value: stats?.pendentes ?? 0, color: "text-amber-600 dark:text-amber-400", bg: "bg-amber-50 dark:bg-amber-950/50", delay: 50 },
-              { key: "em-desenvolvimento", label: "Em Desenvolvimento", value: stats?.emDesenvolvimento ?? 0, color: "text-indigo-600 dark:text-indigo-400", bg: "bg-indigo-50 dark:bg-indigo-950/50", delay: 100 },
-              { key: "pilotagem", label: "Pilotagem", value: stats?.pilotagem ?? 0, color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50", delay: 150 },
-              { key: "concluido-dev", label: "Concluído Desenvolvimento", value: stats?.concluidoDev ?? 0, color: "text-purple-600 dark:text-purple-400", bg: "bg-purple-50 dark:bg-purple-950/50", delay: 200 },
-              { key: "aprovado-cliente", label: "Aprovado pelo Cliente", value: stats?.aprovadoCliente ?? 0, color: "text-emerald-600 dark:text-emerald-400", bg: "bg-emerald-50 dark:bg-emerald-950/50", delay: 250 },
-              { key: "produtos-cru", label: "Produtos CAD", value: stats?.totalProdutosCru ?? 0, color: "text-cyan-600 dark:text-cyan-400", bg: "bg-cyan-50 dark:bg-cyan-950/50", delay: 300 },
+              {
+                key: "total-mes",
+                label: "Total geral",
+                value: stats?.totalGeral ?? 0,
+                color: "text-slate-700 dark:text-slate-200",
+                bg: "bg-slate-100 dark:bg-slate-800",
+                delay: 0,
+              },
+              {
+                key: "pendentes",
+                label: "Pendentes",
+                value: stats?.pendentes ?? 0,
+                color: "text-amber-600 dark:text-amber-400",
+                bg: "bg-amber-50 dark:bg-amber-950/50",
+                delay: 50,
+              },
+              {
+                key: "em-desenvolvimento",
+                label: "Em Desenvolvimento",
+                value: stats?.emDesenvolvimento ?? 0,
+                color: "text-indigo-600 dark:text-indigo-400",
+                bg: "bg-indigo-50 dark:bg-indigo-950/50",
+                delay: 100,
+              },
+              {
+                key: "pilotagem",
+                label: "Pilotagem",
+                value: stats?.pilotagem ?? 0,
+                color: "text-cyan-600 dark:text-cyan-400",
+                bg: "bg-cyan-50 dark:bg-cyan-950/50",
+                delay: 150,
+              },
+              {
+                key: "concluido-dev",
+                label: "Concluído Desenvolvimento",
+                value: stats?.concluidoDev ?? 0,
+                color: "text-purple-600 dark:text-purple-400",
+                bg: "bg-purple-50 dark:bg-purple-950/50",
+                delay: 200,
+              },
+              {
+                key: "aprovado-cliente",
+                label: "Aprovado pelo Cliente",
+                value: stats?.aprovadoCliente ?? 0,
+                color: "text-emerald-600 dark:text-emerald-400",
+                bg: "bg-emerald-50 dark:bg-emerald-950/50",
+                delay: 250,
+              },
+              {
+                key: "produtos-cru",
+                label: "Produtos CAD",
+                value: stats?.totalProdutosCru ?? 0,
+                color: "text-cyan-600 dark:text-cyan-400",
+                bg: "bg-cyan-50 dark:bg-cyan-950/50",
+                delay: 300,
+              },
             ].map((stat: any) => (
               <button
                 key={stat.key}
@@ -139,13 +190,16 @@ export default function DashboardPage() {
                 onClick={() => openModal(stat.key)}
                 className={`rounded-xl border border-slate-200 dark:border-slate-800 ${stat.bg} p-4 card-hover text-left w-full cursor-pointer transition-shadow hover:shadow-md`}
               >
-                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">{stat.label}</p>
+                <p className="text-xs text-slate-500 dark:text-slate-400 font-medium">
+                  {stat.label}
+                </p>
                 <p className={`text-3xl font-bold mt-1 ${stat.color}`}>
                   <AnimatedNumber value={stat.value} delay={stat.delay} duration={1500} />
                 </p>
                 {stat.key === "total-mes" && (
                   <p className="text-xs text-slate-400 dark:text-slate-500 mt-1.5">
-                    <AnimatedNumber value={stats?.totalEsteMes ?? 0} delay={0} duration={1500} /> este mês
+                    <AnimatedNumber value={stats?.totalEsteMes ?? 0} delay={0} duration={1500} />{" "}
+                    este mês
                   </p>
                 )}
               </button>
@@ -161,43 +215,72 @@ export default function DashboardPage() {
 
           {/* Recent activity */}
           <div>
-            <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-3">Atividades Recentes</h2>
+            <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100 mb-3">
+              Atividades Recentes
+            </h2>
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
               {atividades.length === 0 ? (
                 <div className="flex flex-col items-center justify-center py-16 text-center">
                   <Clock className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
-                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">Nenhuma atividade recente</p>
-                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">As solicitações criadas aparecerão aqui</p>
+                  <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
+                    Nenhuma atividade recente
+                  </p>
+                  <p className="text-xs text-slate-400 dark:text-slate-500 mt-1">
+                    As solicitações criadas aparecerão aqui
+                  </p>
                 </div>
               ) : (
                 <table className="w-full">
                   <thead className="border-b border-slate-200 dark:border-slate-800">
                     <tr>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ID</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Tipo</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Cliente</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Data</th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                        ID
+                      </th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                        Tipo
+                      </th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                        Cliente
+                      </th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                        Status
+                      </th>
+                      <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                        Data
+                      </th>
                     </tr>
                   </thead>
                   <tbody>
                     {atividades.map((item: any, i: any) => (
-                      <tr key={item.id || i} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors">
+                      <tr
+                        key={item.id || i}
+                        className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors"
+                      >
                         <td className="p-4 text-sm font-medium">
-                          <Link href={`/comercial/solicitacoes/${item.id}`} className="hover:underline">#{item.id}</Link>
+                          <Link
+                            href={`/comercial/solicitacoes/${item.id}`}
+                            className="hover:underline"
+                          >
+                            #{item.id}
+                          </Link>
                         </td>
                         <td className="p-4 text-sm">{TIPO_LABELS[item.tipo] || item.tipo}</td>
                         <td className="p-4 text-sm">{item.cliente}</td>
                         <td className="p-4 text-sm">
-                          <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium" style={{
-                            backgroundColor: hexToRgba(getStatusColor(item.status), 0.15),
-                            color: getStatusColor(item.status),
-                          }}>
+                          <span
+                            className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                            style={{
+                              backgroundColor: hexToRgba(getStatusColor(item.status), 0.15),
+                              color: getStatusColor(item.status),
+                            }}
+                          >
                             {getStatusLabel(item.status)}
                           </span>
                         </td>
                         <td className="p-4 text-sm text-slate-500">
-                          {item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : "—"}
+                          {item.createdAt
+                            ? new Date(item.createdAt).toLocaleDateString("pt-BR")
+                            : "—"}
                         </td>
                       </tr>
                     ))}
@@ -209,13 +292,26 @@ export default function DashboardPage() {
         </>
       )}
 
-      <DialogPrimitive.Root open={!!modalFiltro} onOpenChange={(next) => { if (!next) setModalFiltro(null) }}>
+      <DialogPrimitive.Root
+        open={!!modalFiltro}
+        onOpenChange={(next) => {
+          if (!next) setModalFiltro(null)
+        }}
+      >
         <DialogPrimitive.Portal>
-          <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/50" onClick={() => setModalFiltro(null)} />
+          <DialogPrimitive.Backdrop
+            className="fixed inset-0 z-50 bg-black/50"
+            onClick={() => setModalFiltro(null)}
+          />
           <DialogPrimitive.Popup className="fixed top-1/2 left-1/2 z-50 w-full max-w-2xl -translate-x-1/2 -translate-y-1/2 max-h-[75vh] flex flex-col rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 shadow-xl outline-none">
             <div className="flex items-center justify-between p-4 border-b border-slate-200 dark:border-slate-700">
-              <DialogPrimitive.Title className="text-lg font-semibold text-slate-900 dark:text-slate-50">{modalTitle}</DialogPrimitive.Title>
-              <DialogPrimitive.Close aria-label="Fechar" className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800">
+              <DialogPrimitive.Title className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                {modalTitle}
+              </DialogPrimitive.Title>
+              <DialogPrimitive.Close
+                aria-label="Fechar"
+                className="p-1 rounded hover:bg-slate-100 dark:hover:bg-slate-800"
+              >
                 <X size={18} className="text-slate-500" />
               </DialogPrimitive.Close>
             </div>
@@ -241,10 +337,16 @@ export default function DashboardPage() {
                         </p>
                       </div>
                       <div className="flex items-center gap-3 ml-3 shrink-0">
-                        <span className={`text-xs rounded-full px-2 py-0.5 font-medium ${PRODUTO_STATUS_LABELS[item.status] ? "bg-slate-100 dark:bg-slate-800 text-slate-600" : ""}`}>
+                        <span
+                          className={`text-xs rounded-full px-2 py-0.5 font-medium ${PRODUTO_STATUS_LABELS[item.status] ? "bg-slate-100 dark:bg-slate-800 text-slate-600" : ""}`}
+                        >
                           {PRODUTO_STATUS_LABELS[item.status] || item.status}
                         </span>
-                        <span className="text-xs text-slate-400">{item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : ""}</span>
+                        <span className="text-xs text-slate-400">
+                          {item.createdAt
+                            ? new Date(item.createdAt).toLocaleDateString("pt-BR")
+                            : ""}
+                        </span>
                       </div>
                     </Link>
                   ))}
@@ -260,18 +362,28 @@ export default function DashboardPage() {
                     >
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-medium text-slate-900 dark:text-slate-200 truncate">
-                          #{item.id} — {item.cliente}{item.projeto ? ` (${item.projeto})` : ""}
+                          #{item.id} — {item.cliente}
+                          {item.projeto ? ` (${item.projeto})` : ""}
                         </p>
-                        <p className="text-xs text-slate-400">{TIPO_LABELS[item.tipo] || item.tipo}</p>
+                        <p className="text-xs text-slate-400">
+                          {TIPO_LABELS[item.tipo] || item.tipo}
+                        </p>
                       </div>
                       <div className="flex items-center gap-3 ml-3 shrink-0">
-                        <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium" style={{
-                          backgroundColor: hexToRgba(getStatusColor(item.status), 0.15),
-                          color: getStatusColor(item.status),
-                        }}>
+                        <span
+                          className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium"
+                          style={{
+                            backgroundColor: hexToRgba(getStatusColor(item.status), 0.15),
+                            color: getStatusColor(item.status),
+                          }}
+                        >
                           {getStatusLabel(item.status)}
                         </span>
-                        <span className="text-xs text-slate-400">{item.createdAt ? new Date(item.createdAt).toLocaleDateString("pt-BR") : ""}</span>
+                        <span className="text-xs text-slate-400">
+                          {item.createdAt
+                            ? new Date(item.createdAt).toLocaleDateString("pt-BR")
+                            : ""}
+                        </span>
                       </div>
                     </Link>
                   ))}

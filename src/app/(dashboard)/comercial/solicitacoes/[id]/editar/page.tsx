@@ -18,7 +18,13 @@ import { AnexosUpload, AnexoDraft } from "@/components/forms/AnexosUpload"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { ClienteAutocomplete } from "@/components/forms/ClienteAutocomplete"
 import {
   Dialog,
@@ -43,9 +49,9 @@ export default function EditarSolicitacaoPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const id = params.id as string
-  
+
   const [step, setStep] = useState(1)
-  
+
   const [comercialData, setComercialData] = useState<Partial<DadosComerciais>>({
     tipo: undefined,
     cliente: "",
@@ -67,12 +73,24 @@ export default function EditarSolicitacaoPage() {
   const [isCriandoCliente, setIsCriandoCliente] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
 
-  const { register, handleSubmit, control, formState: { errors }, setValue, watch, getValues } = useForm<DadosComerciais>({
+  const {
+    register,
+    handleSubmit,
+    control,
+    formState: { errors },
+    setValue,
+    watch,
+    getValues,
+  } = useForm<DadosComerciais>({
     resolver: zodResolver(dadosComerciaisSchema),
     defaultValues: comercialData,
   })
 
-  const { data: solicitacao, isLoading, isError } = useQuery<Solicitacao>({
+  const {
+    data: solicitacao,
+    isLoading,
+    isError,
+  } = useQuery<Solicitacao>({
     queryKey: ["solicitacao", id],
     queryFn: async () => {
       const res = await fetch(`/api/solicitacoes/${id}`)
@@ -85,7 +103,7 @@ export default function EditarSolicitacaoPage() {
   // Sincroniza RHF -> comercialData em tempo real
   useEffect(() => {
     const subscription = watch((value) => {
-      setComercialData(prev => ({ ...prev, ...value }))
+      setComercialData((prev) => ({ ...prev, ...value }))
     })
     return () => subscription.unsubscribe()
   }, [watch])
@@ -101,26 +119,32 @@ export default function EditarSolicitacaoPage() {
       cliente: solicitacao.cliente || "",
       cnpj: solicitacao.cnpj || "",
       projeto: solicitacao.projeto || "",
-      prazoDesejado: solicitacao.prazoDesejado ? solicitacao.prazoDesejado.split('T')[0] : "",
+      prazoDesejado: solicitacao.prazoDesejado ? solicitacao.prazoDesejado.split("T")[0] : "",
     })
 
     setValue("tipo", tipoValue, { shouldValidate: false })
     setValue("cliente", solicitacao.cliente || "", { shouldValidate: false })
     setValue("cnpj", solicitacao.cnpj || "", { shouldValidate: false })
     setValue("projeto", solicitacao.projeto || "", { shouldValidate: false })
-    setValue("prazoDesejado", solicitacao.prazoDesejado ? solicitacao.prazoDesejado.split('T')[0] : "", { shouldValidate: false })
+    setValue(
+      "prazoDesejado",
+      solicitacao.prazoDesejado ? solicitacao.prazoDesejado.split("T")[0] : "",
+      { shouldValidate: false }
+    )
 
     if (solicitacao.briefing) {
       setBriefingData(solicitacao.briefing)
     }
 
     if (solicitacao.anexos && solicitacao.anexos.length > 0) {
-      setAnexosData(solicitacao.anexos.map((a) => ({
-        id: String(a.id),
-        link: a.url,
-        tipo: "LINK",
-        nome: a.titulo,
-      })))
+      setAnexosData(
+        solicitacao.anexos.map((a) => ({
+          id: String(a.id),
+          link: a.url,
+          tipo: "LINK",
+          nome: a.titulo,
+        }))
+      )
     }
   }, [solicitacao, setValue])
 
@@ -136,7 +160,7 @@ export default function EditarSolicitacaoPage() {
     setStep(2)
   }
 
-const onStep2Submit = (data: BriefingTecelagem) => {
+  const onStep2Submit = (data: BriefingTecelagem) => {
     setBriefingData(data)
     setStep(3)
   }
@@ -146,15 +170,16 @@ const onStep2Submit = (data: BriefingTecelagem) => {
     try {
       // Usa getValues() do RHF como fonte primária (mais confiável), com fallback para comercialData
       const rhfValues = getValues()
-      
+
       const payload = {
         tipo: rhfValues.tipo || comercialData.tipo,
         cliente: rhfValues.cliente || comercialData.cliente,
         cnpj: rhfValues.cnpj || comercialData.cnpj || null,
         projeto: rhfValues.projeto || comercialData.projeto || null,
-        prazoDesejado: (rhfValues.prazoDesejado || comercialData.prazoDesejado) 
-          ? `${rhfValues.prazoDesejado || comercialData.prazoDesejado}T12:00:00Z` 
-          : null,
+        prazoDesejado:
+          rhfValues.prazoDesejado || comercialData.prazoDesejado
+            ? `${rhfValues.prazoDesejado || comercialData.prazoDesejado}T12:00:00Z`
+            : null,
         briefing: briefingData,
         anexos: anexosData,
       }
@@ -199,7 +224,14 @@ const onStep2Submit = (data: BriefingTecelagem) => {
       const cliente = await res.json()
       setComercialData((prev) => ({ ...prev, cliente: cliente.nome, cnpj: cliente.cnpj }))
       setShowNovoCliente(false)
-      setNovoClienteData({ nome: "", cnpj: "", razaoSocial: "", email: "", telefone: "", contato: "" })
+      setNovoClienteData({
+        nome: "",
+        cnpj: "",
+        razaoSocial: "",
+        email: "",
+        telefone: "",
+        contato: "",
+      })
       toast.success("Cliente criado com sucesso!")
     } catch (error) {
       toast.error(error instanceof Error ? error.message : "Erro ao criar cliente.")
@@ -235,32 +267,42 @@ const onStep2Submit = (data: BriefingTecelagem) => {
       </div>
 
       <div className="mb-8">
-        <h1 className="text-3xl font-bold tracking-tight">Editar Solicitação #{id}{info && <InfoButton content={info} />}</h1>
+        <h1 className="text-3xl font-bold tracking-tight">
+          Editar Solicitação #{id}
+          {info && <InfoButton content={info} />}
+        </h1>
         <p className="text-muted-foreground mt-2">Altere os dados da solicitação.</p>
       </div>
 
       {/* PROGRESS BAR */}
       <div className="flex items-center justify-between mb-8 relative">
         <div className="absolute left-0 top-1/2 transform -translate-y-1/2 w-full h-1 bg-muted -z-10" />
-        <div 
+        <div
           className="absolute left-0 top-1/2 transform -translate-y-1/2 h-1 bg-primary -z-10 transition-all duration-300"
           style={{ width: `${((step - 1) / 2) * 100}%` }}
         />
-        
+
         {STEPS.map((s) => {
           const Icon = s.icon
           const isActive = step === s.id
           const isCompleted = step > s.id
-          
+
           return (
             <div key={s.id} className="flex flex-col items-center gap-2 bg-background px-4">
-              <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
-                isActive ? "bg-primary text-primary-foreground" :
-                isCompleted ? "bg-primary/20 text-primary" : "bg-muted text-muted-foreground"
-              }`}>
+              <div
+                className={`w-10 h-10 rounded-full flex items-center justify-center transition-colors ${
+                  isActive
+                    ? "bg-primary text-primary-foreground"
+                    : isCompleted
+                      ? "bg-primary/20 text-primary"
+                      : "bg-muted text-muted-foreground"
+                }`}
+              >
                 {isCompleted ? <CheckCircle className="w-6 h-6" /> : <Icon className="w-5 h-5" />}
               </div>
-              <span className={`text-sm font-medium ${isActive || isCompleted ? "text-foreground" : "text-muted-foreground"}`}>
+              <span
+                className={`text-sm font-medium ${isActive || isCompleted ? "text-foreground" : "text-muted-foreground"}`}
+              >
                 {s.title}
               </span>
             </div>
@@ -283,26 +325,31 @@ const onStep2Submit = (data: BriefingTecelagem) => {
                   name="tipo"
                   control={control}
                   render={({ field }) => (
-                    <Select 
+                    <Select
                       onValueChange={(val: string | null) => {
                         if (val) field.onChange(val)
-                        setComercialData(prev => ({ ...prev, tipo: val as DadosComerciais["tipo"] }))
-                      }} 
+                        setComercialData((prev) => ({
+                          ...prev,
+                          tipo: val as DadosComerciais["tipo"],
+                        }))
+                      }}
                       defaultValue={field.value}
                     >
                       <SelectTrigger className={errors.tipo ? "border-red-500" : ""}>
                         <SelectValue placeholder="Selecione o tipo..." />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="DESENVOLVIMENTO_TECELAGEM">Desenvolvimento de Tecido (Tecelagem)</SelectItem>
-                        <SelectItem value="DESENVOLVIMENTO_BENEFICIAMENTO">Desenvolvimento de Beneficiamento</SelectItem>
+                        <SelectItem value="DESENVOLVIMENTO_TECELAGEM">
+                          Desenvolvimento de Tecido (Tecelagem)
+                        </SelectItem>
+                        <SelectItem value="DESENVOLVIMENTO_BENEFICIAMENTO">
+                          Desenvolvimento de Beneficiamento
+                        </SelectItem>
                       </SelectContent>
                     </Select>
                   )}
                 />
-                {errors.tipo && (
-                  <p className="text-xs text-red-500 mt-1">{errors.tipo.message}</p>
-                )}
+                {errors.tipo && <p className="text-xs text-red-500 mt-1">{errors.tipo.message}</p>}
               </div>
 
               <div className="space-y-2 md:col-span-2">
@@ -317,11 +364,11 @@ const onStep2Submit = (data: BriefingTecelagem) => {
                       value={field.value}
                       onChange={(val) => {
                         field.onChange(val)
-                        setComercialData(prev => ({ ...prev, cliente: val }))
+                        setComercialData((prev) => ({ ...prev, cliente: val }))
                       }}
                       onSelect={(cliente) => {
                         setValue("cnpj", cliente.cnpj)
-                        setComercialData(prev => ({ ...prev, cnpj: cliente.cnpj }))
+                        setComercialData((prev) => ({ ...prev, cnpj: cliente.cnpj }))
                       }}
                       onNovoCliente={() => setShowNovoCliente(true)}
                       error={errors.cliente?.message}
@@ -337,17 +384,19 @@ const onStep2Submit = (data: BriefingTecelagem) => {
               </div>
 
               <div className="space-y-2">
-                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nome do Projeto</Label>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Nome do Projeto
+                </Label>
                 <Controller
                   name="projeto"
                   control={control}
                   render={({ field }) => (
-                    <Input 
-                      {...field} 
-                      placeholder="Ex: Coleção Inverno 2027" 
+                    <Input
+                      {...field}
+                      placeholder="Ex: Coleção Inverno 2027"
                       onChange={(e) => {
                         field.onChange(e)
-                        setComercialData(prev => ({ ...prev, projeto: e.target.value }))
+                        setComercialData((prev) => ({ ...prev, projeto: e.target.value }))
                       }}
                     />
                   )}
@@ -355,18 +404,20 @@ const onStep2Submit = (data: BriefingTecelagem) => {
               </div>
 
               <div className="space-y-2 md:col-span-2">
-                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Prazo Desejado</Label>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Prazo Desejado
+                </Label>
                 <Controller
                   name="prazoDesejado"
                   control={control}
                   render={({ field }) => (
-                    <Input 
-                      type="date" 
-                      {...field} 
-                      className="max-w-xs" 
+                    <Input
+                      type="date"
+                      {...field}
+                      className="max-w-xs"
                       onChange={(e) => {
                         field.onChange(e)
-                        setComercialData(prev => ({ ...prev, prazoDesejado: e.target.value }))
+                        setComercialData((prev) => ({ ...prev, prazoDesejado: e.target.value }))
                       }}
                     />
                   )}
@@ -383,10 +434,10 @@ const onStep2Submit = (data: BriefingTecelagem) => {
         </div>
 
         <div className={step === 2 ? "block" : "hidden"}>
-          <BriefingTecelagemForm 
+          <BriefingTecelagemForm
             initialData={briefingData}
-            onNext={onStep2Submit} 
-            onBack={() => setStep(1)} 
+            onNext={onStep2Submit}
+            onBack={() => setStep(1)}
           />
         </div>
 
@@ -396,19 +447,27 @@ const onStep2Submit = (data: BriefingTecelagem) => {
             <p className="text-sm text-muted-foreground">
               Edite os links de referência e salve a solicitação.
             </p>
-            
-            <AnexosUpload 
-              anexos={anexosData} 
-              onChange={setAnexosData} 
-            />
+
+            <AnexosUpload anexos={anexosData} onChange={setAnexosData} />
 
             <div className="bg-muted/50 p-4 rounded-lg mt-8 border border-border">
               <h3 className="font-semibold mb-2">Resumo da Solicitação</h3>
               <ul className="space-y-1 text-sm">
-                <li><span className="font-medium">Cliente:</span> {watch("cliente") || comercialData.cliente || "—"}</li>
-                <li><span className="font-medium">Projeto:</span> {watch("projeto") || comercialData.projeto || "N/A"}</li>
-                <li><span className="font-medium">Tipo:</span> {(watch("tipo") || comercialData.tipo)?.replace("DESENVOLVIMENTO_", "") || "—"}</li>
-                <li><span className="font-medium">Total de Links:</span> {anexosData.length}</li>
+                <li>
+                  <span className="font-medium">Cliente:</span>{" "}
+                  {watch("cliente") || comercialData.cliente || "—"}
+                </li>
+                <li>
+                  <span className="font-medium">Projeto:</span>{" "}
+                  {watch("projeto") || comercialData.projeto || "N/A"}
+                </li>
+                <li>
+                  <span className="font-medium">Tipo:</span>{" "}
+                  {(watch("tipo") || comercialData.tipo)?.replace("DESENVOLVIMENTO_", "") || "—"}
+                </li>
+                <li>
+                  <span className="font-medium">Total de Links:</span> {anexosData.length}
+                </li>
               </ul>
             </div>
 
@@ -489,7 +548,9 @@ const onStep2Submit = (data: BriefingTecelagem) => {
             </Button>
             <Button
               onClick={handleNovoCliente}
-              disabled={isCriandoCliente || !novoClienteData.nome.trim() || !novoClienteData.cnpj.trim()}
+              disabled={
+                isCriandoCliente || !novoClienteData.nome.trim() || !novoClienteData.cnpj.trim()
+              }
             >
               {isCriandoCliente ? "Criando..." : "Criar Cliente"}
             </Button>

@@ -89,10 +89,10 @@ export function SuggestionInput({
 
     if (e.key === "ArrowDown") {
       e.preventDefault()
-      setIndiceFocado(prev => (prev < sugestoes.length - 1 ? prev + 1 : 0))
+      setIndiceFocado((prev) => (prev < sugestoes.length - 1 ? prev + 1 : 0))
     } else if (e.key === "ArrowUp") {
       e.preventDefault()
-      setIndiceFocado(prev => (prev > 0 ? prev - 1 : sugestoes.length - 1))
+      setIndiceFocado((prev) => (prev > 0 ? prev - 1 : sugestoes.length - 1))
     } else if (e.key === "Enter" && indiceFocado >= 0) {
       e.preventDefault()
       selecionar(sugestoes[indiceFocado])

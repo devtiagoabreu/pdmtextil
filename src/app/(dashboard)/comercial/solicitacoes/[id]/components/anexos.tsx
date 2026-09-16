@@ -10,7 +10,10 @@ export function Anexos({ anexos }: { anexos: Anexo[] }) {
       </h2>
       <ul className="space-y-3">
         {anexos.map((anexo) => (
-          <li key={anexo.id} className="text-sm border-b border-slate-100 dark:border-slate-800 pb-2 last:border-0 last:pb-0">
+          <li
+            key={anexo.id}
+            className="text-sm border-b border-slate-100 dark:border-slate-800 pb-2 last:border-0 last:pb-0"
+          >
             <a
               href={anexo.url}
               target="_blank"

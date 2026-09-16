@@ -27,7 +27,9 @@ describe("GET /api/crm/visitas/dashboard", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await GET(new NextRequest("http://localhost/api/crm/visitas/dashboard"))
     expect(res.status).toBe(401)
   })
@@ -40,22 +42,40 @@ describe("GET /api/crm/visitas/dashboard", () => {
       [{ total: 0 }], // agendadas
       [{ total: 5 }], // visitasHoje
       [{ total: 37 }], // visitasMes
-      [{ tipo: "PRESENCIAL", total: 30 }, { tipo: "VIDEO", total: 7 }], // byTipo
+      [
+        { tipo: "PRESENCIAL", total: 30 },
+        { tipo: "VIDEO", total: 7 },
+      ], // byTipo
       [{ status: "REALIZADA", total: 37 }], // byStatus
-      [{ dia: "2026-08-10", total: 5 }, { dia: "2026-08-20", total: 7 }], // porDia
+      [
+        { dia: "2026-08-10", total: 5 },
+        { dia: "2026-08-20", total: 7 },
+      ], // porDia
       [
         { gerenteId: 8, gerenteNome: "Ernandes", dataVisita: "2026-08-20", total: 7 },
         { gerenteId: 8, gerenteNome: "Ernandes", dataVisita: "2026-08-11", total: 1 },
         { gerenteId: 8, gerenteNome: "Ernandes", dataVisita: "2026-08-12", total: 3 },
       ], // porGerenteRaw
-      [{ viagemId: 1, viagemTitulo: "Viagem Goiania - Ernandes", total: 37, realizadas: 35, minData: "2026-08-10", maxData: "2026-08-20" }], // viagens
+      [
+        {
+          viagemId: 1,
+          viagemTitulo: "Viagem Goiania - Ernandes",
+          total: 37,
+          realizadas: 35,
+          minData: "2026-08-10",
+          maxData: "2026-08-20",
+        },
+      ], // viagens
       [{ viagemId: 1, totalInvestimento: "5200" }], // investimentosPorViagem
       [
         { oportunidadeId: 10, valorEstimado: "120000", viagemId: 1 },
         { oportunidadeId: 10, valorEstimado: "120000", viagemId: 1 },
         { oportunidadeId: 11, valorEstimado: "5000", viagemId: 1 },
       ], // possiveisRetornos
-      [{ viagemId: 1, valorTotal: "30000" }, { viagemId: 1, valorTotal: "5000" }], // faturamentosPorViagem
+      [
+        { viagemId: 1, valorTotal: "30000" },
+        { viagemId: 1, valorTotal: "5000" },
+      ], // faturamentosPorViagem
       [{ viagemId: 1, valorTotal: "20000" }], // vendasPorViagem
       [], // ultimasVisitas
       [{ total: 0 }], // pesquisasEnviadas
@@ -96,15 +116,50 @@ describe("GET /api/crm/visitas/dashboard", () => {
 
   it("mapeia viagem sem id para 'Sem viagem'", async () => {
     mockSelects([
-      [{ total: 0 }], [{ total: 0 }], [{ total: 0 }], [{ total: 0 }],
-      [{ total: 0 }], [{ total: 0 }], [], [], [], [], 
-      [{ viagemId: null, viagemTitulo: null, total: 3, realizadas: 0, minData: null, maxData: null }],
-      [], [], [], [], [],
-      [], [{ total: 0 }], [{ total: 0 }], [{ total: 0 }],
+      [{ total: 0 }],
+      [{ total: 0 }],
+      [{ total: 0 }],
+      [{ total: 0 }],
+      [{ total: 0 }],
+      [{ total: 0 }],
+      [],
+      [],
+      [],
+      [],
+      [
+        {
+          viagemId: null,
+          viagemTitulo: null,
+          total: 3,
+          realizadas: 0,
+          minData: null,
+          maxData: null,
+        },
+      ],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [],
+      [{ total: 0 }],
+      [{ total: 0 }],
+      [{ total: 0 }],
     ])
     const res = await GET(new NextRequest("http://localhost/api/crm/visitas/dashboard"))
     expect(res.status).toBe(200)
     const body = await res.json()
-    expect(body.viagens[0]).toEqual({ viagemId: null, viagemTitulo: "Sem viagem", total: 3, realizadas: 0, dataInicio: null, dataFim: null, totalInvestimento: 0, possivelRetorno: 0, retornoReal: 0, vendas: 0 })
+    expect(body.viagens[0]).toEqual({
+      viagemId: null,
+      viagemTitulo: "Sem viagem",
+      total: 3,
+      realizadas: 0,
+      dataInicio: null,
+      dataFim: null,
+      totalInvestimento: 0,
+      possivelRetorno: 0,
+      retornoReal: 0,
+      vendas: 0,
+    })
   })
 })

@@ -62,9 +62,13 @@ describe("estilos BPMN round-trip (bpmn-moddle)", () => {
     const saida = await exportarXml(moddle, rootElement)
     expect(saida).toContain('pdm:textFill="#ff0000"')
     expect(saida).toContain('pdm:fontSize="16"')
-    expect(saida).toContain('xmlns:pdm=')
+    expect(saida).toContain("xmlns:pdm=")
 
     const { rootElement: lido } = await importarXml(moddle, saida)
-    expect(lerEstilosTexto(acharShape(lido))).toEqual({ textFill: "#ff0000", fontSize: 16, fontWeight: "bold" })
+    expect(lerEstilosTexto(acharShape(lido))).toEqual({
+      textFill: "#ff0000",
+      fontSize: 16,
+      fontWeight: "bold",
+    })
   })
 })

@@ -74,9 +74,7 @@ describe("ConsultaCnpjPage", () => {
     expect(screen.getByText("ATIVA")).toBeInTheDocument()
     expect(screen.getByText("Nenhum registro local encontrado")).toBeInTheDocument()
     expect(screen.getByRole("button", { name: "Cadastrar como Pessoa CRM" })).toBeInTheDocument()
-    expect(
-      findCall(fetchMock.calls, `/api/crm/consulta-cnpj?cnpj=${CNPJ_DIGITS}`)
-    ).toBeDefined()
+    expect(findCall(fetchMock.calls, `/api/crm/consulta-cnpj?cnpj=${CNPJ_DIGITS}`)).toBeDefined()
   })
 
   it("mostra aviso quando o CNPJ não existe na Receita", async () => {

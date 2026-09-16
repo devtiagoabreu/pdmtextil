@@ -16,10 +16,7 @@ import { registrarLog, notificar, notificarDelecao } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 import { excluirOportunidadeCascade } from "@/lib/crm-cascade"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -57,11 +54,13 @@ export async function GET(
       return NextResponse.json({ error: "Oportunidade não encontrada" }, { status: 404 })
     }
 
-    const contatos = oportunidade.contatoId ? await db
-      .select()
-      .from(crmContatos)
-      .where(eq(crmContatos.id, oportunidade.contatoId))
-      .limit(1) : []
+    const contatos = oportunidade.contatoId
+      ? await db
+          .select()
+          .from(crmContatos)
+          .where(eq(crmContatos.id, oportunidade.contatoId))
+          .limit(1)
+      : []
 
     const propostas = await db
       .select({
@@ -112,16 +111,19 @@ export async function GET(
       .groupBy(crmPedidosVenda.id)
       .orderBy(desc(crmPedidosVenda.createdAt))
 
-    return NextResponse.json({ ...oportunidade, contato: contatos[0] || null, propostas, faturamentos, pedidosVenda })
+    return NextResponse.json({
+      ...oportunidade,
+      contato: contatos[0] || null,
+      propostas,
+      faturamentos,
+      pedidosVenda,
+    })
   } catch (error) {
     return handleApiError(error, "GET /api/crm/oportunidades/[id]")
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -150,7 +152,8 @@ export async function PUT(
     if (body.clienteId !== undefined) values.clienteId = body.clienteId
     if (body.contatoId !== undefined) values.contatoId = body.contatoId
     if (body.responsavelId !== undefined) values.responsavelId = body.responsavelId
-    if (body.dataFechamentoPrevista !== undefined) values.dataFechamentoPrevista = body.dataFechamentoPrevista || null
+    if (body.dataFechamentoPrevista !== undefined)
+      values.dataFechamentoPrevista = body.dataFechamentoPrevista || null
     if (body.probabilidade !== undefined) values.probabilidade = body.probabilidade
     if (body.motivoPerda !== undefined) values.motivoPerda = body.motivoPerda || null
 
@@ -169,7 +172,12 @@ export async function PUT(
       usuarioNome: session.user.name,
     })
 
-    await notificar("OPORTUNIDADE_ATUALIZADA", `Oportunidade atualizada: ${atualizada.titulo}`, `/comercial/crm/oportunidades/${atualizada.id}`, session.user.name)
+    await notificar(
+      "OPORTUNIDADE_ATUALIZADA",
+      `Oportunidade atualizada: ${atualizada.titulo}`,
+      `/comercial/crm/oportunidades/${atualizada.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(atualizada)
   } catch (error) {
@@ -177,10 +185,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth

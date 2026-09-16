@@ -10,7 +10,10 @@ export function renderTecnologias(tecnologias: string[] | null | undefined) {
   return tecnologias.map((t: string) => TECNOLOGIAS_LABELS[t] || t).join(", ")
 }
 
-export function renderListaLabels(values: string[] | null | undefined, labels: Record<string, string>) {
+export function renderListaLabels(
+  values: string[] | null | undefined,
+  labels: Record<string, string>
+) {
   if (!values || !Array.isArray(values)) return "—"
   return values.map((v: string) => labels[v] || v).join(", ")
 }

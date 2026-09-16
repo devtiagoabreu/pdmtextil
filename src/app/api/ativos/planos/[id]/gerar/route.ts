@@ -7,10 +7,7 @@ import { registrarLog } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 import { gerarOcorrencias } from "@/lib/ativos/agendamento"
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth

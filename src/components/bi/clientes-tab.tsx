@@ -1,13 +1,23 @@
 "use client"
 
-import { Bar, BarChart, CartesianGrid, Cell, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts"
+import {
+  Bar,
+  BarChart,
+  CartesianGrid,
+  Cell,
+  ResponsiveContainer,
+  Tooltip,
+  XAxis,
+  YAxis,
+} from "recharts"
 import { AlertTriangle, TrendingUp, UserCheck, Users } from "lucide-react"
 import { ChartCard } from "@/components/ui/chart-card"
 import { StatCard } from "./bi-stat-card"
 import { COLORS } from "./bi-constants"
 
 function ClienteCurvaTable({ clientes }: { clientes: any[] }) {
-  if (!clientes.length) return <p className="text-sm text-slate-500 py-4 text-center">Nenhum cliente encontrado.</p>
+  if (!clientes.length)
+    return <p className="text-sm text-slate-500 py-4 text-center">Nenhum cliente encontrado.</p>
   return (
     <div className="overflow-x-auto">
       <table className="w-full text-xs">
@@ -42,7 +52,9 @@ function ClienteCurvaTable({ clientes }: { clientes: any[] }) {
                   </span>
                 )}
               </td>
-              <td className="py-2 px-2 text-slate-500">{c.cidade}/{c.uf}</td>
+              <td className="py-2 px-2 text-slate-500">
+                {c.cidade}/{c.uf}
+              </td>
               <td className="py-2 px-2 text-slate-700 dark:text-slate-300">{c.classificacao}</td>
               <td className="py-2 px-2 text-right text-slate-500">
                 {c.intervaloMedio ? `${Math.round(c.intervaloMedio)} dias` : "—"}
@@ -59,7 +71,9 @@ function ClienteCurvaTable({ clientes }: { clientes: any[] }) {
               <td className="py-2 px-2 text-right text-slate-500">
                 R$ {c.totalVendas.toLocaleString("pt-BR", { maximumFractionDigits: 2 })}
               </td>
-              <td className="py-2 px-2 text-right text-slate-500">{c.totalQtd.toLocaleString("pt-BR")}</td>
+              <td className="py-2 px-2 text-right text-slate-500">
+                {c.totalQtd.toLocaleString("pt-BR")}
+              </td>
               <td className="py-2 px-2 text-right text-slate-500">{c.compras}</td>
             </tr>
           ))}
@@ -97,7 +111,16 @@ export function ClientesTab({ sheetData, filtroClientes, setFiltroClientes }: Pr
         <StatCard label="Total de Clientes" value={clientes.length} icon={Users} />
         <StatCard label="Com Curva Detectada" value={comCurva.length} icon={UserCheck} />
         <StatCard label="Em Alerta (saiu da curva)" value={alertas.length} icon={AlertTriangle} />
-        <StatCard label="Ticket Médio" value={clientes.length ? clientes.reduce((s: number, c: any) => s + c.totalVendas, 0) / clientes.length : 0} icon={TrendingUp} prefix="R$ " />
+        <StatCard
+          label="Ticket Médio"
+          value={
+            clientes.length
+              ? clientes.reduce((s: number, c: any) => s + c.totalVendas, 0) / clientes.length
+              : 0
+          }
+          icon={TrendingUp}
+          prefix="R$ "
+        />
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
@@ -110,7 +133,10 @@ export function ClientesTab({ sheetData, filtroClientes, setFiltroClientes }: Pr
               <Tooltip />
               <Bar dataKey="valor" radius={[4, 4, 0, 0]}>
                 {distData.map((d: any, i: number) => (
-                  <Cell key={i} fill={d.nome === "Sem curva" ? "#94a3b8" : COLORS[i % COLORS.length]} />
+                  <Cell
+                    key={i}
+                    fill={d.nome === "Sem curva" ? "#94a3b8" : COLORS[i % COLORS.length]}
+                  />
                 ))}
               </Bar>
             </BarChart>
@@ -147,10 +173,15 @@ export function ClientesTab({ sheetData, filtroClientes, setFiltroClientes }: Pr
           {filtroClientes === "alerta" && alertas.length > 0 && (
             <div className="mb-3 space-y-2 max-h-40 overflow-y-auto">
               {alertas.slice(0, 8).map((c: any) => (
-                <div key={c.razaoSocial} className="flex items-start gap-2 rounded-lg bg-red-50 dark:bg-red-950/30 px-3 py-2 text-xs">
+                <div
+                  key={c.razaoSocial}
+                  className="flex items-start gap-2 rounded-lg bg-red-50 dark:bg-red-950/30 px-3 py-2 text-xs"
+                >
                   <AlertTriangle className="w-4 h-4 text-red-500 shrink-0 mt-0.5" />
                   <div>
-                    <p className="font-semibold text-slate-800 dark:text-slate-200">{c.razaoSocial}</p>
+                    <p className="font-semibold text-slate-800 dark:text-slate-200">
+                      {c.razaoSocial}
+                    </p>
                     <p className="text-slate-500">{c.alertaMotivo}</p>
                   </div>
                 </div>

@@ -101,7 +101,9 @@ describe("gerarOcorrencias", () => {
 describe("avancarPlano", () => {
   it("atualiza proximaData e cria próxima ocorrência", async () => {
     mockLimit
-      .mockResolvedValueOnce([{ id: 1, tipoVistoriaId: 5, diasIntervalo: null, responsavelId: null }])
+      .mockResolvedValueOnce([
+        { id: 1, tipoVistoriaId: 5, diasIntervalo: null, responsavelId: null },
+      ])
       .mockResolvedValueOnce([{ periodicidade: "MENSAL", diasIntervalo: null }])
       .mockResolvedValueOnce([])
 

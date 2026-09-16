@@ -33,7 +33,9 @@ export function EntityChatButton({
   const handleClick = async () => {
     setLoading(true)
     try {
-      const res = await fetch(`/api/chats/entidade?tipo=${encodeURIComponent(entidadeTipo)}&id=${entidadeId}`)
+      const res = await fetch(
+        `/api/chats/entidade?tipo=${encodeURIComponent(entidadeTipo)}&id=${entidadeId}`
+      )
       if (!res.ok) throw new Error()
       const chat = await res.json()
       if (chat?.id) {
@@ -62,13 +64,10 @@ export function EntityChatButton({
   }
 
   return (
-    <Button
-      variant={variant}
-      size={size}
-      onClick={handleClick}
-      disabled={loading}
-    >
-      {showIcon && <MessageSquare size={size === "sm" ? 14 : 16} className={children ? "mr-1.5" : ""} />}
+    <Button variant={variant} size={size} onClick={handleClick} disabled={loading}>
+      {showIcon && (
+        <MessageSquare size={size === "sm" ? 14 : 16} className={children ? "mr-1.5" : ""} />
+      )}
       {children || (loading ? "..." : "Chat")}
     </Button>
   )

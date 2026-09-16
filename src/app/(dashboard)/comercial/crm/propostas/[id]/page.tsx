@@ -5,7 +5,19 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { useParams, usePathname, useRouter } from "next/navigation"
 import { useSession } from "next-auth/react"
-import { ArrowLeft, ExternalLink, CheckCircle2, XCircle, RefreshCw, Clock, Pencil, Trash2, Loader2, Check, X } from "lucide-react"
+import {
+  ArrowLeft,
+  ExternalLink,
+  CheckCircle2,
+  XCircle,
+  RefreshCw,
+  Clock,
+  Pencil,
+  Trash2,
+  Loader2,
+  Check,
+  X,
+} from "lucide-react"
 import Link from "next/link"
 import { useState } from "react"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
@@ -19,10 +31,26 @@ async function fetchProposta(id: string) {
 }
 
 const STATUS_OPCOES = [
-  { value: "ENVIADA", label: "Enviada", cor: "text-blue-600 bg-blue-100 dark:bg-blue-950 dark:text-blue-400" },
-  { value: "REVISAO", label: "Em Revisão", cor: "text-amber-600 bg-amber-100 dark:bg-amber-950 dark:text-amber-400" },
-  { value: "ACEITA", label: "Aceita", cor: "text-green-600 bg-green-100 dark:bg-green-950 dark:text-green-400" },
-  { value: "RECUSADA", label: "Recusada", cor: "text-red-600 bg-red-100 dark:bg-red-950 dark:text-red-400" },
+  {
+    value: "ENVIADA",
+    label: "Enviada",
+    cor: "text-blue-600 bg-blue-100 dark:bg-blue-950 dark:text-blue-400",
+  },
+  {
+    value: "REVISAO",
+    label: "Em Revisão",
+    cor: "text-amber-600 bg-amber-100 dark:bg-amber-950 dark:text-amber-400",
+  },
+  {
+    value: "ACEITA",
+    label: "Aceita",
+    cor: "text-green-600 bg-green-100 dark:bg-green-950 dark:text-green-400",
+  },
+  {
+    value: "RECUSADA",
+    label: "Recusada",
+    cor: "text-red-600 bg-red-100 dark:bg-red-950 dark:text-red-400",
+  },
 ]
 
 export default function DetalhePropostaPage() {
@@ -103,7 +131,10 @@ export default function DetalhePropostaPage() {
     return (
       <div className="text-center py-20">
         <p className="text-slate-500">Proposta não encontrada</p>
-        <Link href="/comercial/crm/propostas" className="text-blue-600 hover:underline text-sm mt-2 inline-block">
+        <Link
+          href="/comercial/crm/propostas"
+          className="text-blue-600 hover:underline text-sm mt-2 inline-block"
+        >
           Voltar para propostas
         </Link>
       </div>
@@ -119,12 +150,20 @@ export default function DetalhePropostaPage() {
   return (
     <div className="max-w-3xl mx-auto space-y-6 animate-fade-in">
       <div className="flex items-center gap-3">
-        <Link href="/comercial/crm/propostas" className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200">
+        <Link
+          href="/comercial/crm/propostas"
+          className="text-slate-400 hover:text-slate-600 dark:hover:text-slate-200"
+        >
           <ArrowLeft size={20} />
         </Link>
         <div className="flex-1">
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">{proposta.titulo}{info && <InfoButton content={info} />}</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">Proposta #{proposta.id}</p>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            {proposta.titulo}
+            {info && <InfoButton content={info} />}
+          </h1>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            Proposta #{proposta.id}
+          </p>
         </div>
         {canEdit && (
           <div className="flex items-center gap-2">
@@ -137,7 +176,10 @@ export default function DetalhePropostaPage() {
               </button>
             )}
             {isAdmin && (
-              <button onClick={() => setShowDelete(true)} className="inline-flex items-center gap-1 text-xs font-medium text-red-600 hover:underline">
+              <button
+                onClick={() => setShowDelete(true)}
+                className="inline-flex items-center gap-1 text-xs font-medium text-red-600 hover:underline"
+              >
                 <Trash2 size={14} /> Excluir
               </button>
             )}
@@ -155,74 +197,106 @@ export default function DetalhePropostaPage() {
               onSave={(body) => saveMutation.mutate(body)}
             />
           ) : (
-          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Informações</h2>
+            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
+              <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+                Informações
+              </h2>
 
-            <div className="grid grid-cols-2 gap-4 text-sm">
-              <div>
-                <span className="text-slate-500 dark:text-slate-400 block text-xs">Pessoa / Cliente</span>
-                <span className="text-slate-900 dark:text-slate-200 font-medium">{proposta.empresaNome || proposta.clienteNome || "—"}</span>
-              </div>
-              <div>
-                <span className="text-slate-500 dark:text-slate-400 block text-xs">Oportunidade</span>
-                <span className="text-slate-900 dark:text-slate-200">{proposta.oportunidadeId || "—"}</span>
-              </div>
-              <div>
-                <span className="text-slate-500 dark:text-slate-400 block text-xs">Valor</span>
-                <span className="text-slate-900 dark:text-slate-200 font-semibold">
-                  {proposta.valor ? `R$ ${Number(proposta.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}` : "—"}
-                </span>
-              </div>
-              <div>
-                <span className="text-slate-500 dark:text-slate-400 block text-xs">Prazo de Entrega</span>
-                <span className="text-slate-900 dark:text-slate-200">{proposta.prazoEntrega || "—"}</span>
-              </div>
-              <div className="col-span-2">
-                <span className="text-slate-500 dark:text-slate-400 block text-xs">Condições de Pagamento</span>
-                <span className="text-slate-900 dark:text-slate-200">{proposta.condicoesPagamento || "—"}</span>
-              </div>
-              {proposta.descricao && (
+              <div className="grid grid-cols-2 gap-4 text-sm">
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block text-xs">
+                    Pessoa / Cliente
+                  </span>
+                  <span className="text-slate-900 dark:text-slate-200 font-medium">
+                    {proposta.empresaNome || proposta.clienteNome || "—"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block text-xs">
+                    Oportunidade
+                  </span>
+                  <span className="text-slate-900 dark:text-slate-200">
+                    {proposta.oportunidadeId || "—"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block text-xs">Valor</span>
+                  <span className="text-slate-900 dark:text-slate-200 font-semibold">
+                    {proposta.valor
+                      ? `R$ ${Number(proposta.valor).toLocaleString("pt-BR", { minimumFractionDigits: 2 })}`
+                      : "—"}
+                  </span>
+                </div>
+                <div>
+                  <span className="text-slate-500 dark:text-slate-400 block text-xs">
+                    Prazo de Entrega
+                  </span>
+                  <span className="text-slate-900 dark:text-slate-200">
+                    {proposta.prazoEntrega || "—"}
+                  </span>
+                </div>
                 <div className="col-span-2">
-                  <span className="text-slate-500 dark:text-slate-400 block text-xs">Descrição</span>
-                  <p className="text-slate-900 dark:text-slate-200 mt-1 whitespace-pre-wrap text-sm">{proposta.descricao}</p>
+                  <span className="text-slate-500 dark:text-slate-400 block text-xs">
+                    Condições de Pagamento
+                  </span>
+                  <span className="text-slate-900 dark:text-slate-200">
+                    {proposta.condicoesPagamento || "—"}
+                  </span>
+                </div>
+                {proposta.descricao && (
+                  <div className="col-span-2">
+                    <span className="text-slate-500 dark:text-slate-400 block text-xs">
+                      Descrição
+                    </span>
+                    <p className="text-slate-900 dark:text-slate-200 mt-1 whitespace-pre-wrap text-sm">
+                      {proposta.descricao}
+                    </p>
+                  </div>
+                )}
+              </div>
+
+              {proposta.arquivoUrl && (
+                <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
+                  <a
+                    href={proposta.arquivoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 font-medium"
+                  >
+                    <ExternalLink size={16} />
+                    Ver PDF da Proposta
+                  </a>
                 </div>
               )}
             </div>
-
-            {proposta.arquivoUrl && (
-              <div className="pt-3 border-t border-slate-100 dark:border-slate-800">
-                <a
-                  href={proposta.arquivoUrl}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="inline-flex items-center gap-2 text-sm text-blue-600 hover:text-blue-700 dark:text-blue-400 font-medium"
-                >
-                  <ExternalLink size={16} />
-                  Ver PDF da Proposta
-                </a>
-              </div>
-            )}
-          </div>
           )}
 
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6">
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-4">Timeline</h2>
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-4">
+              Timeline
+            </h2>
             <div className="space-y-3">
               {proposta.dataEnvio && (
                 <div className="flex items-center gap-3 text-sm">
                   <Clock size={14} className="text-slate-400 shrink-0" />
-                  <span className="text-slate-500">Enviada em {new Date(proposta.dataEnvio).toLocaleString("pt-BR")}</span>
+                  <span className="text-slate-500">
+                    Enviada em {new Date(proposta.dataEnvio).toLocaleString("pt-BR")}
+                  </span>
                 </div>
               )}
               {proposta.dataResposta && (
                 <div className="flex items-center gap-3 text-sm">
                   <RefreshCw size={14} className="text-slate-400 shrink-0" />
-                  <span className="text-slate-500">Respondida em {new Date(proposta.dataResposta).toLocaleString("pt-BR")}</span>
+                  <span className="text-slate-500">
+                    Respondida em {new Date(proposta.dataResposta).toLocaleString("pt-BR")}
+                  </span>
                 </div>
               )}
               <div className="flex items-center gap-3 text-sm">
                 <Clock size={14} className="text-slate-400 shrink-0" />
-                <span className="text-slate-500">Criada em {new Date(proposta.createdAt).toLocaleString("pt-BR")}</span>
+                <span className="text-slate-500">
+                  Criada em {new Date(proposta.createdAt).toLocaleString("pt-BR")}
+                </span>
               </div>
             </div>
           </div>
@@ -230,22 +304,31 @@ export default function DetalhePropostaPage() {
 
         <div className="space-y-5">
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-3">Status</h2>
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-3">
+              Status
+            </h2>
             <span
               className={`inline-flex items-center gap-1.5 text-sm px-3 py-1.5 rounded-full font-medium ${
                 STATUS_OPCOES.find((s) => s.value === proposta.status)?.cor || ""
               }`}
             >
-              {proposta.status === "ACEITA" ? <CheckCircle2 size={14} /> :
-               proposta.status === "RECUSADA" ? <XCircle size={14} /> :
-               proposta.status === "REVISAO" ? <RefreshCw size={14} /> :
-               <Clock size={14} />}
+              {proposta.status === "ACEITA" ? (
+                <CheckCircle2 size={14} />
+              ) : proposta.status === "RECUSADA" ? (
+                <XCircle size={14} />
+              ) : proposta.status === "REVISAO" ? (
+                <RefreshCw size={14} />
+              ) : (
+                <Clock size={14} />
+              )}
               {STATUS_OPCOES.find((s) => s.value === proposta.status)?.label || proposta.status}
             </span>
           </div>
 
           <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-3">Alterar Status</h2>
+            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider mb-3">
+              Alterar Status
+            </h2>
             <div className="space-y-2">
               {STATUS_OPCOES.map((opcao) => (
                 <button
@@ -264,7 +347,9 @@ export default function DetalhePropostaPage() {
                       : "hover:bg-slate-50 dark:hover:bg-slate-800 text-slate-700 dark:text-slate-300"
                   }`}
                 >
-                  <span className={`inline-block w-2 h-2 rounded-full mr-2 ${opcao.cor.split(" ")[0]}`} />
+                  <span
+                    className={`inline-block w-2 h-2 rounded-full mr-2 ${opcao.cor.split(" ")[0]}`}
+                  />
                   {opcao.label}
                 </button>
               ))}
@@ -280,7 +365,12 @@ export default function DetalhePropostaPage() {
         variant="danger"
         confirmLabel="Confirmar"
         loading={statusMutation.isPending}
-        onConfirm={() => { if (statusToConfirm) { statusMutation.mutate(statusToConfirm); setStatusToConfirm(null) } }}
+        onConfirm={() => {
+          if (statusToConfirm) {
+            statusMutation.mutate(statusToConfirm)
+            setStatusToConfirm(null)
+          }
+        }}
         onCancel={() => setStatusToConfirm(null)}
       />
 
@@ -298,7 +388,12 @@ export default function DetalhePropostaPage() {
   )
 }
 
-function EdicaoProposta({ proposta, saving, onCancel, onSave }: {
+function EdicaoProposta({
+  proposta,
+  saving,
+  onCancel,
+  onSave,
+}: {
   proposta: Proposta
   saving: boolean
   onCancel: () => void
@@ -328,10 +423,14 @@ function EdicaoProposta({ proposta, saving, onCancel, onSave }: {
 
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
-      <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider">Editar Proposta</h2>
+      <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-100 uppercase tracking-wider">
+        Editar Proposta
+      </h2>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Título *</label>
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          Título *
+        </label>
         <input
           type="text"
           value={titulo}
@@ -342,7 +441,9 @@ function EdicaoProposta({ proposta, saving, onCancel, onSave }: {
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Valor (R$)</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+            Valor (R$)
+          </label>
           <input
             type="number"
             step="0.01"
@@ -353,7 +454,9 @@ function EdicaoProposta({ proposta, saving, onCancel, onSave }: {
           />
         </div>
         <div>
-          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Prazo de Entrega</label>
+          <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+            Prazo de Entrega
+          </label>
           <input
             type="text"
             value={prazoEntrega}
@@ -365,7 +468,9 @@ function EdicaoProposta({ proposta, saving, onCancel, onSave }: {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Condições de Pagamento</label>
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          Condições de Pagamento
+        </label>
         <input
           type="text"
           value={condicoesPagamento}
@@ -376,7 +481,9 @@ function EdicaoProposta({ proposta, saving, onCancel, onSave }: {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Descrição</label>
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          Descrição
+        </label>
         <textarea
           value={descricao}
           onChange={(e) => setDescricao(e.target.value)}
@@ -386,7 +493,9 @@ function EdicaoProposta({ proposta, saving, onCancel, onSave }: {
       </div>
 
       <div>
-        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Link do Arquivo (PDF)</label>
+        <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+          Link do Arquivo (PDF)
+        </label>
         <input
           type="url"
           value={arquivoUrl}

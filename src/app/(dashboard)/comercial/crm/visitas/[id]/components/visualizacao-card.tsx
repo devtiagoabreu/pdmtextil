@@ -13,12 +13,16 @@ export function VisualizacaoCard({ visita, statusLabel, statusColor }: Visualiza
   return (
     <>
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-5">
-        <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">Informações</h2>
+        <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50 mb-4">
+          Informações
+        </h2>
         <div className="space-y-3 text-sm">
           <div>
             <span className="text-xs text-slate-500 block mb-0.5">Status</span>
-            <span className="inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium"
-              style={{ backgroundColor: statusColor + "20", color: statusColor }}>
+            <span
+              className="inline-flex text-[10px] px-2 py-0.5 rounded-full font-medium"
+              style={{ backgroundColor: statusColor + "20", color: statusColor }}
+            >
               {statusLabel}
             </span>
           </div>
@@ -30,16 +34,27 @@ export function VisualizacaoCard({ visita, statusLabel, statusColor }: Visualiza
           )}
           <div>
             <span className="text-xs text-slate-500 block mb-0.5">Tipo</span>
-            <p className="text-slate-900 dark:text-slate-200">{TIPO_LABELS[visita.tipo] || visita.tipo}</p>
+            <p className="text-slate-900 dark:text-slate-200">
+              {TIPO_LABELS[visita.tipo] || visita.tipo}
+            </p>
           </div>
           <div>
             <span className="text-xs text-slate-500 block mb-0.5">Data da Visita</span>
-            <p className="text-slate-900 dark:text-slate-200">{visita.dataVisita ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR") : "—"}{visita.hora ? ` às ${visita.hora}` : ""}</p>
+            <p className="text-slate-900 dark:text-slate-200">
+              {visita.dataVisita
+                ? new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")
+                : "—"}
+              {visita.hora ? ` às ${visita.hora}` : ""}
+            </p>
           </div>
           {visita.duracaoEstimada && (
             <div>
               <span className="text-xs text-slate-500 block mb-0.5">Duracao Estimada</span>
-              <p className="text-slate-900 dark:text-slate-200">{visita.duracaoEstimada >= 60 ? `${Math.floor(visita.duracaoEstimada / 60)}h${visita.duracaoEstimada % 60 ? ` ${visita.duracaoEstimada % 60}min` : ""}` : `${visita.duracaoEstimada} min`}</p>
+              <p className="text-slate-900 dark:text-slate-200">
+                {visita.duracaoEstimada >= 60
+                  ? `${Math.floor(visita.duracaoEstimada / 60)}h${visita.duracaoEstimada % 60 ? ` ${visita.duracaoEstimada % 60}min` : ""}`
+                  : `${visita.duracaoEstimada} min`}
+              </p>
             </div>
           )}
           {!visita.empresaId && !visita.clienteId ? (
@@ -49,9 +64,14 @@ export function VisualizacaoCard({ visita, statusLabel, statusColor }: Visualiza
             </div>
           ) : (
             <div>
-              <span className="text-xs text-slate-500 block mb-0.5">{visita.empresaId ? "Pessoa (Negócio)" : "Cliente"}</span>
+              <span className="text-xs text-slate-500 block mb-0.5">
+                {visita.empresaId ? "Pessoa (Negócio)" : "Cliente"}
+              </span>
               {visita.empresaId ? (
-                <Link href={`/comercial/crm/pessoas/${visita.empresaId}`} className="text-blue-600 hover:underline inline-flex items-center gap-1">
+                <Link
+                  href={`/comercial/crm/pessoas/${visita.empresaId}`}
+                  className="text-blue-600 hover:underline inline-flex items-center gap-1"
+                >
                   {visita.empresaNome} <ExternalLink size={12} />
                 </Link>
               ) : (
@@ -74,7 +94,10 @@ export function VisualizacaoCard({ visita, statusLabel, statusColor }: Visualiza
           {visita.viagemTitulo && (
             <div>
               <span className="text-xs text-slate-500 block mb-0.5">Viagem</span>
-              <Link href={`/comercial/crm/viagens/${visita.viagemId}`} className="text-blue-600 hover:underline inline-flex items-center gap-1">
+              <Link
+                href={`/comercial/crm/viagens/${visita.viagemId}`}
+                className="text-blue-600 hover:underline inline-flex items-center gap-1"
+              >
                 {visita.viagemTitulo} <ExternalLink size={12} />
               </Link>
             </div>
@@ -130,7 +153,9 @@ export function VisualizacaoCard({ visita, statusLabel, statusColor }: Visualiza
               </div>
               <div>
                 <span className="text-xs text-slate-500 block mb-0.5">Complemento</span>
-                <p className="text-sm text-slate-900 dark:text-slate-200">{visita.complemento || "—"}</p>
+                <p className="text-sm text-slate-900 dark:text-slate-200">
+                  {visita.complemento || "—"}
+                </p>
               </div>
               <div>
                 <span className="text-xs text-slate-500 block mb-0.5">Bairro</span>

@@ -18,9 +18,16 @@ export function ClientesTable({ clientes }: { clientes: any[] }) {
         </thead>
         <tbody>
           {clientes.map((c) => (
-            <tr key={c.razaoSocial} className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50">
-              <td className="py-2 px-2 font-medium text-slate-800 dark:text-slate-200">{c.razaoSocial}</td>
-              <td className="py-2 px-2 text-slate-500">{c.cidade}/{c.uf}</td>
+            <tr
+              key={c.razaoSocial}
+              className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
+            >
+              <td className="py-2 px-2 font-medium text-slate-800 dark:text-slate-200">
+                {c.razaoSocial}
+              </td>
+              <td className="py-2 px-2 text-slate-500">
+                {c.cidade}/{c.uf}
+              </td>
               <td className="py-2 px-2 text-right text-slate-700 dark:text-slate-300">
                 {c.ultimaData ? new Date(c.ultimaData).toLocaleDateString("pt-BR") : "—"}
               </td>

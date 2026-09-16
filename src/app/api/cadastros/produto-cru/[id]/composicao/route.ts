@@ -6,16 +6,16 @@ import { produtoCruComposicao } from "@/lib/db/schema/produto-cru"
 import { eq } from "drizzle-orm"
 export const dynamic = "force-dynamic"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
 
     const id = parseInt((await params).id)
-    const lista = await db.select().from(produtoCruComposicao).where(eq(produtoCruComposicao.produtoCruId, id))
+    const lista = await db
+      .select()
+      .from(produtoCruComposicao)
+      .where(eq(produtoCruComposicao.produtoCruId, id))
 
     return NextResponse.json(lista)
   } catch (error) {
@@ -24,10 +24,7 @@ export async function GET(
   }
 }
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -47,6 +44,9 @@ export async function POST(
     return NextResponse.json(novo[0])
   } catch (error: any) {
     console.error("[POST /api/cadastros/produto-cru/[id]/composicao]", error)
-    return NextResponse.json({ error: "Erro ao adicionar composição", detalhe: error?.message || String(error) }, { status: 500 })
+    return NextResponse.json(
+      { error: "Erro ao adicionar composição", detalhe: error?.message || String(error) },
+      { status: 500 }
+    )
   }
 }

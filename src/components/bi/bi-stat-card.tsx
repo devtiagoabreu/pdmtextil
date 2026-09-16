@@ -1,4 +1,14 @@
-export function StatCard({ label, value, icon: Icon, prefix = "" }: { label: string; value: string | number; icon: any; prefix?: string }) {
+export function StatCard({
+  label,
+  value,
+  icon: Icon,
+  prefix = "",
+}: {
+  label: string
+  value: string | number
+  icon: any
+  prefix?: string
+}) {
   return (
     <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 card-hover">
       <div className="flex items-center gap-3">
@@ -8,7 +18,10 @@ export function StatCard({ label, value, icon: Icon, prefix = "" }: { label: str
         <div>
           <p className="text-xs text-slate-500 dark:text-slate-400">{label}</p>
           <p className="text-lg font-bold text-slate-900 dark:text-slate-100">
-            {prefix}{typeof value === "number" ? value.toLocaleString("pt-BR", { maximumFractionDigits: 2 }) : value}
+            {prefix}
+            {typeof value === "number"
+              ? value.toLocaleString("pt-BR", { maximumFractionDigits: 2 })
+              : value}
           </p>
         </div>
       </div>

@@ -64,7 +64,12 @@ export async function POST(req: NextRequest) {
       usuarioNome: session.user.name,
     })
 
-    await notificar("PROC_AREA_CRIADA", `Área cadastrada: ${nova.nome}`, `/processos/areas/${nova.id}`, session.user.name)
+    await notificar(
+      "PROC_AREA_CRIADA",
+      `Área cadastrada: ${nova.nome}`,
+      `/processos/areas/${nova.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(nova, { status: 201 })
   } catch (error) {

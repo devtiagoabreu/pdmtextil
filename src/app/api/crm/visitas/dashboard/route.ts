@@ -55,11 +55,46 @@ export async function GET(req: NextRequest) {
       pesquisasRespondidas,
     ] = await Promise.all([
       db.select({ total: count() }).from(crmVisitas).where(mineCondition),
-      db.select({ total: count() }).from(crmVisitas).where(mineCondition ? and(mineCondition, eq(crmVisitas.status, "REALIZADA")) : eq(crmVisitas.status, "REALIZADA")),
-      db.select({ total: count() }).from(crmVisitas).where(mineCondition ? and(mineCondition, eq(crmVisitas.status, "CANCELADA")) : eq(crmVisitas.status, "CANCELADA")),
-      db.select({ total: count() }).from(crmVisitas).where(mineCondition ? and(mineCondition, eq(crmVisitas.status, "AGENDADA")) : eq(crmVisitas.status, "AGENDADA")),
-      db.select({ total: count() }).from(crmVisitas).where(mineCondition ? and(mineCondition, eq(crmVisitas.dataVisita, hoje)) : eq(crmVisitas.dataVisita, hoje)),
-      db.select({ total: count() }).from(crmVisitas).where(mineCondition ? and(mineCondition, gte(crmVisitas.dataVisita, inicioMes)) : gte(crmVisitas.dataVisita, inicioMes)),
+      db
+        .select({ total: count() })
+        .from(crmVisitas)
+        .where(
+          mineCondition
+            ? and(mineCondition, eq(crmVisitas.status, "REALIZADA"))
+            : eq(crmVisitas.status, "REALIZADA")
+        ),
+      db
+        .select({ total: count() })
+        .from(crmVisitas)
+        .where(
+          mineCondition
+            ? and(mineCondition, eq(crmVisitas.status, "CANCELADA"))
+            : eq(crmVisitas.status, "CANCELADA")
+        ),
+      db
+        .select({ total: count() })
+        .from(crmVisitas)
+        .where(
+          mineCondition
+            ? and(mineCondition, eq(crmVisitas.status, "AGENDADA"))
+            : eq(crmVisitas.status, "AGENDADA")
+        ),
+      db
+        .select({ total: count() })
+        .from(crmVisitas)
+        .where(
+          mineCondition
+            ? and(mineCondition, eq(crmVisitas.dataVisita, hoje))
+            : eq(crmVisitas.dataVisita, hoje)
+        ),
+      db
+        .select({ total: count() })
+        .from(crmVisitas)
+        .where(
+          mineCondition
+            ? and(mineCondition, gte(crmVisitas.dataVisita, inicioMes))
+            : gte(crmVisitas.dataVisita, inicioMes)
+        ),
       db
         .select({ tipo: crmVisitas.tipo, total: count() })
         .from(crmVisitas)
@@ -153,9 +188,29 @@ export async function GET(req: NextRequest) {
         .where(mineCondition)
         .orderBy(desc(crmVisitas.createdAt))
         .limit(5),
-      db.select({ total: count() }).from(crmPesquisasSatisfacao).innerJoin(crmVisitas, eq(crmPesquisasSatisfacao.visitaId, crmVisitas.id)).where(mineCondition),
-      db.select({ total: count() }).from(crmPesquisasSatisfacao).innerJoin(crmVisitas, eq(crmPesquisasSatisfacao.visitaId, crmVisitas.id)).where(mineCondition ? and(mineCondition, eq(crmPesquisasSatisfacao.status, "ABERTO")) : eq(crmPesquisasSatisfacao.status, "ABERTO")),
-      db.select({ total: count() }).from(crmPesquisasSatisfacao).innerJoin(crmVisitas, eq(crmPesquisasSatisfacao.visitaId, crmVisitas.id)).where(mineCondition ? and(mineCondition, eq(crmPesquisasSatisfacao.status, "RESPONDIDO")) : eq(crmPesquisasSatisfacao.status, "RESPONDIDO")),
+      db
+        .select({ total: count() })
+        .from(crmPesquisasSatisfacao)
+        .innerJoin(crmVisitas, eq(crmPesquisasSatisfacao.visitaId, crmVisitas.id))
+        .where(mineCondition),
+      db
+        .select({ total: count() })
+        .from(crmPesquisasSatisfacao)
+        .innerJoin(crmVisitas, eq(crmPesquisasSatisfacao.visitaId, crmVisitas.id))
+        .where(
+          mineCondition
+            ? and(mineCondition, eq(crmPesquisasSatisfacao.status, "ABERTO"))
+            : eq(crmPesquisasSatisfacao.status, "ABERTO")
+        ),
+      db
+        .select({ total: count() })
+        .from(crmPesquisasSatisfacao)
+        .innerJoin(crmVisitas, eq(crmPesquisasSatisfacao.visitaId, crmVisitas.id))
+        .where(
+          mineCondition
+            ? and(mineCondition, eq(crmPesquisasSatisfacao.status, "RESPONDIDO"))
+            : eq(crmPesquisasSatisfacao.status, "RESPONDIDO")
+        ),
     ])
 
     const getCount = (rows: { total: number }[]) => Number(rows[0]?.total ?? 0)
@@ -217,19 +272,28 @@ export async function GET(req: NextRequest) {
       const key = `${r.viagemId}:${r.oportunidadeId}`
       if (r.viagemId == null || r.oportunidadeId == null || seenOportunidades.has(key)) continue
       seenOportunidades.add(key)
-      possivelRetornoPorViagem.set(r.viagemId, (possivelRetornoPorViagem.get(r.viagemId) ?? 0) + Number(r.valorEstimado ?? 0))
+      possivelRetornoPorViagem.set(
+        r.viagemId,
+        (possivelRetornoPorViagem.get(r.viagemId) ?? 0) + Number(r.valorEstimado ?? 0)
+      )
     }
 
     const retornoRealPorViagem = new Map<number | null, number>()
     for (const r of faturamentosPorViagem as any[]) {
       if (r.viagemId == null) continue
-      retornoRealPorViagem.set(r.viagemId, (retornoRealPorViagem.get(r.viagemId) ?? 0) + Number(r.valorTotal ?? 0))
+      retornoRealPorViagem.set(
+        r.viagemId,
+        (retornoRealPorViagem.get(r.viagemId) ?? 0) + Number(r.valorTotal ?? 0)
+      )
     }
 
     const vendasPorViagemTotal = new Map<number | null, number>()
     for (const r of vendasPorViagem as any[]) {
       if (r.viagemId == null) continue
-      vendasPorViagemTotal.set(r.viagemId, (vendasPorViagemTotal.get(r.viagemId) ?? 0) + Number(r.valorTotal ?? 0))
+      vendasPorViagemTotal.set(
+        r.viagemId,
+        (vendasPorViagemTotal.get(r.viagemId) ?? 0) + Number(r.valorTotal ?? 0)
+      )
     }
 
     return NextResponse.json({

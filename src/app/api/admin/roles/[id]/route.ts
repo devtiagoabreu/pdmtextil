@@ -6,10 +6,7 @@ import { roles } from "@/lib/db/schema/roles"
 import { eq } from "drizzle-orm"
 export const dynamic = "force-dynamic"
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session || (session.user.role !== "ADMIN" && session.user.role !== "SUDO")) {
@@ -19,14 +16,17 @@ export async function PUT(
     const { id } = await params
     const body = await req.json()
 
-    await db.update(roles).set({
-      name: body.name?.toUpperCase().replace(/[^A-Z0-9_]/g, "_"),
-      label: body.label,
-      description: body.description ?? null,
-      permissions: body.permissions ?? undefined,
-      ativo: body.ativo ?? true,
-      updatedAt: new Date(),
-    }).where(eq(roles.id, parseInt(id)))
+    await db
+      .update(roles)
+      .set({
+        name: body.name?.toUpperCase().replace(/[^A-Z0-9_]/g, "_"),
+        label: body.label,
+        description: body.description ?? null,
+        permissions: body.permissions ?? undefined,
+        ativo: body.ativo ?? true,
+        updatedAt: new Date(),
+      })
+      .where(eq(roles.id, parseInt(id)))
 
     return NextResponse.json({ success: true })
   } catch (error: any) {

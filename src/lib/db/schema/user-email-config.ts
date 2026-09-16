@@ -3,7 +3,10 @@ import { usuarios } from "./usuarios"
 
 export const userEmailConfig = pgTable("user_email_config", {
   id: serial("id").primaryKey(),
-  usuarioId: integer("usuario_id").notNull().references(() => usuarios.id).unique(),
+  usuarioId: integer("usuario_id")
+    .notNull()
+    .references(() => usuarios.id)
+    .unique(),
   email: varchar("email", { length: 255 }).notNull(),
   senhaApp: varchar("senha_app", { length: 255 }).notNull(),
   host: varchar("host", { length: 255 }).notNull().default("smtp.gmail.com"),

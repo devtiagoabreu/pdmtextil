@@ -15,15 +15,30 @@ function maxNumero(ids: string[], prefixo: string): number {
 }
 
 export function novoIdAtividade(modelo: ModeloProcesso): string {
-  return `A${maxNumero(modelo.atividades.map((a) => a.id), "A") + 1}`
+  return `A${
+    maxNumero(
+      modelo.atividades.map((a) => a.id),
+      "A"
+    ) + 1
+  }`
 }
 
 export function novoIdDecisao(modelo: ModeloProcesso): string {
-  return `D${maxNumero(modelo.decisoes.map((d) => d.id), "D") + 1}`
+  return `D${
+    maxNumero(
+      modelo.decisoes.map((d) => d.id),
+      "D"
+    ) + 1
+  }`
 }
 
 export function novoIdFluxo(modelo: ModeloProcesso): string {
-  return `F${maxNumero(modelo.fluxos.map((f) => f.id), "F") + 1}`
+  return `F${
+    maxNumero(
+      modelo.fluxos.map((f) => f.id),
+      "F"
+    ) + 1
+  }`
 }
 
 export function nomeDoNo(modelo: ModeloProcesso, id: string): string {

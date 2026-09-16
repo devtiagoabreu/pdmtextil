@@ -88,7 +88,10 @@ export default function ProcessoDiagramaPage() {
           </div>
         </div>
 
-        <form onSubmit={criarDiagrama} className="space-y-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+        <form
+          onSubmit={criarDiagrama}
+          className="space-y-6 rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4"
+        >
           <div className="space-y-2">
             <Label htmlFor="nome">Nome *</Label>
             <Input
@@ -108,7 +111,9 @@ export default function ProcessoDiagramaPage() {
               className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
             >
               {Object.entries(DIAGRAMA_TIPO_LABELS).map(([value, label]) => (
-                <option key={value} value={value}>{label}</option>
+                <option key={value} value={value}>
+                  {label}
+                </option>
               ))}
             </select>
           </div>
@@ -127,7 +132,9 @@ export default function ProcessoDiagramaPage() {
               Criar
             </Button>
             <Link href="/processos/visual">
-              <Button variant="outline" type="button">Cancelar</Button>
+              <Button variant="outline" type="button">
+                Cancelar
+              </Button>
             </Link>
           </div>
         </form>

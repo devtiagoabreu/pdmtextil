@@ -139,12 +139,8 @@
           "name": "anexos_solicitacao_id_solicitacoes_id_fk",
           "tableFrom": "anexos",
           "tableTo": "solicitacoes",
-          "columnsFrom": [
-            "solicitacao_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["solicitacao_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -152,12 +148,8 @@
           "name": "anexos_criado_por_usuarios_id_fk",
           "tableFrom": "anexos",
           "tableTo": "usuarios",
-          "columnsFrom": [
-            "criado_por"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["criado_por"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -278,12 +270,8 @@
           "name": "bases_urdume_criado_por_usuarios_id_fk",
           "tableFrom": "bases_urdume",
           "tableTo": "usuarios",
-          "columnsFrom": [
-            "criado_por"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["criado_por"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -293,16 +281,12 @@
         "bases_urdume_codigo_completo_unique": {
           "name": "bases_urdume_codigo_completo_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "codigo_completo"
-          ]
+          "columns": ["codigo_completo"]
         },
         "bases_urdume_codigo_base_unique": {
           "name": "bases_urdume_codigo_base_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "codigo_base"
-          ]
+          "columns": ["codigo_base"]
         }
       },
       "policies": {},
@@ -408,9 +392,7 @@
         "clientes_cnpj_unique": {
           "name": "clientes_cnpj_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "cnpj"
-          ]
+          "columns": ["cnpj"]
         }
       },
       "policies": {},
@@ -466,9 +448,7 @@
         "cores_fundo_codigo_unique": {
           "name": "cores_fundo_codigo_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "codigo"
-          ]
+          "columns": ["codigo"]
         }
       },
       "policies": {},
@@ -530,9 +510,7 @@
         "cores_solidas_codigo_unique": {
           "name": "cores_solidas_codigo_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "codigo"
-          ]
+          "columns": ["codigo"]
         }
       },
       "policies": {},
@@ -725,12 +703,8 @@
           "name": "fios_criado_por_usuarios_id_fk",
           "tableFrom": "fios",
           "tableTo": "usuarios",
-          "columnsFrom": [
-            "criado_por"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["criado_por"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -740,16 +714,12 @@
         "fios_codigo_completo_unique": {
           "name": "fios_codigo_completo_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "codigo_completo"
-          ]
+          "columns": ["codigo_completo"]
         },
         "fios_codigo_fio_unique": {
           "name": "fios_codigo_fio_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "codigo_fio"
-          ]
+          "columns": ["codigo_fio"]
         }
       },
       "policies": {},
@@ -810,12 +780,8 @@
           "name": "fios_fornecedores_fio_id_fios_id_fk",
           "tableFrom": "fios_fornecedores",
           "tableTo": "fios",
-          "columnsFrom": [
-            "fio_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["fio_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         },
@@ -823,12 +789,8 @@
           "name": "fios_fornecedores_fornecedor_id_fornecedores_id_fk",
           "tableFrom": "fios_fornecedores",
           "tableTo": "fornecedores",
-          "columnsFrom": [
-            "fornecedor_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["fornecedor_id"],
+          "columnsTo": ["id"],
           "onDelete": "cascade",
           "onUpdate": "no action"
         }
@@ -981,12 +943,8 @@
           "name": "sessions_user_id_usuarios_id_fk",
           "tableFrom": "sessions",
           "tableTo": "usuarios",
-          "columnsFrom": [
-            "user_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["user_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -996,9 +954,7 @@
         "sessions_session_token_unique": {
           "name": "sessions_session_token_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "session_token"
-          ]
+          "columns": ["session_token"]
         }
       },
       "policies": {},
@@ -1081,9 +1037,7 @@
         "usuarios_email_unique": {
           "name": "usuarios_email_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "email"
-          ]
+          "columns": ["email"]
         }
       },
       "policies": {},
@@ -1201,12 +1155,8 @@
           "name": "solicitacoes_solicitante_id_usuarios_id_fk",
           "tableFrom": "solicitacoes",
           "tableTo": "usuarios",
-          "columnsFrom": [
-            "solicitante_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["solicitante_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         },
@@ -1214,12 +1164,8 @@
           "name": "solicitacoes_responsavel_id_usuarios_id_fk",
           "tableFrom": "solicitacoes",
           "tableTo": "usuarios",
-          "columnsFrom": [
-            "responsavel_id"
-          ],
-          "columnsTo": [
-            "id"
-          ],
+          "columnsFrom": ["responsavel_id"],
+          "columnsTo": ["id"],
           "onDelete": "no action",
           "onUpdate": "no action"
         }
@@ -1298,9 +1244,7 @@
         "maquinas_codigo_unique": {
           "name": "maquinas_codigo_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "codigo"
-          ]
+          "columns": ["codigo"]
         }
       },
       "policies": {},
@@ -1362,9 +1306,7 @@
         "operacoes_codigo_unique": {
           "name": "operacoes_codigo_unique",
           "nullsNotDistinct": false,
-          "columns": [
-            "codigo"
-          ]
+          "columns": ["codigo"]
         }
       },
       "policies": {},

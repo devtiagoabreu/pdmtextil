@@ -20,8 +20,14 @@ vi.mock("@/lib/db", () => ({
 }))
 
 const sessionAdmin = { session: { user: { id: "1", role: "ADMIN", name: "Tiago" } }, userId: 1 }
-const sessionQualidade = { session: { user: { id: "2", role: "QUALIDADE", name: "Ana" } }, userId: 2 }
-const sessionComercial = { session: { user: { id: "3", role: "COMERCIAL", name: "Jean" } }, userId: 3 }
+const sessionQualidade = {
+  session: { user: { id: "2", role: "QUALIDADE", name: "Ana" } },
+  userId: 2,
+}
+const sessionComercial = {
+  session: { user: { id: "3", role: "COMERCIAL", name: "Jean" } },
+  userId: 3,
+}
 
 const reuniaoRow = {
   id: 3,
@@ -43,15 +49,45 @@ function mockDetalhe() {
   db.select
     .mockReturnValueOnce(createQueryBuilder([reuniaoRow]))
     .mockReturnValueOnce(createQueryBuilder([{ id: 2, nome: "Systêxtil", status: "EM_ANDAMENTO" }]))
-    .mockReturnValueOnce(createQueryBuilder([{ id: 1, reuniaoId: 3, conteudo: "Ata dt", criadoPor: "Tiago" }]))
-    .mockReturnValueOnce(createQueryBuilder([{ id: 1, reuniaoId: 3, ordem: 1, descricao: "Item 1" }]))
-    .mockReturnValueOnce(createQueryBuilder([{ id: 1, reuniaoId: 3, nome: "Fulano", empresa: "X", papel: "Dev" }]))
-    .mockReturnValueOnce(createQueryBuilder([{ id: 1, reuniaoId: 3, descricao: "Tarefa", responsavel: "Jean", prazo: null, status: "PENDENTE" }]))
-    .mockReturnValueOnce(createQueryBuilder([{ id: 1, reuniaoId: 3, rotulo: "Release notes", url: "https://x", descricao: null, ordem: 1 }]))
+    .mockReturnValueOnce(
+      createQueryBuilder([{ id: 1, reuniaoId: 3, conteudo: "Ata dt", criadoPor: "Tiago" }])
+    )
+    .mockReturnValueOnce(
+      createQueryBuilder([{ id: 1, reuniaoId: 3, ordem: 1, descricao: "Item 1" }])
+    )
+    .mockReturnValueOnce(
+      createQueryBuilder([{ id: 1, reuniaoId: 3, nome: "Fulano", empresa: "X", papel: "Dev" }])
+    )
+    .mockReturnValueOnce(
+      createQueryBuilder([
+        {
+          id: 1,
+          reuniaoId: 3,
+          descricao: "Tarefa",
+          responsavel: "Jean",
+          prazo: null,
+          status: "PENDENTE",
+        },
+      ])
+    )
+    .mockReturnValueOnce(
+      createQueryBuilder([
+        {
+          id: 1,
+          reuniaoId: 3,
+          rotulo: "Release notes",
+          url: "https://x",
+          descricao: null,
+          ordem: 1,
+        },
+      ])
+    )
 }
 
 function get(id = "3") {
-  return GET(new NextRequest(`http://localhost/api/reunioes/${id}`), { params: Promise.resolve({ id }) })
+  return GET(new NextRequest(`http://localhost/api/reunioes/${id}`), {
+    params: Promise.resolve({ id }),
+  })
 }
 
 function put(id = "3", body: unknown) {
@@ -191,6 +227,10 @@ describe("DELETE /api/reunioes/[id]", () => {
     const res = await del()
     expect(res.status).toBe(200)
     expect(await res.json()).toEqual({ ok: true })
-    expect(vi.mocked(notificarDelecao)).toHaveBeenCalledWith("Reunião", "Rodada 15 — release notes 2026", "Tiago")
+    expect(vi.mocked(notificarDelecao)).toHaveBeenCalledWith(
+      "Reunião",
+      "Rodada 15 — release notes 2026",
+      "Tiago"
+    )
   })
 })

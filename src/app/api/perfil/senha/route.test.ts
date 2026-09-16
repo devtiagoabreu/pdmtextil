@@ -37,7 +37,7 @@ describe("PUT /api/perfil/senha", () => {
 
   it("retorna 401 quando não está autenticado", async () => {
     vi.mocked(requireAuth).mockResolvedValue(
-      NextResponse.json({ error: "Não autorizado" }, { status: 401 }) as any,
+      NextResponse.json({ error: "Não autorizado" }, { status: 401 }) as any
     )
     const res = await PUT(put({ password: "123456" }))
     expect(res.status).toBe(401)

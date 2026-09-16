@@ -3,7 +3,17 @@
 import { useState } from "react"
 import { useQuery, useQueryClient } from "@tanstack/react-query"
 import Link from "next/link"
-import { Bell, BellRing, Check, CheckCheck, ExternalLink, Loader2, MessageSquare, UserPlus, XCircle } from "lucide-react"
+import {
+  Bell,
+  BellRing,
+  Check,
+  CheckCheck,
+  ExternalLink,
+  Loader2,
+  MessageSquare,
+  UserPlus,
+  XCircle,
+} from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 
@@ -29,7 +39,10 @@ export default function NotificacoesPage() {
   const [filtro, setFiltro] = useState<"todas" | "naoLidas">("todas")
   const queryClient = useQueryClient()
 
-  const { data = { lista: [], naoLidas: 0 }, isLoading: loading } = useQuery<{ lista: Notificacao[]; naoLidas: number }>({
+  const { data = { lista: [], naoLidas: 0 }, isLoading: loading } = useQuery<{
+    lista: Notificacao[]
+    naoLidas: number
+  }>({
     queryKey: ["crm-notificacoes", filtro],
     queryFn: async () => {
       const params = filtro === "naoLidas" ? "?naoLidas=true" : ""
@@ -50,9 +63,9 @@ export default function NotificacoesPage() {
   async function marcarTodasLidas() {
     try {
       await Promise.all(
-        notificacoes.filter((n) => !n.lida).map((n) =>
-          fetch(`/api/crm/notificacoes/${n.id}/ler`, { method: "PATCH" })
-        )
+        notificacoes
+          .filter((n) => !n.lida)
+          .map((n) => fetch(`/api/crm/notificacoes/${n.id}/ler`, { method: "PATCH" }))
       )
       queryClient.invalidateQueries({ queryKey: ["crm-notificacoes"] })
     } catch {}
@@ -137,7 +150,9 @@ export default function NotificacoesPage() {
           notificacoes.map((n) => (
             <div
               key={n.id}
-              onClick={() => { if (!n.lida) marcarLida(n.id) }}
+              onClick={() => {
+                if (!n.lida) marcarLida(n.id)
+              }}
               className={`rounded-xl border p-4 transition-colors cursor-pointer ${
                 n.lida
                   ? "border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900"
@@ -158,12 +173,11 @@ export default function NotificacoesPage() {
                     </span>
                   </div>
                   {n.mensagem && (
-                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
-                      {n.mensagem}
-                    </p>
+                    <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">{n.mensagem}</p>
                   )}
                   {n.link && (
-                    <Link href={n.link!}
+                    <Link
+                      href={n.link!}
                       onClick={(e) => e.stopPropagation()}
                       className="mt-1.5 text-[10px] text-blue-600 hover:text-blue-700 inline-flex items-center gap-0.5 font-medium"
                     >
@@ -173,7 +187,10 @@ export default function NotificacoesPage() {
                 </div>
                 {!n.lida && (
                   <button
-                    onClick={(e) => { e.stopPropagation(); marcarLida(n.id) }}
+                    onClick={(e) => {
+                      e.stopPropagation()
+                      marcarLida(n.id)
+                    }}
                     className="shrink-0 p-1 text-slate-400 hover:text-blue-600"
                   >
                     <Check size={14} />

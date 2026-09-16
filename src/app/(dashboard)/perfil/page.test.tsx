@@ -17,8 +17,10 @@ function setup(getConfig: any = null) {
   const fetchMock = createFetchMock(({ method, url, body }) => {
     if (method === "PUT" && url === "/api/perfil/senha") return { json: { ok: true }, body }
     if (method === "GET" && url === "/api/user/email-config") return { json: { config: getConfig } }
-    if (method === "PUT" && url === "/api/user/email-config") return { json: { success: true }, body }
-    if (method === "POST" && url === "/api/user/email-config") return { json: { success: true, message: "Conexão SMTP realizada com sucesso" }, body }
+    if (method === "PUT" && url === "/api/user/email-config")
+      return { json: { success: true }, body }
+    if (method === "POST" && url === "/api/user/email-config")
+      return { json: { success: true, message: "Conexão SMTP realizada com sucesso" }, body }
     if (method === "DELETE" && url === "/api/user/email-config") return { json: { success: true } }
     return { json: null }
   })
@@ -57,7 +59,9 @@ describe("PerfilPage", () => {
     const call = findCall(fetchMock.calls, "/api/perfil/senha", "PUT")
     expect(call).toBeDefined()
     expect(call?.body).toEqual({ password: "novaSenha123" })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Senha alterada com sucesso!"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Senha alterada com sucesso!")
+    )
   })
 
   it("valida quando as senhas não conferem", async () => {
@@ -117,7 +121,9 @@ describe("PerfilPage", () => {
       limite_diario: 2500,
       ativo: true,
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Configuração de email salva!"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Configuração de email salva!")
+    )
   })
 
   it("valida senha de app obrigatória ao criar configuração", async () => {
@@ -133,7 +139,12 @@ describe("PerfilPage", () => {
   })
 
   it("remove a configuração via DELETE /api/user/email-config", async () => {
-    const fetchMock = setup({ email: "remetente@gmail.com", ativo: true, limiteDiario: 1500, hasPassword: true })
+    const fetchMock = setup({
+      email: "remetente@gmail.com",
+      ativo: true,
+      limiteDiario: 1500,
+      hasPassword: true,
+    })
     renderPage(<PerfilPage />)
 
     const removeBtn = await screen.findByRole("button", { name: "Remover" })
@@ -141,6 +152,8 @@ describe("PerfilPage", () => {
 
     const call = findCall(fetchMock.calls, "/api/user/email-config", "DELETE")
     expect(call).toBeDefined()
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Configuração de email removida"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Configuração de email removida")
+    )
   })
 })

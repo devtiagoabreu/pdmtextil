@@ -45,7 +45,9 @@ describe("SegmentosPage", () => {
     render()
     await screen.findByText("Tecelagem")
 
-    fireEvent.change(screen.getByPlaceholderText("Buscar segmento..."), { target: { value: "Confecção" } })
+    fireEvent.change(screen.getByPlaceholderText("Buscar segmento..."), {
+      target: { value: "Confecção" },
+    })
 
     expect(screen.getByText("Confecção")).toBeInTheDocument()
     expect(screen.queryByText("Tecelagem")).not.toBeInTheDocument()
@@ -59,7 +61,9 @@ describe("SegmentosPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Novo Segmento" }))
     await screen.findByRole("heading", { name: "Novo Segmento" })
 
-    fireEvent.change(screen.getByPlaceholderText("Ex: Tecelagem"), { target: { value: "Estamparia" } })
+    fireEvent.change(screen.getByPlaceholderText("Ex: Tecelagem"), {
+      target: { value: "Estamparia" },
+    })
 
     fireEvent.click(screen.getByRole("button", { name: "Criar" }))
 
@@ -99,7 +103,9 @@ describe("SegmentosPage", () => {
 
     fireEvent.click(container.querySelectorAll("svg.lucide-trash-2")[0].closest("button")!)
 
-    await waitFor(() => expect(findCall(mock.calls, "/api/crm/segmentos/1", "DELETE")).toBeDefined())
+    await waitFor(() =>
+      expect(findCall(mock.calls, "/api/crm/segmentos/1", "DELETE")).toBeDefined()
+    )
   })
 
   it("mostra estado vazio quando não há segmentos", async () => {

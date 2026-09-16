@@ -14,8 +14,16 @@ export async function GET(req: NextRequest) {
     const campos = [
       { nome: "nome", descricao: "Nome / Fantasia do cliente", exemplo: "Moda Fitness Ltda" },
       { nome: "cnpj", descricao: "CNPJ do cliente", exemplo: "12.345.678/0001-90" },
-      { nome: "razaoSocial", descricao: "Razão Social (opcional)", exemplo: "Moda Fitness Ltda ME" },
-      { nome: "email", descricao: "Email de contato (opcional)", exemplo: "contato@modafitness.com" },
+      {
+        nome: "razaoSocial",
+        descricao: "Razão Social (opcional)",
+        exemplo: "Moda Fitness Ltda ME",
+      },
+      {
+        nome: "email",
+        descricao: "Email de contato (opcional)",
+        exemplo: "contato@modafitness.com",
+      },
       { nome: "telefone", descricao: "Telefone (opcional)", exemplo: "(11) 99999-9999" },
       { nome: "contato", descricao: "Pessoa de contato (opcional)", exemplo: "Maria Silva" },
       { nome: "endereco", descricao: "Endereço completo (opcional)", exemplo: "Rua exemplo, 100" },

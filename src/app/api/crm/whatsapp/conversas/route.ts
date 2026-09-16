@@ -55,7 +55,10 @@ export async function GET(req: NextRequest) {
       .from(crmLeads)
       .where(
         remoteJids.length > 0
-          ? sql`${crmLeads.idIntegracao} IN (${sql.join(remoteJids.map((j: any) => sql`${`whatsapp:${j}`}`), sql`, `)})`
+          ? sql`${crmLeads.idIntegracao} IN (${sql.join(
+              remoteJids.map((j: any) => sql`${`whatsapp:${j}`}`),
+              sql`, `
+            )})`
           : sql`1=0`
       )
 
@@ -71,15 +74,27 @@ export async function GET(req: NextRequest) {
       .leftJoin(crmPessoas, eq(crmContatos.empresaId, crmPessoas.id))
       .where(
         remoteJids.length > 0
-          ? sql`${crmContatos.whatsapp} IN (${sql.join(remoteJids.map((j: any) => sql`${j}`), sql`, `)})`
+          ? sql`${crmContatos.whatsapp} IN (${sql.join(
+              remoteJids.map((j: any) => sql`${j}`),
+              sql`, `
+            )})`
           : sql`1=0`
       )
 
     const resultado = conversas.map((c: any) => {
       const lead = leads.find((l: any) => l.idIntegracao === `whatsapp:${c.remoteJid}`)
       const contato = contatos.find((ct: any) => ct.whatsapp === c.remoteJid)
-      const nome = lead?.nome || contato?.nome || contato?.empresaNome || c.remoteJid?.split("@")[0] || "Desconhecido"
-      const link = lead ? `/comercial/crm/leads/${lead.id}` : contato?.empresaId ? `/comercial/crm/pessoas/${contato.empresaId}` : null
+      const nome =
+        lead?.nome ||
+        contato?.nome ||
+        contato?.empresaNome ||
+        c.remoteJid?.split("@")[0] ||
+        "Desconhecido"
+      const link = lead
+        ? `/comercial/crm/leads/${lead.id}`
+        : contato?.empresaId
+          ? `/comercial/crm/pessoas/${contato.empresaId}`
+          : null
 
       return {
         remoteJid: c.remoteJid,

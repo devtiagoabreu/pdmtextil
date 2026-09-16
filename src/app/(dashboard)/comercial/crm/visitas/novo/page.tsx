@@ -17,7 +17,15 @@ import { TipoEntidadeSelector } from "./components/tipo-entidade-selector"
 import { FormFields } from "./components/form-fields"
 import { EnderecoSection } from "./components/endereco-section"
 import type { VisitaFoto } from "@/lib/crm/visita-fotos"
-import type { ClienteResult, Conflito, ContatoResult, EmpresaResult, EnderecoText, OportunidadeResumo, VisitaForm } from "../types"
+import type {
+  ClienteResult,
+  Conflito,
+  ContatoResult,
+  EmpresaResult,
+  EnderecoText,
+  OportunidadeResumo,
+  VisitaForm,
+} from "../types"
 
 function NovaVisitaPageContent() {
   const router = useRouter()
@@ -97,7 +105,9 @@ function NovaVisitaPageContent() {
       }
       return []
     },
-    enabled: (tipoEntidade === "PESSOA" && !!form.empresaId) || (tipoEntidade === "CLIENTE" && !!form.clienteId),
+    enabled:
+      (tipoEntidade === "PESSOA" && !!form.empresaId) ||
+      (tipoEntidade === "CLIENTE" && !!form.clienteId),
   })
 
   const enderecoQuery = useQuery<EnderecoText>({
@@ -119,7 +129,9 @@ function NovaVisitaPageContent() {
       if (tipoEntidade === "CLIENTE" && form.clienteId) {
         const res = await fetch(`/api/clientes`)
         const data = await res.json()
-        const cliente = Array.isArray(data) ? data.find((c) => String(c.id) === form.clienteId) : null
+        const cliente = Array.isArray(data)
+          ? data.find((c) => String(c.id) === form.clienteId)
+          : null
         if (cliente) {
           return {
             endereco: cliente.endereco || "",
@@ -135,14 +147,16 @@ function NovaVisitaPageContent() {
       }
       return {}
     },
-    enabled: (tipoEntidade === "PESSOA" && !!form.empresaId) || (tipoEntidade === "CLIENTE" && !!form.clienteId),
+    enabled:
+      (tipoEntidade === "PESSOA" && !!form.empresaId) ||
+      (tipoEntidade === "CLIENTE" && !!form.clienteId),
   })
 
   const contatos = contatosQuery.data ?? []
   const empresaEndereco = enderecoQuery.data ?? {}
 
   function setField(field: keyof VisitaForm, value: string) {
-    setForm(prev => ({ ...prev, [field]: value }))
+    setForm((prev) => ({ ...prev, [field]: value }))
   }
 
   useEffect(() => {
@@ -156,7 +170,10 @@ function NovaVisitaPageContent() {
 
   useEffect(() => {
     if (conflictTimerRef.current) clearTimeout(conflictTimerRef.current)
-    if (!form.dataVisita || !form.hora) { setConflictos([]); return }
+    if (!form.dataVisita || !form.hora) {
+      setConflictos([])
+      return
+    }
     conflictTimerRef.current = setTimeout(async () => {
       try {
         const sp = new URLSearchParams({ dataVisita: form.dataVisita, hora: form.hora })
@@ -212,7 +229,7 @@ function NovaVisitaPageContent() {
   }
 
   function copiarEnderecoEmpresa() {
-    setForm(prev => ({
+    setForm((prev) => ({
       ...prev,
       endereco: empresaEndereco.endereco || "",
       numero: empresaEndereco.numero || "",
@@ -299,7 +316,9 @@ function NovaVisitaPageContent() {
           })
         } catch {}
       }
-      toast.success(data.total > 1 ? `${data.total} visitas criadas com sucesso` : "Visita criada com sucesso")
+      toast.success(
+        data.total > 1 ? `${data.total} visitas criadas com sucesso` : "Visita criada com sucesso"
+      )
       router.push("/comercial/crm/visitas")
     } catch (err) {
       toast.error(err instanceof Error ? err.message : String(err))
@@ -311,11 +330,16 @@ function NovaVisitaPageContent() {
   return (
     <div className="space-y-6 animate-fade-in max-w-2xl">
       <div className="flex items-center gap-3">
-        <Link href="/comercial/crm/visitas" className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
+        <Link
+          href="/comercial/crm/visitas"
+          className="p-2 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+        >
           <ArrowLeft size={18} className="text-slate-500" />
         </Link>
         <div>
-          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">Nova Visita{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-xl font-bold text-slate-900 dark:text-slate-50">
+            Nova Visita{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500">Agendar nova visita comercial</p>
         </div>
       </div>
@@ -323,7 +347,10 @@ function NovaVisitaPageContent() {
       {!tipoEntidade && <TipoEntidadeSelector onSelect={setTipoEntidade} />}
 
       {tipoEntidade && (
-        <form onSubmit={handleSubmit} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5">
+        <form
+          onSubmit={handleSubmit}
+          className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-5"
+        >
           <FormFields
             form={form}
             setField={setField}
@@ -354,11 +381,13 @@ function NovaVisitaPageContent() {
           />
 
           <div>
-            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">Relato / Ata da Visita</label>
-            <RelatoTemplateSelector onSelect={html => setField("relato", html)} />
+            <label className="block text-sm font-medium text-slate-700 dark:text-slate-300 mb-1">
+              Relato / Ata da Visita
+            </label>
+            <RelatoTemplateSelector onSelect={(html) => setField("relato", html)} />
             <RichTextEditor
               value={form.relato}
-              onChange={v => setField("relato", v)}
+              onChange={(v) => setField("relato", v)}
               placeholder="Descreva o relato da visita..."
               minHeight="250px"
             />
@@ -372,15 +401,21 @@ function NovaVisitaPageContent() {
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 flex items-center gap-3">
               <Calendar size={18} className="text-blue-500 shrink-0" />
               <div className="flex-1">
-                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">Sincronizar com Google Calendar</p>
-                <p className="text-xs text-slate-500">Crie um evento no Google Calendar para esta visita</p>
+                <p className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Sincronizar com Google Calendar
+                </p>
+                <p className="text-xs text-slate-500">
+                  Crie um evento no Google Calendar para esta visita
+                </p>
               </div>
               <button
                 type="button"
                 onClick={() => setSyncGoogle(!syncGoogle)}
                 className={`relative inline-flex h-6 w-11 shrink-0 rounded-full transition-colors ${syncGoogle ? "bg-blue-600" : "bg-slate-200 dark:bg-slate-700"}`}
               >
-                <span className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform mt-0.5 ${syncGoogle ? "translate-x-5.5 ml-0.5" : "translate-x-0.5"}`} />
+                <span
+                  className={`inline-block h-5 w-5 transform rounded-full bg-white shadow transition-transform mt-0.5 ${syncGoogle ? "translate-x-5.5 ml-0.5" : "translate-x-0.5"}`}
+                />
               </button>
             </div>
           )}

@@ -1,6 +1,18 @@
 "use client"
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, PieChart, Pie, Cell, Legend } from "recharts"
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  PieChart,
+  Pie,
+  Cell,
+  Legend,
+} from "recharts"
 import { Activity, UserCheck } from "lucide-react"
 import { ChartTooltip } from "@/components/ui/chart-tooltip"
 
@@ -40,7 +52,14 @@ export function AtividadeUsuarioCharts({ porUsuario, porTipo }: AtividadeUsuario
                 <XAxis type="number" tick={{ fontSize: 12 }} />
                 <YAxis dataKey="usuario" type="category" width={120} tick={{ fontSize: 12 }} />
                 <Tooltip content={<ChartTooltip />} />
-                <Bar dataKey="total" name="Ações" fill="#6366f1" radius={[0, 4, 4, 0]} animationDuration={1000} animationEasing="ease-out" />
+                <Bar
+                  dataKey="total"
+                  name="Ações"
+                  fill="#6366f1"
+                  radius={[0, 4, 4, 0]}
+                  animationDuration={1000}
+                  animationEasing="ease-out"
+                />
               </BarChart>
             </ResponsiveContainer>
           </div>
@@ -62,7 +81,9 @@ export function AtividadeUsuarioCharts({ porUsuario, porTipo }: AtividadeUsuario
                   cx="50%"
                   cy="50%"
                   outerRadius={80}
-                  label={(props: any) => `${TIPO_LABELS[props.tipo] || props.tipo} ${(props.percent * 100).toFixed(0)}%`}
+                  label={(props: any) =>
+                    `${TIPO_LABELS[props.tipo] || props.tipo} ${(props.percent * 100).toFixed(0)}%`
+                  }
                   animationDuration={1000}
                   animationEasing="ease-out"
                 >

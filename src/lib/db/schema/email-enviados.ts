@@ -2,26 +2,30 @@ import { pgTable, serial, varchar, text, integer, timestamp, index } from "drizz
 import { emailListas } from "./email-listas"
 import { emailDisparos } from "./email-disparos"
 
-export const emailEnviados = pgTable("email_enviados", {
-  id: serial("id").primaryKey(),
-  listaId: integer("lista_id").references(() => emailListas.id),
-  disparoId: integer("disparo_id").references(() => emailDisparos.id),
-  remessaId: varchar("remessa_id", { length: 36 }),
-  email: varchar("email", { length: 255 }).notNull(),
-  nome: varchar("nome", { length: 255 }),
-  assunto: varchar("assunto", { length: 500 }).notNull().default(""),
-  status: varchar("status", { length: 20 }).notNull().default("enviado"),
-  error: text("error"),
-  trackingId: varchar("tracking_id", { length: 36 }).unique(),
-  abertoEm: timestamp("aberto_em"),
-  enviadoEm: timestamp("enviado_em"),
-  createdAt: timestamp("created_at").defaultNow(),
-}, (t: any) => [
-  index("idx_email_enviados_lista").on(t.listaId),
-  index("idx_email_enviados_disparo_id").on(t.disparoId),
-  index("idx_email_enviados_status").on(t.status),
-  index("idx_email_enviados_created_at").on(t.createdAt),
-])
+export const emailEnviados = pgTable(
+  "email_enviados",
+  {
+    id: serial("id").primaryKey(),
+    listaId: integer("lista_id").references(() => emailListas.id),
+    disparoId: integer("disparo_id").references(() => emailDisparos.id),
+    remessaId: varchar("remessa_id", { length: 36 }),
+    email: varchar("email", { length: 255 }).notNull(),
+    nome: varchar("nome", { length: 255 }),
+    assunto: varchar("assunto", { length: 500 }).notNull().default(""),
+    status: varchar("status", { length: 20 }).notNull().default("enviado"),
+    error: text("error"),
+    trackingId: varchar("tracking_id", { length: 36 }).unique(),
+    abertoEm: timestamp("aberto_em"),
+    enviadoEm: timestamp("enviado_em"),
+    createdAt: timestamp("created_at").defaultNow(),
+  },
+  (t: any) => [
+    index("idx_email_enviados_lista").on(t.listaId),
+    index("idx_email_enviados_disparo_id").on(t.disparoId),
+    index("idx_email_enviados_status").on(t.status),
+    index("idx_email_enviados_created_at").on(t.createdAt),
+  ]
+)
 
 export type EmailEnviado = typeof emailEnviados.$inferSelect
 export type NewEmailEnviado = typeof emailEnviados.$inferInsert

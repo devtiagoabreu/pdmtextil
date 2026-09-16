@@ -4,7 +4,9 @@ import { usuarios } from "./usuarios"
 
 export const anexos = pgTable("anexos", {
   id: serial("id").primaryKey(),
-  solicitacaoId: integer("solicitacao_id").references(() => solicitacoes.id).notNull(),
+  solicitacaoId: integer("solicitacao_id")
+    .references(() => solicitacoes.id)
+    .notNull(),
   tipo: varchar("tipo", { length: 20 }).notNull(),
   titulo: varchar("titulo", { length: 200 }).notNull(),
   url: text("url").notNull(),

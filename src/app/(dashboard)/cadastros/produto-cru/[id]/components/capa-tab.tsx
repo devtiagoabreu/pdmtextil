@@ -35,7 +35,7 @@ export function CapaTab({
             <Input
               id="codigoPdm"
               value={produto.codigoPdm}
-              onChange={e => handleChange("codigoPdm", e.target.value)}
+              onChange={(e) => handleChange("codigoPdm", e.target.value)}
               placeholder="D28"
               required
             />
@@ -45,11 +45,13 @@ export function CapaTab({
             <select
               id="status"
               value={produto.status}
-              onChange={e => handleStatusChange(e.target.value)}
+              onChange={(e) => handleStatusChange(e.target.value)}
               className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
             >
               {statusOptionsProd.map((opt) => (
-                <option key={opt.value} value={opt.value}>{opt.label}</option>
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
               ))}
             </select>
           </div>
@@ -60,7 +62,7 @@ export function CapaTab({
           <Input
             id="descricao"
             value={produto.descricao}
-            onChange={e => handleChange("descricao", e.target.value)}
+            onChange={(e) => handleChange("descricao", e.target.value)}
             placeholder="Tecido Sarja Algodão 30/1"
             required
           />
@@ -71,12 +73,20 @@ export function CapaTab({
           <select
             id="solicitacao"
             value={produto.solicitacaoDesenvolvimentoId || ""}
-            onChange={e => handleChange("solicitacaoDesenvolvimentoId", e.target.value ? parseInt(e.target.value) : null)}
+            onChange={(e) =>
+              handleChange(
+                "solicitacaoDesenvolvimentoId",
+                e.target.value ? parseInt(e.target.value) : null
+              )
+            }
             className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
           >
             <option value="">Nenhuma</option>
             {solicitacoes.map((s) => (
-              <option key={s.id} value={s.id}>#{s.id} - {s.cliente}{s.projeto ? ` (${s.projeto})` : ""}</option>
+              <option key={s.id} value={s.id}>
+                #{s.id} - {s.cliente}
+                {s.projeto ? ` (${s.projeto})` : ""}
+              </option>
             ))}
           </select>
         </div>
@@ -84,16 +94,32 @@ export function CapaTab({
         <div className="grid grid-cols-2 gap-4">
           <div className="space-y-2">
             <Label htmlFor="idIntegracaoErpCru">ID Integração ERP (Cru)</Label>
-            <Input id="idIntegracaoErpCru" value={produto.idIntegracaoErpCru || ""} onChange={e => handleChange("idIntegracaoErpCru", e.target.value)} placeholder="2.K1820.CRU.000CRU" />
+            <Input
+              id="idIntegracaoErpCru"
+              value={produto.idIntegracaoErpCru || ""}
+              onChange={(e) => handleChange("idIntegracaoErpCru", e.target.value)}
+              placeholder="2.K1820.CRU.000CRU"
+            />
           </div>
           <div className="space-y-2">
             <Label htmlFor="idIntegracao">ID Integração (Sistema Externo)</Label>
-            <Input id="idIntegracao" value={produto.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="Código do sistema externo" />
+            <Input
+              id="idIntegracao"
+              value={produto.idIntegracao || ""}
+              onChange={(e) => handleChange("idIntegracao", e.target.value)}
+              placeholder="Código do sistema externo"
+            />
           </div>
         </div>
 
         <div className="flex items-center gap-2">
-          <input type="checkbox" id="ativo" checked={produto.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={produto.ativo}
+            onChange={(e) => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
           <Label htmlFor="ativo">Ativo</Label>
         </div>
       </div>
@@ -104,7 +130,9 @@ export function CapaTab({
           {isEditing ? "Atualizar" : "Criar"}
         </Button>
         <Link href="/cadastros/produto-cru">
-          <Button variant="outline" type="button">Cancelar</Button>
+          <Button variant="outline" type="button">
+            Cancelar
+          </Button>
         </Link>
       </div>
     </div>

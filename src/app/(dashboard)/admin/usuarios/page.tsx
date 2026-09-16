@@ -45,7 +45,11 @@ export default function UsuariosPage() {
 
   const queryClient = useQueryClient()
 
-  const { data: usuarios, isLoading: loading, isError } = useQuery<Usuario[]>({
+  const {
+    data: usuarios,
+    isLoading: loading,
+    isError,
+  } = useQuery<Usuario[]>({
     queryKey: ["admin-usuarios"],
     queryFn: async () => {
       const res = await fetch("/api/admin/usuarios")
@@ -81,7 +85,13 @@ export default function UsuariosPage() {
       const res = await fetch("/api/admin/usuarios", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: novoEmail, name: novoNome, password: novoPassword, role: novoRole, celWhatsapp: novoCelWhatsapp }),
+        body: JSON.stringify({
+          email: novoEmail,
+          name: novoNome,
+          password: novoPassword,
+          role: novoRole,
+          celWhatsapp: novoCelWhatsapp,
+        }),
       })
       if (!res.ok) {
         const err = await res.json()
@@ -123,7 +133,9 @@ export default function UsuariosPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Usuários{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Usuários{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500 mt-1">Gerenciar usuários e permissões do sistema</p>
         </div>
         <Button onClick={() => setShowNovo(true)} className="gap-2">
@@ -137,26 +149,52 @@ export default function UsuariosPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Nome *</Label>
-              <Input value={novoNome} onChange={e => setNovoNome(e.target.value)} placeholder="Nome completo" />
+              <Input
+                value={novoNome}
+                onChange={(e) => setNovoNome(e.target.value)}
+                placeholder="Nome completo"
+              />
             </div>
             <div className="space-y-2">
               <Label>Email *</Label>
-              <Input value={novoEmail} onChange={e => setNovoEmail(e.target.value)} placeholder="email@exemplo.com" />
+              <Input
+                value={novoEmail}
+                onChange={(e) => setNovoEmail(e.target.value)}
+                placeholder="email@exemplo.com"
+              />
             </div>
             <div className="space-y-2">
               <Label>Senha *</Label>
-              <Input type="password" value={novoPassword} onChange={e => setNovoPassword(e.target.value)} placeholder="Mínimo 6 caracteres" />
+              <Input
+                type="password"
+                value={novoPassword}
+                onChange={(e) => setNovoPassword(e.target.value)}
+                placeholder="Mínimo 6 caracteres"
+              />
             </div>
             <div className="space-y-2">
               <Label>Perfil</Label>
-              <select value={novoRole} onChange={e => setNovoRole(e.target.value)}
-                className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600">
-                {(roles ?? []).filter((r: any) => r.ativo).map((r: any) => <option key={r.name} value={r.name}>{r.label}</option>)}
+              <select
+                value={novoRole}
+                onChange={(e) => setNovoRole(e.target.value)}
+                className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+              >
+                {(roles ?? [])
+                  .filter((r: any) => r.ativo)
+                  .map((r: any) => (
+                    <option key={r.name} value={r.name}>
+                      {r.label}
+                    </option>
+                  ))}
               </select>
             </div>
             <div className="space-y-2">
               <Label>WhatsApp (celular do representante p/ notificações do bot)</Label>
-              <Input value={novoCelWhatsapp} onChange={e => setNovoCelWhatsapp(e.target.value)} placeholder="Ex.: 5519999999999" />
+              <Input
+                value={novoCelWhatsapp}
+                onChange={(e) => setNovoCelWhatsapp(e.target.value)}
+                placeholder="Ex.: 5519999999999"
+              />
             </div>
           </div>
           <div className="flex gap-2">
@@ -164,7 +202,9 @@ export default function UsuariosPage() {
               {saving && <Loader2 size={16} className="animate-spin" />}
               Criar
             </Button>
-            <Button variant="outline" onClick={() => setShowNovo(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => setShowNovo(false)}>
+              Cancelar
+            </Button>
           </div>
         </div>
       )}
@@ -174,13 +214,15 @@ export default function UsuariosPage() {
         <Input
           placeholder="Buscar por nome ou email..."
           value={search}
-          onChange={e => setSearch(e.target.value)}
+          onChange={(e) => setSearch(e.target.value)}
           className="pl-10"
         />
       </div>
 
       {loading ? (
-        <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-400" size={24} /></div>
+        <div className="flex justify-center p-8">
+          <Loader2 className="animate-spin text-slate-400" size={24} />
+        </div>
       ) : filtered.length === 0 ? (
         <p className="text-slate-500 text-center p-8">Nenhum usuário encontrado</p>
       ) : (
@@ -188,18 +230,32 @@ export default function UsuariosPage() {
           <table className="w-full">
             <thead className="bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left p-3 text-sm font-medium text-slate-600 dark:text-slate-400">Nome</th>
-                <th className="text-left p-3 text-sm font-medium text-slate-600 dark:text-slate-400">Email</th>
-                <th className="text-left p-3 text-sm font-medium text-slate-600 dark:text-slate-400">Perfil</th>
-                <th className="text-left p-3 text-sm font-medium text-slate-600 dark:text-slate-400">Status</th>
-                <th className="text-left p-3 text-sm font-medium text-slate-600 dark:text-slate-400">Último Acesso</th>
-                <th className="text-right p-3 text-sm font-medium text-slate-600 dark:text-slate-400">Ações</th>
+                <th className="text-left p-3 text-sm font-medium text-slate-600 dark:text-slate-400">
+                  Nome
+                </th>
+                <th className="text-left p-3 text-sm font-medium text-slate-600 dark:text-slate-400">
+                  Email
+                </th>
+                <th className="text-left p-3 text-sm font-medium text-slate-600 dark:text-slate-400">
+                  Perfil
+                </th>
+                <th className="text-left p-3 text-sm font-medium text-slate-600 dark:text-slate-400">
+                  Status
+                </th>
+                <th className="text-left p-3 text-sm font-medium text-slate-600 dark:text-slate-400">
+                  Último Acesso
+                </th>
+                <th className="text-right p-3 text-sm font-medium text-slate-600 dark:text-slate-400">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody className="divide-y dark:divide-slate-800">
               {filtered.map((u: any) => (
                 <tr key={u.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                  <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-100">{u.name}</td>
+                  <td className="p-3 text-sm font-medium text-slate-900 dark:text-slate-100">
+                    {u.name}
+                  </td>
                   <td className="p-3 text-sm text-slate-600 dark:text-slate-400">{u.email}</td>
                   <td className="p-3">
                     <span className="inline-block rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300 px-2 py-0.5 text-xs font-medium">
@@ -207,9 +263,11 @@ export default function UsuariosPage() {
                     </span>
                   </td>
                   <td className="p-3">
-                    <span className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
-                      u.ativo ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
-                    }`}>
+                    <span
+                      className={`inline-block rounded-full px-2 py-0.5 text-xs font-medium ${
+                        u.ativo ? "bg-green-100 text-green-700" : "bg-red-100 text-red-700"
+                      }`}
+                    >
                       {u.ativo ? "Ativo" : "Inativo"}
                     </span>
                   </td>
@@ -224,7 +282,11 @@ export default function UsuariosPage() {
                       >
                         <Pencil size={16} />
                       </Link>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(u.id, u.name)}>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleDelete(u.id, u.name)}
+                      >
                         <Trash2 size={16} />
                       </Button>
                     </div>

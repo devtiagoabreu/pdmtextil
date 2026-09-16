@@ -22,7 +22,9 @@ describe("validarReuniao", () => {
       videoUrl: "https://meet.google.com/abc",
       pautas: [{ descricao: "Item 1" }],
       participantes: [{ nome: "Fulano", empresa: "X", papel: "Dev" }],
-      encaminhamentos: [{ descricao: "Tarefa", responsavel: "Jean", prazo: "2026-10-01T12:00:00.000Z" }],
+      encaminhamentos: [
+        { descricao: "Tarefa", responsavel: "Jean", prazo: "2026-10-01T12:00:00.000Z" },
+      ],
       links: [{ url: "https://x.com" }],
     })
 
@@ -35,14 +37,20 @@ describe("validarReuniao", () => {
     expect(resultado.data.resumoCurto).toBeNull()
     expect(resultado.data.videoUrl).toBe("https://meet.google.com/abc")
     expect(resultado.data.pautas).toEqual([{ descricao: "Item 1" }])
-    expect(resultado.data.links).toEqual([{ rotulo: "Link", url: "https://x.com", descricao: null }])
+    expect(resultado.data.links).toEqual([
+      { rotulo: "Link", url: "https://x.com", descricao: null },
+    ])
     expect(resultado.data.encaminhamentos[0].responsavel).toBe("Jean")
     expect(resultado.data.encaminhamentos[0].status).toBe("PENDENTE")
     expect(resultado.data.encaminhamentos[0].prazo).toBeInstanceOf(Date)
   })
 
   it("aplica default status AGENDADA com projetoId informado", () => {
-    const resultado = validarReuniao({ titulo: "Reunião", projetoId: 1, data: "2026-09-11T15:00:00.000Z" })
+    const resultado = validarReuniao({
+      titulo: "Reunião",
+      projetoId: 1,
+      data: "2026-09-11T15:00:00.000Z",
+    })
     expect("error" in resultado).toBe(false)
     if ("error" in resultado) return
     expect(resultado.data.projetoId).toBe(1)
@@ -58,13 +66,19 @@ describe("validarReuniao", () => {
     expect(validarReuniao({ titulo: "R", data: "2026-09-11T15:00:00.000Z" })).toEqual({
       error: "Projeto inválido.",
     })
-    expect(validarReuniao({ titulo: "R", data: "2026-09-11T15:00:00.000Z", projetoId: "abc" })).toEqual({
+    expect(
+      validarReuniao({ titulo: "R", data: "2026-09-11T15:00:00.000Z", projetoId: "abc" })
+    ).toEqual({
       error: "Projeto inválido.",
     })
-    expect(validarReuniao({ titulo: "R", data: "2026-09-11T15:00:00.000Z", projetoId: 0 })).toEqual({
-      error: "Projeto inválido.",
-    })
-    expect(validarReuniao({ titulo: "R", data: "2026-09-11T15:00:00.000Z", projetoId: -3 })).toEqual({
+    expect(validarReuniao({ titulo: "R", data: "2026-09-11T15:00:00.000Z", projetoId: 0 })).toEqual(
+      {
+        error: "Projeto inválido.",
+      }
+    )
+    expect(
+      validarReuniao({ titulo: "R", data: "2026-09-11T15:00:00.000Z", projetoId: -3 })
+    ).toEqual({
       error: "Projeto inválido.",
     })
   })
@@ -137,7 +151,10 @@ describe("validarReuniao", () => {
       titulo: "R",
       projetoId: 1,
       data: "2026-09-11T15:00:00.000Z",
-      encaminhamentos: [{ descricao: "  " }, { descricao: "Tarefa válida", prazo: "2026-10-01T12:00:00.000Z" }],
+      encaminhamentos: [
+        { descricao: "  " },
+        { descricao: "Tarefa válida", prazo: "2026-10-01T12:00:00.000Z" },
+      ],
     })
     expect("error" in resultado).toBe(false)
     if ("error" in resultado) return
@@ -183,14 +200,18 @@ describe("validarProjeto", () => {
   })
 
   it("rejeita status inválido", () => {
-    expect(validarProjeto({ nome: "X", status: "FEITO" })).toEqual({ error: "Status de projeto inválido." })
+    expect(validarProjeto({ nome: "X", status: "FEITO" })).toEqual({
+      error: "Status de projeto inválido.",
+    })
   })
 
   it("rejeita data inválida", () => {
     expect(validarProjeto({ nome: "X", dataInicio: "não é data" })).toEqual({
       error: "Data de início inválida.",
     })
-    expect(validarProjeto({ nome: "X", dataFim: "não é data" })).toEqual({ error: "Data de fim inválida." })
+    expect(validarProjeto({ nome: "X", dataFim: "não é data" })).toEqual({
+      error: "Data de fim inválida.",
+    })
   })
 
   it("rejeita data de fim anterior à de início", () => {
@@ -200,7 +221,9 @@ describe("validarProjeto", () => {
   })
 
   it("rejeita cor fora do padrão #RRGGBB", () => {
-    expect(validarProjeto({ nome: "X", cor: "vermelho" })).toEqual({ error: "Cor inválida (use #RRGGBB)." })
+    expect(validarProjeto({ nome: "X", cor: "vermelho" })).toEqual({
+      error: "Cor inválida (use #RRGGBB).",
+    })
   })
 })
 

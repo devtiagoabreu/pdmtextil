@@ -37,7 +37,8 @@ function buildHandler() {
       return { json: filtradas }
     }
     if (method === "GET" && url.startsWith("/api/crm/whatsapp?remoteJid=")) return { json: [] }
-    if (method === "GET" && url.startsWith("/api/crm/whatsapp/chat?remoteJid=")) return { json: { conversa: null } }
+    if (method === "GET" && url.startsWith("/api/crm/whatsapp/chat?remoteJid="))
+      return { json: { conversa: null } }
     return { status: 404, json: { error: "Rota não mockada" } }
   }
 }
@@ -70,7 +71,9 @@ describe("ConversasPage", () => {
     renderPage(<ConversasPage />)
     await screen.findByText("João da Silva")
 
-    fireEvent.change(screen.getByPlaceholderText("Buscar conversa..."), { target: { value: "Maria" } })
+    fireEvent.change(screen.getByPlaceholderText("Buscar conversa..."), {
+      target: { value: "Maria" },
+    })
 
     expect(await screen.findByText("Maria Souza")).toBeInTheDocument()
     expect(screen.queryByText("João da Silva")).not.toBeInTheDocument()

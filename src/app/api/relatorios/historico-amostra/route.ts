@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { produtosCru, produtoCruAmostra, produtoCruAcabamento, produtoCruAcabamentoAmostra } from "@/lib/db/schema/produto-cru"
+import {
+  produtosCru,
+  produtoCruAmostra,
+  produtoCruAcabamento,
+  produtoCruAcabamentoAmostra,
+} from "@/lib/db/schema/produto-cru"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { logs as logsTable } from "@/lib/db/schema/logs"
 import { usuarios } from "@/lib/db/schema/usuarios"
@@ -21,7 +26,10 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "ID da amostra é obrigatório" }, { status: 400 })
     }
     if (!tipo || (tipo !== "tecido_cru" && tipo !== "acabamento")) {
-      return NextResponse.json({ error: "tipo deve ser 'tecido_cru' ou 'acabamento'" }, { status: 400 })
+      return NextResponse.json(
+        { error: "tipo deve ser 'tecido_cru' ou 'acabamento'" },
+        { status: 400 }
+      )
     }
 
     const amostraId = parseInt(id)
@@ -72,7 +80,10 @@ export async function GET(req: NextRequest) {
           responsavelNome: responsavel.name,
         })
         .from(produtoCruAcabamentoAmostra)
-        .innerJoin(produtoCruAcabamento, eq(produtoCruAcabamentoAmostra.acabamentoId, produtoCruAcabamento.id))
+        .innerJoin(
+          produtoCruAcabamento,
+          eq(produtoCruAcabamentoAmostra.acabamentoId, produtoCruAcabamento.id)
+        )
         .innerJoin(produtosCru, eq(produtoCruAcabamento.produtoCruId, produtosCru.id))
         .leftJoin(solicitacoes, eq(produtosCru.solicitacaoDesenvolvimentoId, solicitacoes.id))
         .leftJoin(solicitante, eq(solicitacoes.solicitanteId, solicitante.id))
@@ -96,7 +107,7 @@ export async function GET(req: NextRequest) {
       .where(
         or(
           and(eq(logsTable.entidade, entidadeLog), eq(logsTable.entidadeId, amostraId)),
-          and(eq(logsTable.entidade, "ProdutoCru"), eq(logsTable.entidadeId, produto?.id)),
+          and(eq(logsTable.entidade, "ProdutoCru"), eq(logsTable.entidadeId, produto?.id))
         )
       )
       .orderBy(asc(logsTable.createdAt))
@@ -111,9 +122,12 @@ export async function GET(req: NextRequest) {
     })
   } catch (error) {
     console.error("[GET /api/relatorios/historico-amostra]", error)
-    return NextResponse.json({
-      error: "Erro interno do servidor",
-      detail: "Erro interno",
-    }, { status: 500 })
+    return NextResponse.json(
+      {
+        error: "Erro interno do servidor",
+        detail: "Erro interno",
+      },
+      { status: 500 }
+    )
   }
 }

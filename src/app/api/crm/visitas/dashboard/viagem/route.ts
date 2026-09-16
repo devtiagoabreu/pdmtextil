@@ -123,8 +123,10 @@ export async function GET(req: NextRequest) {
 
     const pontos: PontoRota[] = []
     for (const v of visitasOrdenadas) {
-      const latitude = v.checkInLat ?? v.checkOutLat ?? v.enderecoLat ?? geocodificadas.get(v.id)?.latitude
-      const longitude = v.checkInLng ?? v.checkOutLng ?? v.enderecoLng ?? geocodificadas.get(v.id)?.longitude
+      const latitude =
+        v.checkInLat ?? v.checkOutLat ?? v.enderecoLat ?? geocodificadas.get(v.id)?.latitude
+      const longitude =
+        v.checkInLng ?? v.checkOutLng ?? v.enderecoLng ?? geocodificadas.get(v.id)?.longitude
       if (latitude != null && longitude != null) {
         pontos.push({ id: v.id, latitude: Number(latitude), longitude: Number(longitude) })
       }
@@ -136,10 +138,16 @@ export async function GET(req: NextRequest) {
     const visitasComKm = visitasOrdenadas.map((v: any) => {
       const geocoded = geocodificadas.get(v.id)
       const latitude = v.checkInLat ?? v.checkOutLat ?? v.enderecoLat ?? geocoded?.latitude ?? null
-      const longitude = v.checkInLng ?? v.checkOutLng ?? v.enderecoLng ?? geocoded?.longitude ?? null
+      const longitude =
+        v.checkInLng ?? v.checkOutLng ?? v.enderecoLng ?? geocoded?.longitude ?? null
       const temPonto = latitude != null && longitude != null
       let localizacaoFonte: "checkin" | "endereco" | "geocodificada" | null = null
-      if (v.checkInLat != null || v.checkInLng != null || v.checkOutLat != null || v.checkOutLng != null) {
+      if (
+        v.checkInLat != null ||
+        v.checkInLng != null ||
+        v.checkOutLat != null ||
+        v.checkOutLng != null
+      ) {
         localizacaoFonte = "checkin"
       } else if (v.enderecoLat != null || v.enderecoLng != null) {
         localizacaoFonte = "endereco"
@@ -148,7 +156,7 @@ export async function GET(req: NextRequest) {
       }
       let km: number | null = null
       if (temPonto) {
-        km = pontoIndex === 0 ? 0 : kmEntrePontos[pontoIndex - 1] ?? 0
+        km = pontoIndex === 0 ? 0 : (kmEntrePontos[pontoIndex - 1] ?? 0)
         pontoIndex++
       }
       return {

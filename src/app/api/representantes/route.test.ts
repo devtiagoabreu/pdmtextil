@@ -12,10 +12,12 @@ vi.mock("@/lib/db", () => ({ db: { select: vi.fn(), transaction: vi.fn() } }))
 const sessionAdmin = { session: { user: { id: "1", role: "ADMIN", name: "Tiago" } }, userId: 1 }
 
 function post(body: any) {
-  return POST(new NextRequest("http://localhost/api/representantes", {
-    method: "POST",
-    body: JSON.stringify(body),
-  }))
+  return POST(
+    new NextRequest("http://localhost/api/representantes", {
+      method: "POST",
+      body: JSON.stringify(body),
+    })
+  )
 }
 
 function txMock() {
@@ -38,7 +40,9 @@ describe("POST /api/representantes", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await post({ nome: "Rep", cnpj: "123" })
     expect(res.status).toBe(401)
   })

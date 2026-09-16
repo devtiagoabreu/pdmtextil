@@ -23,13 +23,14 @@ export async function GET(req: NextRequest) {
 
     const conditions = []
     if (status) conditions.push(eq(crmFaturamentos.status, status))
-    if (oportunidadeId) conditions.push(eq(crmFaturamentos.oportunidadeId, parseInt(oportunidadeId)))
+    if (oportunidadeId)
+      conditions.push(eq(crmFaturamentos.oportunidadeId, parseInt(oportunidadeId)))
     if (q.length >= 2) {
       conditions.push(
         or(
           ilike(crmFaturamentos.numero, `%${q}%`),
           ilike(crmFaturamentos.referenciaExterna, `%${q}%`),
-          ilike(crmOportunidades.titulo, `%${q}%`),
+          ilike(crmOportunidades.titulo, `%${q}%`)
         )!
       )
     }
@@ -57,7 +58,10 @@ export async function GET(req: NextRequest) {
       .where(where)
 
     if (all) {
-      const lista = await baseQuery.orderBy(desc(crmFaturamentos.dataEmissao), desc(crmFaturamentos.id))
+      const lista = await baseQuery.orderBy(
+        desc(crmFaturamentos.dataEmissao),
+        desc(crmFaturamentos.id)
+      )
       return NextResponse.json(lista)
     }
 
@@ -128,9 +132,9 @@ export async function POST(req: NextRequest) {
         })
         .returning()
 
-      await tx.insert(crmFaturamentoItens).values(
-        itens.map((item: any) => ({ ...item, faturamentoId: created.id }))
-      )
+      await tx
+        .insert(crmFaturamentoItens)
+        .values(itens.map((item: any) => ({ ...item, faturamentoId: created.id })))
 
       return [created]
     })

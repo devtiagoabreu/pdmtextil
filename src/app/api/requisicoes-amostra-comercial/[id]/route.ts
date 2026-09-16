@@ -10,10 +10,7 @@ import { registrarLog } from "@/lib/log"
 
 export const dynamic = "force-dynamic"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -63,10 +60,7 @@ export async function GET(
   }
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -93,15 +87,20 @@ export async function PATCH(
     }
 
     if (body.produtoCruId !== undefined) updateData.produtoCruId = parseInt(body.produtoCruId)
-    if (body.responsavelId !== undefined) updateData.responsavelId = body.responsavelId ? parseInt(body.responsavelId) : null
+    if (body.responsavelId !== undefined)
+      updateData.responsavelId = body.responsavelId ? parseInt(body.responsavelId) : null
     if (body.solicitacaoDesenvolvimentoId !== undefined) {
-      updateData.solicitacaoDesenvolvimentoId = body.solicitacaoDesenvolvimentoId ? parseInt(body.solicitacaoDesenvolvimentoId) : null
+      updateData.solicitacaoDesenvolvimentoId = body.solicitacaoDesenvolvimentoId
+        ? parseInt(body.solicitacaoDesenvolvimentoId)
+        : null
     }
     if (body.prazoDesejado !== undefined) {
       updateData.prazoDesejado = body.prazoDesejado ? new Date(body.prazoDesejado) : null
     }
 
-    let historico = (Array.isArray(existing.historico) ? existing.historico : []) as Array<Record<string, unknown>>
+    let historico = (Array.isArray(existing.historico) ? existing.historico : []) as Array<
+      Record<string, unknown>
+    >
 
     if (body.status && body.status !== existing.status) {
       updateData.status = body.status
@@ -139,10 +138,7 @@ export async function PATCH(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth

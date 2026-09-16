@@ -5,7 +5,16 @@ import AtivoCategoriaFormPage from "./page"
 import { createFetchMock, renderPage, findCall, toastMock, navMock } from "@/test/harness"
 
 const AREAS_MOCK = [
-  { id: 26, siteId: 6, siteNome: "Ativos e Vistorias", nome: "Segurança", descricao: null, ativo: true, createdAt: "", updatedAt: "" },
+  {
+    id: 26,
+    siteId: 6,
+    siteNome: "Ativos e Vistorias",
+    nome: "Segurança",
+    descricao: null,
+    ativo: true,
+    createdAt: "",
+    updatedAt: "",
+  },
 ]
 
 const EDIT_DATA = {
@@ -24,7 +33,8 @@ function mountNewPage() {
   navMock.setParams({ id: "novo" })
   const fetchMock = createFetchMock(({ method, url }) => {
     if (method === "GET" && url === "/api/processos/areas") return { json: AREAS_MOCK }
-    if (method === "POST" && url === "/api/ativos/categorias") return { status: 201, json: { id: 99 } }
+    if (method === "POST" && url === "/api/ativos/categorias")
+      return { status: 201, json: { id: 99 } }
     return { status: 404, json: { error: "Rota não mockada" } }
   })
   vi.stubGlobal("fetch", fetchMock.fn)

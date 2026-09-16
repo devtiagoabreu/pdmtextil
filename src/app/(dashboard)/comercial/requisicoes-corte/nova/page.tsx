@@ -18,8 +18,31 @@ import type { ItemOcr, RequisicaoCopia } from "../types"
 
 type DestinoTipo = "cliente" | "fornecedor" | "representante"
 
-type DadosClienteNovo = { nome: string; cnpj: string; razaoSocial: string; email: string; emailNf: string; telefone: string; celular: string; contato: string; segmento: string; endereco: string; cidade: string; uf: string }
-type DadosPessoaNovo = { nome: string; cnpj: string; razaoSocial: string; email: string; telefone: string; contato: string; endereco: string; cidade: string; uf: string }
+type DadosClienteNovo = {
+  nome: string
+  cnpj: string
+  razaoSocial: string
+  email: string
+  emailNf: string
+  telefone: string
+  celular: string
+  contato: string
+  segmento: string
+  endereco: string
+  cidade: string
+  uf: string
+}
+type DadosPessoaNovo = {
+  nome: string
+  cnpj: string
+  razaoSocial: string
+  email: string
+  telefone: string
+  contato: string
+  endereco: string
+  cidade: string
+  uf: string
+}
 type DadosNovo = DadosClienteNovo | DadosPessoaNovo
 
 interface ItemLinha {
@@ -41,7 +64,10 @@ interface ItemLinha {
 
 function itemVazio(): ItemLinha {
   return {
-    id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now() + Math.random()),
+    id:
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : String(Date.now() + Math.random()),
     codigoProduto: "",
     ordem: "",
     artigo: "",
@@ -61,11 +87,18 @@ function itemVazio(): ItemLinha {
 function copiarItem(item: ItemLinha): ItemLinha {
   return {
     ...item,
-    id: typeof crypto !== "undefined" && "randomUUID" in crypto ? crypto.randomUUID() : String(Date.now() + Math.random()),
+    id:
+      typeof crypto !== "undefined" && "randomUUID" in crypto
+        ? crypto.randomUUID()
+        : String(Date.now() + Math.random()),
   }
 }
 
-const TIPO_LABELS: Record<DestinoTipo, string> = { cliente: "Cliente", fornecedor: "Fornecedor", representante: "Representante" }
+const TIPO_LABELS: Record<DestinoTipo, string> = {
+  cliente: "Cliente",
+  fornecedor: "Fornecedor",
+  representante: "Representante",
+}
 
 function ItemNovoModal({
   tipo,
@@ -82,42 +115,93 @@ function ItemNovoModal({
 }) {
   const isCliente = tipo === "cliente"
   const isRepresentante = tipo === "representante"
-  const [data, setData] = useState<DadosNovo>(() => isCliente
-    ? { nome: "", cnpj: "", razaoSocial: "", email: "", emailNf: "", telefone: "", celular: "", contato: "", segmento: "", endereco: "", cidade: "", uf: "" }
-    : { nome: "", cnpj: "", razaoSocial: "", email: "", telefone: "", contato: "", endereco: "", cidade: "", uf: "" }
+  const [data, setData] = useState<DadosNovo>(() =>
+    isCliente
+      ? {
+          nome: "",
+          cnpj: "",
+          razaoSocial: "",
+          email: "",
+          emailNf: "",
+          telefone: "",
+          celular: "",
+          contato: "",
+          segmento: "",
+          endereco: "",
+          cidade: "",
+          uf: "",
+        }
+      : {
+          nome: "",
+          cnpj: "",
+          razaoSocial: "",
+          email: "",
+          telefone: "",
+          contato: "",
+          endereco: "",
+          cidade: "",
+          uf: "",
+        }
   )
   const [saving, setSaving] = useState(false)
 
   const handleSave = async () => {
-    if (!data.nome.trim()) { toast.error("Nome é obrigatório"); return }
-    if (isRepresentante && !data.cnpj.trim()) { toast.error("CNPJ é obrigatório para representante"); return }
+    if (!data.nome.trim()) {
+      toast.error("Nome é obrigatório")
+      return
+    }
+    if (isRepresentante && !data.cnpj.trim()) {
+      toast.error("CNPJ é obrigatório para representante")
+      return
+    }
     setSaving(true)
     try {
-      const url = isCliente ? "/api/clientes" : tipo === "fornecedor" ? "/api/cadastros/fornecedores" : "/api/representantes"
-      const res = await fetch(url, { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(data) })
-      if (!res.ok) { const err = await res.json(); throw new Error(err.error || "Erro ao criar") }
+      const url = isCliente
+        ? "/api/clientes"
+        : tipo === "fornecedor"
+          ? "/api/cadastros/fornecedores"
+          : "/api/representantes"
+      const res = await fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(data),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao criar")
+      }
       const created = await res.json()
       toast.success(`${TIPO_LABELS[tipo]} criado(a) com sucesso!`)
       onSuccess(created.id, created.nome)
-    } catch (err) { toast.error(err instanceof Error ? err.message : "Erro ao criar") }
-    finally { setSaving(false) }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao criar")
+    } finally {
+      setSaving(false)
+    }
   }
 
   const handleCnpjLookup = async () => {
     const digits = data.cnpj.replace(/\D/g, "")
-    if (digits.length !== 14) { toast.error("CNPJ deve ter 14 dígitos"); return }
+    if (digits.length !== 14) {
+      toast.error("CNPJ deve ter 14 dígitos")
+      return
+    }
     try {
       const res = await fetch(`/api/crm/consulta-cnpj?cnpj=${digits}`)
       if (!res.ok) throw new Error((await res.json()).error)
       const result = await res.json()
       const api = result.apiData
-      if (!api) { toast.error("CNPJ não encontrado"); return }
+      if (!api) {
+        toast.error("CNPJ não encontrado")
+        return
+      }
       setData((prev) => {
         const base = {
           nome: api.nome_fantasia || prev.nome,
           cnpj: api.cnpj || prev.cnpj,
           razaoSocial: api.razao_social || prev.razaoSocial,
-          endereco: [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
+          endereco:
+            [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
           cidade: api.municipio || prev.cidade,
           uf: api.uf || prev.uf,
         }
@@ -128,47 +212,193 @@ function ItemNovoModal({
         return { ...prev, ...base }
       })
       toast.success("Dados preenchidos pela Receita Federal")
-    } catch (err) { toast.error(err instanceof Error ? err.message : "Erro ao consultar CNPJ") }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao consultar CNPJ")
+    }
   }
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
       <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-lg max-h-[85vh] overflow-y-auto p-6 space-y-4">
-        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Novo {TIPO_LABELS[tipo]}</h3>
-        <p className="text-sm text-slate-500">Digite o CNPJ e clique em Consultar para preencher automaticamente.</p>
+        <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+          Novo {TIPO_LABELS[tipo]}
+        </h3>
+        <p className="text-sm text-slate-500">
+          Digite o CNPJ e clique em Consultar para preencher automaticamente.
+        </p>
         <div className="space-y-3">
           <div>
-            <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">CNPJ {isRepresentante && <span className="text-red-500">*</span>}</Label>
+            <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              CNPJ {isRepresentante && <span className="text-red-500">*</span>}
+            </Label>
             <div className="flex gap-2">
-              <Input value={data.cnpj} onChange={(e) => setData((p) => ({ ...p, cnpj: e.target.value }))} placeholder="00.000.000/0001-00" className="font-mono flex-1" maxLength={18} />
-              <Button type="button" variant="outline" size="sm" onClick={handleCnpjLookup} disabled={isConsultandoCnpj || data.cnpj.replace(/\D/g, "").length !== 14} className="gap-1 shrink-0">
-                {isConsultandoCnpj ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />} Consultar
+              <Input
+                value={data.cnpj}
+                onChange={(e) => setData((p) => ({ ...p, cnpj: e.target.value }))}
+                placeholder="00.000.000/0001-00"
+                className="font-mono flex-1"
+                maxLength={18}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={handleCnpjLookup}
+                disabled={isConsultandoCnpj || data.cnpj.replace(/\D/g, "").length !== 14}
+                className="gap-1 shrink-0"
+              >
+                {isConsultandoCnpj ? (
+                  <Loader2 size={14} className="animate-spin" />
+                ) : (
+                  <Search size={14} />
+                )}{" "}
+                Consultar
               </Button>
             </div>
           </div>
-          <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nome <span className="text-red-500">*</span></Label><Input value={data.nome} onChange={(e) => setData((p) => ({ ...p, nome: e.target.value }))} placeholder={`Nome do ${TIPO_LABELS[tipo].toLowerCase()}`} /></div>
-          <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Razão Social</Label><Input value={data.razaoSocial} onChange={(e) => setData((p) => ({ ...p, razaoSocial: e.target.value }))} placeholder="Razão Social" /></div>
-          <div className="grid grid-cols-2 gap-3">
-            <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</Label><Input type="email" value={data.email} onChange={(e) => setData((p) => ({ ...p, email: e.target.value }))} placeholder="contato@email.com" /></div>
-            {isCliente && <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email NF</Label><Input type="email" value={(data as DadosClienteNovo).emailNf || ""} onChange={(e) => setData((p) => ({ ...(p as DadosClienteNovo), emailNf: e.target.value }))} placeholder="nf@email.com" /></div>}
+          <div>
+            <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Nome <span className="text-red-500">*</span>
+            </Label>
+            <Input
+              value={data.nome}
+              onChange={(e) => setData((p) => ({ ...p, nome: e.target.value }))}
+              placeholder={`Nome do ${TIPO_LABELS[tipo].toLowerCase()}`}
+            />
+          </div>
+          <div>
+            <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Razão Social
+            </Label>
+            <Input
+              value={data.razaoSocial}
+              onChange={(e) => setData((p) => ({ ...p, razaoSocial: e.target.value }))}
+              placeholder="Razão Social"
+            />
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefone</Label><Input value={data.telefone} onChange={(e) => setData((p) => ({ ...p, telefone: e.target.value }))} placeholder="(11) 3333-4444" /></div>
-            {isCliente && <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Celular</Label><Input value={(data as DadosClienteNovo).celular || ""} onChange={(e) => setData((p) => ({ ...(p as DadosClienteNovo), celular: e.target.value }))} placeholder="(11) 99999-9999" /></div>}
+            <div>
+              <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Email
+              </Label>
+              <Input
+                type="email"
+                value={data.email}
+                onChange={(e) => setData((p) => ({ ...p, email: e.target.value }))}
+                placeholder="contato@email.com"
+              />
+            </div>
+            {isCliente && (
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Email NF
+                </Label>
+                <Input
+                  type="email"
+                  value={(data as DadosClienteNovo).emailNf || ""}
+                  onChange={(e) =>
+                    setData((p) => ({ ...(p as DadosClienteNovo), emailNf: e.target.value }))
+                  }
+                  placeholder="nf@email.com"
+                />
+              </div>
+            )}
           </div>
           <div className="grid grid-cols-2 gap-3">
-            <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Contato</Label><Input value={data.contato} onChange={(e) => setData((p) => ({ ...p, contato: e.target.value }))} placeholder="Nome do contato" /></div>
-            {isCliente && <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Segmento</Label><Input value={(data as DadosClienteNovo).segmento || ""} onChange={(e) => setData((p) => ({ ...(p as DadosClienteNovo), segmento: e.target.value }))} placeholder="Ex: Têxtil" /></div>}
+            <div>
+              <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Telefone
+              </Label>
+              <Input
+                value={data.telefone}
+                onChange={(e) => setData((p) => ({ ...p, telefone: e.target.value }))}
+                placeholder="(11) 3333-4444"
+              />
+            </div>
+            {isCliente && (
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Celular
+                </Label>
+                <Input
+                  value={(data as DadosClienteNovo).celular || ""}
+                  onChange={(e) =>
+                    setData((p) => ({ ...(p as DadosClienteNovo), celular: e.target.value }))
+                  }
+                  placeholder="(11) 99999-9999"
+                />
+              </div>
+            )}
           </div>
-          <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Endereço</Label><Input value={data.endereco} onChange={(e) => setData((p) => ({ ...p, endereco: e.target.value }))} placeholder="Rua, número, bairro" /></div>
+          <div className="grid grid-cols-2 gap-3">
+            <div>
+              <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Contato
+              </Label>
+              <Input
+                value={data.contato}
+                onChange={(e) => setData((p) => ({ ...p, contato: e.target.value }))}
+                placeholder="Nome do contato"
+              />
+            </div>
+            {isCliente && (
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Segmento
+                </Label>
+                <Input
+                  value={(data as DadosClienteNovo).segmento || ""}
+                  onChange={(e) =>
+                    setData((p) => ({ ...(p as DadosClienteNovo), segmento: e.target.value }))
+                  }
+                  placeholder="Ex: Têxtil"
+                />
+              </div>
+            )}
+          </div>
+          <div>
+            <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+              Endereço
+            </Label>
+            <Input
+              value={data.endereco}
+              onChange={(e) => setData((p) => ({ ...p, endereco: e.target.value }))}
+              placeholder="Rua, número, bairro"
+            />
+          </div>
           <div className="grid grid-cols-3 gap-3">
-            <div className="col-span-2"><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Cidade</Label><Input value={data.cidade} onChange={(e) => setData((p) => ({ ...p, cidade: e.target.value }))} placeholder="São Paulo" /></div>
-            <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">UF</Label><Input value={data.uf} onChange={(e) => setData((p) => ({ ...p, uf: e.target.value.toUpperCase() }))} placeholder="SP" maxLength={2} /></div>
+            <div className="col-span-2">
+              <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                Cidade
+              </Label>
+              <Input
+                value={data.cidade}
+                onChange={(e) => setData((p) => ({ ...p, cidade: e.target.value }))}
+                placeholder="São Paulo"
+              />
+            </div>
+            <div>
+              <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">UF</Label>
+              <Input
+                value={data.uf}
+                onChange={(e) => setData((p) => ({ ...p, uf: e.target.value.toUpperCase() }))}
+                placeholder="SP"
+                maxLength={2}
+              />
+            </div>
           </div>
         </div>
         <div className="flex justify-end gap-2 pt-2">
-          <Button type="button" variant="outline" size="sm" onClick={onCancel}>Cancelar</Button>
-          <Button type="button" size="sm" onClick={handleSave} disabled={saving || !data.nome.trim()} className="bg-blue-600 hover:bg-blue-700 text-white">
+          <Button type="button" variant="outline" size="sm" onClick={onCancel}>
+            Cancelar
+          </Button>
+          <Button
+            type="button"
+            size="sm"
+            onClick={handleSave}
+            disabled={saving || !data.nome.trim()}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
             {saving ? "Criando..." : `Criar ${TIPO_LABELS[tipo]}`}
           </Button>
         </div>
@@ -197,9 +427,42 @@ function NovaRequisicaoCortePageContent() {
 
   const [dialogCopiarAberto, setDialogCopiarAberto] = useState(false)
   const [qtdCopias, setQtdCopias] = useState("1")
-  const emptyCliente = { nome: "", cnpj: "", razaoSocial: "", email: "", emailNf: "", telefone: "", celular: "", contato: "", segmento: "", endereco: "", cidade: "", uf: "" }
-  const emptyFornecedor = { nome: "", cnpj: "", razaoSocial: "", email: "", telefone: "", contato: "", endereco: "", cidade: "", uf: "" }
-  const emptyRepresentante = { nome: "", cnpj: "", razaoSocial: "", email: "", telefone: "", contato: "", endereco: "", cidade: "", uf: "" }
+  const emptyCliente = {
+    nome: "",
+    cnpj: "",
+    razaoSocial: "",
+    email: "",
+    emailNf: "",
+    telefone: "",
+    celular: "",
+    contato: "",
+    segmento: "",
+    endereco: "",
+    cidade: "",
+    uf: "",
+  }
+  const emptyFornecedor = {
+    nome: "",
+    cnpj: "",
+    razaoSocial: "",
+    email: "",
+    telefone: "",
+    contato: "",
+    endereco: "",
+    cidade: "",
+    uf: "",
+  }
+  const emptyRepresentante = {
+    nome: "",
+    cnpj: "",
+    razaoSocial: "",
+    email: "",
+    telefone: "",
+    contato: "",
+    endereco: "",
+    cidade: "",
+    uf: "",
+  }
 
   const [showNovoCliente, setShowNovoCliente] = useState(false)
   const [novoClienteData, setNovoClienteData] = useState(emptyCliente)
@@ -224,22 +487,24 @@ function NovaRequisicaoCortePageContent() {
       if (!raw) return
       const dados: RequisicaoCopia = JSON.parse(raw)
       if (Array.isArray(dados.itens) && dados.itens.length > 0) {
-        setItens(dados.itens.map((item) => ({
-          id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
-          codigoProduto: item.codigoProduto || "",
-          ordem: item.ordem || "",
-          artigo: item.artigo || "",
-          cor: item.cor || "",
-          desenho: item.desenho || "",
-          quantidade: item.quantidade || "",
-          destinoTipo: null,
-          clienteId: item.clienteId || null,
-          clienteNome: item.clienteNome || null,
-          fornecedorId: item.fornecedorId || null,
-          fornecedorNome: item.fornecedorNome || null,
-          representanteId: item.representanteId || null,
-          representanteNome: item.representanteNome || null,
-        })))
+        setItens(
+          dados.itens.map((item) => ({
+            id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
+            codigoProduto: item.codigoProduto || "",
+            ordem: item.ordem || "",
+            artigo: item.artigo || "",
+            cor: item.cor || "",
+            desenho: item.desenho || "",
+            quantidade: item.quantidade || "",
+            destinoTipo: null,
+            clienteId: item.clienteId || null,
+            clienteNome: item.clienteNome || null,
+            fornecedorId: item.fornecedorId || null,
+            fornecedorNome: item.fornecedorNome || null,
+            representanteId: item.representanteId || null,
+            representanteNome: item.representanteNome || null,
+          }))
+        )
         if (dados.observacoes) setObservacoes(dados.observacoes)
         if (dados.entreguePor) setEntreguePor(dados.entreguePor)
         if (dados.dataSolicitacao) setDataSolicitacao(dados.dataSolicitacao)
@@ -257,15 +522,21 @@ function NovaRequisicaoCortePageContent() {
   }, [searchParams, pathname, router])
 
   const handleItemChange = (index: number, field: keyof ItemLinha, value: string) => {
-    setItens(prev => {
+    setItens((prev) => {
       const next = [...prev]
       next[index] = { ...next[index], [field]: value }
       return next
     })
   }
 
-  const handleItemCreatableChange = (index: number, idField: keyof ItemLinha, nomeField: keyof ItemLinha, id: number | null, nome: string | null) => {
-    setItens(prev => {
+  const handleItemCreatableChange = (
+    index: number,
+    idField: keyof ItemLinha,
+    nomeField: keyof ItemLinha,
+    id: number | null,
+    nome: string | null
+  ) => {
+    setItens((prev) => {
       const next = [...prev]
       next[index] = { ...next[index], [idField]: id, [nomeField]: nome }
       return next
@@ -273,12 +544,12 @@ function NovaRequisicaoCortePageContent() {
   }
 
   const addItem = () => {
-    setItens(prev => [...prev, itemVazio()])
+    setItens((prev) => [...prev, itemVazio()])
   }
 
   const copiarItemAtual = () => {
     const qtd = parseInt(qtdCopias) || 1
-    setItens(prev => {
+    setItens((prev) => {
       const ultimo = prev[prev.length - 1]
       const copias = Array.from({ length: qtd }, () => copiarItem(ultimo))
       return [...prev, ...copias]
@@ -289,7 +560,7 @@ function NovaRequisicaoCortePageContent() {
   }
 
   const moverItem = (index: number, direcao: -1 | 1) => {
-    setItens(prev => {
+    setItens((prev) => {
       const novoIndex = index + direcao
       if (novoIndex < 0 || novoIndex >= prev.length) return prev
       const next = [...prev]
@@ -302,31 +573,62 @@ function NovaRequisicaoCortePageContent() {
 
   const removeItem = (index: number) => {
     if (itens.length <= 1) return
-    setItens(prev => prev.filter((_, i) => i !== index))
+    setItens((prev) => prev.filter((_, i) => i !== index))
   }
 
   const handleDestinoTipoChange = (index: number, novoTipo: DestinoTipo) => {
-    setItens(prev => prev.map((item, i) => {
-      if (i !== index) return item
-      const updated = { ...item, destinoTipo: novoTipo }
-      if (novoTipo === "cliente") { updated.fornecedorId = null; updated.fornecedorNome = null; updated.representanteId = null; updated.representanteNome = null }
-      else if (novoTipo === "fornecedor") { updated.clienteId = null; updated.clienteNome = null; updated.representanteId = null; updated.representanteNome = null }
-      else if (novoTipo === "representante") { updated.clienteId = null; updated.clienteNome = null; updated.fornecedorId = null; updated.fornecedorNome = null }
-      return updated
-    }))
+    setItens((prev) =>
+      prev.map((item, i) => {
+        if (i !== index) return item
+        const updated = { ...item, destinoTipo: novoTipo }
+        if (novoTipo === "cliente") {
+          updated.fornecedorId = null
+          updated.fornecedorNome = null
+          updated.representanteId = null
+          updated.representanteNome = null
+        } else if (novoTipo === "fornecedor") {
+          updated.clienteId = null
+          updated.clienteNome = null
+          updated.representanteId = null
+          updated.representanteNome = null
+        } else if (novoTipo === "representante") {
+          updated.clienteId = null
+          updated.clienteNome = null
+          updated.fornecedorId = null
+          updated.fornecedorNome = null
+        }
+        return updated
+      })
+    )
   }
 
   const handleItemNovoSucesso = (id: number, nome: string) => {
     if (itemNovoIdx === null || !itemNovoTipo) return
-    const idField = itemNovoTipo === "cliente" ? "clienteId" : itemNovoTipo === "fornecedor" ? "fornecedorId" : "representanteId"
-    const nomeField = itemNovoTipo === "cliente" ? "clienteNome" : itemNovoTipo === "fornecedor" ? "fornecedorNome" : "representanteNome"
-    setItens(prev => prev.map((item, i) => i === itemNovoIdx ? { ...item, destinoTipo: itemNovoTipo, [idField]: id, [nomeField]: nome } : item))
+    const idField =
+      itemNovoTipo === "cliente"
+        ? "clienteId"
+        : itemNovoTipo === "fornecedor"
+          ? "fornecedorId"
+          : "representanteId"
+    const nomeField =
+      itemNovoTipo === "cliente"
+        ? "clienteNome"
+        : itemNovoTipo === "fornecedor"
+          ? "fornecedorNome"
+          : "representanteNome"
+    setItens((prev) =>
+      prev.map((item, i) =>
+        i === itemNovoIdx
+          ? { ...item, destinoTipo: itemNovoTipo, [idField]: id, [nomeField]: nome }
+          : item
+      )
+    )
     setItemNovoIdx(null)
     setItemNovoTipo(null)
   }
 
   const handleOcrItens = (novosItens: ItemOcr[]) => {
-    setItens(prev => [
+    setItens((prev) => [
       ...prev.filter((item) => item.quantidade.trim()),
       ...novosItens.map((item) => ({
         id: crypto.randomUUID ? crypto.randomUUID() : String(Date.now() + Math.random()),
@@ -400,7 +702,8 @@ function NovaRequisicaoCortePageContent() {
         nome: api.nome_fantasia || prev.nome,
         cnpj: api.cnpj || prev.cnpj,
         razaoSocial: api.razao_social || prev.razaoSocial,
-        endereco: [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
+        endereco:
+          [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
         cidade: api.municipio || prev.cidade,
         uf: api.uf || prev.uf,
         segmento: api.cnae_principal_descricao || prev.segmento,
@@ -444,31 +747,47 @@ function NovaRequisicaoCortePageContent() {
 
   const handleConsultarCnpjFornecedor = async () => {
     const digits = novoFornecedorData.cnpj.replace(/\D/g, "")
-    if (digits.length !== 14) { toast.error("CNPJ deve ter 14 dígitos"); return }
+    if (digits.length !== 14) {
+      toast.error("CNPJ deve ter 14 dígitos")
+      return
+    }
     setIsConsultandoCnpj(true)
     try {
       const res = await fetch(`/api/crm/consulta-cnpj?cnpj=${digits}`)
       if (!res.ok) throw new Error((await res.json()).error || "Erro na consulta")
       const result = await res.json()
       const api = result.apiData
-      if (!api) { toast.error("CNPJ não encontrado na Receita Federal"); return }
+      if (!api) {
+        toast.error("CNPJ não encontrado na Receita Federal")
+        return
+      }
       setNovoFornecedorData((prev) => ({
         ...prev,
         nome: api.nome_fantasia || prev.nome,
         cnpj: api.cnpj || prev.cnpj,
         razaoSocial: api.razao_social || prev.razaoSocial,
-        endereco: [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
+        endereco:
+          [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
         cidade: api.municipio || prev.cidade,
         uf: api.uf || prev.uf,
       }))
       toast.success("Dados preenchidos pela Receita Federal")
-    } catch (err) { toast.error(err instanceof Error ? err.message : "Erro ao consultar CNPJ") }
-    finally { setIsConsultandoCnpj(false) }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao consultar CNPJ")
+    } finally {
+      setIsConsultandoCnpj(false)
+    }
   }
 
   const handleCriarRepresentante = async () => {
-    if (!novoRepresentanteData.nome.trim()) { toast.error("Nome do representante é obrigatório"); return }
-    if (!novoRepresentanteData.cnpj.trim()) { toast.error("CNPJ do representante é obrigatório"); return }
+    if (!novoRepresentanteData.nome.trim()) {
+      toast.error("Nome do representante é obrigatório")
+      return
+    }
+    if (!novoRepresentanteData.cnpj.trim()) {
+      toast.error("CNPJ do representante é obrigatório")
+      return
+    }
     setIsCriandoRepresentante(true)
     try {
       const res = await fetch("/api/representantes", {
@@ -495,26 +814,36 @@ function NovaRequisicaoCortePageContent() {
 
   const handleConsultarCnpjRepresentante = async () => {
     const digits = novoRepresentanteData.cnpj.replace(/\D/g, "")
-    if (digits.length !== 14) { toast.error("CNPJ deve ter 14 dígitos"); return }
+    if (digits.length !== 14) {
+      toast.error("CNPJ deve ter 14 dígitos")
+      return
+    }
     setIsConsultandoCnpj(true)
     try {
       const res = await fetch(`/api/crm/consulta-cnpj?cnpj=${digits}`)
       if (!res.ok) throw new Error((await res.json()).error || "Erro na consulta")
       const result = await res.json()
       const api = result.apiData
-      if (!api) { toast.error("CNPJ não encontrado na Receita Federal"); return }
+      if (!api) {
+        toast.error("CNPJ não encontrado na Receita Federal")
+        return
+      }
       setNovoRepresentanteData((prev) => ({
         ...prev,
         nome: api.nome_fantasia || prev.nome,
         cnpj: api.cnpj || prev.cnpj,
         razaoSocial: api.razao_social || prev.razaoSocial,
-        endereco: [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
+        endereco:
+          [api.logradouro, api.numero, api.bairro].filter(Boolean).join(", ") || prev.endereco,
         cidade: api.municipio || prev.cidade,
         uf: api.uf || prev.uf,
       }))
       toast.success("Dados preenchidos pela Receita Federal")
-    } catch (err) { toast.error(err instanceof Error ? err.message : "Erro ao consultar CNPJ") }
-    finally { setIsConsultandoCnpj(false) }
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Erro ao consultar CNPJ")
+    } finally {
+      setIsConsultandoCnpj(false)
+    }
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -577,20 +906,36 @@ function NovaRequisicaoCortePageContent() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Itens de Corte</h2>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+            Itens de Corte
+          </h2>
 
           <div className="min-h-[350px]">
             <table className="w-full">
               <thead>
                 <tr className="border-b border-slate-200 dark:border-slate-700">
                   <th className="px-3 py-2 w-8"></th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase min-w-[200px]">Cód. Produto</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Ordem</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Artigo</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Cor</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Desenho</th>
-                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">Qtd <span className="text-red-500">*</span></th>
-                  <th className="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase min-w-[220px]">Destino</th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase min-w-[200px]">
+                    Cód. Produto
+                  </th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">
+                    Ordem
+                  </th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">
+                    Artigo
+                  </th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">
+                    Cor
+                  </th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">
+                    Desenho
+                  </th>
+                  <th className="px-3 py-2 text-left text-xs font-medium text-slate-500 uppercase">
+                    Qtd <span className="text-red-500">*</span>
+                  </th>
+                  <th className="px-2 py-2 text-left text-xs font-medium text-slate-500 uppercase min-w-[220px]">
+                    Destino
+                  </th>
                   <th className="px-3 py-2 w-10"></th>
                 </tr>
               </thead>
@@ -671,7 +1016,9 @@ function NovaRequisicaoCortePageContent() {
                       <div className="flex items-center gap-1">
                         <select
                           value={item.destinoTipo || ""}
-                          onChange={(e) => handleDestinoTipoChange(index, e.target.value as DestinoTipo)}
+                          onChange={(e) =>
+                            handleDestinoTipoChange(index, e.target.value as DestinoTipo)
+                          }
                           className="h-9 text-xs rounded-md border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-1.5 py-1 text-slate-700 dark:text-slate-300 w-20 shrink-0"
                         >
                           <option value="">Tipo</option>
@@ -682,14 +1029,42 @@ function NovaRequisicaoCortePageContent() {
                         {item.destinoTipo && (
                           <>
                             <CreatableSelect
-                              valueId={item.destinoTipo === "cliente" ? item.clienteId : item.destinoTipo === "fornecedor" ? item.fornecedorId : item.representanteId}
-                              valueNome={item.destinoTipo === "cliente" ? item.clienteNome : item.destinoTipo === "fornecedor" ? item.fornecedorNome : item.representanteNome}
+                              valueId={
+                                item.destinoTipo === "cliente"
+                                  ? item.clienteId
+                                  : item.destinoTipo === "fornecedor"
+                                    ? item.fornecedorId
+                                    : item.representanteId
+                              }
+                              valueNome={
+                                item.destinoTipo === "cliente"
+                                  ? item.clienteNome
+                                  : item.destinoTipo === "fornecedor"
+                                    ? item.fornecedorNome
+                                    : item.representanteNome
+                              }
                               onChange={(id, nome) => {
-                                const idField = item.destinoTipo === "cliente" ? "clienteId" : item.destinoTipo === "fornecedor" ? "fornecedorId" : "representanteId"
-                                const nomeField = item.destinoTipo === "cliente" ? "clienteNome" : item.destinoTipo === "fornecedor" ? "fornecedorNome" : "representanteNome"
+                                const idField =
+                                  item.destinoTipo === "cliente"
+                                    ? "clienteId"
+                                    : item.destinoTipo === "fornecedor"
+                                      ? "fornecedorId"
+                                      : "representanteId"
+                                const nomeField =
+                                  item.destinoTipo === "cliente"
+                                    ? "clienteNome"
+                                    : item.destinoTipo === "fornecedor"
+                                      ? "fornecedorNome"
+                                      : "representanteNome"
                                 handleItemCreatableChange(index, idField, nomeField, id, nome)
                               }}
-                              fetchUrl={item.destinoTipo === "cliente" ? "/api/clientes" : item.destinoTipo === "fornecedor" ? "/api/cadastros/fornecedores" : "/api/representantes"}
+                              fetchUrl={
+                                item.destinoTipo === "cliente"
+                                  ? "/api/clientes"
+                                  : item.destinoTipo === "fornecedor"
+                                    ? "/api/cadastros/fornecedores"
+                                    : "/api/representantes"
+                              }
                               placeholder="Buscar..."
                               className="text-xs flex-1 min-w-0"
                             />
@@ -698,7 +1073,10 @@ function NovaRequisicaoCortePageContent() {
                               variant="outline"
                               size="sm"
                               className="h-7 w-7 p-0 shrink-0"
-                              onClick={() => { setItemNovoTipo(item.destinoTipo); setItemNovoIdx(index) }}
+                              onClick={() => {
+                                setItemNovoTipo(item.destinoTipo)
+                                setItemNovoIdx(index)
+                              }}
                               title={`Novo ${item.destinoTipo}`}
                             >
                               <UserPlus size={11} />
@@ -747,7 +1125,9 @@ function NovaRequisicaoCortePageContent() {
         </div>
 
         <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Informações Adicionais</h2>
+          <h2 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+            Informações Adicionais
+          </h2>
 
           <div className="space-y-2">
             <Label htmlFor="observacoes">Observações</Label>
@@ -798,7 +1178,10 @@ function NovaRequisicaoCortePageContent() {
                 <CreatableSelect
                   valueId={clienteIdGlobal}
                   valueNome={clienteNomeGlobal}
-                  onChange={(id, nome) => { setClienteIdGlobal(id); setClienteNomeGlobal(nome) }}
+                  onChange={(id, nome) => {
+                    setClienteIdGlobal(id)
+                    setClienteNomeGlobal(nome)
+                  }}
                   fetchUrl="/api/clientes"
                   placeholder="Nenhum"
                   extraField="cnpj"
@@ -822,13 +1205,23 @@ function NovaRequisicaoCortePageContent() {
                 <CreatableSelect
                   valueId={fornecedorIdGlobal}
                   valueNome={fornecedorNomeGlobal}
-                  onChange={(id, nome) => { setFornecedorIdGlobal(id); setFornecedorNomeGlobal(nome) }}
+                  onChange={(id, nome) => {
+                    setFornecedorIdGlobal(id)
+                    setFornecedorNomeGlobal(nome)
+                  }}
                   fetchUrl="/api/cadastros/fornecedores"
                   placeholder="Nenhum"
                   extraField="cnpj"
                   className="flex-1"
                 />
-                <Button type="button" variant="outline" size="sm" onClick={() => setShowNovoFornecedor(true)} className="h-9 px-2 shrink-0" title="Cadastrar novo fornecedor">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowNovoFornecedor(true)}
+                  className="h-9 px-2 shrink-0"
+                  title="Cadastrar novo fornecedor"
+                >
                   <UserPlus size={14} />
                 </Button>
               </div>
@@ -839,13 +1232,23 @@ function NovaRequisicaoCortePageContent() {
                 <CreatableSelect
                   valueId={representanteIdGlobal}
                   valueNome={representanteNomeGlobal}
-                  onChange={(id, nome) => { setRepresentanteIdGlobal(id); setRepresentanteNomeGlobal(nome) }}
+                  onChange={(id, nome) => {
+                    setRepresentanteIdGlobal(id)
+                    setRepresentanteNomeGlobal(nome)
+                  }}
                   fetchUrl="/api/representantes"
                   placeholder="Nenhum"
                   extraField="cnpj"
                   className="flex-1"
                 />
-                <Button type="button" variant="outline" size="sm" onClick={() => setShowNovoRepresentante(true)} className="h-9 px-2 shrink-0" title="Cadastrar novo representante">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowNovoRepresentante(true)}
+                  className="h-9 px-2 shrink-0"
+                  title="Cadastrar novo representante"
+                >
                   <UserPlus size={14} />
                 </Button>
               </div>
@@ -854,7 +1257,11 @@ function NovaRequisicaoCortePageContent() {
         </div>
 
         <div className="flex justify-end pt-4">
-          <Button type="submit" disabled={submitting} className="bg-blue-600 hover:bg-blue-700 text-white">
+          <Button
+            type="submit"
+            disabled={submitting}
+            className="bg-blue-600 hover:bg-blue-700 text-white"
+          >
             {submitting ? "Salvando..." : "Salvar Requisição"}
           </Button>
         </div>
@@ -863,7 +1270,9 @@ function NovaRequisicaoCortePageContent() {
       {dialogCopiarAberto && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl p-6 w-80 space-y-4">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">Copiar último item</h3>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+              Copiar último item
+            </h3>
             <p className="text-sm text-slate-500">
               Quantas cópias do último item deseja adicionar?
             </p>
@@ -891,7 +1300,12 @@ function NovaRequisicaoCortePageContent() {
               >
                 Cancelar
               </Button>
-              <Button type="button" size="sm" onClick={copiarItemAtual} className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button
+                type="button"
+                size="sm"
+                onClick={copiarItemAtual}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
                 Copiar
               </Button>
             </div>
@@ -902,8 +1316,12 @@ function NovaRequisicaoCortePageContent() {
       {showNovoCliente && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-lg max-h-[85vh] overflow-y-auto p-6 space-y-4">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Novo Cliente</h3>
-            <p className="text-sm text-slate-500">Digite o CNPJ e clique em Consultar para preencher automaticamente.</p>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              Novo Cliente
+            </h3>
+            <p className="text-sm text-slate-500">
+              Digite o CNPJ e clique em Consultar para preencher automaticamente.
+            </p>
             <div className="space-y-3">
               <div>
                 <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
@@ -912,7 +1330,9 @@ function NovaRequisicaoCortePageContent() {
                 <div className="flex gap-2">
                   <Input
                     value={novoClienteData.cnpj}
-                    onChange={(e) => setNovoClienteData((prev) => ({ ...prev, cnpj: e.target.value }))}
+                    onChange={(e) =>
+                      setNovoClienteData((prev) => ({ ...prev, cnpj: e.target.value }))
+                    }
                     placeholder="00.000.000/0001-00"
                     className="font-mono flex-1"
                     maxLength={18}
@@ -922,10 +1342,16 @@ function NovaRequisicaoCortePageContent() {
                     variant="outline"
                     size="sm"
                     onClick={handleConsultarCnpj}
-                    disabled={isConsultandoCnpj || novoClienteData.cnpj.replace(/\D/g, "").length !== 14}
+                    disabled={
+                      isConsultandoCnpj || novoClienteData.cnpj.replace(/\D/g, "").length !== 14
+                    }
                     className="gap-1 shrink-0"
                   >
-                    {isConsultandoCnpj ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />}
+                    {isConsultandoCnpj ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Search size={14} />
+                    )}
                     Consultar
                   </Button>
                 </div>
@@ -936,60 +1362,141 @@ function NovaRequisicaoCortePageContent() {
                 </Label>
                 <Input
                   value={novoClienteData.nome}
-                  onChange={(e) => setNovoClienteData((prev) => ({ ...prev, nome: e.target.value }))}
+                  onChange={(e) =>
+                    setNovoClienteData((prev) => ({ ...prev, nome: e.target.value }))
+                  }
                   placeholder="Nome do cliente"
                 />
               </div>
               <div>
-                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Razão Social</Label>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Razão Social
+                </Label>
                 <Input
                   value={novoClienteData.razaoSocial}
-                  onChange={(e) => setNovoClienteData((prev) => ({ ...prev, razaoSocial: e.target.value }))}
+                  onChange={(e) =>
+                    setNovoClienteData((prev) => ({ ...prev, razaoSocial: e.target.value }))
+                  }
                   placeholder="Razão Social completa"
                 />
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</Label>
-                  <Input type="email" value={novoClienteData.email} onChange={(e) => setNovoClienteData((prev) => ({ ...prev, email: e.target.value }))} placeholder="contato@email.com" />
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Email
+                  </Label>
+                  <Input
+                    type="email"
+                    value={novoClienteData.email}
+                    onChange={(e) =>
+                      setNovoClienteData((prev) => ({ ...prev, email: e.target.value }))
+                    }
+                    placeholder="contato@email.com"
+                  />
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email NF</Label>
-                  <Input type="email" value={novoClienteData.emailNf} onChange={(e) => setNovoClienteData((prev) => ({ ...prev, emailNf: e.target.value }))} placeholder="nf@email.com" />
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Email NF
+                  </Label>
+                  <Input
+                    type="email"
+                    value={novoClienteData.emailNf}
+                    onChange={(e) =>
+                      setNovoClienteData((prev) => ({ ...prev, emailNf: e.target.value }))
+                    }
+                    placeholder="nf@email.com"
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefone</Label>
-                  <Input value={novoClienteData.telefone} onChange={(e) => setNovoClienteData((prev) => ({ ...prev, telefone: e.target.value }))} placeholder="(11) 3333-4444" />
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Telefone
+                  </Label>
+                  <Input
+                    value={novoClienteData.telefone}
+                    onChange={(e) =>
+                      setNovoClienteData((prev) => ({ ...prev, telefone: e.target.value }))
+                    }
+                    placeholder="(11) 3333-4444"
+                  />
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Celular</Label>
-                  <Input value={novoClienteData.celular} onChange={(e) => setNovoClienteData((prev) => ({ ...prev, celular: e.target.value }))} placeholder="(11) 99999-9999" />
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Celular
+                  </Label>
+                  <Input
+                    value={novoClienteData.celular}
+                    onChange={(e) =>
+                      setNovoClienteData((prev) => ({ ...prev, celular: e.target.value }))
+                    }
+                    placeholder="(11) 99999-9999"
+                  />
                 </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Contato</Label>
-                  <Input value={novoClienteData.contato} onChange={(e) => setNovoClienteData((prev) => ({ ...prev, contato: e.target.value }))} placeholder="Nome do contato" />
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Contato
+                  </Label>
+                  <Input
+                    value={novoClienteData.contato}
+                    onChange={(e) =>
+                      setNovoClienteData((prev) => ({ ...prev, contato: e.target.value }))
+                    }
+                    placeholder="Nome do contato"
+                  />
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Segmento</Label>
-                  <Input value={novoClienteData.segmento} onChange={(e) => setNovoClienteData((prev) => ({ ...prev, segmento: e.target.value }))} placeholder="Ex: Têxtil" />
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Segmento
+                  </Label>
+                  <Input
+                    value={novoClienteData.segmento}
+                    onChange={(e) =>
+                      setNovoClienteData((prev) => ({ ...prev, segmento: e.target.value }))
+                    }
+                    placeholder="Ex: Têxtil"
+                  />
                 </div>
               </div>
               <div>
-                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Endereço</Label>
-                <Input value={novoClienteData.endereco} onChange={(e) => setNovoClienteData((prev) => ({ ...prev, endereco: e.target.value }))} placeholder="Rua, número, bairro" />
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Endereço
+                </Label>
+                <Input
+                  value={novoClienteData.endereco}
+                  onChange={(e) =>
+                    setNovoClienteData((prev) => ({ ...prev, endereco: e.target.value }))
+                  }
+                  placeholder="Rua, número, bairro"
+                />
               </div>
               <div className="grid grid-cols-3 gap-3">
                 <div className="col-span-2">
-                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Cidade</Label>
-                  <Input value={novoClienteData.cidade} onChange={(e) => setNovoClienteData((prev) => ({ ...prev, cidade: e.target.value }))} placeholder="São Paulo" />
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Cidade
+                  </Label>
+                  <Input
+                    value={novoClienteData.cidade}
+                    onChange={(e) =>
+                      setNovoClienteData((prev) => ({ ...prev, cidade: e.target.value }))
+                    }
+                    placeholder="São Paulo"
+                  />
                 </div>
                 <div>
-                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">UF</Label>
-                  <Input value={novoClienteData.uf} onChange={(e) => setNovoClienteData((prev) => ({ ...prev, uf: e.target.value.toUpperCase() }))} placeholder="SP" maxLength={2} />
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    UF
+                  </Label>
+                  <Input
+                    value={novoClienteData.uf}
+                    onChange={(e) =>
+                      setNovoClienteData((prev) => ({ ...prev, uf: e.target.value.toUpperCase() }))
+                    }
+                    placeholder="SP"
+                    maxLength={2}
+                  />
                 </div>
               </div>
             </div>
@@ -998,7 +1505,23 @@ function NovaRequisicaoCortePageContent() {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => { setShowNovoCliente(false); setNovoClienteData({ nome: "", cnpj: "", razaoSocial: "", email: "", emailNf: "", telefone: "", celular: "", contato: "", segmento: "", endereco: "", cidade: "", uf: "" }) }}
+                onClick={() => {
+                  setShowNovoCliente(false)
+                  setNovoClienteData({
+                    nome: "",
+                    cnpj: "",
+                    razaoSocial: "",
+                    email: "",
+                    emailNf: "",
+                    telefone: "",
+                    celular: "",
+                    contato: "",
+                    segmento: "",
+                    endereco: "",
+                    cidade: "",
+                    uf: "",
+                  })
+                }}
               >
                 Cancelar
               </Button>
@@ -1006,7 +1529,9 @@ function NovaRequisicaoCortePageContent() {
                 type="button"
                 size="sm"
                 onClick={handleCriarCliente}
-                disabled={isCriandoCliente || !novoClienteData.nome.trim() || !novoClienteData.cnpj.trim()}
+                disabled={
+                  isCriandoCliente || !novoClienteData.nome.trim() || !novoClienteData.cnpj.trim()
+                }
                 className="bg-blue-600 hover:bg-blue-700 text-white"
               >
                 {isCriandoCliente ? "Criando..." : "Criar Cliente"}
@@ -1019,42 +1544,166 @@ function NovaRequisicaoCortePageContent() {
       {showNovoFornecedor && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-lg max-h-[85vh] overflow-y-auto p-6 space-y-4">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Novo Fornecedor</h3>
-            <p className="text-sm text-slate-500">Digite o CNPJ e clique em Consultar para preencher automaticamente.</p>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              Novo Fornecedor
+            </h3>
+            <p className="text-sm text-slate-500">
+              Digite o CNPJ e clique em Consultar para preencher automaticamente.
+            </p>
             <div className="space-y-3">
               <div>
-                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">CNPJ</Label>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  CNPJ
+                </Label>
                 <div className="flex gap-2">
-                  <Input value={novoFornecedorData.cnpj} onChange={(e) => setNovoFornecedorData((p) => ({ ...p, cnpj: e.target.value }))} placeholder="00.000.000/0001-00" className="font-mono flex-1" maxLength={18} />
-                  <Button type="button" variant="outline" size="sm" onClick={handleConsultarCnpjFornecedor} disabled={isConsultandoCnpj || novoFornecedorData.cnpj.replace(/\D/g, "").length !== 14} className="gap-1 shrink-0">
-                    {isConsultandoCnpj ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />} Consultar
+                  <Input
+                    value={novoFornecedorData.cnpj}
+                    onChange={(e) => setNovoFornecedorData((p) => ({ ...p, cnpj: e.target.value }))}
+                    placeholder="00.000.000/0001-00"
+                    className="font-mono flex-1"
+                    maxLength={18}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleConsultarCnpjFornecedor}
+                    disabled={
+                      isConsultandoCnpj || novoFornecedorData.cnpj.replace(/\D/g, "").length !== 14
+                    }
+                    className="gap-1 shrink-0"
+                  >
+                    {isConsultandoCnpj ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Search size={14} />
+                    )}{" "}
+                    Consultar
                   </Button>
                 </div>
               </div>
               <div>
-                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nome <span className="text-red-500">*</span></Label>
-                <Input value={novoFornecedorData.nome} onChange={(e) => setNovoFornecedorData((p) => ({ ...p, nome: e.target.value }))} placeholder="Nome do fornecedor" />
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Nome <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  value={novoFornecedorData.nome}
+                  onChange={(e) => setNovoFornecedorData((p) => ({ ...p, nome: e.target.value }))}
+                  placeholder="Nome do fornecedor"
+                />
               </div>
               <div>
-                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Razão Social</Label>
-                <Input value={novoFornecedorData.razaoSocial} onChange={(e) => setNovoFornecedorData((p) => ({ ...p, razaoSocial: e.target.value }))} placeholder="Razão Social" />
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Razão Social
+                </Label>
+                <Input
+                  value={novoFornecedorData.razaoSocial}
+                  onChange={(e) =>
+                    setNovoFornecedorData((p) => ({ ...p, razaoSocial: e.target.value }))
+                  }
+                  placeholder="Razão Social"
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</Label><Input type="email" value={novoFornecedorData.email} onChange={(e) => setNovoFornecedorData((p) => ({ ...p, email: e.target.value }))} placeholder="contato@email.com" /></div>
-                <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefone</Label><Input value={novoFornecedorData.telefone} onChange={(e) => setNovoFornecedorData((p) => ({ ...p, telefone: e.target.value }))} placeholder="(11) 3333-4444" /></div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Email
+                  </Label>
+                  <Input
+                    type="email"
+                    value={novoFornecedorData.email}
+                    onChange={(e) =>
+                      setNovoFornecedorData((p) => ({ ...p, email: e.target.value }))
+                    }
+                    placeholder="contato@email.com"
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Telefone
+                  </Label>
+                  <Input
+                    value={novoFornecedorData.telefone}
+                    onChange={(e) =>
+                      setNovoFornecedorData((p) => ({ ...p, telefone: e.target.value }))
+                    }
+                    placeholder="(11) 3333-4444"
+                  />
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Contato</Label><Input value={novoFornecedorData.contato} onChange={(e) => setNovoFornecedorData((p) => ({ ...p, contato: e.target.value }))} placeholder="Nome do contato" /></div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Contato
+                  </Label>
+                  <Input
+                    value={novoFornecedorData.contato}
+                    onChange={(e) =>
+                      setNovoFornecedorData((p) => ({ ...p, contato: e.target.value }))
+                    }
+                    placeholder="Nome do contato"
+                  />
+                </div>
               </div>
-              <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Endereço</Label><Input value={novoFornecedorData.endereco} onChange={(e) => setNovoFornecedorData((p) => ({ ...p, endereco: e.target.value }))} placeholder="Rua, número, bairro" /></div>
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Endereço
+                </Label>
+                <Input
+                  value={novoFornecedorData.endereco}
+                  onChange={(e) =>
+                    setNovoFornecedorData((p) => ({ ...p, endereco: e.target.value }))
+                  }
+                  placeholder="Rua, número, bairro"
+                />
+              </div>
               <div className="grid grid-cols-3 gap-3">
-                <div className="col-span-2"><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Cidade</Label><Input value={novoFornecedorData.cidade} onChange={(e) => setNovoFornecedorData((p) => ({ ...p, cidade: e.target.value }))} placeholder="São Paulo" /></div>
-                <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">UF</Label><Input value={novoFornecedorData.uf} onChange={(e) => setNovoFornecedorData((p) => ({ ...p, uf: e.target.value.toUpperCase() }))} placeholder="SP" maxLength={2} /></div>
+                <div className="col-span-2">
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Cidade
+                  </Label>
+                  <Input
+                    value={novoFornecedorData.cidade}
+                    onChange={(e) =>
+                      setNovoFornecedorData((p) => ({ ...p, cidade: e.target.value }))
+                    }
+                    placeholder="São Paulo"
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    UF
+                  </Label>
+                  <Input
+                    value={novoFornecedorData.uf}
+                    onChange={(e) =>
+                      setNovoFornecedorData((p) => ({ ...p, uf: e.target.value.toUpperCase() }))
+                    }
+                    placeholder="SP"
+                    maxLength={2}
+                  />
+                </div>
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="outline" size="sm" onClick={() => { setShowNovoFornecedor(false); setNovoFornecedorData(emptyFornecedor) }}>Cancelar</Button>
-              <Button type="button" size="sm" onClick={handleCriarFornecedor} disabled={isCriandoFornecedor || !novoFornecedorData.nome.trim()} className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setShowNovoFornecedor(false)
+                  setNovoFornecedorData(emptyFornecedor)
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleCriarFornecedor}
+                disabled={isCriandoFornecedor || !novoFornecedorData.nome.trim()}
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
                 {isCriandoFornecedor ? "Criando..." : "Criar Fornecedor"}
               </Button>
             </div>
@@ -1065,42 +1714,175 @@ function NovaRequisicaoCortePageContent() {
       {showNovoRepresentante && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
           <div className="bg-white dark:bg-slate-900 rounded-lg shadow-xl w-full max-w-lg max-h-[85vh] overflow-y-auto p-6 space-y-4">
-            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">Novo Representante</h3>
-            <p className="text-sm text-slate-500">Digite o CNPJ e clique em Consultar para preencher automaticamente.</p>
+            <h3 className="text-lg font-semibold text-slate-900 dark:text-slate-100">
+              Novo Representante
+            </h3>
+            <p className="text-sm text-slate-500">
+              Digite o CNPJ e clique em Consultar para preencher automaticamente.
+            </p>
             <div className="space-y-3">
               <div>
-                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">CNPJ <span className="text-red-500">*</span></Label>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  CNPJ <span className="text-red-500">*</span>
+                </Label>
                 <div className="flex gap-2">
-                  <Input value={novoRepresentanteData.cnpj} onChange={(e) => setNovoRepresentanteData((p) => ({ ...p, cnpj: e.target.value }))} placeholder="00.000.000/0001-00" className="font-mono flex-1" maxLength={18} />
-                  <Button type="button" variant="outline" size="sm" onClick={handleConsultarCnpjRepresentante} disabled={isConsultandoCnpj || novoRepresentanteData.cnpj.replace(/\D/g, "").length !== 14} className="gap-1 shrink-0">
-                    {isConsultandoCnpj ? <Loader2 size={14} className="animate-spin" /> : <Search size={14} />} Consultar
+                  <Input
+                    value={novoRepresentanteData.cnpj}
+                    onChange={(e) =>
+                      setNovoRepresentanteData((p) => ({ ...p, cnpj: e.target.value }))
+                    }
+                    placeholder="00.000.000/0001-00"
+                    className="font-mono flex-1"
+                    maxLength={18}
+                  />
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleConsultarCnpjRepresentante}
+                    disabled={
+                      isConsultandoCnpj ||
+                      novoRepresentanteData.cnpj.replace(/\D/g, "").length !== 14
+                    }
+                    className="gap-1 shrink-0"
+                  >
+                    {isConsultandoCnpj ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Search size={14} />
+                    )}{" "}
+                    Consultar
                   </Button>
                 </div>
               </div>
               <div>
-                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Nome <span className="text-red-500">*</span></Label>
-                <Input value={novoRepresentanteData.nome} onChange={(e) => setNovoRepresentanteData((p) => ({ ...p, nome: e.target.value }))} placeholder="Nome do representante" />
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Nome <span className="text-red-500">*</span>
+                </Label>
+                <Input
+                  value={novoRepresentanteData.nome}
+                  onChange={(e) =>
+                    setNovoRepresentanteData((p) => ({ ...p, nome: e.target.value }))
+                  }
+                  placeholder="Nome do representante"
+                />
               </div>
               <div>
-                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Razão Social</Label>
-                <Input value={novoRepresentanteData.razaoSocial} onChange={(e) => setNovoRepresentanteData((p) => ({ ...p, razaoSocial: e.target.value }))} placeholder="Razão Social" />
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Razão Social
+                </Label>
+                <Input
+                  value={novoRepresentanteData.razaoSocial}
+                  onChange={(e) =>
+                    setNovoRepresentanteData((p) => ({ ...p, razaoSocial: e.target.value }))
+                  }
+                  placeholder="Razão Social"
+                />
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Email</Label><Input type="email" value={novoRepresentanteData.email} onChange={(e) => setNovoRepresentanteData((p) => ({ ...p, email: e.target.value }))} placeholder="contato@email.com" /></div>
-                <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Telefone</Label><Input value={novoRepresentanteData.telefone} onChange={(e) => setNovoRepresentanteData((p) => ({ ...p, telefone: e.target.value }))} placeholder="(11) 3333-4444" /></div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Email
+                  </Label>
+                  <Input
+                    type="email"
+                    value={novoRepresentanteData.email}
+                    onChange={(e) =>
+                      setNovoRepresentanteData((p) => ({ ...p, email: e.target.value }))
+                    }
+                    placeholder="contato@email.com"
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Telefone
+                  </Label>
+                  <Input
+                    value={novoRepresentanteData.telefone}
+                    onChange={(e) =>
+                      setNovoRepresentanteData((p) => ({ ...p, telefone: e.target.value }))
+                    }
+                    placeholder="(11) 3333-4444"
+                  />
+                </div>
               </div>
               <div className="grid grid-cols-2 gap-3">
-                <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Contato</Label><Input value={novoRepresentanteData.contato} onChange={(e) => setNovoRepresentanteData((p) => ({ ...p, contato: e.target.value }))} placeholder="Nome do contato" /></div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Contato
+                  </Label>
+                  <Input
+                    value={novoRepresentanteData.contato}
+                    onChange={(e) =>
+                      setNovoRepresentanteData((p) => ({ ...p, contato: e.target.value }))
+                    }
+                    placeholder="Nome do contato"
+                  />
+                </div>
               </div>
-              <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Endereço</Label><Input value={novoRepresentanteData.endereco} onChange={(e) => setNovoRepresentanteData((p) => ({ ...p, endereco: e.target.value }))} placeholder="Rua, número, bairro" /></div>
+              <div>
+                <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                  Endereço
+                </Label>
+                <Input
+                  value={novoRepresentanteData.endereco}
+                  onChange={(e) =>
+                    setNovoRepresentanteData((p) => ({ ...p, endereco: e.target.value }))
+                  }
+                  placeholder="Rua, número, bairro"
+                />
+              </div>
               <div className="grid grid-cols-3 gap-3">
-                <div className="col-span-2"><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">Cidade</Label><Input value={novoRepresentanteData.cidade} onChange={(e) => setNovoRepresentanteData((p) => ({ ...p, cidade: e.target.value }))} placeholder="São Paulo" /></div>
-                <div><Label className="text-sm font-medium text-slate-700 dark:text-slate-300">UF</Label><Input value={novoRepresentanteData.uf} onChange={(e) => setNovoRepresentanteData((p) => ({ ...p, uf: e.target.value.toUpperCase() }))} placeholder="SP" maxLength={2} /></div>
+                <div className="col-span-2">
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Cidade
+                  </Label>
+                  <Input
+                    value={novoRepresentanteData.cidade}
+                    onChange={(e) =>
+                      setNovoRepresentanteData((p) => ({ ...p, cidade: e.target.value }))
+                    }
+                    placeholder="São Paulo"
+                  />
+                </div>
+                <div>
+                  <Label className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    UF
+                  </Label>
+                  <Input
+                    value={novoRepresentanteData.uf}
+                    onChange={(e) =>
+                      setNovoRepresentanteData((p) => ({ ...p, uf: e.target.value.toUpperCase() }))
+                    }
+                    placeholder="SP"
+                    maxLength={2}
+                  />
+                </div>
               </div>
             </div>
             <div className="flex justify-end gap-2 pt-2">
-              <Button type="button" variant="outline" size="sm" onClick={() => { setShowNovoRepresentante(false); setNovoRepresentanteData(emptyRepresentante) }}>Cancelar</Button>
-              <Button type="button" size="sm" onClick={handleCriarRepresentante} disabled={isCriandoRepresentante || !novoRepresentanteData.nome.trim() || !novoRepresentanteData.cnpj.trim()} className="bg-blue-600 hover:bg-blue-700 text-white">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  setShowNovoRepresentante(false)
+                  setNovoRepresentanteData(emptyRepresentante)
+                }}
+              >
+                Cancelar
+              </Button>
+              <Button
+                type="button"
+                size="sm"
+                onClick={handleCriarRepresentante}
+                disabled={
+                  isCriandoRepresentante ||
+                  !novoRepresentanteData.nome.trim() ||
+                  !novoRepresentanteData.cnpj.trim()
+                }
+                className="bg-blue-600 hover:bg-blue-700 text-white"
+              >
                 {isCriandoRepresentante ? "Criando..." : "Criar Representante"}
               </Button>
             </div>
@@ -1112,9 +1894,18 @@ function NovaRequisicaoCortePageContent() {
         <ItemNovoModal
           tipo={itemNovoTipo}
           isConsultandoCnpj={isConsultandoCnpj}
-          onConsultarCnpj={itemNovoTipo === "cliente" ? handleConsultarCnpj : itemNovoTipo === "fornecedor" ? handleConsultarCnpjFornecedor : handleConsultarCnpjRepresentante}
+          onConsultarCnpj={
+            itemNovoTipo === "cliente"
+              ? handleConsultarCnpj
+              : itemNovoTipo === "fornecedor"
+                ? handleConsultarCnpjFornecedor
+                : handleConsultarCnpjRepresentante
+          }
           onSuccess={handleItemNovoSucesso}
-          onCancel={() => { setItemNovoTipo(null); setItemNovoIdx(null) }}
+          onCancel={() => {
+            setItemNovoTipo(null)
+            setItemNovoIdx(null)
+          }}
         />
       )}
     </div>

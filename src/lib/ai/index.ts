@@ -3,13 +3,7 @@ import { aiChaves, type AiChave } from "@/lib/db/schema/ai-chaves"
 import { eq, and, lt, sql } from "drizzle-orm"
 
 export type ProvedorIA =
-  | "groq"
-  | "openai"
-  | "anthropic"
-  | "gemini"
-  | "deepseek"
-  | "openai_compatible"
-  | "openrouter"
+  "groq" | "openai" | "anthropic" | "gemini" | "deepseek" | "openai_compatible" | "openrouter"
 
 export interface MensagemIA {
   role: "system" | "user" | "assistant"
@@ -154,8 +148,8 @@ async function chamarProvedor(
 ): Promise<string> {
   const temperatura = opcoes.temperatura ?? 0.7
   const maxTokens = opcoes.maxTokens ?? 300
-  const systemContent = messages.find(m => m.role === "system")?.content || ""
-  const historico = messages.filter(m => m.role !== "system")
+  const systemContent = messages.find((m) => m.role === "system")?.content || ""
+  const historico = messages.filter((m) => m.role !== "system")
 
   if (chave.prov === "anthropic") {
     const res = await fetch(`${chave.url}/messages`, {
@@ -181,7 +175,7 @@ async function chamarProvedor(
   }
 
   if (chave.prov === "gemini") {
-    const contents = historico.map(m => ({
+    const contents = historico.map((m) => ({
       role: m.role === "assistant" ? "model" : "user",
       parts: [{ text: m.content }],
     }))
@@ -198,7 +192,10 @@ async function chamarProvedor(
       body: JSON.stringify({
         contents,
         systemInstruction: systemContent ? { parts: [{ text: systemContent }] } : undefined,
-        generationConfig: { temperature: temperatura, maxOutputTokens: Math.max(1024, maxTokens * 4) },
+        generationConfig: {
+          temperature: temperatura,
+          maxOutputTokens: Math.max(1024, maxTokens * 4),
+        },
       }),
     })
     if (!res.ok) {
@@ -207,7 +204,7 @@ async function chamarProvedor(
     }
     const data = await res.json()
     const parts: { text?: string }[] = data.candidates?.[0]?.content?.parts ?? []
-    const texto = (parts.map(p => p.text).filter(Boolean) as string[]).join(" ")
+    const texto = (parts.map((p) => p.text).filter(Boolean) as string[]).join(" ")
     return texto || MSG_ERRO_TECNICO
   }
 
@@ -268,7 +265,13 @@ export async function chamarIA(
 
   if (chaves.length === 0) {
     console.error("[IA] Nenhuma chave de IA configurada")
-    return { conteudo: MSG_ERRO_TECNICO, provedor: "nenhum", modelo: "", nomeChave: "", tentativas: 0 }
+    return {
+      conteudo: MSG_ERRO_TECNICO,
+      provedor: "nenhum",
+      modelo: "",
+      nomeChave: "",
+      tentativas: 0,
+    }
   }
 
   const mensagens = montarMensagens(messages)
@@ -287,7 +290,13 @@ export async function chamarIA(
       }
 
       if (chave.id > 0) await resetarFalha(chave.id)
-      return { conteudo, provedor: chave.prov, modelo: chave.modelo, nomeChave: chave.nome, tentativas }
+      return {
+        conteudo,
+        provedor: chave.prov,
+        modelo: chave.modelo,
+        nomeChave: chave.nome,
+        tentativas,
+      }
     } catch (err) {
       ultimoErro = err
       console.error(`[IA] Provedor ${chave.prov} (${chave.nome}) falhou:`, err)
@@ -299,14 +308,24 @@ export async function chamarIA(
   return { conteudo: MSG_ERRO_TECNICO, provedor: "nenhum", modelo: "", nomeChave: "", tentativas }
 }
 
-export async function testarChave(chave: ChaveIA): Promise<{ ok: boolean; mensagem: string; detalhe?: string }> {
+export async function testarChave(
+  chave: ChaveIA
+): Promise<{ ok: boolean; mensagem: string; detalhe?: string }> {
   const prov = (chave.provedor || "groq") as ProvedorIA
   const url = chave.urlBase || BASE_URLS[prov] || BASE_URLS.groq
   const modelo = chave.modelo || MODELOS_PADRAO[prov] || ""
 
   try {
     const conteudo = await chamarProvedor(
-      { id: chave.id, prov, nome: chave.nome, chave: chave.chaveApi, url, modelo, ordem: chave.ordem },
+      {
+        id: chave.id,
+        prov,
+        nome: chave.nome,
+        chave: chave.chaveApi,
+        url,
+        modelo,
+        ordem: chave.ordem,
+      },
       [
         { role: "system", content: "Voce e um assistente." },
         { role: "user", content: "Responda apenas: OK" },

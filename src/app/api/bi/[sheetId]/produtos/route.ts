@@ -17,7 +17,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ shee
   let produtos = listProdutos(sheet)
 
   if (search) {
-    produtos = produtos.filter(p => p.toLowerCase().includes(search.toLowerCase()))
+    produtos = produtos.filter((p) => p.toLowerCase().includes(search.toLowerCase()))
   }
 
   return NextResponse.json({ produtos: produtos.slice(0, 500) })

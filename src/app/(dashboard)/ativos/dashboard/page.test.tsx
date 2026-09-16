@@ -68,7 +68,14 @@ describe("AtivosDashboardPage", () => {
     navMock.setPathname("/ativos/dashboard")
     const fetchMock = createFetchMock(() => ({
       json: {
-        totais: { ativos: 0, categorias: 0, planos: 0, vistoriasMes: 0, pendentes: 0, atrasadas: 0 },
+        totais: {
+          ativos: 0,
+          categorias: 0,
+          planos: 0,
+          vistoriasMes: 0,
+          pendentes: 0,
+          atrasadas: 0,
+        },
         proximas: [],
         compliancePorArea: [],
       },

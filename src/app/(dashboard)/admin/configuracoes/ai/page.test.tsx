@@ -5,14 +5,26 @@ import AiChavesPage from "./page"
 import { createFetchMock, findCall, renderPage, toastMock } from "@/test/harness"
 
 const chaves = [
-  { id: 1, provedor: "groq", nome: "Groq Principal", chaveApi: "gsk_abc", urlBase: "https://api.groq.com/openai/v1", modelo: "qwen/qwen3.8-27b", ordem: 1, ativo: true, failCount: 0, ultimaFalha: null },
+  {
+    id: 1,
+    provedor: "groq",
+    nome: "Groq Principal",
+    chaveApi: "gsk_abc",
+    urlBase: "https://api.groq.com/openai/v1",
+    modelo: "qwen/qwen3.8-27b",
+    ordem: 1,
+    ativo: true,
+    failCount: 0,
+    ultimaFalha: null,
+  },
 ]
 
 function setup() {
   const fetchMock = createFetchMock(({ method, url }) => {
     if (method === "GET" && url === "/api/admin/ai-chaves") return { json: chaves }
     if (method === "POST" && url === "/api/admin/ai-chaves") return { status: 201, json: { id: 2 } }
-    if (method === "PUT" && url === "/api/admin/ai-chaves") return { status: 200, json: { success: true } }
+    if (method === "PUT" && url === "/api/admin/ai-chaves")
+      return { status: 200, json: { success: true } }
     return { status: 404, json: { error: "Rota não mockada" } }
   })
   vi.stubGlobal("fetch", fetchMock.fn)
@@ -47,7 +59,9 @@ describe("AiChavesPage", () => {
     await screen.findByText("Groq Principal")
 
     fireEvent.click(screen.getByRole("button", { name: "Nova Chave de IA" }))
-    fireEvent.change(screen.getByPlaceholderText("Ex: Groq Principal"), { target: { value: "Groq Backup" } })
+    fireEvent.change(screen.getByPlaceholderText("Ex: Groq Principal"), {
+      target: { value: "Groq Backup" },
+    })
     fireEvent.change(screen.getByPlaceholderText("sk-..."), { target: { value: "sk_teste" } })
     fireEvent.click(screen.getByRole("button", { name: "Adicionar" }))
 
@@ -68,8 +82,12 @@ describe("AiChavesPage", () => {
     await screen.findByText("Groq Principal")
 
     fireEvent.click(screen.getByLabelText("Editar"))
-    fireEvent.change(screen.getByPlaceholderText("Ex: Groq Principal"), { target: { value: "Groq Renomeado" } })
-    fireEvent.change(screen.getByDisplayValue("qwen/qwen3.8-27b"), { target: { value: "gemini-3.6-flash" } })
+    fireEvent.change(screen.getByPlaceholderText("Ex: Groq Principal"), {
+      target: { value: "Groq Renomeado" },
+    })
+    fireEvent.change(screen.getByDisplayValue("qwen/qwen3.8-27b"), {
+      target: { value: "gemini-3.6-flash" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
 
     await waitFor(() => {

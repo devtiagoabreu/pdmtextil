@@ -3,13 +3,7 @@ import { db } from "@/lib/db"
 import { crmTimelineEventos } from "@/lib/db/schema/crm-timeline-eventos"
 
 type TipoEvento =
-  | "LEAD"
-  | "OPORTUNIDADE"
-  | "VISITA"
-  | "TAREFA"
-  | "PROPOSTA"
-  | "WHATSAPP"
-  | "SOLICITACAO"
+  "LEAD" | "OPORTUNIDADE" | "VISITA" | "TAREFA" | "PROPOSTA" | "WHATSAPP" | "SOLICITACAO"
 
 export async function inserirTimelineEvento(params: {
   empresaId: number | null
@@ -36,10 +30,12 @@ export async function excluirTimelineEventosEntidade(
   client: any = db
 ) {
   if (!params.id) return
-  await client.delete(crmTimelineEventos).where(
-    and(
-      eq(crmTimelineEventos.tipo, params.tipo),
-      sql`${crmTimelineEventos.metadados}->>'${sql.raw(params.campo)}' = ${String(params.id)}`
+  await client
+    .delete(crmTimelineEventos)
+    .where(
+      and(
+        eq(crmTimelineEventos.tipo, params.tipo),
+        sql`${crmTimelineEventos.metadados}->>'${sql.raw(params.campo)}' = ${String(params.id)}`
+      )
     )
-  )
 }

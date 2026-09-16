@@ -98,7 +98,8 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
       const headerParts: string[] = []
       if (empresa?.documento) headerParts.push(`CNPJ: ${empresa.documento}`)
       if (empresa?.endereco) headerParts.push(empresa.endereco)
-      if (empresa?.cidade || empresa?.uf) headerParts.push([empresa.cidade, empresa.uf].filter(Boolean).join("/"))
+      if (empresa?.cidade || empresa?.uf)
+        headerParts.push([empresa.cidade, empresa.uf].filter(Boolean).join("/"))
       if (headerParts.length > 0) {
         doc.text(headerParts.join(" — "), marginX, 17)
       }
@@ -163,7 +164,13 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
       doc.setFont("helvetica", "bold")
       doc.text("Data:", col1X, ly)
       doc.setFont("helvetica", "normal")
-      doc.text(visita.dataVisita ? `${new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")}${visita.hora ? ` às ${visita.hora}` : ""}` : "—", col1X + 12, ly)
+      doc.text(
+        visita.dataVisita
+          ? `${new Date(visita.dataVisita + "T12:00:00").toLocaleDateString("pt-BR")}${visita.hora ? ` às ${visita.hora}` : ""}`
+          : "—",
+        col1X + 12,
+        ly
+      )
       ly += 7
 
       if (visita.oportunidadeTitulo) {
@@ -227,9 +234,10 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
         }
 
         const enderecoCompleto = enderecoParts.join(", ")
-        const mapsUrl = visita.checkInLat && visita.checkInLng
-          ? `https://www.google.com/maps?q=${visita.checkInLat},${visita.checkInLng}`
-          : `https://www.google.com/maps/search/${encodeURIComponent(enderecoCompleto)}`
+        const mapsUrl =
+          visita.checkInLat && visita.checkInLng
+            ? `https://www.google.com/maps?q=${visita.checkInLat},${visita.checkInLng}`
+            : `https://www.google.com/maps/search/${encodeURIComponent(enderecoCompleto)}`
         doc.setFontSize(7).setFont("helvetica", "normal")
         doc.setTextColor(59, 130, 246)
         const mapsText = "Abrir no Google Maps"
@@ -255,7 +263,11 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
           doc.setFont("helvetica", "normal")
           doc.text(checkInStr, marginX + 20, y)
           if (visita.checkInLat && visita.checkInLng) {
-            doc.text(`(${visita.checkInLat.toFixed(6)}, ${visita.checkInLng.toFixed(6)})`, marginX + 80, y)
+            doc.text(
+              `(${visita.checkInLat.toFixed(6)}, ${visita.checkInLng.toFixed(6)})`,
+              marginX + 80,
+              y
+            )
           }
           y += 6
         }
@@ -267,7 +279,11 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
           doc.setFont("helvetica", "normal")
           doc.text(checkOutStr, marginX + 22, y)
           if (visita.checkOutLat && visita.checkOutLng) {
-            doc.text(`(${visita.checkOutLat.toFixed(6)}, ${visita.checkOutLng.toFixed(6)})`, marginX + 80, y)
+            doc.text(
+              `(${visita.checkOutLat.toFixed(6)}, ${visita.checkOutLng.toFixed(6)})`,
+              marginX + 80,
+              y
+            )
           }
           y += 6
         }
@@ -393,11 +409,7 @@ export default function VisitReportButton({ visita }: { visita: Visita }) {
       disabled={generating}
       className="flex items-center gap-1.5 text-xs font-medium text-emerald-600 hover:underline disabled:opacity-50 disabled:cursor-not-allowed px-2 py-1.5 rounded-lg min-h-[36px]"
     >
-      {generating ? (
-        <Loader2 size={14} className="animate-spin" />
-      ) : (
-        <FileText size={14} />
-      )}
+      {generating ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />}
       {generating ? "Gerando..." : "Gerar Relatorio"}
     </button>
   )

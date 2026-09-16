@@ -10,8 +10,24 @@ vi.mock("next-auth/react", () => ({
 }))
 
 const statusesVisita = [
-  { id: 1, nome: "AGENDADA", rotulo: "Agendada", tipo: "VISITA", cor: "#3b82f6", ordem: 1, ativo: true },
-  { id: 2, nome: "REALIZADA", rotulo: "Realizada", tipo: "VISITA", cor: "#10b981", ordem: 3, ativo: true },
+  {
+    id: 1,
+    nome: "AGENDADA",
+    rotulo: "Agendada",
+    tipo: "VISITA",
+    cor: "#3b82f6",
+    ordem: 1,
+    ativo: true,
+  },
+  {
+    id: 2,
+    nome: "REALIZADA",
+    rotulo: "Realizada",
+    tipo: "VISITA",
+    cor: "#10b981",
+    ordem: 3,
+    ativo: true,
+  },
 ]
 
 const visita = {
@@ -65,10 +81,29 @@ function buildHandler(data: Partial<VisitaDetalhe>) {
       return { json: [{ id: 1, nome: "São Paulo", estadoId: 35 }] }
     }
     if (method === "GET" && url === "/api/crm/pessoas/1") {
-      return { json: { id: 1, razaoSocial: "Tecelagem Alpha", endereco: "Rua das Rosas", numero: "100", bairro: "Centro", cidade: "São Paulo", uf: "SP", cep: "01000-000" } }
+      return {
+        json: {
+          id: 1,
+          razaoSocial: "Tecelagem Alpha",
+          endereco: "Rua das Rosas",
+          numero: "100",
+          bairro: "Centro",
+          cidade: "São Paulo",
+          uf: "SP",
+          cep: "01000-000",
+        },
+      }
     }
     if (method === "GET" && url === "/api/clientes/5") {
-      return { json: { id: 5, nome: "Cliente Beta", endereco: "Av. Paulista", cidade: "São Paulo", uf: "SP" } }
+      return {
+        json: {
+          id: 5,
+          nome: "Cliente Beta",
+          endereco: "Av. Paulista",
+          cidade: "São Paulo",
+          uf: "SP",
+        },
+      }
     }
     if (method === "GET" && url === "/api/crm/pessoas") {
       return { json: [{ id: 1, razaoSocial: "Tecelagem Alpha" }] }
@@ -101,12 +136,17 @@ describe("DetalheVisitaPage", () => {
   it("renderiza os detalhes da visita", async () => {
     renderPage(<DetalheVisitaPage />)
 
-    expect(await screen.findByRole("heading", { name: "Visita — Tecelagem Alpha" })).toBeInTheDocument()
+    expect(
+      await screen.findByRole("heading", { name: "Visita — Tecelagem Alpha" })
+    ).toBeInTheDocument()
     expect(screen.getAllByText("Agendada").length).toBeGreaterThan(0)
     expect(screen.getByText("Presencial — 01/07/2026 às 10:00")).toBeInTheDocument()
     expect(screen.getAllByText("01/07/2026 às 10:00").length).toBeGreaterThan(0)
     expect(screen.getByText("30 min")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Tecelagem Alpha" })).toHaveAttribute("href", "/comercial/crm/pessoas/1")
+    expect(screen.getByRole("link", { name: "Tecelagem Alpha" })).toHaveAttribute(
+      "href",
+      "/comercial/crm/pessoas/1"
+    )
     expect(screen.getByText("Venda de malha")).toBeInTheDocument()
     expect(screen.getByText("Rua das Rosas")).toBeInTheDocument()
     expect(screen.getByText("Visita de apresentação")).toBeInTheDocument()
@@ -144,7 +184,9 @@ describe("DetalheVisitaPage", () => {
     const dialog = await screen.findByRole("dialog", { name: "Excluir visita?" })
     fireEvent.click(within(dialog).getByRole("button", { name: "Excluir" }))
 
-    await waitFor(() => expect(findCall(fetchMock.calls, "/api/crm/visitas/1", "DELETE")).toBeDefined())
+    await waitFor(() =>
+      expect(findCall(fetchMock.calls, "/api/crm/visitas/1", "DELETE")).toBeDefined()
+    )
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Visita excluída"))
     expect(navMock.router.push).toHaveBeenCalledWith("/comercial/crm/visitas")
   })
@@ -191,13 +233,17 @@ describe("DetalheVisitaPage", () => {
 
     renderPage(<DetalheVisitaPage />)
 
-    expect(await screen.findByRole("heading", { name: "Visita — José da Silva" })).toBeInTheDocument()
+    expect(
+      await screen.findByRole("heading", { name: "Visita — José da Silva" })
+    ).toBeInTheDocument()
     fireEvent.click(screen.getByRole("button", { name: "Vincular" }))
 
     const dialog = await screen.findByRole("dialog", { name: "Vincular Visita Avulsa" })
     fireEvent.click(within(dialog).getByRole("button", { name: /^Pessoa/ }))
 
-    await waitFor(() => expect(within(dialog).getByRole("option", { name: "Tecelagem Alpha" })).toBeInTheDocument())
+    await waitFor(() =>
+      expect(within(dialog).getByRole("option", { name: "Tecelagem Alpha" })).toBeInTheDocument()
+    )
     fireEvent.change(within(dialog).getByRole("combobox"), { target: { value: "1" } })
     fireEvent.click(within(dialog).getByRole("button", { name: "Vincular" }))
 
@@ -206,7 +252,9 @@ describe("DetalheVisitaPage", () => {
       expect(call).toBeDefined()
       expect(call!.body).toEqual({ nomeAvulso: null, empresaId: 1, clienteId: null })
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Visita vinculada com sucesso!"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Visita vinculada com sucesso!")
+    )
   })
 
   it("aplica o modelo de visita técnica no relato da ata", async () => {
@@ -221,7 +269,9 @@ describe("DetalheVisitaPage", () => {
 
     fireEvent.click(screen.getByRole("button", { name: "Visita tecnica" }))
 
-    await waitFor(() => expect(editor.innerHTML).toContain("Visita tecnica para levantamento de necessidades"))
+    await waitFor(() =>
+      expect(editor.innerHTML).toContain("Visita tecnica para levantamento de necessidades")
+    )
     expect(editor.innerHTML).not.toContain("Visita de apresentação")
   })
 
@@ -253,7 +303,9 @@ describe("DetalheVisitaPage", () => {
     await screen.findByRole("button", { name: "Salvar" })
 
     fireEvent.click(screen.getByRole("button", { name: "URL" }))
-    fireEvent.change(screen.getByPlaceholderText("https://..."), { target: { value: "https://cloud.com/comprovante.pdf" } })
+    fireEvent.change(screen.getByPlaceholderText("https://..."), {
+      target: { value: "https://cloud.com/comprovante.pdf" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Adicionar" }))
 
     const descricaoInput = await screen.findByRole("textbox", { name: "Descrição do item 1" })
@@ -266,8 +318,10 @@ describe("DetalheVisitaPage", () => {
       expect(call).toBeDefined()
       expect(call!.body).toEqual(
         expect.objectContaining({
-          fotos: [{ url: "https://cloud.com/comprovante.pdf", descricao: "Comprovante de entrega" }],
-        }),
+          fotos: [
+            { url: "https://cloud.com/comprovante.pdf", descricao: "Comprovante de entrega" },
+          ],
+        })
       )
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Visita atualizada"))
@@ -281,7 +335,9 @@ describe("DetalheVisitaPage", () => {
     await screen.findByRole("button", { name: "Salvar" })
 
     fireEvent.click(screen.getByRole("button", { name: "URL" }))
-    fireEvent.change(screen.getByPlaceholderText("https://..."), { target: { value: "https://cloud.com/nota.jpg" } })
+    fireEvent.change(screen.getByPlaceholderText("https://..."), {
+      target: { value: "https://cloud.com/nota.jpg" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Adicionar" }))
 
     const descricaoInput = await screen.findByRole("textbox", { name: "Descrição do item 1" })
@@ -313,7 +369,15 @@ describe("DetalheVisitaPage", () => {
         return { json: [{ id: 1, nome: "São Paulo", estadoId: 35 }] }
       }
       if (method === "GET" && url === "/api/crm/pessoas/1") {
-        return { json: { id: 1, razaoSocial: "Tecelagem Alpha", endereco: "Rua das Rosas", uf: "SP", cidade: "São Paulo" } }
+        return {
+          json: {
+            id: 1,
+            razaoSocial: "Tecelagem Alpha",
+            endereco: "Rua das Rosas",
+            uf: "SP",
+            cidade: "São Paulo",
+          },
+        }
       }
       if (method === "GET" && url === "/api/crm/pessoas") {
         return { json: [{ id: 1, razaoSocial: "Tecelagem Alpha" }] }
@@ -334,9 +398,15 @@ describe("DetalheVisitaPage", () => {
     fireEvent.click(screen.getByRole("button", { name: "Editar" }))
     await screen.findByRole("button", { name: "Salvar" })
 
-    const opSelect = screen.getAllByRole("combobox").find(
-      (c) => c.tagName === "SELECT" && Array.from((c as HTMLSelectElement).options).some(o => o.textContent === "Venda de malha")
-    ) as HTMLSelectElement
+    const opSelect = screen
+      .getAllByRole("combobox")
+      .find(
+        (c) =>
+          c.tagName === "SELECT" &&
+          Array.from((c as HTMLSelectElement).options).some(
+            (o) => o.textContent === "Venda de malha"
+          )
+      ) as HTMLSelectElement
     expect(opSelect).toBeDefined()
     fireEvent.change(opSelect, { target: { value: "3" } })
 
@@ -352,16 +422,23 @@ describe("DetalheVisitaPage", () => {
   it("cria uma proposta via quick create na edição da visita", async () => {
     const handler = ({ method, url }: { method: string; url: string }) => {
       if (method === "GET" && url === "/api/crm/oportunidades") return { json: [] }
-      if (method === "GET" && url === "/api/crm/estados") return { json: [{ id: 35, uf: "SP", nome: "São Paulo" }] }
+      if (method === "GET" && url === "/api/crm/estados")
+        return { json: [{ id: 35, uf: "SP", nome: "São Paulo" }] }
       if (method === "GET" && url === "/api/crm/viagens?all=true") return { json: [] }
-      if (method === "GET" && url === "/api/admin/status?tipo=VISITA") return { json: statusesVisita }
+      if (method === "GET" && url === "/api/admin/status?tipo=VISITA")
+        return { json: statusesVisita }
       if (method === "GET" && url === "/api/crm/visitas/1") return { json: visita }
-      if (method === "GET" && url === "/api/crm/cidades?estadoId=35") return { json: [{ id: 1, nome: "São Paulo", estadoId: 35 }] }
-      if (method === "GET" && url === "/api/crm/pessoas/1") return { json: { id: 1, razaoSocial: "Tecelagem Alpha", uf: "SP", cidade: "São Paulo" } }
-      if (method === "GET" && url === "/api/crm/pessoas") return { json: [{ id: 1, razaoSocial: "Tecelagem Alpha" }] }
-      if (method === "GET" && url.startsWith("/api/crm/visitas/conflictos?")) return { json: { conflictos: [] } }
+      if (method === "GET" && url === "/api/crm/cidades?estadoId=35")
+        return { json: [{ id: 1, nome: "São Paulo", estadoId: 35 }] }
+      if (method === "GET" && url === "/api/crm/pessoas/1")
+        return { json: { id: 1, razaoSocial: "Tecelagem Alpha", uf: "SP", cidade: "São Paulo" } }
+      if (method === "GET" && url === "/api/crm/pessoas")
+        return { json: [{ id: 1, razaoSocial: "Tecelagem Alpha" }] }
+      if (method === "GET" && url.startsWith("/api/crm/visitas/conflictos?"))
+        return { json: { conflictos: [] } }
       if (method === "GET" && url.includes("/api/crm/propostas")) return { json: [] }
-      if (method === "POST" && url === "/api/crm/propostas") return { json: { id: 22, titulo: "Proposta Edit" } }
+      if (method === "POST" && url === "/api/crm/propostas")
+        return { json: { id: 22, titulo: "Proposta Edit" } }
       if (method === "PUT" && url === "/api/crm/visitas/1") return { json: { ok: true } }
       return { json: null }
     }
@@ -383,9 +460,13 @@ describe("DetalheVisitaPage", () => {
     await waitFor(() => {
       const call = findCall(mock.calls, "/api/crm/propostas", "POST")
       expect(call).toBeDefined()
-      expect(call!.body).toEqual(expect.objectContaining({ titulo: "Proposta Edit", empresaId: 1, clienteId: null }))
+      expect(call!.body).toEqual(
+        expect.objectContaining({ titulo: "Proposta Edit", empresaId: 1, clienteId: null })
+      )
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Proposta criada com sucesso"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Proposta criada com sucesso")
+    )
   })
 
   it("copia o endereço do cliente quando a visita está vinculada a um cliente", async () => {
@@ -418,14 +499,23 @@ describe("DetalheVisitaPage", () => {
       const call = findCall(clienteMock.calls, "/api/crm/visitas/3", "PUT")
       expect(call).toBeDefined()
       expect(call!.body).toEqual(
-        expect.objectContaining({ endereco: "Av. Paulista", cidade: "São Paulo", uf: "SP" }),
+        expect.objectContaining({ endereco: "Av. Paulista", cidade: "São Paulo", uf: "SP" })
       )
     })
   })
 
   it("copia o endereço da pessoa vinculada (empresa)", async () => {
     navMock.setParams({ id: "4" })
-    const comPessoa = { ...visita, id: 4, endereco: null, numero: null, bairro: null, cidade: null, uf: null, cep: null }
+    const comPessoa = {
+      ...visita,
+      id: 4,
+      endereco: null,
+      numero: null,
+      bairro: null,
+      cidade: null,
+      uf: null,
+      cep: null,
+    }
     const pessoaMock = createFetchMock(buildHandler(comPessoa))
     vi.stubGlobal("fetch", pessoaMock.fn)
 
@@ -441,7 +531,14 @@ describe("DetalheVisitaPage", () => {
       const call = findCall(pessoaMock.calls, "/api/crm/visitas/4", "PUT")
       expect(call).toBeDefined()
       expect(call!.body).toEqual(
-        expect.objectContaining({ endereco: "Rua das Rosas", numero: "100", bairro: "Centro", cidade: "São Paulo", uf: "SP", cep: "01000-000" }),
+        expect.objectContaining({
+          endereco: "Rua das Rosas",
+          numero: "100",
+          bairro: "Centro",
+          cidade: "São Paulo",
+          uf: "SP",
+          cep: "01000-000",
+        })
       )
     })
   })
@@ -454,6 +551,9 @@ describe("DetalheVisitaPage", () => {
     renderPage(<DetalheVisitaPage />)
 
     expect(await screen.findByText("Visita não encontrada")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Voltar" })).toHaveAttribute("href", "/comercial/crm/visitas")
+    expect(screen.getByRole("link", { name: "Voltar" })).toHaveAttribute(
+      "href",
+      "/comercial/crm/visitas"
+    )
   })
 })

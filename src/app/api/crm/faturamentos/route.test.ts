@@ -20,8 +20,20 @@ vi.mock("@/lib/db", () => ({
 const sessionAdmin = { session: { user: { id: "1", role: "ADMIN", name: "Tiago" } }, userId: 1 }
 
 const faturamentos = [
-  { id: 1, oportunidadeId: 1, oportunidadeTitulo: "Malha penteada", numero: "FAT-001", status: "EMITIDO" },
-  { id: 2, oportunidadeId: 1, oportunidadeTitulo: "Malha penteada", numero: "FAT-002", status: "RECEBIDO" },
+  {
+    id: 1,
+    oportunidadeId: 1,
+    oportunidadeTitulo: "Malha penteada",
+    numero: "FAT-001",
+    status: "EMITIDO",
+  },
+  {
+    id: 2,
+    oportunidadeId: 1,
+    oportunidadeTitulo: "Malha penteada",
+    numero: "FAT-002",
+    status: "RECEBIDO",
+  },
 ]
 
 function get(url: string) {
@@ -46,7 +58,9 @@ describe("GET /api/crm/faturamentos", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await get("http://localhost/api/crm/faturamentos")
     expect(res.status).toBe(401)
   })
@@ -92,7 +106,9 @@ describe("POST /api/crm/faturamentos", () => {
   })
 
   it("retorna 401 sem autenticação", async () => {
-    vi.mocked(requireAuth).mockResolvedValue(new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any)
+    vi.mocked(requireAuth).mockResolvedValue(
+      new NextResponse(JSON.stringify({ error: "Não autorizado" }), { status: 401 }) as any
+    )
     const res = await post({ oportunidadeId: 1 })
     expect(res.status).toBe(401)
   })
@@ -119,14 +135,23 @@ describe("POST /api/crm/faturamentos", () => {
 
   it("cria faturamento com itens em transação", async () => {
     db.select.mockReturnValueOnce(createQueryBuilder([{ id: 1, titulo: "Malha penteada" }]))
-    const tx = { insert: vi.fn(() => createQueryBuilder([{ id: 10, numero: "FAT-001", status: "EMITIDO" }])) }
+    const tx = {
+      insert: vi.fn(() => createQueryBuilder([{ id: 10, numero: "FAT-001", status: "EMITIDO" }])),
+    }
     db.transaction = vi.fn((cb: any) => cb(tx))
     const res = await post({
       oportunidadeId: 1,
       numero: "FAT-001",
       status: "EMITIDO",
       itens: [
-        { produto: "Malha penteada azul", codigo: "MP-01", unidade: "METROS", quantidade: 100, valorUnitario: 12.5, valorTotal: 1250 },
+        {
+          produto: "Malha penteada azul",
+          codigo: "MP-01",
+          unidade: "METROS",
+          quantidade: 100,
+          valorUnitario: 12.5,
+          valorTotal: 1250,
+        },
       ],
     })
     expect(res.status).toBe(201)

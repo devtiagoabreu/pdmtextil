@@ -69,7 +69,9 @@ export default function EmailMassaPage() {
   const [modeloDeleteLoading, setModeloDeleteLoading] = useState(false)
 
   const [remetente, setRemetente] = useState("sistema")
-  const [userEmailConfig, setUserEmailConfig] = useState<{ email: string; ativo: boolean } | null>(null)
+  const [userEmailConfig, setUserEmailConfig] = useState<{ email: string; ativo: boolean } | null>(
+    null
+  )
   const remetenteTouched = useRef(false)
   const handleSetRemetente: Dispatch<SetStateAction<string>> = (v) => {
     remetenteTouched.current = true
@@ -88,7 +90,9 @@ export default function EmailMassaPage() {
       .catch(() => {
         if (ativo) setUserEmailConfig(null)
       })
-    return () => { ativo = false }
+    return () => {
+      ativo = false
+    }
   }, [])
 
   useEffect(() => {
@@ -119,7 +123,12 @@ export default function EmailMassaPage() {
     setSending(true)
     try {
       const body: any = {
-        para, assunto, html, modo_envio: modoEnvio, remetente, preheader,
+        para,
+        assunto,
+        html,
+        modo_envio: modoEnvio,
+        remetente,
+        preheader,
         nome: agendadoForm.nome || assunto,
       }
       if (para === "lista") body.listas = selectedListaIds
@@ -143,7 +152,9 @@ export default function EmailMassaPage() {
         processingRef.current = true
         fetch("/api/admin/email-massa/processar", { method: "POST" })
           .catch(() => {})
-          .finally(() => { processingRef.current = false })
+          .finally(() => {
+            processingRef.current = false
+          })
       }
       queryClient.invalidateQueries({ queryKey: ["email-massa-disparos"] })
     } catch {
@@ -179,7 +190,9 @@ export default function EmailMassaPage() {
             processingRef.current = true
             fetch("/api/admin/email-massa/processar", { method: "POST" })
               .catch(() => {})
-              .finally(() => { processingRef.current = false })
+              .finally(() => {
+                processingRef.current = false
+              })
           }
         }
       } catch {
@@ -190,19 +203,44 @@ export default function EmailMassaPage() {
 
   const salvarAgendado = async (status: "rascunho" | "agendado") => {
     const html = getContentHtml()
-    if (!html || html === "<br>") { toast.error("Escreva o conteúdo do email"); return }
-    if (!assunto) { toast.error("Informe o assunto"); return }
-    if (status === "agendado" && !agendadoForm.agendadoPara) { toast.error("Informe a data e hora do envio"); return }
-    if (para === "lista" && selectedListaIds.length === 0) { toast.error("Selecione pelo menos uma lista"); return }
+    if (!html || html === "<br>") {
+      toast.error("Escreva o conteúdo do email")
+      return
+    }
+    if (!assunto) {
+      toast.error("Informe o assunto")
+      return
+    }
+    if (status === "agendado" && !agendadoForm.agendadoPara) {
+      toast.error("Informe a data e hora do envio")
+      return
+    }
+    if (para === "lista" && selectedListaIds.length === 0) {
+      toast.error("Selecione pelo menos uma lista")
+      return
+    }
 
     try {
       const body: any = {
         nome: agendadoForm.nome || assunto,
-        para, assunto, preheader, html, listas: para === "lista" ? selectedListaIds : null,
-        modoEnvio, remetente, agendadoPara: agendadoForm.agendadoPara || null, status,
+        para,
+        assunto,
+        preheader,
+        html,
+        listas: para === "lista" ? selectedListaIds : null,
+        modoEnvio,
+        remetente,
+        agendadoPara: agendadoForm.agendadoPara || null,
+        status,
       }
-      const url = editAgendado ? `/api/admin/email-massa/agendados/${editAgendado.id}` : "/api/admin/email-massa/agendados"
-      const res = await fetch(url, { method: editAgendado ? "PUT" : "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify(body) })
+      const url = editAgendado
+        ? `/api/admin/email-massa/agendados/${editAgendado.id}`
+        : "/api/admin/email-massa/agendados"
+      const res = await fetch(url, {
+        method: editAgendado ? "PUT" : "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
       if (res.ok) {
         toast.success(status === "agendado" ? "Disparo agendado!" : "Rascunho salvo!")
         setEditAgendado(null)
@@ -212,7 +250,9 @@ export default function EmailMassaPage() {
         const err = await res.json()
         toast.error(err.error || "Erro ao salvar")
       }
-    } catch { toast.error("Erro ao salvar agendamento") }
+    } catch {
+      toast.error("Erro ao salvar agendamento")
+    }
   }
 
   const enviarAgendado = async (a: Agendado) => {
@@ -229,7 +269,9 @@ export default function EmailMassaPage() {
         processingRef.current = true
         fetch("/api/admin/email-massa/processar", { method: "POST" })
           .catch(() => {})
-          .finally(() => { processingRef.current = false })
+          .finally(() => {
+            processingRef.current = false
+          })
       }
       queryClient.invalidateQueries({ queryKey: ["email-massa-agendados"] })
       queryClient.invalidateQueries({ queryKey: ["email-massa-historico"] })
@@ -247,7 +289,10 @@ export default function EmailMassaPage() {
     setModoEnvio(a.modoEnvio || "bcc")
     setRemetente(a.remetente || (userEmailConfig?.ativo ? "usuario" : "sistema"))
     setSelectedListaIds(a.listas || [])
-    setAgendadoForm({ nome: a.nome, agendadoPara: a.agendadoPara ? new Date(a.agendadoPara).toISOString().slice(0, 16) : "" })
+    setAgendadoForm({
+      nome: a.nome,
+      agendadoPara: a.agendadoPara ? new Date(a.agendadoPara).toISOString().slice(0, 16) : "",
+    })
     setActiveTab("enviar")
     setTimeout(() => editorRef.current?.setHtml(a.html), 100)
     toast.success(`Disparo "${a.nome}" carregado no editor`)
@@ -264,13 +309,20 @@ export default function EmailMassaPage() {
   }
 
   const salvarModelo = async () => {
-    if (!modeloForm.nome) { toast.error("Informe o nome do modelo"); return }
+    if (!modeloForm.nome) {
+      toast.error("Informe o nome do modelo")
+      return
+    }
     try {
       const url = editModelo
         ? `/api/admin/email-massa/modelos/${editModelo.id}`
         : "/api/admin/email-massa/modelos"
       const method = editModelo ? "PUT" : "POST"
-      const res = await fetch(url, { method, headers: { "Content-Type": "application/json" }, body: JSON.stringify(modeloForm) })
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(modeloForm),
+      })
       if (res.ok) {
         toast.success(editModelo ? "Modelo atualizado" : "Modelo criado")
         setModeloDialogOpen(false)
@@ -290,7 +342,9 @@ export default function EmailMassaPage() {
     if (!modeloDeleteTarget) return
     setModeloDeleteLoading(true)
     try {
-      const res = await fetch(`/api/admin/email-massa/modelos/${modeloDeleteTarget.id}`, { method: "DELETE" })
+      const res = await fetch(`/api/admin/email-massa/modelos/${modeloDeleteTarget.id}`, {
+        method: "DELETE",
+      })
       if (res.ok) {
         toast.success("Modelo deletado")
         setModeloDeleteTarget(null)
@@ -321,17 +375,53 @@ export default function EmailMassaPage() {
         <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
           Email em Massa{info && <InfoButton content={info} />}
         </h1>
-        <p className="text-sm text-slate-500 mt-1">Envie emails, gerencie modelos e listas, acompanhe o histórico</p>
+        <p className="text-sm text-slate-500 mt-1">
+          Envie emails, gerencie modelos e listas, acompanhe o histórico
+        </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full flex flex-col space-y-6">
+      <Tabs
+        value={activeTab}
+        onValueChange={setActiveTab}
+        className="w-full flex flex-col space-y-6"
+      >
         <TabsList className="w-full flex justify-start border-b rounded-none bg-transparent h-auto p-0 space-x-6">
-          <TabsTrigger value="enviar" className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2">Enviar Email</TabsTrigger>
-          <TabsTrigger value="modelos" className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2">Modelos</TabsTrigger>
-          <TabsTrigger value="listas" className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2">Listas</TabsTrigger>
-          <TabsTrigger value="historico" className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2">Histórico</TabsTrigger>
-          <TabsTrigger value="agendar" className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2">Programar Disparo</TabsTrigger>
-          <TabsTrigger value="dashboard" className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2">Dashboard</TabsTrigger>
+          <TabsTrigger
+            value="enviar"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2"
+          >
+            Enviar Email
+          </TabsTrigger>
+          <TabsTrigger
+            value="modelos"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2"
+          >
+            Modelos
+          </TabsTrigger>
+          <TabsTrigger
+            value="listas"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2"
+          >
+            Listas
+          </TabsTrigger>
+          <TabsTrigger
+            value="historico"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2"
+          >
+            Histórico
+          </TabsTrigger>
+          <TabsTrigger
+            value="agendar"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2"
+          >
+            Programar Disparo
+          </TabsTrigger>
+          <TabsTrigger
+            value="dashboard"
+            className="rounded-none border-b-2 border-transparent data-[state=active]:border-blue-600 data-[state=active]:bg-transparent pb-2"
+          >
+            Dashboard
+          </TabsTrigger>
         </TabsList>
 
         {/* ────────── TAB ENVIAR ────────── */}
@@ -351,13 +441,18 @@ export default function EmailMassaPage() {
             userEmailConfig={userEmailConfig}
             listas={listas}
             selectedListaIds={selectedListaIds}
-            toggleListaSelecionada={(id) => setSelectedListaIds(prev =>
-              prev.includes(id) ? prev.filter((lid: number) => lid !== id) : [...prev, id]
-            )}
+            toggleListaSelecionada={(id) =>
+              setSelectedListaIds((prev) =>
+                prev.includes(id) ? prev.filter((lid: number) => lid !== id) : [...prev, id]
+              )
+            }
             agendadoForm={agendadoForm}
             setAgendadoForm={setAgendadoForm}
             editAgendado={editAgendado}
-            onLimparEdicao={() => { setEditAgendado(null); setAgendadoForm({ nome: "", agendadoPara: "" }) }}
+            onLimparEdicao={() => {
+              setEditAgendado(null)
+              setAgendadoForm({ nome: "", agendadoPara: "" })
+            }}
             modelos={modelos}
             onUsarModelo={usarModelo}
             onSalvarComoModelo={abrirNovoModelo}
@@ -382,9 +477,11 @@ export default function EmailMassaPage() {
 
         {/* ────────── TAB LISTAS ────────── */}
         <TabsContent value="listas" className="w-full m-0 border-0 p-0 shadow-none">
-          <ListasTab onListaDeletada={(id) =>
-            setSelectedListaIds(prev => prev.filter((lid: number) => lid !== id))
-          } />
+          <ListasTab
+            onListaDeletada={(id) =>
+              setSelectedListaIds((prev) => prev.filter((lid: number) => lid !== id))
+            }
+          />
         </TabsContent>
 
         {/* ────────── TAB HISTÓRICO ────────── */}
@@ -396,7 +493,11 @@ export default function EmailMassaPage() {
         <TabsContent value="agendar" className="w-full m-0 border-0 p-0 shadow-none">
           <AgendarTab
             onCarregarNoEditor={carregarAgendado}
-            onNovoDisparo={() => { setEditAgendado(null); setAgendadoForm({ nome: "", agendadoPara: "" }); setActiveTab("enviar") }}
+            onNovoDisparo={() => {
+              setEditAgendado(null)
+              setAgendadoForm({ nome: "", agendadoPara: "" })
+              setActiveTab("enviar")
+            }}
             onEnviarAgendado={enviarAgendado}
             disparoProgresso={disparoProgresso}
           />
@@ -425,7 +526,11 @@ export default function EmailMassaPage() {
       <ConfirmModal
         open={modeloDeleteTarget !== null}
         title="Deletar modelo?"
-        message={modeloDeleteTarget ? `Tem certeza que deseja deletar o modelo "${modeloDeleteTarget.nome}"? Esta ação não pode ser desfeita.` : ""}
+        message={
+          modeloDeleteTarget
+            ? `Tem certeza que deseja deletar o modelo "${modeloDeleteTarget.nome}"? Esta ação não pode ser desfeita.`
+            : ""
+        }
         confirmLabel="Deletar"
         variant="danger"
         loading={modeloDeleteLoading}

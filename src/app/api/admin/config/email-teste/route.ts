@@ -31,7 +31,10 @@ export async function POST(req: NextRequest) {
     if (result.sent > 0) {
       return NextResponse.json({ success: true, message: "Email de teste enviado com sucesso!" })
     } else {
-      return NextResponse.json({ error: result.error || "Falha ao enviar email de teste" }, { status: 500 })
+      return NextResponse.json(
+        { error: result.error || "Falha ao enviar email de teste" },
+        { status: 500 }
+      )
     }
   } catch (error: any) {
     console.error("[POST /api/admin/config/email-teste]", error)

@@ -17,7 +17,9 @@ export const usuarios = pgTable("usuarios", {
 
 export const sessions = pgTable("sessions", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").references(() => usuarios.id).notNull(),
+  userId: integer("user_id")
+    .references(() => usuarios.id)
+    .notNull(),
   sessionToken: varchar("session_token", { length: 255 }).unique().notNull(),
   expires: timestamp("expires").notNull(),
   createdAt: timestamp("created_at").defaultNow(),

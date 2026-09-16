@@ -40,11 +40,9 @@ export function useStatuses(tipo: string) {
   const getStatus = (nome: string): StatusConfig | undefined =>
     statuses.find((s: any) => s.nome === nome)
 
-  const getLabel = (nome: string): string =>
-    getStatus(nome)?.rotulo || nome
+  const getLabel = (nome: string): string => getStatus(nome)?.rotulo || nome
 
-  const getColor = (nome: string): string =>
-    getStatus(nome)?.cor || "#94a3b8"
+  const getColor = (nome: string): string => getStatus(nome)?.cor || "#94a3b8"
 
   return { statuses, loading, getStatus, getLabel, getColor }
 }

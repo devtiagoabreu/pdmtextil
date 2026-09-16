@@ -32,7 +32,9 @@ export default function ChatPage() {
       <div className="flex items-center justify-between mb-4">
         <div>
           <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Chat Corporativo</h1>
-          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">{chats.length} conversa(s)</p>
+          <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
+            {chats.length} conversa(s)
+          </p>
         </div>
         <Button onClick={() => setShowNovo(true)} className="flex items-center gap-2">
           <Plus size={16} />
@@ -41,7 +43,9 @@ export default function ChatPage() {
       </div>
 
       <div className="flex-1 flex rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden min-h-0">
-        <div className={`w-80 border-r border-slate-200 dark:border-slate-800 flex flex-col ${selectedChat ? "hidden md:flex" : "flex"}`}>
+        <div
+          className={`w-80 border-r border-slate-200 dark:border-slate-800 flex flex-col ${selectedChat ? "hidden md:flex" : "flex"}`}
+        >
           <div className="overflow-y-auto flex-1">
             {chats.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-slate-400 p-6 text-center">
@@ -55,7 +59,9 @@ export default function ChatPage() {
           </div>
         </div>
 
-        <div className={`flex-1 flex flex-col min-w-0 ${!selectedChat ? "hidden md:flex" : "flex"}`}>
+        <div
+          className={`flex-1 flex flex-col min-w-0 ${!selectedChat ? "hidden md:flex" : "flex"}`}
+        >
           {selectedChat ? (
             <ConversationView chatId={selectedChat} onBack={() => setSelectedChatId(null)} />
           ) : (

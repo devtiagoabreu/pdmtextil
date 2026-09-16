@@ -6,7 +6,12 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Textarea } from "@/components/ui/textarea"
 import {
-  Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter,
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import { SanitizedHtml } from "@/components/ui/sanitized-html"
 import { Copy } from "lucide-react"
@@ -26,7 +31,15 @@ export interface ModeloDialogsProps {
 }
 
 export function ModeloDialogs({
-  open, onOpenChange, editModelo, form, setForm, onSalvar, viewModelo, onFecharVer, onUsarModelo,
+  open,
+  onOpenChange,
+  editModelo,
+  form,
+  setForm,
+  onSalvar,
+  viewModelo,
+  onFecharVer,
+  onUsarModelo,
 }: ModeloDialogsProps) {
   return (
     <>
@@ -40,22 +53,38 @@ export function ModeloDialogs({
           <div className="space-y-4 py-2">
             <div className="space-y-2">
               <Label>Nome do Modelo</Label>
-              <Input value={form.nome} onChange={e => setForm(p => ({ ...p, nome: e.target.value }))} placeholder="Ex: Boletim Informativo" />
+              <Input
+                value={form.nome}
+                onChange={(e) => setForm((p) => ({ ...p, nome: e.target.value }))}
+                placeholder="Ex: Boletim Informativo"
+              />
             </div>
             <div className="space-y-2">
               <Label>Assunto</Label>
-              <Input value={form.assunto} onChange={e => setForm(p => ({ ...p, assunto: e.target.value }))} placeholder="Assunto do email" />
+              <Input
+                value={form.assunto}
+                onChange={(e) => setForm((p) => ({ ...p, assunto: e.target.value }))}
+                placeholder="Assunto do email"
+              />
             </div>
             <div className="space-y-2">
               <Label>Conteúdo HTML</Label>
-              <Textarea value={form.html} onChange={e => setForm(p => ({ ...p, html: e.target.value }))}
+              <Textarea
+                value={form.html}
+                onChange={(e) => setForm((p) => ({ ...p, html: e.target.value }))}
                 placeholder="Cole ou digite o HTML do email..."
-                className="min-h-[200px] font-mono text-xs" />
-              <p className="text-xs text-slate-400">Use <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded">[NOME]</code> para personalizar com o nome do destinatário.</p>
+                className="min-h-[200px] font-mono text-xs"
+              />
+              <p className="text-xs text-slate-400">
+                Use <code className="bg-slate-100 dark:bg-slate-700 px-1 rounded">[NOME]</code> para
+                personalizar com o nome do destinatário.
+              </p>
             </div>
           </div>
           <DialogFooter>
-            <Button variant="outline" onClick={() => onOpenChange(false)}>Cancelar</Button>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>
+              Cancelar
+            </Button>
             <Button onClick={onSalvar}>{editModelo ? "Atualizar" : "Salvar"}</Button>
           </DialogFooter>
         </DialogContent>
@@ -75,8 +104,18 @@ export function ModeloDialogs({
             </div>
           )}
           <DialogFooter>
-            <Button variant="outline" onClick={onFecharVer}>Fechar</Button>
-            <Button onClick={() => { if (viewModelo) { onUsarModelo(viewModelo); onFecharVer() } }} className="gap-1">
+            <Button variant="outline" onClick={onFecharVer}>
+              Fechar
+            </Button>
+            <Button
+              onClick={() => {
+                if (viewModelo) {
+                  onUsarModelo(viewModelo)
+                  onFecharVer()
+                }
+              }}
+              className="gap-1"
+            >
               <Copy size={14} /> Usar Modelo
             </Button>
           </DialogFooter>

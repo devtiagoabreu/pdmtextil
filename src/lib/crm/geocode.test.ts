@@ -1,5 +1,10 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest"
-import { configurarEspacamentoGeocode, geocodificarCamposEndereco, geocodificarEndereco, limparCacheGeocode } from "./geocode"
+import {
+  configurarEspacamentoGeocode,
+  geocodificarCamposEndereco,
+  geocodificarEndereco,
+  limparCacheGeocode,
+} from "./geocode"
 
 const ORIGINAL_FETCH = globalThis.fetch
 
@@ -57,7 +62,8 @@ describe("geocodificarEndereco", () => {
     fn.mockImplementation(async (input: string | URL) => {
       const q = new URL(String(input)).searchParams.get("q")
       if (q === "Rua Desconhecida, 999, Cidade Nova, GO") return { ok: true, json: async () => [] }
-      if (q === "Cidade Nova, GO") return { ok: true, json: async () => [{ lat: "-16.68", lon: "-49.25" }] }
+      if (q === "Cidade Nova, GO")
+        return { ok: true, json: async () => [{ lat: "-16.68", lon: "-49.25" }] }
       return { ok: true, json: async () => [] }
     })
     vi.stubGlobal("fetch", fn)
@@ -123,7 +129,8 @@ describe("geocodificarCamposEndereco", () => {
     fn.mockImplementation(async (input: string | URL) => {
       const url = new URL(String(input))
       if (url.searchParams.has("street")) return { ok: true, json: async () => [] }
-      if (!url.searchParams.has("q")) return { ok: true, json: async () => [{ lat: "-16.68", lon: "-49.25" }] }
+      if (!url.searchParams.has("q"))
+        return { ok: true, json: async () => [{ lat: "-16.68", lon: "-49.25" }] }
       return { ok: true, json: async () => [] }
     })
     vi.stubGlobal("fetch", fn)

@@ -15,7 +15,14 @@ const modulos = [
     ativo: true,
     createdAt: "2026-01-01",
     licoes: [
-      { id: 10, moduloId: 1, titulo: "Introdução ao CRM", ordem: 1, ativo: true, pathnameRelacionado: "/comercial/crm" },
+      {
+        id: 10,
+        moduloId: 1,
+        titulo: "Introdução ao CRM",
+        ordem: 1,
+        ativo: true,
+        pathnameRelacionado: "/comercial/crm",
+      },
     ],
   },
   {
@@ -34,9 +41,11 @@ const modulos = [
 function buildHandler() {
   return ({ method, url }: { method: string; url: string }) => {
     if (method === "GET" && url === "/api/crm/treinamento") return { json: modulos }
-    if (method === "POST" && url === "/api/crm/treinamento/modulos") return { status: 201, json: { id: 3 } }
+    if (method === "POST" && url === "/api/crm/treinamento/modulos")
+      return { status: 201, json: { id: 3 } }
     if (method === "DELETE" && url === "/api/crm/treinamento/10") return { json: { ok: true } }
-    if (method === "DELETE" && url === "/api/crm/treinamento/modulos/1") return { json: { ok: true } }
+    if (method === "DELETE" && url === "/api/crm/treinamento/modulos/1")
+      return { json: { ok: true } }
     return { json: null }
   }
 }
@@ -65,14 +74,23 @@ describe("AdminTreinamentoPage", () => {
     await screen.findByText("Visão Geral")
 
     fireEvent.click(screen.getByRole("button", { name: "Novo Módulo" }))
-    fireEvent.change(screen.getByPlaceholderText("Título do módulo"), { target: { value: "Módulo Teste" } })
-    fireEvent.change(screen.getByPlaceholderText("Descrição (opcional)"), { target: { value: "Descrição teste" } })
+    fireEvent.change(screen.getByPlaceholderText("Título do módulo"), {
+      target: { value: "Módulo Teste" },
+    })
+    fireEvent.change(screen.getByPlaceholderText("Descrição (opcional)"), {
+      target: { value: "Descrição teste" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
 
     await waitFor(() => {
       const call = findCall(fetchMock.calls, "/api/crm/treinamento/modulos", "POST")
       expect(call).toBeDefined()
-      expect(call!.body).toEqual({ titulo: "Módulo Teste", descricao: "Descrição teste", icone: "BookOpen", cor: "#6366f1" })
+      expect(call!.body).toEqual({
+        titulo: "Módulo Teste",
+        descricao: "Descrição teste",
+        icone: "BookOpen",
+        cor: "#6366f1",
+      })
     })
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Módulo criado"))
   })
@@ -83,7 +101,9 @@ describe("AdminTreinamentoPage", () => {
 
     fireEvent.click(screen.getAllByTitle("Remover")[0])
 
-    await waitFor(() => expect(findCall(fetchMock.calls, "/api/crm/treinamento/10", "DELETE")).toBeDefined())
+    await waitFor(() =>
+      expect(findCall(fetchMock.calls, "/api/crm/treinamento/10", "DELETE")).toBeDefined()
+    )
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Lição removida"))
   })
 
@@ -93,7 +113,9 @@ describe("AdminTreinamentoPage", () => {
 
     fireEvent.click(screen.getAllByTitle("Remover módulo")[0])
 
-    await waitFor(() => expect(findCall(fetchMock.calls, "/api/crm/treinamento/modulos/1", "DELETE")).toBeDefined())
+    await waitFor(() =>
+      expect(findCall(fetchMock.calls, "/api/crm/treinamento/modulos/1", "DELETE")).toBeDefined()
+    )
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Módulo removido"))
   })
 
@@ -101,8 +123,15 @@ describe("AdminTreinamentoPage", () => {
     renderPage(<AdminTreinamentoPage />)
     await screen.findByText("Introdução ao CRM")
 
-    expect(screen.getByTitle("Editar")).toHaveAttribute("href", "/comercial/crm/treinamento/admin/10")
+    expect(screen.getByTitle("Editar")).toHaveAttribute(
+      "href",
+      "/comercial/crm/treinamento/admin/10"
+    )
     const novas = screen.getAllByTitle("Nova lição neste módulo")
-    expect(novas.some((l) => l.getAttribute("href") === "/comercial/crm/treinamento/admin/novo?moduloId=1")).toBe(true)
+    expect(
+      novas.some(
+        (l) => l.getAttribute("href") === "/comercial/crm/treinamento/admin/novo?moduloId=1"
+      )
+    ).toBe(true)
   })
 })

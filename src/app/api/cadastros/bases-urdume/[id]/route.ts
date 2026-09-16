@@ -9,10 +9,7 @@ import { handleApiError } from "@/lib/api-error"
 import { notificarDelecao } from "@/lib/notificar"
 export const dynamic = "force-dynamic"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -44,10 +41,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
@@ -63,7 +57,10 @@ export async function PUT(
         .limit(1)
 
       if (existenteIdInt[0] && existenteIdInt[0].id !== id) {
-        return NextResponse.json({ error: "ID Integração já cadastrado em outra base" }, { status: 409 })
+        return NextResponse.json(
+          { error: "ID Integração já cadastrado em outra base" },
+          { status: 409 }
+        )
       }
     }
 
@@ -105,14 +102,14 @@ export async function PUT(
     return NextResponse.json(baseAtualizada[0])
   } catch (error: any) {
     console.error("[PUT /api/cadastros/bases-urdume/[id]]", error?.message || error)
-    return NextResponse.json({ error: `Erro ao atualizar base: ${error?.message || error}` }, { status: 500 })
+    return NextResponse.json(
+      { error: `Erro ao atualizar base: ${error?.message || error}` },
+      { status: 500 }
+    )
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const session = await getServerSession(authOptions)
     if (!session) return NextResponse.json({ error: "Não autorizado" }, { status: 401 })

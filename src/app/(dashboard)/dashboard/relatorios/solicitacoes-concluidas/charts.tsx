@@ -1,6 +1,15 @@
 "use client"
 
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from "recharts"
+import {
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+  Legend,
+} from "recharts"
 import { BarChart3 } from "lucide-react"
 import { ChartTooltip } from "@/components/ui/chart-tooltip"
 
@@ -23,7 +32,14 @@ export function SolicitacoesConcluidasCharts({ porMes }: SolicitacoesConcluidasC
             <YAxis tick={{ fontSize: 12 }} />
             <Tooltip content={<ChartTooltip />} />
             <Legend />
-            <Bar dataKey="concluidas" name="Concluídas" fill="#22c55e" radius={[4, 4, 0, 0]} animationDuration={1000} animationEasing="ease-out" />
+            <Bar
+              dataKey="concluidas"
+              name="Concluídas"
+              fill="#22c55e"
+              radius={[4, 4, 0, 0]}
+              animationDuration={1000}
+              animationEasing="ease-out"
+            />
           </BarChart>
         </ResponsiveContainer>
       </div>

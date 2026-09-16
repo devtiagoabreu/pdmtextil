@@ -44,7 +44,7 @@ describe("GET /api/admin/email-massa/relatorio", () => {
         },
       ],
       [{ remessaId: "r1", clicados: 41, totalCliques: 248 }],
-      [{ remessaId: "r1", urlOriginal: "https://pdmprotextil.com.br/promo", total: 200 }],
+      [{ remessaId: "r1", urlOriginal: "https://pdmprotextil.com.br/promo", total: 200 }]
     )
 
     const res = await GET()

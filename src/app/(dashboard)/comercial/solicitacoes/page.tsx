@@ -14,7 +14,7 @@ import ListFilters, { useListFilters } from "@/components/ui/list-filters"
 import type { SolicitacaoLista } from "./types"
 
 const TIPO_CONFIG: Record<string, string> = {
-  DESENVOLVIMENTO_TECELAGEM:      "Tecelagem",
+  DESENVOLVIMENTO_TECELAGEM: "Tecelagem",
   DESENVOLVIMENTO_BENEFICIAMENTO: "Beneficiamento",
 }
 
@@ -34,22 +34,41 @@ export default function ListaSolicitacoesPage() {
   const [deleteTarget, setDeleteTarget] = useState<SolicitacaoLista | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
-  const { statuses, getLabel: getStatusLabel, getColor: getStatusColor } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
+  const {
+    statuses,
+    getLabel: getStatusLabel,
+    getColor: getStatusColor,
+  } = useStatuses("SOLICITACAO_DESENVOLVIMENTO")
 
-  const statusOptions = statuses.filter((s) => s.ativo !== false).map((s) => ({ value: s.nome, label: s.rotulo || s.nome }))
+  const statusOptions = statuses
+    .filter((s) => s.ativo !== false)
+    .map((s) => ({ value: s.nome, label: s.rotulo || s.nome }))
 
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  const { data: lista, isLoading, error, refetch } = useQuery({
+  const {
+    data: lista,
+    isLoading,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ["solicitacoes"],
     queryFn: fetchSolicitacoes,
     retry: 1,
   })
 
   const filterState = useListFilters(
-    { searchFields: ["cliente", "solicitanteNome", "produtoCodigoPdm", "produtoIdIntegracaoErpCru", "tipo", "observacoes"],
+    {
+      searchFields: [
+        "cliente",
+        "solicitanteNome",
+        "produtoCodigoPdm",
+        "produtoIdIntegracaoErpCru",
+        "tipo",
+        "observacoes",
+      ],
       statusOptions,
       dateField: "createdAt",
     },
@@ -86,7 +105,7 @@ export default function ListaSolicitacoesPage() {
     return null
   }
 
-if (isLoading) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-[400px]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600" />
@@ -118,7 +137,9 @@ if (isLoading) {
     <div className="space-y-6 animate-fade-in">
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Minhas Solicitações de Desenvolvimento{info && <InfoButton content={info} />}</h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Minhas Solicitações de Desenvolvimento{info && <InfoButton content={info} />}
+          </h1>
           <p className="text-sm text-slate-500 dark:text-slate-400 mt-0.5">
             {filteredData.length || 0} de {lista?.length || 0} solicitacao(oes)
           </p>
@@ -134,7 +155,14 @@ if (isLoading) {
 
       <ListFilters
         config={{
-          searchFields: ["cliente", "solicitanteNome", "produtoCodigoPdm", "produtoIdIntegracaoErpCru", "tipo", "observacoes"],
+          searchFields: [
+            "cliente",
+            "solicitanteNome",
+            "produtoCodigoPdm",
+            "produtoIdIntegracaoErpCru",
+            "tipo",
+            "observacoes",
+          ],
           statusOptions,
           dateField: "createdAt",
         }}
@@ -144,13 +172,18 @@ if (isLoading) {
       />
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
-        {(!filteredData || filteredData.length === 0) ? (
+        {!filteredData || filteredData.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <FileText className="w-12 h-12 text-slate-300 dark:text-slate-700 mb-3" />
             <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-              {(lista && lista.length > 0 && filteredData.length === 0) ? "Nenhum resultado para os filtros aplicados" : "Nenhuma solicitacao encontrada"}
+              {lista && lista.length > 0 && filteredData.length === 0
+                ? "Nenhum resultado para os filtros aplicados"
+                : "Nenhuma solicitacao encontrada"}
             </p>
-            <Link href="/comercial/solicitacoes/nova" className="text-sm text-blue-600 hover:underline mt-2">
+            <Link
+              href="/comercial/solicitacoes/nova"
+              className="text-sm text-blue-600 hover:underline mt-2"
+            >
               Criar primeira solicitação
             </Link>
           </div>
@@ -159,65 +192,100 @@ if (isLoading) {
             <table className="w-full">
               <thead className="bg-slate-50 dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700">
                 <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">ID</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Tipo</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Cliente</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Criado por</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Produto Vinculado</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Status</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Data</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Observações</th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">Ações</th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    ID
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Tipo
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Cliente
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Criado por
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Produto Vinculado
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Data
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Observações
+                  </th>
+                  <th className="px-4 py-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400 uppercase">
+                    Ações
+                  </th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
                 {filteredData.map((s) => {
                   return (
-                    <tr
-                      key={s.id}
-                      className="hover:bg-slate-50 dark:hover:bg-slate-800/50"
-                    >
+                    <tr key={s.id} className="hover:bg-slate-50 dark:hover:bg-slate-800/50">
                       <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">
-                        <Link href={`/comercial/solicitacoes/${s.id}`} className="flex items-center gap-1">
+                        <Link
+                          href={`/comercial/solicitacoes/${s.id}`}
+                          className="flex items-center gap-1"
+                        >
                           #{s.id}
-                          {s.chatExists && <MessageSquare size={12} className="text-indigo-500 flex-shrink-0" />}
+                          {s.chatExists && (
+                            <MessageSquare size={12} className="text-indigo-500 flex-shrink-0" />
+                          )}
                         </Link>
                       </td>
-                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{TIPO_CONFIG[s.tipo] || s.tipo}</td>
-                      <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">{s.cliente}</td>
-                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">{s.solicitanteNome || "—"}</td>
+                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
+                        {TIPO_CONFIG[s.tipo] || s.tipo}
+                      </td>
+                      <td className="px-4 py-3 text-sm font-medium text-slate-900 dark:text-slate-200">
+                        {s.cliente}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
+                        {s.solicitanteNome || "—"}
+                      </td>
                       <td className="px-4 py-3 text-sm">
                         {s.produtoCodigoPdm ? (
                           <span className="text-xs font-mono text-slate-700 dark:text-slate-300">
-                            {s.produtoCodigoPdm}{s.produtoIdIntegracaoErpCru ? ` (ERP: ${s.produtoIdIntegracaoErpCru})` : ""}
+                            {s.produtoCodigoPdm}
+                            {s.produtoIdIntegracaoErpCru
+                              ? ` (ERP: ${s.produtoIdIntegracaoErpCru})`
+                              : ""}
                           </span>
                         ) : (
                           <span className="text-xs text-slate-400">—</span>
                         )}
                       </td>
                       <td className="px-4 py-3">
-                        <span className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium" style={{
-                          backgroundColor: hexToRgba(getStatusColor(s.status), 0.15),
-                          color: getStatusColor(s.status),
-                        }}>
+                        <span
+                          className="inline-flex items-center rounded-full px-2 py-0.5 text-xs font-medium"
+                          style={{
+                            backgroundColor: hexToRgba(getStatusColor(s.status), 0.15),
+                            color: getStatusColor(s.status),
+                          }}
+                        >
                           {getStatusLabel(s.status)}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400">
                         {s.createdAt ? new Date(s.createdAt).toLocaleDateString("pt-BR") : "—"}
                       </td>
-                      <td className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400 max-w-[200px] truncate" title={s.observacoes || ""}>
+                      <td
+                        className="px-4 py-3 text-sm text-slate-500 dark:text-slate-400 max-w-[200px] truncate"
+                        title={s.observacoes || ""}
+                      >
                         {s.observacoes || "—"}
                       </td>
                       <td className="px-4 py-3">
-                          <div className="flex items-center gap-2">
-                            <Link
-                              href={`/comercial/solicitacoes/${s.id}`}
-                              className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              Ver
-                            </Link>
+                        <div className="flex items-center gap-2">
+                          <Link
+                            href={`/comercial/solicitacoes/${s.id}`}
+                            className="flex items-center gap-1 text-blue-600 dark:text-blue-400 hover:underline text-xs font-medium"
+                            onClick={(e) => e.stopPropagation()}
+                          >
+                            Ver
+                          </Link>
                           <button
                             onClick={(e) => {
                               e.stopPropagation()
@@ -242,14 +310,18 @@ if (isLoading) {
       <ConfirmModal
         open={deleteTarget !== null}
         title={deleteBlocked ? "Exclusão não permitida" : "Excluir solicitação?"}
-        message={deleteBlocked
-          ? "Esta solicitação possui cadastros vinculados e não pode ser excluída."
-          : (deleteTarget?.anexosCount ?? 0) > 0
-            ? `Esta solicitação possui ${deleteTarget?.anexosCount} link(s) anexado(s). Ao excluir, os links também serão removidos. Continuar?`
-            : `Tem certeza que deseja excluir a solicitação #${deleteTarget?.id}?`}
-        subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
-          : undefined}
+        message={
+          deleteBlocked
+            ? "Esta solicitação possui cadastros vinculados e não pode ser excluída."
+            : (deleteTarget?.anexosCount ?? 0) > 0
+              ? `Esta solicitação possui ${deleteTarget?.anexosCount} link(s) anexado(s). Ao excluir, os links também serão removidos. Continuar?`
+              : `Tem certeza que deseja excluir a solicitação #${deleteTarget?.id}?`
+        }
+        subMessage={
+          deleteBlocked
+            ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+            : undefined
+        }
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}
         loading={deleteLoading}

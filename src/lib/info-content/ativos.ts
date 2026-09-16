@@ -17,7 +17,10 @@ export const ativosContent: Record<string, InfoContent> = {
       { name: "Ativo", desc: "Equipamento ou item com código, nome, categoria e status" },
       { name: "Categoria", desc: "Agrupamento por área (Segurança, Mecânica, Elétrica, etc.)" },
       { name: "Tipo de Vistoria", desc: "Modelo de inspeção com periodicidade e checklist" },
-      { name: "Plano de Vistoria", desc: "Vínculo ativo × tipo, definindo periodicidade e responsável" },
+      {
+        name: "Plano de Vistoria",
+        desc: "Vínculo ativo × tipo, definindo periodicidade e responsável",
+      },
       { name: "Vistoria", desc: "Ocorrência agendada ou manual, com resultado e evidências" },
     ],
     examples: [

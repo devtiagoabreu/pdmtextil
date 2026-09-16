@@ -1,7 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { produtoCruAmostra, produtoCruAcabamento, produtoCruAcabamentoAmostra, produtosCru } from "@/lib/db/schema/produto-cru"
+import {
+  produtoCruAmostra,
+  produtoCruAcabamento,
+  produtoCruAcabamentoAmostra,
+  produtosCru,
+} from "@/lib/db/schema/produto-cru"
 import { solicitacoes } from "@/lib/db/schema/solicitacoes"
 import { eq, and } from "drizzle-orm"
 import { getValidStatuses } from "@/lib/status-utils"
@@ -23,21 +28,34 @@ export async function PATCH(req: NextRequest) {
 
     const precisaMotivo = novoStatus.startsWith("APROVADA") || novoStatus === "REPROVADA"
     if (precisaMotivo && !motivo?.trim()) {
-      return NextResponse.json({ error: "Motivo é obrigatório para aprovar ou reprovar" }, { status: 400 })
+      return NextResponse.json(
+        { error: "Motivo é obrigatório para aprovar ou reprovar" },
+        { status: 400 }
+      )
     }
 
     const validStatuses = await getValidStatuses("AMOSTRA")
     if (!validStatuses.includes(novoStatus)) {
-      return NextResponse.json({ error: `Status inválido para amostra. Use: ${validStatuses.join(", ")}` }, { status: 400 })
+      return NextResponse.json(
+        { error: `Status inválido para amostra. Use: ${validStatuses.join(", ")}` },
+        { status: 400 }
+      )
     }
 
     if (tipo === "tecido_cru") {
       if (!produtoCruId) {
-        return NextResponse.json({ error: "produtoCruId é obrigatório para amostras de tecido cru" }, { status: 400 })
+        return NextResponse.json(
+          { error: "produtoCruId é obrigatório para amostras de tecido cru" },
+          { status: 400 }
+        )
       }
 
       const [amostra] = await db
-        .select({ status: produtoCruAmostra.status, historico: produtoCruAmostra.historico, observacoes: produtoCruAmostra.observacoes })
+        .select({
+          status: produtoCruAmostra.status,
+          historico: produtoCruAmostra.historico,
+          observacoes: produtoCruAmostra.observacoes,
+        })
         .from(produtoCruAmostra)
         .where(and(eq(produtoCruAmostra.id, id), eq(produtoCruAmostra.produtoCruId, produtoCruId)))
 
@@ -58,12 +76,22 @@ export async function PATCH(req: NextRequest) {
 
       const observacoesAtual = amostra.observacoes || ""
       const observacoesFinal = motivo?.trim()
-        ? [observacoesAtual, `⛔ ${novoStatus.startsWith("APROVADA") ? "Aprovado" : "Reprovado"} por ${session?.user?.name || "Sistema"}: ${motivo.trim()}`].filter(Boolean).join("\n")
+        ? [
+            observacoesAtual,
+            `⛔ ${novoStatus.startsWith("APROVADA") ? "Aprovado" : "Reprovado"} por ${session?.user?.name || "Sistema"}: ${motivo.trim()}`,
+          ]
+            .filter(Boolean)
+            .join("\n")
         : observacoesAtual
 
       const [updated] = await db
         .update(produtoCruAmostra)
-        .set({ status: novoStatus, historico, motivoAprovacao: motivo || null, observacoes: observacoesFinal })
+        .set({
+          status: novoStatus,
+          historico,
+          motivoAprovacao: motivo || null,
+          observacoes: observacoesFinal,
+        })
         .where(eq(produtoCruAmostra.id, id))
         .returning()
 
@@ -86,7 +114,10 @@ export async function PATCH(req: NextRequest) {
       }
 
       // Se estava em produção e foi reprovada, volta solicitação para Em Desenvolvimento
-      if (novoStatus === "REPROVADA" && (amostra.status === "EM_PRODUCAO_TEC" || amostra.status === "EM_PRODUCAO_BEN")) {
+      if (
+        novoStatus === "REPROVADA" &&
+        (amostra.status === "EM_PRODUCAO_TEC" || amostra.status === "EM_PRODUCAO_BEN")
+      ) {
         const [prod] = await db
           .select({ solicitacaoDesenvolvimentoId: produtosCru.solicitacaoDesenvolvimentoId })
           .from(produtosCru)
@@ -97,7 +128,12 @@ export async function PATCH(req: NextRequest) {
             .update(solicitacoes)
             .set({ status: "EM_DESENVOLVIMENTO", updatedAt: new Date() })
             .where(eq(solicitacoes.id, prod.solicitacaoDesenvolvimentoId))
-          await notificar("SOLICITACAO_ATUALIZADA", `Solicitação #${prod.solicitacaoDesenvolvimentoId} voltou para Em Desenvolvimento (amostra tecido cru #${id} reprovada)`, `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`, session?.user?.name || "Sistema")
+          await notificar(
+            "SOLICITACAO_ATUALIZADA",
+            `Solicitação #${prod.solicitacaoDesenvolvimentoId} voltou para Em Desenvolvimento (amostra tecido cru #${id} reprovada)`,
+            `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`,
+            session?.user?.name || "Sistema"
+          )
         }
       }
 
@@ -119,22 +155,38 @@ export async function PATCH(req: NextRequest) {
               .update(solicitacoes)
               .set({ status: "PILOTAGEM", updatedAt: new Date() })
               .where(eq(solicitacoes.id, prod.solicitacaoDesenvolvimentoId))
-            await notificar("SOLICITACAO_ATUALIZADA", `Solicitação #${prod.solicitacaoDesenvolvimentoId} avançou para Pilotagem (amostra tecido cru #${id} em produção)`, `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`, session?.user?.name || "Sistema")
+            await notificar(
+              "SOLICITACAO_ATUALIZADA",
+              `Solicitação #${prod.solicitacaoDesenvolvimentoId} avançou para Pilotagem (amostra tecido cru #${id} em produção)`,
+              `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`,
+              session?.user?.name || "Sistema"
+            )
           }
         }
       }
 
       return NextResponse.json(updated)
-
     } else if (tipo === "acabamento") {
       if (!acabamentoId) {
-        return NextResponse.json({ error: "acabamentoId é obrigatório para amostras de acabamento" }, { status: 400 })
+        return NextResponse.json(
+          { error: "acabamentoId é obrigatório para amostras de acabamento" },
+          { status: 400 }
+        )
       }
 
       const [amostra] = await db
-        .select({ status: produtoCruAcabamentoAmostra.status, historico: produtoCruAcabamentoAmostra.historico, observacoes: produtoCruAcabamentoAmostra.observacoes })
+        .select({
+          status: produtoCruAcabamentoAmostra.status,
+          historico: produtoCruAcabamentoAmostra.historico,
+          observacoes: produtoCruAcabamentoAmostra.observacoes,
+        })
         .from(produtoCruAcabamentoAmostra)
-        .where(and(eq(produtoCruAcabamentoAmostra.id, id), eq(produtoCruAcabamentoAmostra.acabamentoId, acabamentoId)))
+        .where(
+          and(
+            eq(produtoCruAcabamentoAmostra.id, id),
+            eq(produtoCruAcabamentoAmostra.acabamentoId, acabamentoId)
+          )
+        )
 
       if (!amostra) {
         return NextResponse.json({ error: "Amostra não encontrada" }, { status: 404 })
@@ -153,12 +205,22 @@ export async function PATCH(req: NextRequest) {
 
       const observacoesAtual = amostra.observacoes || ""
       const observacoesFinal = motivo?.trim()
-        ? [observacoesAtual, `⛔ ${novoStatus.startsWith("APROVADA") ? "Aprovado" : "Reprovado"} por ${session?.user?.name || "Sistema"}: ${motivo.trim()}`].filter(Boolean).join("\n")
+        ? [
+            observacoesAtual,
+            `⛔ ${novoStatus.startsWith("APROVADA") ? "Aprovado" : "Reprovado"} por ${session?.user?.name || "Sistema"}: ${motivo.trim()}`,
+          ]
+            .filter(Boolean)
+            .join("\n")
         : observacoesAtual
 
       const [updated] = await db
         .update(produtoCruAcabamentoAmostra)
-        .set({ status: novoStatus, historico, motivoAprovacao: motivo || null, observacoes: observacoesFinal })
+        .set({
+          status: novoStatus,
+          historico,
+          motivoAprovacao: motivo || null,
+          observacoes: observacoesFinal,
+        })
         .where(eq(produtoCruAcabamentoAmostra.id, id))
         .returning()
 
@@ -182,7 +244,10 @@ export async function PATCH(req: NextRequest) {
       }
 
       // Se estava em produção e foi reprovada, volta solicitação para Em Desenvolvimento
-      if (novoStatus === "REPROVADA" && (amostra.status === "EM_PRODUCAO_BEN" || amostra.status === "EM_PRODUCAO_TEC")) {
+      if (
+        novoStatus === "REPROVADA" &&
+        (amostra.status === "EM_PRODUCAO_BEN" || amostra.status === "EM_PRODUCAO_TEC")
+      ) {
         const pid = produtoCruId
         if (pid) {
           const [prod] = await db
@@ -195,7 +260,12 @@ export async function PATCH(req: NextRequest) {
               .update(solicitacoes)
               .set({ status: "EM_DESENVOLVIMENTO", updatedAt: new Date() })
               .where(eq(solicitacoes.id, prod.solicitacaoDesenvolvimentoId))
-            await notificar("SOLICITACAO_ATUALIZADA", `Solicitação #${prod.solicitacaoDesenvolvimentoId} voltou para Em Desenvolvimento (amostra acabamento #${id} reprovada)`, `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`, session?.user?.name || "Sistema")
+            await notificar(
+              "SOLICITACAO_ATUALIZADA",
+              `Solicitação #${prod.solicitacaoDesenvolvimentoId} voltou para Em Desenvolvimento (amostra acabamento #${id} reprovada)`,
+              `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`,
+              session?.user?.name || "Sistema"
+            )
           }
         }
       }
@@ -220,7 +290,12 @@ export async function PATCH(req: NextRequest) {
                 .update(solicitacoes)
                 .set({ status: "PILOTAGEM", updatedAt: new Date() })
                 .where(eq(solicitacoes.id, prod.solicitacaoDesenvolvimentoId))
-              await notificar("SOLICITACAO_ATUALIZADA", `Solicitação #${prod.solicitacaoDesenvolvimentoId} avançou para Pilotagem (amostra acabamento #${id} em produção)`, `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`, session?.user?.name || "Sistema")
+              await notificar(
+                "SOLICITACAO_ATUALIZADA",
+                `Solicitação #${prod.solicitacaoDesenvolvimentoId} avançou para Pilotagem (amostra acabamento #${id} em produção)`,
+                `/comercial/solicitacoes/${prod.solicitacaoDesenvolvimentoId}`,
+                session?.user?.name || "Sistema"
+              )
             }
           }
         }
@@ -229,7 +304,10 @@ export async function PATCH(req: NextRequest) {
       return NextResponse.json(updated)
     }
 
-    return NextResponse.json({ error: "tipo deve ser 'tecido_cru' ou 'acabamento'" }, { status: 400 })
+    return NextResponse.json(
+      { error: "tipo deve ser 'tecido_cru' ou 'acabamento'" },
+      { status: 400 }
+    )
   } catch (error) {
     console.error("[PATCH /api/amostras/status]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })

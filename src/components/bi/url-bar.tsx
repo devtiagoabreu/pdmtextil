@@ -40,10 +40,10 @@ export function UrlBar({
         <input
           type="text"
           value={url}
-          onChange={e => setUrl(e.target.value)}
+          onChange={(e) => setUrl(e.target.value)}
           placeholder="https://docs.google.com/spreadsheets/d/..."
           className="flex-1 px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-          onKeyDown={e => e.key === "Enter" && onLoad()}
+          onKeyDown={(e) => e.key === "Enter" && onLoad()}
         />
         <button
           onClick={() => onLoad()}
@@ -65,15 +65,13 @@ export function UrlBar({
       </div>
       {error && <p className="mt-2 text-sm text-red-500">{error}</p>}
       <div className="mt-3 pt-3 border-t border-slate-100 dark:border-slate-800 flex flex-wrap items-center gap-2">
-        <label className="text-xs text-slate-500 dark:text-slate-400">
-          Atualizar dados a cada
-        </label>
+        <label className="text-xs text-slate-500 dark:text-slate-400">Atualizar dados a cada</label>
         <input
           type="number"
           min={1}
           max={1440}
           value={ttlMinutos ?? ""}
-          onChange={e => setTtlMinutos(e.target.value === "" ? null : Number(e.target.value))}
+          onChange={(e) => setTtlMinutos(e.target.value === "" ? null : Number(e.target.value))}
           className="w-20 px-2 py-1 rounded-lg border border-slate-300 dark:border-slate-700 bg-white dark:bg-slate-800 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
         />
         <span className="text-xs text-slate-500 dark:text-slate-400">min</span>
@@ -84,7 +82,9 @@ export function UrlBar({
         >
           {ttlLoading ? "Salvando..." : "Salvar"}
         </button>
-        {configMsg && <span className="text-xs text-slate-500 dark:text-slate-400">{configMsg}</span>}
+        {configMsg && (
+          <span className="text-xs text-slate-500 dark:text-slate-400">{configMsg}</span>
+        )}
       </div>
     </div>
   )

@@ -33,15 +33,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "nome e baseUrl são obrigatórios" }, { status: 400 })
     }
 
-    const [item] = await db.insert(integracoes).values({
-      nome,
-      baseUrl,
-      tipoAuth: tipoAuth || "bearer",
-      authConfig: authConfig || {},
-      telas: telas || [],
-      mapping: mapping || {},
-      ativo: ativo !== undefined ? ativo : true,
-    }).returning()
+    const [item] = await db
+      .insert(integracoes)
+      .values({
+        nome,
+        baseUrl,
+        tipoAuth: tipoAuth || "bearer",
+        authConfig: authConfig || {},
+        telas: telas || [],
+        mapping: mapping || {},
+        ativo: ativo !== undefined ? ativo : true,
+      })
+      .returning()
 
     return NextResponse.json(item, { status: 201 })
   } catch (error) {

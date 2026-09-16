@@ -6,7 +6,17 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-import { Loader2, Plus, Pencil, Trash2, ExternalLink, Package, Layers, ChevronDown, ChevronRight } from "lucide-react"
+import {
+  Loader2,
+  Plus,
+  Pencil,
+  Trash2,
+  ExternalLink,
+  Package,
+  Layers,
+  ChevronDown,
+  ChevronRight,
+} from "lucide-react"
 
 interface Linha {
   id: number
@@ -56,7 +66,11 @@ export default function WhatsAppCatalogosPage() {
     },
   })
 
-  const { data: catalogos = [], isLoading: loading, isError } = useQuery<Catalogo[]>({
+  const {
+    data: catalogos = [],
+    isLoading: loading,
+    isError,
+  } = useQuery<Catalogo[]>({
     queryKey: ["admin-whatsapp-catalogos"],
     queryFn: async () => {
       const res = await fetch("/api/admin/whatsapp-catalogos")
@@ -242,11 +256,21 @@ export default function WhatsAppCatalogosPage() {
         <div>
           <div className="flex items-center gap-2">
             <Package className="text-blue-600" size={24} />
-            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Catalogos WhatsApp</h1>
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+              Catalogos WhatsApp
+            </h1>
           </div>
-          <p className="text-sm text-slate-500 mt-1">Gerenciar mostruarios enviados pelo bot de atendimento</p>
+          <p className="text-sm text-slate-500 mt-1">
+            Gerenciar mostruarios enviados pelo bot de atendimento
+          </p>
         </div>
-        <Button onClick={() => { resetForm(); setShowForm(true) }} className="gap-2">
+        <Button
+          onClick={() => {
+            resetForm()
+            setShowForm(true)
+          }}
+          className="gap-2"
+        >
           <Plus size={16} /> Novo Catalogo
         </Button>
       </div>
@@ -257,15 +281,25 @@ export default function WhatsAppCatalogosPage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label>Linha de Tecido *</Label>
-              <select value={linhaNumero} onChange={e => setLinhaNumero(Number(e.target.value))}
-                className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm">
-                {linhasAtivas.map((l: any) => <option key={l.numero} value={l.numero}>{l.numero} - {l.nome}</option>)}
+              <select
+                value={linhaNumero}
+                onChange={(e) => setLinhaNumero(Number(e.target.value))}
+                className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm"
+              >
+                {linhasAtivas.map((l: any) => (
+                  <option key={l.numero} value={l.numero}>
+                    {l.numero} - {l.nome}
+                  </option>
+                ))}
               </select>
             </div>
             <div className="space-y-2">
               <Label>Tipo de Pessoa *</Label>
-              <select value={tipoPessoa} onChange={e => setTipoPessoa(e.target.value)}
-                className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm">
+              <select
+                value={tipoPessoa}
+                onChange={(e) => setTipoPessoa(e.target.value)}
+                className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm"
+              >
                 <option value="AMBOS">Todos (PF e PJ)</option>
                 <option value="PF">Pessoa Fisica (PF)</option>
                 <option value="PJ">Pessoa Juridica (PJ)</option>
@@ -273,15 +307,27 @@ export default function WhatsAppCatalogosPage() {
             </div>
             <div className="space-y-2">
               <Label>Titulo do Catalogo *</Label>
-              <Input value={titulo} onChange={e => setTitulo(e.target.value)} placeholder="Ex: Catalogo Lencol 2026" />
+              <Input
+                value={titulo}
+                onChange={(e) => setTitulo(e.target.value)}
+                placeholder="Ex: Catalogo Lencol 2026"
+              />
             </div>
             <div className="space-y-2">
               <Label>Link (URL) *</Label>
-              <Input value={linkUrl} onChange={e => setLinkUrl(e.target.value)} placeholder="https://..." />
+              <Input
+                value={linkUrl}
+                onChange={(e) => setLinkUrl(e.target.value)}
+                placeholder="https://..."
+              />
             </div>
             <div className="space-y-2">
               <Label>Descricao (opcional)</Label>
-              <Input value={descricao} onChange={e => setDescricao(e.target.value)} placeholder="Descricao curta" />
+              <Input
+                value={descricao}
+                onChange={(e) => setDescricao(e.target.value)}
+                placeholder="Descricao curta"
+              />
             </div>
           </div>
           <div className="flex gap-2">
@@ -289,7 +335,9 @@ export default function WhatsAppCatalogosPage() {
               {saving && <Loader2 size={16} className="animate-spin" />}
               {editId ? "Atualizar" : "Criar"}
             </Button>
-            <Button variant="outline" onClick={resetForm}>Cancelar</Button>
+            <Button variant="outline" onClick={resetForm}>
+              Cancelar
+            </Button>
           </div>
         </div>
       )}
@@ -300,10 +348,16 @@ export default function WhatsAppCatalogosPage() {
           className="w-full flex items-center gap-2 px-4 py-3 text-left hover:bg-slate-50 dark:hover:bg-slate-800/30"
         >
           <Layers className="text-purple-600" size={18} />
-          <span className="font-medium text-sm text-slate-700 dark:text-slate-300">Gerenciar Linhas de Tecido</span>
+          <span className="font-medium text-sm text-slate-700 dark:text-slate-300">
+            Gerenciar Linhas de Tecido
+          </span>
           <span className="text-xs text-slate-400 ml-1">({linhas.length})</span>
           <span className="ml-auto">
-            {showLinhas ? <ChevronDown size={16} className="text-slate-400" /> : <ChevronRight size={16} className="text-slate-400" />}
+            {showLinhas ? (
+              <ChevronDown size={16} className="text-slate-400" />
+            ) : (
+              <ChevronRight size={16} className="text-slate-400" />
+            )}
           </span>
         </button>
 
@@ -316,7 +370,7 @@ export default function WhatsAppCatalogosPage() {
                   type="number"
                   min={1}
                   value={linhaNumeroInput}
-                  onChange={e => setLinhaNumeroInput(e.target.value)}
+                  onChange={(e) => setLinhaNumeroInput(e.target.value)}
                   placeholder="1"
                   disabled={!!linhaEditId}
                   className="h-8 text-sm"
@@ -326,18 +380,25 @@ export default function WhatsAppCatalogosPage() {
                 <Label className="text-xs">Nome</Label>
                 <Input
                   value={linhaNomeInput}
-                  onChange={e => setLinhaNomeInput(e.target.value)}
+                  onChange={(e) => setLinhaNomeInput(e.target.value)}
                   placeholder="Ex: Linha Lencol"
                   className="h-8 text-sm"
                 />
               </div>
               <div className="flex items-end gap-2">
-                <Button size="sm" onClick={handleSaveLinha} disabled={savingLinha} className="gap-1">
+                <Button
+                  size="sm"
+                  onClick={handleSaveLinha}
+                  disabled={savingLinha}
+                  className="gap-1"
+                >
                   {savingLinha && <Loader2 size={14} className="animate-spin" />}
                   {linhaEditId ? "Atualizar" : "Adicionar"}
                 </Button>
                 {linhaEditId && (
-                  <Button size="sm" variant="outline" onClick={resetLinhaForm}>Cancelar</Button>
+                  <Button size="sm" variant="outline" onClick={resetLinhaForm}>
+                    Cancelar
+                  </Button>
                 )}
               </div>
             </div>
@@ -354,11 +415,23 @@ export default function WhatsAppCatalogosPage() {
                       title={l.ativo ? "Ativo" : "Inativo"}
                     />
                     <span className="text-sm font-mono text-slate-500 w-6">{l.numero}</span>
-                    <span className="flex-1 text-sm text-slate-700 dark:text-slate-300">{l.nome}</span>
-                    <Button variant="ghost" size="icon" onClick={() => handleEditLinha(l)} className="h-7 w-7">
+                    <span className="flex-1 text-sm text-slate-700 dark:text-slate-300">
+                      {l.nome}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEditLinha(l)}
+                      className="h-7 w-7"
+                    >
                       <Pencil size={13} />
                     </Button>
-                    <Button variant="ghost" size="icon" onClick={() => handleDeleteLinha(l)} className="h-7 w-7">
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteLinha(l)}
+                      className="h-7 w-7"
+                    >
                       <Trash2 size={13} />
                     </Button>
                   </div>
@@ -370,66 +443,117 @@ export default function WhatsAppCatalogosPage() {
       </div>
 
       {loading ? (
-        <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-400" size={24} /></div>
+        <div className="flex justify-center p-8">
+          <Loader2 className="animate-spin text-slate-400" size={24} />
+        </div>
       ) : (
         <div className="space-y-4">
           <div className="flex gap-2">
             {(["TODOS", "PF", "PJ"] as const).map((t: any) => (
-              <button key={t} onClick={() => setFiltroTipo(t)}
+              <button
+                key={t}
+                onClick={() => setFiltroTipo(t)}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   filtroTipo === t
                     ? "bg-blue-600 text-white"
                     : "bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-400 hover:bg-slate-200 dark:hover:bg-slate-700"
-                }`}>
+                }`}
+              >
                 {t === "TODOS" ? "Todos" : t === "PF" ? "Pessoa Fisica" : "Pessoa Juridica"}
               </button>
             ))}
           </div>
 
           {grouped.map((g: any) => {
-            const filteredItems = filtroTipo === "TODOS"
-              ? g.items
-              : g.items.filter((c: any) => c.tipoPessoa === filtroTipo || c.tipoPessoa === "AMBOS")
+            const filteredItems =
+              filtroTipo === "TODOS"
+                ? g.items
+                : g.items.filter(
+                    (c: any) => c.tipoPessoa === filtroTipo || c.tipoPessoa === "AMBOS"
+                  )
             return (
-            <div key={g.id} className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900">
-              <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
-                <h3 className="font-medium text-sm text-slate-700 dark:text-slate-300">
-                  {g.numero} - {g.nome}
-                  <span className="ml-2 text-xs text-slate-400">({filteredItems.length})</span>
-                </h3>
-              </div>
-              {filteredItems.length === 0 ? (
-                <p className="px-4 py-3 text-sm text-slate-400">
-                  {g.items.length === 0 ? "Nenhum catalogo cadastrado" : "Nenhum catalogo para este filtro"}
-                </p>
-              ) : (
-                <div className="divide-y dark:divide-slate-800">
-                  {filteredItems.map((c: any) => (
-                    <div key={c.id} className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/30">
-                      <button onClick={() => handleToggleAtivo(c)} className={`w-2 h-2 rounded-full shrink-0 ${c.ativo ? "bg-green-400" : "bg-slate-300"}`} title={c.ativo ? "Ativo" : "Inativo"} />
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-center gap-2">
-                          <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">{c.titulo}</p>
-                          <span className={`shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded ${
-                            c.tipoPessoa === "PF" ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
-                            : c.tipoPessoa === "PJ" ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
-                            : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
-                          }`}>
-                            {c.tipoPessoa === "PF" ? "PF" : c.tipoPessoa === "PJ" ? "PJ" : "PF/PJ"}
-                          </span>
-                        </div>
-                        {c.descricao && <p className="text-xs text-slate-400 truncate">{c.descricao}</p>}
-                      </div>
-                      <a href={c.linkUrl} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 shrink-0">
-                        <ExternalLink size={14} />
-                      </a>
-                      <Button variant="ghost" size="icon" onClick={() => handleEdit(c)} className="shrink-0"><Pencil size={14} /></Button>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(c.id, c.titulo)} className="shrink-0"><Trash2 size={14} /></Button>
-                    </div>
-                  ))}
+              <div
+                key={g.id}
+                className="rounded-xl border border-slate-200 dark:border-slate-800 overflow-hidden bg-white dark:bg-slate-900"
+              >
+                <div className="px-4 py-3 bg-slate-50 dark:bg-slate-800/50 border-b border-slate-200 dark:border-slate-700">
+                  <h3 className="font-medium text-sm text-slate-700 dark:text-slate-300">
+                    {g.numero} - {g.nome}
+                    <span className="ml-2 text-xs text-slate-400">({filteredItems.length})</span>
+                  </h3>
                 </div>
-              )}
-            </div>
+                {filteredItems.length === 0 ? (
+                  <p className="px-4 py-3 text-sm text-slate-400">
+                    {g.items.length === 0
+                      ? "Nenhum catalogo cadastrado"
+                      : "Nenhum catalogo para este filtro"}
+                  </p>
+                ) : (
+                  <div className="divide-y dark:divide-slate-800">
+                    {filteredItems.map((c: any) => (
+                      <div
+                        key={c.id}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-slate-50 dark:hover:bg-slate-800/30"
+                      >
+                        <button
+                          onClick={() => handleToggleAtivo(c)}
+                          className={`w-2 h-2 rounded-full shrink-0 ${c.ativo ? "bg-green-400" : "bg-slate-300"}`}
+                          title={c.ativo ? "Ativo" : "Inativo"}
+                        />
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2">
+                            <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
+                              {c.titulo}
+                            </p>
+                            <span
+                              className={`shrink-0 text-[10px] font-semibold px-1.5 py-0.5 rounded ${
+                                c.tipoPessoa === "PF"
+                                  ? "bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-300"
+                                  : c.tipoPessoa === "PJ"
+                                    ? "bg-purple-100 text-purple-700 dark:bg-purple-900/30 dark:text-purple-300"
+                                    : "bg-slate-100 text-slate-500 dark:bg-slate-800 dark:text-slate-400"
+                              }`}
+                            >
+                              {c.tipoPessoa === "PF"
+                                ? "PF"
+                                : c.tipoPessoa === "PJ"
+                                  ? "PJ"
+                                  : "PF/PJ"}
+                            </span>
+                          </div>
+                          {c.descricao && (
+                            <p className="text-xs text-slate-400 truncate">{c.descricao}</p>
+                          )}
+                        </div>
+                        <a
+                          href={c.linkUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="text-blue-500 hover:text-blue-700 shrink-0"
+                        >
+                          <ExternalLink size={14} />
+                        </a>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleEdit(c)}
+                          className="shrink-0"
+                        >
+                          <Pencil size={14} />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          onClick={() => handleDelete(c.id, c.titulo)}
+                          className="shrink-0"
+                        >
+                          <Trash2 size={14} />
+                        </Button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
             )
           })}
           {linhas.length === 0 && !loading && (

@@ -3,7 +3,9 @@ import { usuarios } from "./usuarios"
 
 export const accounts = pgTable("accounts", {
   id: serial("id").primaryKey(),
-  userId: integer("user_id").notNull().references(() => usuarios.id, { onDelete: "cascade" }),
+  userId: integer("user_id")
+    .notNull()
+    .references(() => usuarios.id, { onDelete: "cascade" }),
   type: varchar("type", { length: 50 }).notNull(),
   provider: varchar("provider", { length: 50 }).notNull(),
   providerAccountId: varchar("provider_account_id", { length: 100 }).notNull(),

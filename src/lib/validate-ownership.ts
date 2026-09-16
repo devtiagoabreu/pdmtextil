@@ -1,5 +1,10 @@
 import { db } from "./db"
-import { produtoCruAcabamento, produtoCruAcabamentoAmostra, produtoCruReceita, produtoCruReceitaItem } from "@/lib/db/schema"
+import {
+  produtoCruAcabamento,
+  produtoCruAcabamentoAmostra,
+  produtoCruReceita,
+  produtoCruReceitaItem,
+} from "@/lib/db/schema"
 import { eq, and } from "drizzle-orm"
 import { NextResponse } from "next/server"
 
@@ -17,10 +22,14 @@ export async function validateAcabamentoChain(id: number, aid: number) {
 
 export async function validateAmostraChain(id: number, aid: number, asid: number) {
   const [acab, amostra] = await Promise.all([
-    db.select().from(produtoCruAcabamento)
+    db
+      .select()
+      .from(produtoCruAcabamento)
       .where(and(eq(produtoCruAcabamento.id, aid), eq(produtoCruAcabamento.produtoCruId, id)))
       .limit(1),
-    db.select().from(produtoCruAcabamentoAmostra)
+    db
+      .select()
+      .from(produtoCruAcabamentoAmostra)
       .where(eq(produtoCruAcabamentoAmostra.id, asid))
       .limit(1),
   ])
@@ -35,15 +44,17 @@ export async function validateAmostraChain(id: number, aid: number, asid: number
 
 export async function validateReceitaChain(id: number, aid: number, asid: number, rid: number) {
   const [acab, amostra, receita] = await Promise.all([
-    db.select().from(produtoCruAcabamento)
+    db
+      .select()
+      .from(produtoCruAcabamento)
       .where(and(eq(produtoCruAcabamento.id, aid), eq(produtoCruAcabamento.produtoCruId, id)))
       .limit(1),
-    db.select().from(produtoCruAcabamentoAmostra)
+    db
+      .select()
+      .from(produtoCruAcabamentoAmostra)
       .where(eq(produtoCruAcabamentoAmostra.id, asid))
       .limit(1),
-    db.select().from(produtoCruReceita)
-      .where(eq(produtoCruReceita.id, rid))
-      .limit(1),
+    db.select().from(produtoCruReceita).where(eq(produtoCruReceita.id, rid)).limit(1),
   ])
   if (!acab[0]) {
     return NextResponse.json({ error: "Acabamento não encontrado neste produto" }, { status: 404 })
@@ -57,20 +68,26 @@ export async function validateReceitaChain(id: number, aid: number, asid: number
   return null
 }
 
-export async function validateItemChain(id: number, aid: number, asid: number, rid: number, iid: number) {
+export async function validateItemChain(
+  id: number,
+  aid: number,
+  asid: number,
+  rid: number,
+  iid: number
+) {
   const [acab, amostra, receita, item] = await Promise.all([
-    db.select().from(produtoCruAcabamento)
+    db
+      .select()
+      .from(produtoCruAcabamento)
       .where(and(eq(produtoCruAcabamento.id, aid), eq(produtoCruAcabamento.produtoCruId, id)))
       .limit(1),
-    db.select().from(produtoCruAcabamentoAmostra)
+    db
+      .select()
+      .from(produtoCruAcabamentoAmostra)
       .where(eq(produtoCruAcabamentoAmostra.id, asid))
       .limit(1),
-    db.select().from(produtoCruReceita)
-      .where(eq(produtoCruReceita.id, rid))
-      .limit(1),
-    db.select().from(produtoCruReceitaItem)
-      .where(eq(produtoCruReceitaItem.id, iid))
-      .limit(1),
+    db.select().from(produtoCruReceita).where(eq(produtoCruReceita.id, rid)).limit(1),
+    db.select().from(produtoCruReceitaItem).where(eq(produtoCruReceitaItem.id, iid)).limit(1),
   ])
   if (!acab[0]) {
     return NextResponse.json({ error: "Acabamento não encontrado neste produto" }, { status: 404 })

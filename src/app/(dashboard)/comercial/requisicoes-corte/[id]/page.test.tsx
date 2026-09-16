@@ -10,7 +10,17 @@ const dados = {
   status: "SOLICITADO",
   observacoes: "Observação inicial",
   entreguePor: "Vilma",
-  itens: [{ id: 1, codigoProduto: "2.K2620.001", ordem: "10", artigo: "ART-1", cor: "Preto", desenho: "500101", quantidade: "3 M" }],
+  itens: [
+    {
+      id: 1,
+      codigoProduto: "2.K2620.001",
+      ordem: "10",
+      artigo: "ART-1",
+      cor: "Preto",
+      desenho: "500101",
+      quantidade: "3 M",
+    },
+  ],
 }
 
 describe("DetalheRequisicaoCortePage", () => {
@@ -25,7 +35,8 @@ describe("DetalheRequisicaoCortePage", () => {
       if (url.startsWith("/api/cadastros/fornecedores")) return { json: [] }
       if (url === "/api/representantes") return { json: [] }
       if (method === "GET" && url === "/api/admin/status?tipo=REQUISICAO_CORTE") return { json: [] }
-      if (method === "GET" && url.startsWith("/api/comercial/requisicoes-corte/40?t=")) return { json: dados }
+      if (method === "GET" && url.startsWith("/api/comercial/requisicoes-corte/40?t="))
+        return { json: dados }
       return { status: 404, json: { error: "Rota não mockada" } }
     })
     vi.stubGlobal("fetch", fetchMock.fn)
@@ -49,7 +60,8 @@ describe("DetalheRequisicaoCortePage", () => {
       if (url.startsWith("/api/cadastros/fornecedores")) return { json: [] }
       if (url === "/api/representantes") return { json: [] }
       if (method === "GET" && url === "/api/admin/status?tipo=REQUISICAO_CORTE") return { json: [] }
-      if (method === "GET" && url.startsWith("/api/comercial/requisicoes-corte/40?t=")) return { json: dados }
+      if (method === "GET" && url.startsWith("/api/comercial/requisicoes-corte/40?t="))
+        return { json: dados }
       if (method === "PUT" && url === "/api/comercial/requisicoes-corte/40") return { json: dados }
       return { status: 404, json: { error: "Rota não mockada" } }
     })
@@ -58,7 +70,9 @@ describe("DetalheRequisicaoCortePage", () => {
     renderPage(<DetalheRequisicaoCortePage />)
     await screen.findByDisplayValue("2.K2620.001")
 
-    fireEvent.change(screen.getByDisplayValue("Observação inicial"), { target: { value: "Observação atualizada" } })
+    fireEvent.change(screen.getByDisplayValue("Observação inicial"), {
+      target: { value: "Observação atualizada" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Salvar" }))
 
     await waitFor(() => {
@@ -68,7 +82,9 @@ describe("DetalheRequisicaoCortePage", () => {
       expect(call!.body.status).toBe("SOLICITADO")
       expect(call!.body.itens).toHaveLength(1)
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Requisição atualizada com sucesso"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Requisição atualizada com sucesso")
+    )
   })
 
   it("copia o último item ao usar Copiar Item", async () => {
@@ -77,7 +93,8 @@ describe("DetalheRequisicaoCortePage", () => {
       if (url.startsWith("/api/cadastros/fornecedores")) return { json: [] }
       if (url === "/api/representantes") return { json: [] }
       if (method === "GET" && url === "/api/admin/status?tipo=REQUISICAO_CORTE") return { json: [] }
-      if (method === "GET" && url.startsWith("/api/comercial/requisicoes-corte/40?t=")) return { json: dados }
+      if (method === "GET" && url.startsWith("/api/comercial/requisicoes-corte/40?t="))
+        return { json: dados }
       return { status: 404, json: { error: "Rota não mockada" } }
     })
     vi.stubGlobal("fetch", fetchMock.fn)

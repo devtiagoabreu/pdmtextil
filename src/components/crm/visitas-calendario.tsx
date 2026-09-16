@@ -39,7 +39,12 @@ function formatDateKey(year: number, month: number, day: number) {
 function formatarDataBR(dateKey: string) {
   const [y, m, d] = dateKey.split("-")
   const date = new Date(parseInt(y), parseInt(m) - 1, parseInt(d))
-  return date.toLocaleDateString("pt-BR", { weekday: "long", day: "numeric", month: "long", year: "numeric" })
+  return date.toLocaleDateString("pt-BR", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  })
 }
 
 type Visita = {
@@ -146,7 +151,12 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
         <div className="grid grid-cols-7">
           {days.map((day, idx) => {
             if (day === null) {
-              return <div key={`empty-${idx}`} className="min-h-[50px] md:min-h-[90px] bg-slate-50/50 dark:bg-slate-900/50" />
+              return (
+                <div
+                  key={`empty-${idx}`}
+                  className="min-h-[50px] md:min-h-[90px] bg-slate-50/50 dark:bg-slate-900/50"
+                />
+              )
             }
 
             const dateKey = formatDateKey(year, month, day)
@@ -166,9 +176,7 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                 <span className="flex items-center justify-between mb-1">
                   <span
                     className={`text-[10px] md:text-xs font-semibold w-5 h-5 md:w-6 md:h-6 flex items-center justify-center rounded-full ${
-                      isToday
-                        ? "bg-blue-600 text-white"
-                        : "text-slate-700 dark:text-slate-300"
+                      isToday ? "bg-blue-600 text-white" : "text-slate-700 dark:text-slate-300"
                     }`}
                   >
                     {day}
@@ -186,9 +194,12 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                       className="flex items-center gap-1"
                       title={`${v.nomeAvulso || v.empresaNome || v.clienteNome || "Sem entidade"} - ${TIPO_LABELS[v.tipo] || v.tipo}${v.hora ? ` às ${v.hora}` : ""}`}
                     >
-                      <span className={`w-1.5 h-1.5 rounded-full shrink-0 ${TIPO_CORES[v.tipo] || "bg-slate-400"}`} />
+                      <span
+                        className={`w-1.5 h-1.5 rounded-full shrink-0 ${TIPO_CORES[v.tipo] || "bg-slate-400"}`}
+                      />
                       <span className="text-[10px] text-slate-600 dark:text-slate-400 truncate leading-tight">
-                        {v.hora && <span className="font-semibold">{v.hora} </span>}{v.nomeAvulso || v.empresaNome || v.clienteNome || "—"}
+                        {v.hora && <span className="font-semibold">{v.hora} </span>}
+                        {v.nomeAvulso || v.empresaNome || v.clienteNome || "—"}
                       </span>
                     </span>
                   ))}
@@ -205,7 +216,12 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
       </div>
 
       {/* Modal ao clicar em um dia */}
-      <DialogPrimitive.Root open={!!modalDay} onOpenChange={(next) => { if (!next) setModalDay(null) }}>
+      <DialogPrimitive.Root
+        open={!!modalDay}
+        onOpenChange={(next) => {
+          if (!next) setModalDay(null)
+        }}
+      >
         <DialogPrimitive.Portal>
           <DialogPrimitive.Popup
             className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-sm animate-in fade-in"
@@ -248,8 +264,12 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                     <div className="mx-auto w-12 h-12 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center mb-3">
                       <CalendarDays size={24} className="text-slate-300 dark:text-slate-600" />
                     </div>
-                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">Nenhuma visita neste dia</p>
-                    <p className="text-xs text-slate-400 dark:text-slate-500">Deseja agendar uma visita?</p>
+                    <p className="text-sm text-slate-500 dark:text-slate-400 mb-1">
+                      Nenhuma visita neste dia
+                    </p>
+                    <p className="text-xs text-slate-400 dark:text-slate-500">
+                      Deseja agendar uma visita?
+                    </p>
                   </div>
                 ) : (
                   <div className="divide-y divide-slate-100 dark:divide-slate-800">
@@ -262,11 +282,16 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                           router.push(`/comercial/crm/visitas/${v.id}`)
                         }}
                       >
-                        <span className={`w-2.5 h-2.5 rounded-full shrink-0 ${TIPO_CORES[v.tipo] || "bg-slate-400"}`} />
+                        <span
+                          className={`w-2.5 h-2.5 rounded-full shrink-0 ${TIPO_CORES[v.tipo] || "bg-slate-400"}`}
+                        />
                         <div className="flex-1 min-w-0">
                           <p className="text-sm font-medium text-slate-900 dark:text-slate-100 truncate">
                             {!v.empresaId && !v.clienteId ? (
-                              <span><span className="text-orange-500">Avulsa:</span> {v.nomeAvulso || "Sem entidade"}</span>
+                              <span>
+                                <span className="text-orange-500">Avulsa:</span>{" "}
+                                {v.nomeAvulso || "Sem entidade"}
+                              </span>
                             ) : (
                               v.empresaNome || v.clienteNome || "Sem entidade"
                             )}
@@ -280,18 +305,20 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                         <div className="flex items-center gap-1 shrink-0">
                           {(() => {
                             const mapsUrl = buildGoogleMapsUrl(v)
-                            return mapsUrl && (
-                              <a
-                                href={mapsUrl}
-                                target="_blank"
-                                rel="noopener noreferrer"
-                                onClick={(e) => e.stopPropagation()}
-                                className="p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
-                                aria-label="Abrir no Google Maps"
-                                title="Abrir no Google Maps"
-                              >
-                                <Navigation size={14} className="text-emerald-500" />
-                              </a>
+                            return (
+                              mapsUrl && (
+                                <a
+                                  href={mapsUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  onClick={(e) => e.stopPropagation()}
+                                  className="p-1.5 rounded-lg hover:bg-emerald-100 dark:hover:bg-emerald-950/50 transition-colors"
+                                  aria-label="Abrir no Google Maps"
+                                  title="Abrir no Google Maps"
+                                >
+                                  <Navigation size={14} className="text-emerald-500" />
+                                </a>
+                              )
                             )
                           })()}
                           <span className="text-[10px] px-1.5 py-0.5 rounded-full font-medium bg-slate-100 dark:bg-slate-800 text-slate-500">
@@ -315,7 +342,11 @@ export default function VisitasCalendario({ visitas }: { visitas: Visita[] }) {
                   className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-blue-600 text-white text-sm font-medium hover:bg-blue-700 transition-colors shadow-sm"
                 >
                   <Plus size={16} />
-                  Nova Visita para {new Date(modalDay + "T12:00:00").toLocaleDateString("pt-BR", { day: "numeric", month: "short" })}
+                  Nova Visita para{" "}
+                  {new Date(modalDay + "T12:00:00").toLocaleDateString("pt-BR", {
+                    day: "numeric",
+                    month: "short",
+                  })}
                 </button>
               </div>
             </div>

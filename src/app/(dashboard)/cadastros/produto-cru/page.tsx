@@ -48,7 +48,11 @@ export default function ProdutoCruPage() {
   const [deleteBlocked, setDeleteBlocked] = useState(false)
   const [showApiImport, setShowApiImport] = useState(false)
 
-  const { data: produtos = [], isLoading, refetch } = useQuery({
+  const {
+    data: produtos = [],
+    isLoading,
+    refetch,
+  } = useQuery({
     queryKey: ["produto-cru"],
     queryFn: fetchProdutos,
   })
@@ -93,10 +97,17 @@ export default function ProdutoCruPage() {
           </p>
         </div>
         <div className="flex gap-2">
-          <ExportarDados data={filtered} columns={[
-            { key: "codigoPdm", label: "Código PDM" }, { key: "descricao", label: "Descrição" },
-            { key: "status", label: "Status" }, { key: "idIntegracaoErpCru", label: "ERP (Cru)" },
-          ]} filename="produtos-cru" title="Produtos" />
+          <ExportarDados
+            data={filtered}
+            columns={[
+              { key: "codigoPdm", label: "Código PDM" },
+              { key: "descricao", label: "Descrição" },
+              { key: "status", label: "Status" },
+              { key: "idIntegracaoErpCru", label: "ERP (Cru)" },
+            ]}
+            filename="produtos-cru"
+            title="Produtos"
+          />
           <Button variant="outline" onClick={() => setShowApiImport(true)} className="gap-2">
             <Database size={16} />
             Importar via API
@@ -128,20 +139,32 @@ export default function ProdutoCruPage() {
             <Loader2 className="animate-spin text-slate-400" size={24} />
           </div>
         ) : filtered.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">
-            Nenhum produto encontrado
-          </div>
+          <div className="p-8 text-center text-slate-500">Nenhum produto encontrado</div>
         ) : (
           <table className="w-full">
             <thead className="border-b border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50">
               <tr>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Código PDM</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Descrição</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Status</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">ERP (Cru)</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Chat</th>
-                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ativo</th>
-                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">Ações</th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Código PDM
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Descrição
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Status
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  ERP (Cru)
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Chat
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Ativo
+                </th>
+                <th className="text-right text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Ações
+                </th>
               </tr>
             </thead>
             <tbody>
@@ -150,25 +173,38 @@ export default function ProdutoCruPage() {
                   key={produto.id}
                   className="border-b border-slate-100 dark:border-slate-800 hover:bg-slate-50 dark:hover:bg-slate-800/50"
                 >
-                  <td className="p-4 text-sm font-medium"><Link href={`/cadastros/produto-cru/${produto.id}`}>{produto.codigoPdm}</Link></td>
+                  <td className="p-4 text-sm font-medium">
+                    <Link href={`/cadastros/produto-cru/${produto.id}`}>{produto.codigoPdm}</Link>
+                  </td>
                   <td className="p-4 text-sm">{produto.descricao}</td>
-                  <td className="p-4 text-sm text-slate-500">{STATUS_LABELS[produto.status] || produto.status}</td>
-                  <td className="p-4 text-sm text-slate-500">{produto.idIntegracaoErpCru || "—"}</td>
-                  <td className="p-4">
-                    {produto.chatExists && <MessageSquare size={12} className="text-indigo-500 flex-shrink-0" />}
+                  <td className="p-4 text-sm text-slate-500">
+                    {STATUS_LABELS[produto.status] || produto.status}
+                  </td>
+                  <td className="p-4 text-sm text-slate-500">
+                    {produto.idIntegracaoErpCru || "—"}
                   </td>
                   <td className="p-4">
-                    <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                      produto.ativo
-                        ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
-                        : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
-                    }`}>
+                    {produto.chatExists && (
+                      <MessageSquare size={12} className="text-indigo-500 flex-shrink-0" />
+                    )}
+                  </td>
+                  <td className="p-4">
+                    <span
+                      className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                        produto.ativo
+                          ? "bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                          : "bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400"
+                      }`}
+                    >
                       {produto.ativo ? "Ativo" : "Inativo"}
                     </span>
                   </td>
                   <td className="p-4 text-right">
                     <div className="flex items-center justify-end gap-1">
-                      <Link href={`/cadastros/produto-cru/${produto.id}`} onClick={(e) => e.stopPropagation()}>
+                      <Link
+                        href={`/cadastros/produto-cru/${produto.id}`}
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <Button variant="ghost" size="icon" className="h-8 w-8">
                           <Pencil size={14} />
                         </Button>
@@ -197,12 +233,16 @@ export default function ProdutoCruPage() {
       <ConfirmModal
         open={deleteTarget !== null}
         title={deleteBlocked ? "Exclusão não permitida" : "Excluir produto?"}
-        message={deleteBlocked
-          ? "Este produto possui cadastros vinculados e não pode ser excluído."
-          : `Tem certeza que deseja excluir?`}
-        subMessage={deleteBlocked
-          ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
-          : undefined}
+        message={
+          deleteBlocked
+            ? "Este produto possui cadastros vinculados e não pode ser excluído."
+            : `Tem certeza que deseja excluir?`
+        }
+        subMessage={
+          deleteBlocked
+            ? "Remova ou desvincule os registros associados antes de excluir. Entre em contato com o administrador para mais informações."
+            : undefined
+        }
         confirmLabel={deleteBlocked ? "OK" : "Excluir"}
         variant={deleteBlocked ? "warning" : "danger"}
         loading={deleteLoading}

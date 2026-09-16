@@ -61,10 +61,30 @@ export const FONT_SIZES = [
 ]
 
 export const FONT_FAMILIES = [
-  "Arial", "Times New Roman", "Courier New", "Georgia", "Verdana", "Tahoma", "Trebuchet MS",
-  "Roboto", "Open Sans", "Lato", "Montserrat", "Poppins", "Inter", "Nunito",
-  "Raleway", "Ubuntu", "Playfair Display", "Merriweather", "Oswald", "Noto Sans",
-  "Source Sans Pro", "PT Sans", "Quicksand", "Work Sans",
+  "Arial",
+  "Times New Roman",
+  "Courier New",
+  "Georgia",
+  "Verdana",
+  "Tahoma",
+  "Trebuchet MS",
+  "Roboto",
+  "Open Sans",
+  "Lato",
+  "Montserrat",
+  "Poppins",
+  "Inter",
+  "Nunito",
+  "Raleway",
+  "Ubuntu",
+  "Playfair Display",
+  "Merriweather",
+  "Oswald",
+  "Noto Sans",
+  "Source Sans Pro",
+  "PT Sans",
+  "Quicksand",
+  "Work Sans",
 ]
 
 export interface Agendado {

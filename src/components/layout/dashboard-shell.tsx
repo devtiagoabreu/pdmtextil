@@ -15,7 +15,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   }, [])
 
   function toggleCollapsed() {
-    setCollapsed(prev => {
+    setCollapsed((prev) => {
       const next = !prev
       localStorage.setItem("sidebar-collapsed", String(next))
       return next
@@ -26,7 +26,11 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
     <div className="min-h-screen bg-slate-50 dark:bg-slate-950">
       <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} collapsed={collapsed} />
       <div className={collapsed ? "lg:pl-16" : "lg:pl-64"}>
-        <Header onMenuClick={() => setSidebarOpen(true)} onToggleSidebar={toggleCollapsed} sidebarCollapsed={collapsed} />
+        <Header
+          onMenuClick={() => setSidebarOpen(true)}
+          onToggleSidebar={toggleCollapsed}
+          sidebarCollapsed={collapsed}
+        />
         <main className="p-4 md:p-6 pb-20 lg:pb-6">
           <div className={`mx-auto animate-fade-in ${collapsed ? "max-w-none" : "max-w-7xl"}`}>
             {children}

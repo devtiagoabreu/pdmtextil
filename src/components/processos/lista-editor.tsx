@@ -82,7 +82,10 @@ export function ListaEditor<T extends Record<string, string>>({
               <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
                 {campos.map((c) => (
                   <div key={c.campo} className={`space-y-1 ${c.className ?? ""}`}>
-                    <Label htmlFor={`${baseId}-${i}-${c.campo}`} className="text-xs text-slate-600 dark:text-slate-300">
+                    <Label
+                      htmlFor={`${baseId}-${i}-${c.campo}`}
+                      className="text-xs text-slate-600 dark:text-slate-300"
+                    >
                       {c.label}
                     </Label>
                     <Input
@@ -99,7 +102,13 @@ export function ListaEditor<T extends Record<string, string>>({
         </div>
       )}
 
-      <Button type="button" variant="outline" size="sm" className="gap-1" onClick={() => onChange([...itens, criarItem()])}>
+      <Button
+        type="button"
+        variant="outline"
+        size="sm"
+        className="gap-1"
+        onClick={() => onChange([...itens, criarItem()])}
+      >
         <Plus size={14} />
         {rotuloAdicionar}
       </Button>

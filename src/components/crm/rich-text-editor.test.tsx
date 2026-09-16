@@ -15,11 +15,15 @@ describe("RichTextEditor", () => {
 
   it("atualiza o conteúdo quando o value externo muda (ex: seleção de modelo)", () => {
     const onChange = vi.fn()
-    const { rerender } = render(<RichTextEditor value="<p>Relato original</p>" onChange={onChange} />)
+    const { rerender } = render(
+      <RichTextEditor value="<p>Relato original</p>" onChange={onChange} />
+    )
     const editor = getEditor()
     expect(editor.innerHTML).toContain("Relato original")
 
-    rerender(<RichTextEditor value="<p><strong>Motivo:</strong> Visita tecnica</p>" onChange={onChange} />)
+    rerender(
+      <RichTextEditor value="<p><strong>Motivo:</strong> Visita tecnica</p>" onChange={onChange} />
+    )
 
     expect(editor.innerHTML).toContain("Visita tecnica")
     expect(editor.innerHTML).not.toContain("Relato original")

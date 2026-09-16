@@ -32,26 +32,46 @@ interface ImportarApiModalProps {
   buscarExistentes?: () => Promise<Record<string, any>[]>
 }
 
-export default function ImportarApiModal({ tela, existingRecords, existingKey = "idIntegracao", onImportado, onClose, extraImportParams, buscarExistentes }: ImportarApiModalProps) {
+export default function ImportarApiModal({
+  tela,
+  existingRecords,
+  existingKey = "idIntegracao",
+  onImportado,
+  onClose,
+  extraImportParams,
+  buscarExistentes,
+}: ImportarApiModalProps) {
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [items, setItems] = useState<Record<string, any>[]>([])
   const [loadingData, setLoadingData] = useState(false)
   const [selectedRows, setSelectedRows] = useState<Set<number>>(new Set())
   const [importing, setImporting] = useState(false)
   const [existingSet, setExistingSet] = useState<Set<string>>(new Set())
-  const [existingRecordsCarregados, setExistingRecordsCarregados] = useState<Record<string, any>[]>([])
+  const [existingRecordsCarregados, setExistingRecordsCarregados] = useState<Record<string, any>[]>(
+    []
+  )
   const [searchQuery, setSearchQuery] = useState("")
 
   useEffect(() => {
     if (!buscarExistentes) return
     let ativo = true
     buscarExistentes()
-      .then((recs) => { if (ativo) setExistingRecordsCarregados(recs || []) })
-      .catch(() => { if (ativo) setExistingRecordsCarregados([]) })
-    return () => { ativo = false } // eslint-disable-line react-hooks/exhaustive-deps
+      .then((recs) => {
+        if (ativo) setExistingRecordsCarregados(recs || [])
+      })
+      .catch(() => {
+        if (ativo) setExistingRecordsCarregados([])
+      })
+    return () => {
+      ativo = false
+    } // eslint-disable-line react-hooks/exhaustive-deps
   }, [])
 
-  const { data: integracoes, isLoading: loadingInt, isError: integracoesError } = useQuery<Integracao[]>({
+  const {
+    data: integracoes,
+    isLoading: loadingInt,
+    isError: integracoesError,
+  } = useQuery<Integracao[]>({
     queryKey: ["admin-integracoes", tela],
     queryFn: async () => {
       const res = await fetch("/api/admin/integracoes")
@@ -100,7 +120,9 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
       const res = await fetch(`/api/admin/integracoes/${selectedId}/testar`)
       const data = await res.json()
       if (!data.success) {
-        toast.error(`API retornou erro: ${data.status}${data.statusText ? ` - ${data.statusText}` : ""}`)
+        toast.error(
+          `API retornou erro: ${data.status}${data.statusText ? ` - ${data.statusText}` : ""}`
+        )
         return
       }
       const body = data.responseBody
@@ -114,7 +136,8 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
       const autoSelect = new Set<number>()
       rawItems.forEach((_: any, idx: number) => {
         const keyVal = rawItems[idx][uniqueKey]
-        const hasRequiredField = rawItems[idx][uniqueKey] != null && String(rawItems[idx][uniqueKey]).trim() !== ""
+        const hasRequiredField =
+          rawItems[idx][uniqueKey] != null && String(rawItems[idx][uniqueKey]).trim() !== ""
         if (hasRequiredField && !existingSet.has(String(keyVal).trim().toLowerCase())) {
           autoSelect.add(idx)
         }
@@ -129,7 +152,7 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
   }
 
   function toggleRow(idx: number) {
-    setSelectedRows(prev => {
+    setSelectedRows((prev) => {
       const next = new Set(prev)
       if (next.has(idx)) next.delete(idx)
       else next.add(idx)
@@ -138,7 +161,9 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
   }
 
   function toggleAll() {
-    const allFilteredSelected = filteredItems.every((item: any) => selectedRows.has(items.indexOf(item)))
+    const allFilteredSelected = filteredItems.every((item: any) =>
+      selectedRows.has(items.indexOf(item))
+    )
     if (allFilteredSelected) {
       const next = new Set(selectedRows)
       filteredItems.forEach((item: any) => next.delete(items.indexOf(item)))
@@ -169,7 +194,7 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
       toast.info("Nenhum contato novo disponível para seleção aleatória")
       return
     }
-    setSelectedRows(prev => new Set([...prev, ...escolhidos]))
+    setSelectedRows((prev) => new Set([...prev, ...escolhidos]))
     toast.success(`${escolhidos.length} contato(s) aleatório(s) selecionado(s)`)
   }
 
@@ -187,10 +212,14 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
   }
 
   const columns = items.length > 0 ? Object.keys(items[0]) : []
-  const filteredItems = items.filter((item: any) =>
-    !searchQuery || columns.some((col: any) =>
-      String(item[col] ?? "").toLowerCase().includes(searchQuery.toLowerCase())
-    )
+  const filteredItems = items.filter(
+    (item: any) =>
+      !searchQuery ||
+      columns.some((col: any) =>
+        String(item[col] ?? "")
+          .toLowerCase()
+          .includes(searchQuery.toLowerCase())
+      )
   )
   const filteredSelectedRows = new Set(
     [...selectedRows].filter((i: any) => filteredItems.includes(items[i]))
@@ -203,7 +232,9 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
     }
     setImporting(true)
     try {
-      const selectedItems = items.filter((_: any, i: any) => selectedRows.has(i) && !hasMissingRequiredField(items[i]))
+      const selectedItems = items.filter(
+        (_: any, i: any) => selectedRows.has(i) && !hasMissingRequiredField(items[i])
+      )
       const res = await fetch("/api/integracao/importar", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -221,7 +252,9 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
         throw new Error(err.error || "Erro na importação")
       }
       const result = await res.json()
-      toast.success(`${result.importados} importado(s)${result.duplicados ? `, ${result.duplicados} duplicado(s)` : ""}${result.vazios ? `, ${result.vazios} com campo vazio` : ""}`)
+      toast.success(
+        `${result.importados} importado(s)${result.duplicados ? `, ${result.duplicados} duplicado(s)` : ""}${result.vazios ? `, ${result.vazios} com campo vazio` : ""}`
+      )
       onImportado?.()
       onClose()
     } catch (e) {
@@ -232,149 +265,218 @@ export default function ImportarApiModal({ tela, existingRecords, existingKey = 
   }
 
   return (
-    <DialogPrimitive.Root open onOpenChange={(next) => { if (!next) onClose() }}>
+    <DialogPrimitive.Root
+      open
+      onOpenChange={(next) => {
+        if (!next) onClose()
+      }}
+    >
       <DialogPrimitive.Portal>
         <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/50" />
         <DialogPrimitive.Popup className="fixed top-1/2 left-1/2 z-50 w-[95vw] max-w-5xl -translate-x-1/2 -translate-y-1/2 max-h-[90vh] overflow-hidden flex flex-col rounded-xl bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-800 shadow-2xl outline-none">
-        <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
-          <DialogPrimitive.Title className="text-lg font-semibold flex items-center gap-2">
-            <Database size={18} className="text-blue-500" />
-            Importar via API
-          </DialogPrimitive.Title>
-          <DialogPrimitive.Close aria-label="Fechar" className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-            <X size={18} />
-          </DialogPrimitive.Close>
-        </div>
+          <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
+            <DialogPrimitive.Title className="text-lg font-semibold flex items-center gap-2">
+              <Database size={18} className="text-blue-500" />
+              Importar via API
+            </DialogPrimitive.Title>
+            <DialogPrimitive.Close
+              aria-label="Fechar"
+              className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <X size={18} />
+            </DialogPrimitive.Close>
+          </div>
 
-        <div className="p-5 space-y-4 flex-1 overflow-auto">
-          {loadingInt ? (
-            <div className="flex justify-center p-8"><Loader2 className="animate-spin text-slate-400" size={24} /></div>
-          ) : (integracoes ?? []).length === 0 ? (
-            <p className="text-sm text-slate-500 text-center py-8">Nenhuma integração configurada para &quot;{tela}&quot;</p>
-          ) : (
-            <>
-              <div className="flex items-center gap-3 flex-wrap">
-                <span className="text-sm font-medium text-slate-700 dark:text-slate-300">Integração:</span>
-                <div className="flex gap-2 flex-wrap">
-                  {(integracoes ?? []).map((int: any) => (
-                    <button
-                      key={int.id}
-                      type="button"
-                      onClick={() => { setSelectedId(int.id); setItems([]); setSelectedRows(new Set()) }}
-                      className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
-                        selectedId === int.id
-                          ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
-                          : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300"
-                      }`}
-                    >
-                      {int.nome}
-                    </button>
-                  ))}
-                </div>
-                <Button size="sm" onClick={handleFetch} disabled={!selectedId || loadingData} className="gap-1">
-                  {loadingData ? <Loader2 size={14} className="animate-spin" /> : <Download size={14} />}
-                  Executar
-                </Button>
+          <div className="p-5 space-y-4 flex-1 overflow-auto">
+            {loadingInt ? (
+              <div className="flex justify-center p-8">
+                <Loader2 className="animate-spin text-slate-400" size={24} />
               </div>
-
-              {items.length > 0 && (
-                <>
-                  {items.filter((i: any) => hasMissingRequiredField(i)).length > 0 && (
-                    <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-1.5 rounded-lg">
-                      {items.filter((i: any) => hasMissingRequiredField(i)).length} item(s) com &quot;{uniqueKey}&quot; vazio — não serão selecionados para importação.
-                    </p>
-                  )}
-                  <div className="flex items-center justify-between gap-3 flex-wrap">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={16} />
-                      <Input
-                        value={searchQuery}
-                        onChange={e => setSearchQuery(e.target.value)}
-                        placeholder="Pesquisar na lista..."
-                        className="pl-9 max-w-sm"
-                      />
-                    </div>
-                    <div className="flex items-center gap-1">
-                      <span className="text-xs text-slate-500 mr-1">Selecionar aleatórios:</span>
-                      {[50, 100, 500].map((n: number) => (
-                        <Button
-                          key={n}
-                          variant="outline"
-                          size="xs"
-                          onClick={() => selecionarAleatorios(n)}
-                          disabled={items.length === 0}
-                        >
-                          {n}
-                        </Button>
-                      ))}
-                    </div>
+            ) : (integracoes ?? []).length === 0 ? (
+              <p className="text-sm text-slate-500 text-center py-8">
+                Nenhuma integração configurada para &quot;{tela}&quot;
+              </p>
+            ) : (
+              <>
+                <div className="flex items-center gap-3 flex-wrap">
+                  <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+                    Integração:
+                  </span>
+                  <div className="flex gap-2 flex-wrap">
+                    {(integracoes ?? []).map((int: any) => (
+                      <button
+                        key={int.id}
+                        type="button"
+                        onClick={() => {
+                          setSelectedId(int.id)
+                          setItems([])
+                          setSelectedRows(new Set())
+                        }}
+                        className={`px-3 py-1.5 text-sm rounded-lg border transition-colors ${
+                          selectedId === int.id
+                            ? "border-blue-500 bg-blue-50 text-blue-700 dark:bg-blue-950/50 dark:text-blue-400"
+                            : "border-slate-200 dark:border-slate-700 text-slate-600 dark:text-slate-400 hover:border-slate-300"
+                        }`}
+                      >
+                        {int.nome}
+                      </button>
+                    ))}
                   </div>
-                  <div className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-auto max-h-96">
-                  <table className="w-full text-sm">
-                    <thead className="bg-slate-50 dark:bg-slate-800/50 sticky top-0">
-                      <tr>
-                        <th className="p-2 w-10">
-                          <input type="checkbox" checked={filteredSelectedRows.size === filteredItems.length && filteredItems.length > 0} onChange={toggleAll} className="rounded" />
-                        </th>
-                        {columns.slice(0, 8).map((col: any) => (
-                          <th key={col} className="p-2 text-left text-xs font-medium text-slate-500 uppercase whitespace-nowrap">{col}</th>
+                  <Button
+                    size="sm"
+                    onClick={handleFetch}
+                    disabled={!selectedId || loadingData}
+                    className="gap-1"
+                  >
+                    {loadingData ? (
+                      <Loader2 size={14} className="animate-spin" />
+                    ) : (
+                      <Download size={14} />
+                    )}
+                    Executar
+                  </Button>
+                </div>
+
+                {items.length > 0 && (
+                  <>
+                    {items.filter((i: any) => hasMissingRequiredField(i)).length > 0 && (
+                      <p className="text-xs text-amber-600 dark:text-amber-400 bg-amber-50 dark:bg-amber-950/30 px-3 py-1.5 rounded-lg">
+                        {items.filter((i: any) => hasMissingRequiredField(i)).length} item(s) com
+                        &quot;{uniqueKey}&quot; vazio — não serão selecionados para importação.
+                      </p>
+                    )}
+                    <div className="flex items-center justify-between gap-3 flex-wrap">
+                      <div className="relative">
+                        <Search
+                          className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"
+                          size={16}
+                        />
+                        <Input
+                          value={searchQuery}
+                          onChange={(e) => setSearchQuery(e.target.value)}
+                          placeholder="Pesquisar na lista..."
+                          className="pl-9 max-w-sm"
+                        />
+                      </div>
+                      <div className="flex items-center gap-1">
+                        <span className="text-xs text-slate-500 mr-1">Selecionar aleatórios:</span>
+                        {[50, 100, 500].map((n: number) => (
+                          <Button
+                            key={n}
+                            variant="outline"
+                            size="xs"
+                            onClick={() => selecionarAleatorios(n)}
+                            disabled={items.length === 0}
+                          >
+                            {n}
+                          </Button>
                         ))}
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
-                      {filteredItems.map((item: any) => {
-                        const originalIdx = items.indexOf(item)
-                        const dup = isDuplicate(item)
-                        const missingField = hasMissingRequiredField(item)
-                        const disabled = dup || missingField
-                        return (
-                          <tr key={originalIdx} className={`hover:bg-slate-50 dark:hover:bg-slate-800/30 ${dup ? "opacity-50" : ""} ${missingField && !dup ? "opacity-40" : ""}`}>
-                            <td className="p-2">
+                      </div>
+                    </div>
+                    <div className="border border-slate-200 dark:border-slate-800 rounded-lg overflow-auto max-h-96">
+                      <table className="w-full text-sm">
+                        <thead className="bg-slate-50 dark:bg-slate-800/50 sticky top-0">
+                          <tr>
+                            <th className="p-2 w-10">
                               <input
                                 type="checkbox"
-                                checked={selectedRows.has(originalIdx)}
-                                onChange={() => toggleRow(originalIdx)}
-                                disabled={disabled}
+                                checked={
+                                  filteredSelectedRows.size === filteredItems.length &&
+                                  filteredItems.length > 0
+                                }
+                                onChange={toggleAll}
                                 className="rounded"
-                                title={missingField ? `Campo obrigatório "${uniqueKey}" vazio` : dup ? "Duplicado" : ""}
                               />
-                            </td>
+                            </th>
                             {columns.slice(0, 8).map((col: any) => (
-                              <td key={col} className="p-2 text-xs text-slate-700 dark:text-slate-300 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]">
-                                {typeof item[col] === "object" ? JSON.stringify(item[col]) : String(item[col] ?? "")}
-                              </td>
+                              <th
+                                key={col}
+                                className="p-2 text-left text-xs font-medium text-slate-500 uppercase whitespace-nowrap"
+                              >
+                                {col}
+                              </th>
                             ))}
                           </tr>
-                        )
-                      })}
-                    </tbody>
-                  </table>
+                        </thead>
+                        <tbody className="divide-y divide-slate-100 dark:divide-slate-800">
+                          {filteredItems.map((item: any) => {
+                            const originalIdx = items.indexOf(item)
+                            const dup = isDuplicate(item)
+                            const missingField = hasMissingRequiredField(item)
+                            const disabled = dup || missingField
+                            return (
+                              <tr
+                                key={originalIdx}
+                                className={`hover:bg-slate-50 dark:hover:bg-slate-800/30 ${dup ? "opacity-50" : ""} ${missingField && !dup ? "opacity-40" : ""}`}
+                              >
+                                <td className="p-2">
+                                  <input
+                                    type="checkbox"
+                                    checked={selectedRows.has(originalIdx)}
+                                    onChange={() => toggleRow(originalIdx)}
+                                    disabled={disabled}
+                                    className="rounded"
+                                    title={
+                                      missingField
+                                        ? `Campo obrigatório "${uniqueKey}" vazio`
+                                        : dup
+                                          ? "Duplicado"
+                                          : ""
+                                    }
+                                  />
+                                </td>
+                                {columns.slice(0, 8).map((col: any) => (
+                                  <td
+                                    key={col}
+                                    className="p-2 text-xs text-slate-700 dark:text-slate-300 whitespace-nowrap overflow-hidden text-ellipsis max-w-[200px]"
+                                  >
+                                    {typeof item[col] === "object"
+                                      ? JSON.stringify(item[col])
+                                      : String(item[col] ?? "")}
+                                  </td>
+                                ))}
+                              </tr>
+                            )
+                          })}
+                        </tbody>
+                      </table>
+                    </div>
+                  </>
+                )}
+
+                <div className="flex items-center justify-between text-xs text-slate-400">
+                  <span>
+                    {searchQuery ? `Exibindo ${filteredItems.length} de ` : ""}
+                    {items.length} itens | {selectedRows.size} selecionados | {existingSet.size}{" "}
+                    existentes | {items.filter((i: any) => hasMissingRequiredField(i)).length} sem{" "}
+                    {uniqueKey}
+                  </span>
+                  {integracao?.mapping?.uniqueKey && (
+                    <span className="flex items-center gap-1">
+                      <Check size={12} className="text-green-500" />
+                      Chave única: {integracao.mapping.uniqueKey}
+                    </span>
+                  )}
                 </div>
               </>
-              )}
-
-              <div className="flex items-center justify-between text-xs text-slate-400">
-                <span>{searchQuery ? `Exibindo ${filteredItems.length} de ` : ""}{items.length} itens | {selectedRows.size} selecionados | {existingSet.size} existentes | {items.filter((i: any) => hasMissingRequiredField(i)).length} sem {uniqueKey}</span>
-                {integracao?.mapping?.uniqueKey && (
-                  <span className="flex items-center gap-1">
-                    <Check size={12} className="text-green-500" />
-                    Chave única: {integracao.mapping.uniqueKey}
-                  </span>
-                )}
-              </div>
-            </>
-          )}
-        </div>
-
-        {items.length > 0 && (
-          <div className="flex items-center justify-end gap-2 p-5 border-t border-slate-200 dark:border-slate-800">
-            <Button variant="outline" onClick={onClose}>Cancelar</Button>
-            <Button onClick={handleImport} disabled={selectedRows.size === 0 || importing} className="gap-2">
-              {importing && <Loader2 size={16} className="animate-spin" />}
-              Importar {selectedRows.size > 0 && `(${selectedRows.size})`}
-            </Button>
+            )}
           </div>
-        )}
+
+          {items.length > 0 && (
+            <div className="flex items-center justify-end gap-2 p-5 border-t border-slate-200 dark:border-slate-800">
+              <Button variant="outline" onClick={onClose}>
+                Cancelar
+              </Button>
+              <Button
+                onClick={handleImport}
+                disabled={selectedRows.size === 0 || importing}
+                className="gap-2"
+              >
+                {importing && <Loader2 size={16} className="animate-spin" />}
+                Importar {selectedRows.size > 0 && `(${selectedRows.size})`}
+              </Button>
+            </div>
+          )}
         </DialogPrimitive.Popup>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>

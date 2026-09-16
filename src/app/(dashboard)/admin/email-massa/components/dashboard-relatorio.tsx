@@ -25,12 +25,25 @@ type Remessa = {
 function formatDate(dateStr: string | null) {
   if (!dateStr) return "—"
   return new Date(dateStr).toLocaleString("pt-BR", {
-    day: "2-digit", month: "2-digit", year: "numeric",
-    hour: "2-digit", minute: "2-digit",
+    day: "2-digit",
+    month: "2-digit",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
   })
 }
 
-function SummaryCard({ label, value, sub, className }: { label: string; value: string | number; sub?: string; className?: string }) {
+function SummaryCard({
+  label,
+  value,
+  sub,
+  className,
+}: {
+  label: string
+  value: string | number
+  sub?: string
+  className?: string
+}) {
   return (
     <div className={`rounded-lg p-4 border ${className || ""}`}>
       <p className="text-xs uppercase tracking-wide opacity-80">{label}</p>
@@ -40,7 +53,15 @@ function SummaryCard({ label, value, sub, className }: { label: string; value: s
   )
 }
 
-function MiniStat({ label, value, className }: { label: string; value: number; className?: string }) {
+function MiniStat({
+  label,
+  value,
+  className,
+}: {
+  label: string
+  value: number
+  className?: string
+}) {
   return (
     <div className={`rounded-lg border px-2.5 py-1 ${className || ""}`}>
       <p className="text-[10px] uppercase tracking-wide opacity-70">{label}</p>
@@ -75,7 +96,11 @@ export function DashboardRelatorio() {
   const percNaoLidos = totalEnviados > 0 ? Math.round((naoLidos / totalEnviados) * 100) : 0
 
   const linkHost = (url: string) => {
-    try { return new URL(url).hostname } catch { return url }
+    try {
+      return new URL(url).hostname
+    } catch {
+      return url
+    }
   }
 
   const atualizar = async () => {
@@ -121,10 +146,30 @@ export function DashboardRelatorio() {
           Falhas: totalFalhas,
         },
         tables: [
-          { title: "Resumo por remessa", headers: ["Remessa", "Enviado em", "Assunto", "Enviados", "Lidos", "Abertura", "Cliques", "Cliques no total", "Falhas"], rows: linhasRemessas },
+          {
+            title: "Resumo por remessa",
+            headers: [
+              "Remessa",
+              "Enviado em",
+              "Assunto",
+              "Enviados",
+              "Lidos",
+              "Abertura",
+              "Cliques",
+              "Cliques no total",
+              "Falhas",
+            ],
+            rows: linhasRemessas,
+          },
           ...remessas.flatMap((r, idx) =>
-            (r.links && r.links.length > 0)
-              ? [{ title: `Links — Remessa #${remessas.length - idx}`, headers: ["Link", "Cliques"], rows: r.links.map((l) => [l.urlOriginal, l.total]) }]
+            r.links && r.links.length > 0
+              ? [
+                  {
+                    title: `Links — Remessa #${remessas.length - idx}`,
+                    headers: ["Link", "Cliques"],
+                    rows: r.links.map((l) => [l.urlOriginal, l.total]),
+                  },
+                ]
               : []
           ),
         ],
@@ -158,9 +203,16 @@ export function DashboardRelatorio() {
           "Cliques no total": Number(r.totalCliques),
           Falhas: Number(r.falhas),
         },
-        tables: (r.links && r.links.length > 0)
-          ? [{ title: `Links mais clicados (${r.links.length})`, headers: ["Link", "Cliques"], rows: r.links.map((l) => [l.urlOriginal, l.total]) }]
-          : [],
+        tables:
+          r.links && r.links.length > 0
+            ? [
+                {
+                  title: `Links mais clicados (${r.links.length})`,
+                  headers: ["Link", "Cliques"],
+                  rows: r.links.map((l) => [l.urlOriginal, l.total]),
+                },
+              ]
+            : [],
         filename: `relatorio-remessa-${r.remessaId}-${new Date().toISOString().split("T")[0]}`,
         orientation: "landscape",
       })
@@ -191,7 +243,9 @@ export function DashboardRelatorio() {
     return (
       <div className="py-16 text-center">
         <BarChart3 size={40} className="mx-auto mb-3 text-slate-300" />
-        <p className="text-slate-500 dark:text-slate-400">Nenhuma remessa encontrada. Envie emails para começar a gerar relatórios.</p>
+        <p className="text-slate-500 dark:text-slate-400">
+          Nenhuma remessa encontrada. Envie emails para começar a gerar relatórios.
+        </p>
       </div>
     )
   }
@@ -201,22 +255,68 @@ export function DashboardRelatorio() {
       <div className="flex items-center justify-between">
         <h2 className="text-lg font-semibold">Dashboard de Envios</h2>
         <div className="flex gap-2">
-          <Button variant="outline" size="sm" onClick={gerarRelatorioGeral} disabled={gerando !== null} className="gap-1 active:opacity-70">
-            {gerando === "all" ? <Loader2 size={14} className="animate-spin" /> : <FileText size={14} />} Relatório PDF
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={gerarRelatorioGeral}
+            disabled={gerando !== null}
+            className="gap-1 active:opacity-70"
+          >
+            {gerando === "all" ? (
+              <Loader2 size={14} className="animate-spin" />
+            ) : (
+              <FileText size={14} />
+            )}{" "}
+            Relatório PDF
           </Button>
-          <Button variant="outline" size="sm" onClick={atualizar} disabled={atualizando} className="gap-1 active:opacity-70">
-            {atualizando ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />} Atualizar
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={atualizar}
+            disabled={atualizando}
+            className="gap-1 active:opacity-70"
+          >
+            {atualizando ? <Loader2 size={14} className="animate-spin" /> : <RefreshCw size={14} />}{" "}
+            Atualizar
           </Button>
         </div>
       </div>
 
       <div className="grid grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3">
-        <SummaryCard label="Total de envios" value={totalEnviados} sub={`${remessas.length} remessa(s)`} className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700" />
-        <SummaryCard label="Enviados" value={totalEnviadosReal} className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300" />
-        <SummaryCard label="Lidos" value={totalLidos} sub={`${percAbertura}% de abertura`} className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300" />
-        <SummaryCard label="Não abertos" value={naoLidos} sub={`${percNaoLidos}%`} className="bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300" />
-        <SummaryCard label="Cliques" value={totalClicados} sub={`${totalCliques} clique${totalCliques !== 1 ? "s" : ""} no total`} className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300" />
-        <SummaryCard label="Falhas" value={totalFalhas} className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300" />
+        <SummaryCard
+          label="Total de envios"
+          value={totalEnviados}
+          sub={`${remessas.length} remessa(s)`}
+          className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+        />
+        <SummaryCard
+          label="Enviados"
+          value={totalEnviadosReal}
+          className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300"
+        />
+        <SummaryCard
+          label="Lidos"
+          value={totalLidos}
+          sub={`${percAbertura}% de abertura`}
+          className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300"
+        />
+        <SummaryCard
+          label="Não abertos"
+          value={naoLidos}
+          sub={`${percNaoLidos}%`}
+          className="bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-700 dark:text-amber-300"
+        />
+        <SummaryCard
+          label="Cliques"
+          value={totalClicados}
+          sub={`${totalCliques} clique${totalCliques !== 1 ? "s" : ""} no total`}
+          className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300"
+        />
+        <SummaryCard
+          label="Falhas"
+          value={totalFalhas}
+          className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300"
+        />
       </div>
 
       <div className="flex flex-col space-y-2">
@@ -226,10 +326,14 @@ export function DashboardRelatorio() {
           const falhas = Number(r.falhas)
           const naoLidosRemessa = total - lidos
           const percLidos = total > 0 ? Math.round((lidos / total) * 100) : 0
-          const percLink = (urlTotal: number) => (Number(r.totalCliques) > 0 ? Math.round((urlTotal / Number(r.totalCliques)) * 100) : 0)
+          const percLink = (urlTotal: number) =>
+            Number(r.totalCliques) > 0 ? Math.round((urlTotal / Number(r.totalCliques)) * 100) : 0
 
           return (
-            <div key={r.remessaId} className="border border-slate-200 dark:border-slate-700 rounded-lg p-3 flex flex-col space-y-2">
+            <div
+              key={r.remessaId}
+              className="border border-slate-200 dark:border-slate-700 rounded-lg p-3 flex flex-col space-y-2"
+            >
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2 min-w-0">
                   <span className="text-xs font-medium px-2.5 py-0.5 rounded-full bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400">
@@ -237,55 +341,112 @@ export function DashboardRelatorio() {
                   </span>
                   <span className="text-sm font-medium truncate">{r.assunto || "Sem assunto"}</span>
                 </div>
-                <span className="text-xs text-slate-400 whitespace-nowrap">{formatDate(r.createdAt)}</span>
+                <span className="text-xs text-slate-400 whitespace-nowrap">
+                  {formatDate(r.createdAt)}
+                </span>
               </div>
 
               <div className="flex items-center gap-3">
                 <div className="flex-1 bg-slate-200 dark:bg-slate-700 rounded-full h-1.5 overflow-hidden">
-                  <div className="h-1.5 rounded-full bg-green-500" style={{ width: `${percLidos}%` }} />
+                  <div
+                    className="h-1.5 rounded-full bg-green-500"
+                    style={{ width: `${percLidos}%` }}
+                  />
                 </div>
-                <span className="text-xs font-medium text-slate-600 dark:text-slate-300 w-14 text-right whitespace-nowrap">{percLidos}% lidos</span>
+                <span className="text-xs font-medium text-slate-600 dark:text-slate-300 w-14 text-right whitespace-nowrap">
+                  {percLidos}% lidos
+                </span>
               </div>
 
               <p className="text-xs text-slate-400">
-                {Number(r.enviados)} enviado{Number(r.enviados) !== 1 ? "s" : ""} &middot; {lidos} lido{ lidos !== 1 ? "s" : ""} &middot; {falhas} falha{falhas !== 1 ? "s" : ""}
+                {Number(r.enviados)} enviado{Number(r.enviados) !== 1 ? "s" : ""} &middot; {lidos}{" "}
+                lido{lidos !== 1 ? "s" : ""} &middot; {falhas} falha{falhas !== 1 ? "s" : ""}
               </p>
 
               <div className="flex flex-wrap gap-2">
-                <MiniStat label="Total" value={total} className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700" />
-                <MiniStat label="Enviados" value={Number(r.enviados)} className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300" />
-                <MiniStat label="Lidos" value={lidos} className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300" />
-                <MiniStat label="Cliques" value={Number(r.clicados) || 0} className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300" />
-                <MiniStat label="Falhas" value={falhas} className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300" />
+                <MiniStat
+                  label="Total"
+                  value={total}
+                  className="bg-slate-50 dark:bg-slate-800 border-slate-200 dark:border-slate-700"
+                />
+                <MiniStat
+                  label="Enviados"
+                  value={Number(r.enviados)}
+                  className="bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-700 dark:text-blue-300"
+                />
+                <MiniStat
+                  label="Lidos"
+                  value={lidos}
+                  className="bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 text-green-700 dark:text-green-300"
+                />
+                <MiniStat
+                  label="Cliques"
+                  value={Number(r.clicados) || 0}
+                  className="bg-purple-50 dark:bg-purple-900/20 border-purple-200 dark:border-purple-800 text-purple-700 dark:text-purple-300"
+                />
+                <MiniStat
+                  label="Falhas"
+                  value={falhas}
+                  className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 text-red-700 dark:text-red-300"
+                />
               </div>
 
-              {(r.links && r.links.length > 0) ? (
+              {r.links && r.links.length > 0 ? (
                 <div className="border-t border-slate-100 dark:border-slate-800 pt-2 space-y-1.5">
                   <div className="flex items-center gap-1 text-sm font-medium text-slate-700 dark:text-slate-300">
                     <MousePointerClick size={14} /> Cliques em Links
                   </div>
                   {r.links.map((link, li) => (
                     <div key={li} className="flex items-center gap-3">
-                      <span className="text-xs text-slate-500 w-24 truncate text-right flex-shrink-0">{linkHost(link.urlOriginal)}</span>
+                      <span className="text-xs text-slate-500 w-24 truncate text-right flex-shrink-0">
+                        {linkHost(link.urlOriginal)}
+                      </span>
                       <div className="flex-1 bg-slate-100 dark:bg-slate-800 rounded-full h-2">
-                        <div className="bg-blue-500 h-2 rounded-full" style={{ width: `${percLink(Number(link.total))}%` }} />
+                        <div
+                          className="bg-blue-500 h-2 rounded-full"
+                          style={{ width: `${percLink(Number(link.total))}%` }}
+                        />
                       </div>
-                      <span className="text-xs font-medium text-slate-600 dark:text-slate-400 w-8 text-right flex-shrink-0">{Number(link.total)}</span>
+                      <span className="text-xs font-medium text-slate-600 dark:text-slate-400 w-8 text-right flex-shrink-0">
+                        {Number(link.total)}
+                      </span>
                     </div>
                   ))}
                   <p className="text-xs text-slate-400 pt-1">
-                    {Number(r.clicados)} {Number(r.clicados) === 1 ? "pessoa clicou" : "pessoas clicaram"} em link{Number(r.clicados) !== 1 ? "s" : ""} &middot; {Number(r.totalCliques)} clique{Number(r.totalCliques) !== 1 ? "s" : ""} no total
+                    {Number(r.clicados)}{" "}
+                    {Number(r.clicados) === 1 ? "pessoa clicou" : "pessoas clicaram"} em link
+                    {Number(r.clicados) !== 1 ? "s" : ""} &middot; {Number(r.totalCliques)} clique
+                    {Number(r.totalCliques) !== 1 ? "s" : ""} no total
                   </p>
                 </div>
               ) : (
-                <p className="text-sm text-slate-400 italic">Nenhum clique registrado nesta remessa.</p>
+                <p className="text-sm text-slate-400 italic">
+                  Nenhum clique registrado nesta remessa.
+                </p>
               )}
 
               <div className="flex items-center gap-2 flex-wrap pt-1">
-                <Button variant="outline" size="xs" onClick={() => gerarRelatorioRemessa(r, idx)} disabled={gerando !== null} className="gap-1 active:opacity-70">
-                  {gerando === r.remessaId ? <Loader2 size={12} className="animate-spin" /> : <FileText size={12} />} Relatório
+                <Button
+                  variant="outline"
+                  size="xs"
+                  onClick={() => gerarRelatorioRemessa(r, idx)}
+                  disabled={gerando !== null}
+                  className="gap-1 active:opacity-70"
+                >
+                  {gerando === r.remessaId ? (
+                    <Loader2 size={12} className="animate-spin" />
+                  ) : (
+                    <FileText size={12} />
+                  )}{" "}
+                  Relatório
                 </Button>
-                <Button variant="outline" size="xs" onClick={() => exportarLinksCSV(r)} disabled={(r.links || []).length === 0} className="gap-1 active:opacity-70">
+                <Button
+                  variant="outline"
+                  size="xs"
+                  onClick={() => exportarLinksCSV(r)}
+                  disabled={(r.links || []).length === 0}
+                  className="gap-1 active:opacity-70"
+                >
                   <Download size={12} /> Links CSV
                 </Button>
               </div>

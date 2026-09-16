@@ -5,8 +5,24 @@ import UsuariosPage from "./page"
 import { createFetchMock, findCall, renderPage, toastMock } from "@/test/harness"
 
 const usuarios = [
-  { id: 1, email: "ana@empresa.com", name: "Ana Souza", role: "COMERCIAL", ativo: true, ultimoAcesso: null, createdAt: "2025-01-01T00:00:00Z" },
-  { id: 2, email: "bruno@empresa.com", name: "Bruno Lima", role: "ADMIN", ativo: false, ultimoAcesso: null, createdAt: "2025-01-01T00:00:00Z" },
+  {
+    id: 1,
+    email: "ana@empresa.com",
+    name: "Ana Souza",
+    role: "COMERCIAL",
+    ativo: true,
+    ultimoAcesso: null,
+    createdAt: "2025-01-01T00:00:00Z",
+  },
+  {
+    id: 2,
+    email: "bruno@empresa.com",
+    name: "Bruno Lima",
+    role: "ADMIN",
+    ativo: false,
+    ultimoAcesso: null,
+    createdAt: "2025-01-01T00:00:00Z",
+  },
 ]
 
 const roles = [
@@ -77,7 +93,9 @@ describe("UsuariosPage", () => {
     expect(screen.getByRole("heading", { name: "Novo Usuário" })).toBeInTheDocument()
     fireEvent.click(screen.getByRole("button", { name: "Criar" }))
 
-    await waitFor(() => expect(toastMock.error).toHaveBeenCalledWith("Preencha email, nome e senha"))
+    await waitFor(() =>
+      expect(toastMock.error).toHaveBeenCalledWith("Preencha email, nome e senha")
+    )
     expect(findCall(fetchMock.calls, "/api/admin/usuarios", "POST")).toBeUndefined()
   })
 
@@ -87,10 +105,18 @@ describe("UsuariosPage", () => {
     await screen.findByText("Ana Souza")
 
     fireEvent.click(screen.getByRole("button", { name: "Novo Usuário" }))
-    fireEvent.change(screen.getByPlaceholderText("Nome completo"), { target: { value: "Carla Dias" } })
-    fireEvent.change(screen.getByPlaceholderText("email@exemplo.com"), { target: { value: "carla@empresa.com" } })
-    fireEvent.change(screen.getByPlaceholderText("Mínimo 6 caracteres"), { target: { value: "123456" } })
-    fireEvent.change(screen.getByPlaceholderText("Ex.: 5519999999999"), { target: { value: "5519999999998" } })
+    fireEvent.change(screen.getByPlaceholderText("Nome completo"), {
+      target: { value: "Carla Dias" },
+    })
+    fireEvent.change(screen.getByPlaceholderText("email@exemplo.com"), {
+      target: { value: "carla@empresa.com" },
+    })
+    fireEvent.change(screen.getByPlaceholderText("Mínimo 6 caracteres"), {
+      target: { value: "123456" },
+    })
+    fireEvent.change(screen.getByPlaceholderText("Ex.: 5519999999999"), {
+      target: { value: "5519999999998" },
+    })
     fireEvent.click(screen.getByRole("button", { name: "Criar" }))
 
     await waitFor(() => {
@@ -114,7 +140,7 @@ describe("UsuariosPage", () => {
     const row = screen.getByText("Ana Souza").closest("tr")!
     fireEvent.click(within(row).getByRole("button"))
 
-    expect(confirmSpy).toHaveBeenCalledWith("Excluir usuário \"Ana Souza\"?")
+    expect(confirmSpy).toHaveBeenCalledWith('Excluir usuário "Ana Souza"?')
     await waitFor(() => {
       const call = findCall(fetchMock.calls, "/api/admin/usuarios/1", "DELETE")
       expect(call).toBeDefined()

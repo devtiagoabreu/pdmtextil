@@ -161,7 +161,7 @@ export default function PlanoVistoriaFormPage() {
   }
 
   const handleChange = (field: keyof PlanoVistoria, value: string | boolean) => {
-    setPlano(prev => ({ ...prev, [field]: value }))
+    setPlano((prev) => ({ ...prev, [field]: value }))
   }
 
   if (loading) {
@@ -191,33 +191,41 @@ export default function PlanoVistoriaFormPage() {
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="ativoId" className="font-medium">Ativo</Label>
+            <Label htmlFor="ativoId" className="font-medium">
+              Ativo
+            </Label>
             <select
               id="ativoId"
               value={plano.ativoId}
-              onChange={e => handleChange("ativoId", e.target.value)}
+              onChange={(e) => handleChange("ativoId", e.target.value)}
               className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
               required
             >
               <option value="">Selecione o ativo</option>
               {ativos.map((ativo) => (
-                <option key={ativo.id} value={ativo.id}>{ativo.codigo} — {ativo.nome}</option>
+                <option key={ativo.id} value={ativo.id}>
+                  {ativo.codigo} — {ativo.nome}
+                </option>
               ))}
             </select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="tipoVistoriaId" className="font-medium">Tipo de Vistoria</Label>
+            <Label htmlFor="tipoVistoriaId" className="font-medium">
+              Tipo de Vistoria
+            </Label>
             <select
               id="tipoVistoriaId"
               value={plano.tipoVistoriaId}
-              onChange={e => handleChange("tipoVistoriaId", e.target.value)}
+              onChange={(e) => handleChange("tipoVistoriaId", e.target.value)}
               className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
               required
             >
               <option value="">Selecione o tipo</option>
               {tiposVistoria.map((tipo) => (
-                <option key={tipo.id} value={tipo.id}>{tipo.nome}</option>
+                <option key={tipo.id} value={tipo.id}>
+                  {tipo.nome}
+                </option>
               ))}
             </select>
           </div>
@@ -225,47 +233,61 @@ export default function PlanoVistoriaFormPage() {
 
         <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
           <div className="space-y-2">
-            <Label htmlFor="responsavelId" className="font-medium">Responsável</Label>
+            <Label htmlFor="responsavelId" className="font-medium">
+              Responsável
+            </Label>
             <select
               id="responsavelId"
               value={plano.responsavelId}
-              onChange={e => handleChange("responsavelId", e.target.value)}
+              onChange={(e) => handleChange("responsavelId", e.target.value)}
               className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
               required
             >
               <option value="">Selecione o responsável</option>
               {usuarios.map((usuario) => (
-                <option key={usuario.id} value={usuario.id}>{usuario.name} ({usuario.role})</option>
+                <option key={usuario.id} value={usuario.id}>
+                  {usuario.name} ({usuario.role})
+                </option>
               ))}
             </select>
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="diasIntervalo" className="font-medium">Intervalo (dias)</Label>
+            <Label htmlFor="diasIntervalo" className="font-medium">
+              Intervalo (dias)
+            </Label>
             <Input
               id="diasIntervalo"
               type="number"
               min={1}
               value={plano.diasIntervalo}
-              onChange={e => handleChange("diasIntervalo", e.target.value)}
+              onChange={(e) => handleChange("diasIntervalo", e.target.value)}
               placeholder="30"
             />
           </div>
         </div>
 
         <div className="space-y-2">
-          <Label htmlFor="proximaData" className="font-medium">Próxima Data</Label>
+          <Label htmlFor="proximaData" className="font-medium">
+            Próxima Data
+          </Label>
           <Input
             id="proximaData"
             type="date"
             value={plano.proximaData}
-            onChange={e => handleChange("proximaData", e.target.value)}
+            onChange={(e) => handleChange("proximaData", e.target.value)}
             required
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <input type="checkbox" id="planoAtivo" checked={plano.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
+          <input
+            type="checkbox"
+            id="planoAtivo"
+            checked={plano.ativo}
+            onChange={(e) => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
           <Label htmlFor="planoAtivo">Plano ativo</Label>
         </div>
 
@@ -275,7 +297,9 @@ export default function PlanoVistoriaFormPage() {
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
           <Link href="/ativos/planos">
-            <Button variant="outline" type="button">Cancelar</Button>
+            <Button variant="outline" type="button">
+              Cancelar
+            </Button>
           </Link>
         </div>
       </form>

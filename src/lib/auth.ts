@@ -34,28 +34,38 @@ export const authOptions: NextAuthOptions = {
       name: "credentials",
       credentials: {
         email: { label: "Email", type: "email" },
-        password: { label: "Senha", type: "password" }
+        password: { label: "Senha", type: "password" },
       },
       async authorize(credentials: any) {
         if (!credentials?.email || !credentials?.password) {
           throw new Error("Credenciais inválidas")
         }
-        const user = await db.select().from(usuarios).where(eq(usuarios.email, credentials.email)).limit(1)
+        const user = await db
+          .select()
+          .from(usuarios)
+          .where(eq(usuarios.email, credentials.email))
+          .limit(1)
         if (!user[0] || !user[0].password) {
           throw new Error("Usuário não encontrado")
         }
         const passwordMatch = await bcrypt.compare(credentials.password, user[0].password)
         if (!passwordMatch) throw new Error("Senha incorreta")
         if (!user[0].ativo) throw new Error("Usuário inativo")
-        return { id: user[0].id.toString(), email: user[0].email, name: user[0].name, role: user[0].role }
-      }
+        return {
+          id: user[0].id.toString(),
+          email: user[0].email,
+          name: user[0].name,
+          role: user[0].role,
+        }
+      },
     }),
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID || "",
       clientSecret: process.env.GOOGLE_CLIENT_SECRET || "",
       authorization: {
         params: {
-          scope: "openid email profile https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar",
+          scope:
+            "openid email profile https://www.googleapis.com/auth/drive.file https://www.googleapis.com/auth/calendar",
           access_type: "offline",
           prompt: "consent",
         },
@@ -65,14 +75,25 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account }: { user: any; account: any }) {
       if (account?.provider === "google") {
-        const existing = await db.select().from(usuarios).where(eq(usuarios.email, user.email!)).limit(1)
+        const existing = await db
+          .select()
+          .from(usuarios)
+          .where(eq(usuarios.email, user.email!))
+          .limit(1)
         if (!existing[0]) {
           return "/login?error=EmailNaoCadastrado"
         }
         try {
-          const link = await db.select().from(accounts).where(
-            and(eq(accounts.provider, "google"), eq(accounts.providerAccountId, account.providerAccountId!))
-          ).limit(1)
+          const link = await db
+            .select()
+            .from(accounts)
+            .where(
+              and(
+                eq(accounts.provider, "google"),
+                eq(accounts.providerAccountId, account.providerAccountId!)
+              )
+            )
+            .limit(1)
           if (!link[0]) {
             await db.insert(accounts).values({
               userId: existing[0].id,
@@ -104,7 +125,14 @@ export const authOptions: NextAuthOptions = {
         }
         try {
           const { registrarLog } = await import("@/lib/notificar")
-          await registrarLog({ tipo: "LOGIN", acao: "logar", descricao: `Login realizado via ${account?.provider || "credentials"}`, entidade: "Usuario", entidadeId: parseInt(String(user.id)), usuarioNome: user.name })
+          await registrarLog({
+            tipo: "LOGIN",
+            acao: "logar",
+            descricao: `Login realizado via ${account?.provider || "credentials"}`,
+            entidade: "Usuario",
+            entidadeId: parseInt(String(user.id)),
+            usuarioNome: user.name,
+          })
         } catch {}
       }
       return token
@@ -117,7 +145,7 @@ export const authOptions: NextAuthOptions = {
         ;(session.user as any).provider = token.provider
       }
       return session
-    }
+    },
   },
   pages: { signIn: "/login", error: "/login" },
   session: { strategy: "jwt", maxAge: 30 * 24 * 60 * 60 },

@@ -13,10 +13,7 @@ import { eq, and, asc, isNull } from "drizzle-orm"
 export async function forkRoleMenusToUser(userId: number, roleName: string) {
   const idMap = new Map<number, number>()
 
-  const existentes = await db
-    .select()
-    .from(userMenus)
-    .where(eq(userMenus.usuarioId, userId))
+  const existentes = await db.select().from(userMenus).where(eq(userMenus.usuarioId, userId))
 
   const porTitulo = new Map<string, (typeof existentes)[number]>()
   for (const m of existentes) {

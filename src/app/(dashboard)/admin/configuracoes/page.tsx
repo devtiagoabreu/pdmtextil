@@ -1,19 +1,98 @@
 import Link from "next/link"
-import { Mail, Database, Shield, Bell, Lock, Users, Settings, Zap, Building2, CheckCircle2, Layout, Bot } from "lucide-react"
+import {
+  Mail,
+  Database,
+  Shield,
+  Bell,
+  Lock,
+  Users,
+  Settings,
+  Zap,
+  Building2,
+  CheckCircle2,
+  Layout,
+  Bot,
+} from "lucide-react"
 import { PageInfoButton } from "@/components/ui/page-info-button"
 
 const modulos = [
-  { href: "/admin/configuracoes/email", label: "Configuração de Email", desc: "SMTP do sistema, email por usuário e email do CRM", icon: Mail, color: "text-blue-600 bg-blue-50 dark:bg-blue-950/50" },
-  { href: "/admin/configuracoes/banco-dados", label: "Banco de Dados", desc: "Gerenciar conexões com banco de dados", icon: Database, color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50" },
-  { href: "/admin/roles", label: "Perfis (Roles)", desc: "Gerenciar perfis de acesso do sistema", icon: Shield, color: "text-purple-600 bg-purple-50 dark:bg-purple-950/50" },
-  { href: "/admin/notificacoes", label: "Notificações", desc: "Configurar quem recebe cada tipo de notificação", icon: Bell, color: "text-amber-600 bg-amber-50 dark:bg-amber-950/50" },
-  { href: "/admin/configuracoes/permissoes", label: "Permissões", desc: "Configurar permissões CRUD por perfil", icon: Lock, color: "text-rose-600 bg-rose-50 dark:bg-rose-950/50" },
-  { href: "/admin/usuarios", label: "Usuários", desc: "Gerenciar usuários do sistema", icon: Users, color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50" },
-  { href: "/admin/configuracoes/integracoes", label: "Integrações", desc: "Configurar conexões com sistemas externos (ERP, API, WMS)", icon: Zap, color: "text-orange-600 bg-orange-50 dark:bg-orange-950/50" },
-  { href: "/admin/configuracoes/ai", label: "Chaves de IA", desc: "Cadastrar várias chaves de IA com fallback automático (Groq, OpenAI, Claude, Gemini)", icon: Bot, color: "text-purple-600 bg-purple-50 dark:bg-purple-950/50" },
-  { href: "/admin/configuracoes/empresa", label: "Empresas", desc: "Configurar dados da empresa para relatórios e exportações (logo, CNPJ, endereço)", icon: Building2, color: "text-sky-600 bg-sky-50 dark:bg-sky-950/50" },
-  { href: "/admin/configuracoes/telas", label: "Telas", desc: "Configurar menus e página inicial por perfil de usuário", icon: Layout, color: "text-violet-600 bg-violet-50 dark:bg-violet-950/50" },
-  { href: "/admin/configuracoes/status", label: "Status", desc: "Gerenciar os status disponíveis para cada módulo do sistema", icon: CheckCircle2, color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50" },
+  {
+    href: "/admin/configuracoes/email",
+    label: "Configuração de Email",
+    desc: "SMTP do sistema, email por usuário e email do CRM",
+    icon: Mail,
+    color: "text-blue-600 bg-blue-50 dark:bg-blue-950/50",
+  },
+  {
+    href: "/admin/configuracoes/banco-dados",
+    label: "Banco de Dados",
+    desc: "Gerenciar conexões com banco de dados",
+    icon: Database,
+    color: "text-emerald-600 bg-emerald-50 dark:bg-emerald-950/50",
+  },
+  {
+    href: "/admin/roles",
+    label: "Perfis (Roles)",
+    desc: "Gerenciar perfis de acesso do sistema",
+    icon: Shield,
+    color: "text-purple-600 bg-purple-50 dark:bg-purple-950/50",
+  },
+  {
+    href: "/admin/notificacoes",
+    label: "Notificações",
+    desc: "Configurar quem recebe cada tipo de notificação",
+    icon: Bell,
+    color: "text-amber-600 bg-amber-50 dark:bg-amber-950/50",
+  },
+  {
+    href: "/admin/configuracoes/permissoes",
+    label: "Permissões",
+    desc: "Configurar permissões CRUD por perfil",
+    icon: Lock,
+    color: "text-rose-600 bg-rose-50 dark:bg-rose-950/50",
+  },
+  {
+    href: "/admin/usuarios",
+    label: "Usuários",
+    desc: "Gerenciar usuários do sistema",
+    icon: Users,
+    color: "text-cyan-600 bg-cyan-50 dark:bg-cyan-950/50",
+  },
+  {
+    href: "/admin/configuracoes/integracoes",
+    label: "Integrações",
+    desc: "Configurar conexões com sistemas externos (ERP, API, WMS)",
+    icon: Zap,
+    color: "text-orange-600 bg-orange-50 dark:bg-orange-950/50",
+  },
+  {
+    href: "/admin/configuracoes/ai",
+    label: "Chaves de IA",
+    desc: "Cadastrar várias chaves de IA com fallback automático (Groq, OpenAI, Claude, Gemini)",
+    icon: Bot,
+    color: "text-purple-600 bg-purple-50 dark:bg-purple-950/50",
+  },
+  {
+    href: "/admin/configuracoes/empresa",
+    label: "Empresas",
+    desc: "Configurar dados da empresa para relatórios e exportações (logo, CNPJ, endereço)",
+    icon: Building2,
+    color: "text-sky-600 bg-sky-50 dark:bg-sky-950/50",
+  },
+  {
+    href: "/admin/configuracoes/telas",
+    label: "Telas",
+    desc: "Configurar menus e página inicial por perfil de usuário",
+    icon: Layout,
+    color: "text-violet-600 bg-violet-50 dark:bg-violet-950/50",
+  },
+  {
+    href: "/admin/configuracoes/status",
+    label: "Status",
+    desc: "Gerenciar os status disponíveis para cada módulo do sistema",
+    icon: CheckCircle2,
+    color: "text-indigo-600 bg-indigo-50 dark:bg-indigo-950/50",
+  },
 ]
 
 export default function ConfiguracoesHubPage() {
@@ -22,7 +101,10 @@ export default function ConfiguracoesHubPage() {
       <div>
         <div className="flex items-center gap-2">
           <Settings className="text-blue-600" size={24} />
-          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">Configurações<PageInfoButton /></h1>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            Configurações
+            <PageInfoButton />
+          </h1>
         </div>
         <p className="text-sm text-slate-500 mt-1">Gerencie todas as configurações do sistema</p>
       </div>

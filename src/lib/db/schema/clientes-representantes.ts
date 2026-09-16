@@ -4,8 +4,12 @@ import { representantes } from "./representantes"
 
 export const clientesRepresentantes = pgTable("clientes_representantes", {
   id: serial("id").primaryKey(),
-  clienteId: integer("cliente_id").notNull().references(() => clientes.id, { onDelete: "cascade" }),
-  representanteId: integer("representante_id").notNull().references(() => representantes.id, { onDelete: "cascade" }),
+  clienteId: integer("cliente_id")
+    .notNull()
+    .references(() => clientes.id, { onDelete: "cascade" }),
+  representanteId: integer("representante_id")
+    .notNull()
+    .references(() => representantes.id, { onDelete: "cascade" }),
   createdAt: timestamp("created_at").defaultNow(),
 })
 

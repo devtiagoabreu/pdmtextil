@@ -24,14 +24,22 @@ function derivarRepresentacoes(
     return {
       ok: true,
       modelo,
-      mermaid: modeloParaMermaid(modelo as never, typeof body.tipo === "string" ? body.tipo : "FLUXOGRAMA"),
+      mermaid: modeloParaMermaid(
+        modelo as never,
+        typeof body.tipo === "string" ? body.tipo : "FLUXOGRAMA"
+      ),
       markdown: modeloParaMarkdown(modelo as never),
     }
   }
   if (typeof body.mermaid === "string" && body.mermaid) {
     const parse = mermaidParaModelo(body.mermaid)
     if (!parse.modelo) return { ok: false, erro: parse.erro ?? "Texto Mermaid inválido." }
-    return { ok: true, modelo: parse.modelo, mermaid: body.mermaid, markdown: modeloParaMarkdown(parse.modelo) }
+    return {
+      ok: true,
+      modelo: parse.modelo,
+      mermaid: body.mermaid,
+      markdown: modeloParaMarkdown(parse.modelo),
+    }
   }
   return {
     ok: true,
@@ -41,10 +49,7 @@ function derivarRepresentacoes(
   }
 }
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -67,10 +72,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -120,7 +122,12 @@ export async function PUT(
       usuarioNome: session.user.name,
     })
 
-    await notificar("PROC_DIAGRAMA_ATUALIZADA", `Diagrama atualizado: ${atualizada.nome}`, `/processos/visual/${atualizada.id}`, session.user.name)
+    await notificar(
+      "PROC_DIAGRAMA_ATUALIZADA",
+      `Diagrama atualizado: ${atualizada.nome}`,
+      `/processos/visual/${atualizada.id}`,
+      session.user.name
+    )
 
     return NextResponse.json(atualizada)
   } catch (error) {
@@ -128,10 +135,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth

@@ -8,10 +8,7 @@ import { handleApiError } from "@/lib/api-error"
 import { validateRequest } from "@/lib/validation"
 import { procProcessoSchema } from "@/lib/validation"
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -34,10 +31,7 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -70,14 +64,22 @@ export async function PUT(
         versao: parsed.data.versao !== undefined ? parsed.data.versao : existente.versao,
         entradas: parsed.data.entradas !== undefined ? parsed.data.entradas : existente.entradas,
         saidas: parsed.data.saidas !== undefined ? parsed.data.saidas : existente.saidas,
-        fornecedores: parsed.data.fornecedores !== undefined ? parsed.data.fornecedores : existente.fornecedores,
+        fornecedores:
+          parsed.data.fornecedores !== undefined
+            ? parsed.data.fornecedores
+            : existente.fornecedores,
         clientes: parsed.data.clientes !== undefined ? parsed.data.clientes : existente.clientes,
         recursos: parsed.data.recursos !== undefined ? parsed.data.recursos : existente.recursos,
         sistemas: parsed.data.sistemas !== undefined ? parsed.data.sistemas : existente.sistemas,
-        equipamentos: parsed.data.equipamentos !== undefined ? parsed.data.equipamentos : existente.equipamentos,
-        indicadores: parsed.data.indicadores !== undefined ? parsed.data.indicadores : existente.indicadores,
+        equipamentos:
+          parsed.data.equipamentos !== undefined
+            ? parsed.data.equipamentos
+            : existente.equipamentos,
+        indicadores:
+          parsed.data.indicadores !== undefined ? parsed.data.indicadores : existente.indicadores,
         riscos: parsed.data.riscos !== undefined ? parsed.data.riscos : existente.riscos,
-        controles: parsed.data.controles !== undefined ? parsed.data.controles : existente.controles,
+        controles:
+          parsed.data.controles !== undefined ? parsed.data.controles : existente.controles,
         links: parsed.data.links !== undefined ? parsed.data.links : existente.links,
         observacoes: parsed.data.observacoes || null,
         ativo: parsed.data.ativo !== undefined ? parsed.data.ativo : existente.ativo,
@@ -101,10 +103,7 @@ export async function PUT(
   }
 }
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth

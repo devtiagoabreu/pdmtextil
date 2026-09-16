@@ -37,12 +37,13 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
 
     const { usuarios } = await import("@/lib/db/schema/usuarios")
     const usuarioIds = participantes.map((p: any) => p.usuarioId)
-    const users = usuarioIds.length > 0
-      ? await db
-          .select({ id: usuarios.id, name: usuarios.name, email: usuarios.email })
-          .from(usuarios)
-          .where(inArray(usuarios.id, usuarioIds))
-      : []
+    const users =
+      usuarioIds.length > 0
+        ? await db
+            .select({ id: usuarios.id, name: usuarios.name, email: usuarios.email })
+            .from(usuarios)
+            .where(inArray(usuarios.id, usuarioIds))
+        : []
 
     return NextResponse.json({ ...chat, participantes, usuarios: users })
   } catch (error) {

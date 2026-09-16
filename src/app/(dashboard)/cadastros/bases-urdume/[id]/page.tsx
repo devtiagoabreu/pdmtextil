@@ -41,7 +41,14 @@ type FioSelecionado = {
   fioIdIntegracao: string | null
 }
 
-type BaseData = BaseUrdume & { fiosLista?: Array<{ fioId: number; fioNome?: string; fioCodigo?: string; fioIdIntegracao?: string | null }> }
+type BaseData = BaseUrdume & {
+  fiosLista?: Array<{
+    fioId: number
+    fioNome?: string
+    fioCodigo?: string
+    fioIdIntegracao?: string | null
+  }>
+}
 
 export default function BaseFormPage() {
   const router = useRouter()
@@ -106,12 +113,14 @@ export default function BaseFormPage() {
       idIntegracao: baseData.idIntegracao || "",
     })
     if (baseData.fiosLista) {
-      setFiosSelecionados(baseData.fiosLista.map((f) => ({
-        fioId: f.fioId,
-        fioNome: f.fioNome || "",
-        fioCodigo: f.fioCodigo || "",
-        fioIdIntegracao: f.fioIdIntegracao || null,
-      })))
+      setFiosSelecionados(
+        baseData.fiosLista.map((f) => ({
+          fioId: f.fioId,
+          fioNome: f.fioNome || "",
+          fioCodigo: f.fioCodigo || "",
+          fioIdIntegracao: f.fioIdIntegracao || null,
+        }))
+      )
     }
   }, [baseData])
 
@@ -155,24 +164,35 @@ export default function BaseFormPage() {
   }
 
   const handleChange = (field: keyof BaseUrdume, value: string | boolean) => {
-    setBase(prev => ({ ...prev, [field]: value }))
+    setBase((prev) => ({ ...prev, [field]: value }))
   }
 
   const adicionarFio = (fio: FioOption) => {
     if (fiosSelecionados.some((f: FioSelecionado) => f.fioId === fio.id)) return
-    setFiosSelecionados(prev => [...prev, { fioId: fio.id, fioNome: fio.nome, fioCodigo: fio.codigoFio, fioIdIntegracao: fio.idIntegracao || null }])
+    setFiosSelecionados((prev) => [
+      ...prev,
+      {
+        fioId: fio.id,
+        fioNome: fio.nome,
+        fioCodigo: fio.codigoFio,
+        fioIdIntegracao: fio.idIntegracao || null,
+      },
+    ])
     setFioSearch("")
   }
 
   const removerFio = (fioId: number) => {
-    setFiosSelecionados(prev => prev.filter((f: FioSelecionado) => f.fioId !== fioId))
+    setFiosSelecionados((prev) => prev.filter((f: FioSelecionado) => f.fioId !== fioId))
   }
 
-  const fiosFiltrados = fiosDisponiveis.filter((f: FioOption) =>
-    !fiosSelecionados.some((s: FioSelecionado) => s.fioId === f.id) &&
-    (f.nome.toLowerCase().includes(fioSearch.toLowerCase()) ||
-     f.codigoFio.toLowerCase().includes(fioSearch.toLowerCase()))
-  ).slice(0, 10)
+  const fiosFiltrados = fiosDisponiveis
+    .filter(
+      (f: FioOption) =>
+        !fiosSelecionados.some((s: FioSelecionado) => s.fioId === f.id) &&
+        (f.nome.toLowerCase().includes(fioSearch.toLowerCase()) ||
+          f.codigoFio.toLowerCase().includes(fioSearch.toLowerCase()))
+    )
+    .slice(0, 10)
 
   if (loading) {
     return (
@@ -190,13 +210,13 @@ export default function BaseFormPage() {
             <ArrowLeft size={20} />
           </Button>
         </Link>
-      <div>
-        <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
-          {isEditing ? "Editar Base de Urdume" : "Nova Base de Urdume"}
-          {info && <InfoButton content={info} />}
-        </h1>
+        <div>
+          <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-50">
+            {isEditing ? "Editar Base de Urdume" : "Nova Base de Urdume"}
+            {info && <InfoButton content={info} />}
+          </h1>
+        </div>
       </div>
-    </div>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <div className="grid grid-cols-2 gap-4">
@@ -205,7 +225,7 @@ export default function BaseFormPage() {
             <Input
               id="codigoBase"
               value={base.codigoBase}
-              onChange={e => handleChange("codigoBase", e.target.value)}
+              onChange={(e) => handleChange("codigoBase", e.target.value)}
               placeholder="UR001"
               required
             />
@@ -215,7 +235,7 @@ export default function BaseFormPage() {
             <Input
               id="codigoCompleto"
               value={base.codigoCompleto}
-              onChange={e => handleChange("codigoCompleto", e.target.value)}
+              onChange={(e) => handleChange("codigoCompleto", e.target.value)}
               placeholder="4.UR001.CRU.000001"
               required
             />
@@ -227,7 +247,7 @@ export default function BaseFormPage() {
           <Input
             id="nome"
             value={base.nome}
-            onChange={e => handleChange("nome", e.target.value)}
+            onChange={(e) => handleChange("nome", e.target.value)}
             placeholder="Base Algodão 30/1"
             required
           />
@@ -238,7 +258,7 @@ export default function BaseFormPage() {
           <Input
             id="descricao"
             value={base.descricao || ""}
-            onChange={e => handleChange("descricao", e.target.value)}
+            onChange={(e) => handleChange("descricao", e.target.value)}
             placeholder="Descrição da base"
           />
         </div>
@@ -250,7 +270,7 @@ export default function BaseFormPage() {
             <Input
               placeholder="Buscar fio para adicionar..."
               value={fioSearch}
-              onChange={e => setFioSearch(e.target.value)}
+              onChange={(e) => setFioSearch(e.target.value)}
               className="pl-9"
             />
           </div>
@@ -268,7 +288,9 @@ export default function BaseFormPage() {
                   >
                     <Plus size={14} className="text-slate-400" />
                     <span className="font-medium">{fio.codigoFio}</span>
-                    {fio.idIntegracao && <span className="text-xs text-slate-400">({fio.idIntegracao})</span>}
+                    {fio.idIntegracao && (
+                      <span className="text-xs text-slate-400">({fio.idIntegracao})</span>
+                    )}
                     <span className="text-slate-500">{fio.nome}</span>
                   </button>
                 ))
@@ -278,13 +300,22 @@ export default function BaseFormPage() {
           {fiosSelecionados.length > 0 && (
             <div className="space-y-1">
               {fiosSelecionados.map((fio: FioSelecionado) => (
-                <div key={fio.fioId} className="flex items-center justify-between rounded-md border border-slate-200 dark:border-slate-700 px-3 py-2">
+                <div
+                  key={fio.fioId}
+                  className="flex items-center justify-between rounded-md border border-slate-200 dark:border-slate-700 px-3 py-2"
+                >
                   <div className="text-sm">
                     <span className="font-medium">{fio.fioCodigo}</span>
-                    {fio.fioIdIntegracao && <span className="text-xs text-slate-400 ml-1.5">({fio.fioIdIntegracao})</span>}
+                    {fio.fioIdIntegracao && (
+                      <span className="text-xs text-slate-400 ml-1.5">({fio.fioIdIntegracao})</span>
+                    )}
                     <span className="text-slate-500 ml-2">{fio.fioNome}</span>
                   </div>
-                  <button type="button" onClick={() => removerFio(fio.fioId)} className="text-red-400 hover:text-red-600">
+                  <button
+                    type="button"
+                    onClick={() => removerFio(fio.fioId)}
+                    className="text-red-400 hover:text-red-600"
+                  >
                     <X size={16} />
                   </button>
                 </div>
@@ -299,7 +330,7 @@ export default function BaseFormPage() {
             <Input
               id="densidade"
               value={base.densidade || ""}
-              onChange={e => handleChange("densidade", e.target.value)}
+              onChange={(e) => handleChange("densidade", e.target.value)}
               placeholder="30"
             />
           </div>
@@ -308,7 +339,7 @@ export default function BaseFormPage() {
             <Input
               id="largura"
               value={base.largura || ""}
-              onChange={e => handleChange("largura", e.target.value)}
+              onChange={(e) => handleChange("largura", e.target.value)}
               placeholder="2.50"
             />
           </div>
@@ -320,7 +351,7 @@ export default function BaseFormPage() {
             <Input
               id="tratamento"
               value={base.tratamento || ""}
-              onChange={e => handleChange("tratamento", e.target.value)}
+              onChange={(e) => handleChange("tratamento", e.target.value)}
               placeholder="Engomagem"
             />
           </div>
@@ -329,7 +360,7 @@ export default function BaseFormPage() {
             <Input
               id="tensaoUrdume"
               value={base.tensaoUrdume || ""}
-              onChange={e => handleChange("tensaoUrdume", e.target.value)}
+              onChange={(e) => handleChange("tensaoUrdume", e.target.value)}
               placeholder="25"
             />
           </div>
@@ -340,19 +371,30 @@ export default function BaseFormPage() {
           <Input
             id="observacoes"
             value={base.observacoes || ""}
-            onChange={e => handleChange("observacoes", e.target.value)}
+            onChange={(e) => handleChange("observacoes", e.target.value)}
             placeholder="Observações adicionais"
           />
         </div>
 
         <div className="flex items-center gap-2">
-          <input type="checkbox" id="ativo" checked={base.ativo} onChange={e => handleChange("ativo", e.target.checked)} className="w-4 h-4" />
+          <input
+            type="checkbox"
+            id="ativo"
+            checked={base.ativo}
+            onChange={(e) => handleChange("ativo", e.target.checked)}
+            className="w-4 h-4"
+          />
           <Label htmlFor="ativo">Ativo</Label>
         </div>
 
         <div className="space-y-2">
           <Label htmlFor="idIntegracao">ID Integração (ERP/WMS/CRM/OUTROS)</Label>
-          <Input id="idIntegracao" value={base.idIntegracao || ""} onChange={e => handleChange("idIntegracao", e.target.value)} placeholder="Código do sistema externo" />
+          <Input
+            id="idIntegracao"
+            value={base.idIntegracao || ""}
+            onChange={(e) => handleChange("idIntegracao", e.target.value)}
+            placeholder="Código do sistema externo"
+          />
         </div>
 
         <div className="flex gap-4">
@@ -361,7 +403,9 @@ export default function BaseFormPage() {
             {isEditing ? "Atualizar" : "Criar"}
           </Button>
           <Link href="/cadastros/bases-urdume">
-            <Button variant="outline" type="button">Cancelar</Button>
+            <Button variant="outline" type="button">
+              Cancelar
+            </Button>
           </Link>
         </div>
       </form>

@@ -25,7 +25,10 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
   const [cnpj, setCnpj] = useState("")
   const [loading, setLoading] = useState(false)
   const [apiData, setApiData] = useState<ApiData | null>(null)
-  const [existentes, setExistentes] = useState<{ crmPessoas: any[]; representantes: any[] }>({ crmPessoas: [], representantes: [] })
+  const [existentes, setExistentes] = useState<{ crmPessoas: any[]; representantes: any[] }>({
+    crmPessoas: [],
+    representantes: [],
+  })
   const [creating, setCreating] = useState(false)
   const [consultado, setConsultado] = useState(false)
 
@@ -100,7 +103,9 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
           nome: api.nome_fantasia || api.razao_social || "",
           cnpj: api.cnpj || "",
           razaoSocial: api.razao_social || "",
-          endereco: [api.logradouro, api.numero, api.bairro, api.complemento].filter(Boolean).join(", "),
+          endereco: [api.logradouro, api.numero, api.bairro, api.complemento]
+            .filter(Boolean)
+            .join(", "),
           cidade: api.municipio || "",
           uf: api.uf || "",
         }
@@ -124,160 +129,188 @@ export default function BuscarCnpjModal({ tipo, onClose, onCreated }: BuscarCnpj
     }
   }
 
-  const jaExiste = tipo === "pessoa"
-    ? existentes.crmPessoas.length > 0
-    : existentes.representantes.length > 0
+  const jaExiste =
+    tipo === "pessoa" ? existentes.crmPessoas.length > 0 : existentes.representantes.length > 0
 
   return (
-    <DialogPrimitive.Root open onOpenChange={(next) => { if (!next) onClose() }}>
+    <DialogPrimitive.Root
+      open
+      onOpenChange={(next) => {
+        if (!next) onClose()
+      }}
+    >
       <DialogPrimitive.Portal>
         <DialogPrimitive.Backdrop className="fixed inset-0 z-50 bg-black/40" />
         <DialogPrimitive.Popup className="fixed top-1/2 left-1/2 z-50 w-full max-w-lg -translate-x-1/2 -translate-y-1/2 max-h-[90vh] overflow-y-auto rounded-xl bg-white dark:bg-slate-900 shadow-xl border border-slate-200 dark:border-slate-800 outline-none">
-        <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
-          <div className="flex items-center gap-2">
-            <Building2 size={18} className="text-blue-600" />
-            <DialogPrimitive.Title className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-              Buscar CNPJ
-            </DialogPrimitive.Title>
-          </div>
-          <DialogPrimitive.Close aria-label="Fechar" className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800">
-            <X size={18} className="text-slate-500" />
-          </DialogPrimitive.Close>
-        </div>
-
-        <div className="p-5 space-y-4">
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={cnpj}
-              onChange={(e) => setCnpj(e.target.value)}
-              onKeyDown={(e) => e.key === "Enter" && handleConsultar()}
-              placeholder="Digite o CNPJ (com ou sem pontuação)"
-              aria-label="CNPJ"
-              className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
-              maxLength={18}
-            />
-            <Button onClick={handleConsultar} disabled={loading} className="gap-2">
-              {loading ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <Search size={16} />
-              )}
-              Consultar
-            </Button>
+          <div className="flex items-center justify-between p-5 border-b border-slate-200 dark:border-slate-800">
+            <div className="flex items-center gap-2">
+              <Building2 size={18} className="text-blue-600" />
+              <DialogPrimitive.Title className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                Buscar CNPJ
+              </DialogPrimitive.Title>
+            </div>
+            <DialogPrimitive.Close
+              aria-label="Fechar"
+              className="p-1 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800"
+            >
+              <X size={18} className="text-slate-500" />
+            </DialogPrimitive.Close>
           </div>
 
-          {consultado && !apiData && (
-            <div className="rounded-xl border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 p-4 flex items-start gap-3">
-              <AlertCircle size={18} className="text-amber-500 mt-0.5 shrink-0" />
-              <div>
-                <p className="font-medium text-amber-800 dark:text-amber-300">CNPJ não encontrado</p>
-                <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
-                  O CNPJ {formatCnpj(cnpj)} não foi localizado na base da Receita Federal.
-                </p>
-              </div>
-            </div>
-          )}
-
-          {apiData && (
-            <div className="rounded-xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 p-4">
-              <div className="flex items-start gap-2">
-                <Check size={18} className="text-emerald-500 mt-0.5 shrink-0" />
-                <div>
-                  <p className="font-medium text-emerald-800 dark:text-emerald-300">
-                    {apiData.razao_social}
-                  </p>
-                  <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">
-                    {apiData.nome_fantasia} — {apiData.situacao_cadastral}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {apiData && (
-            <div className="rounded-lg border border-slate-200 dark:border-slate-800 p-4 space-y-2 text-sm">
-              <div className="grid grid-cols-2 gap-2">
-                <div>
-                  <p className="text-xs text-slate-500">CNPJ</p>
-                  <p className="text-slate-900 dark:text-slate-200 font-mono">{formatCnpj(apiData.cnpj)}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">Situação</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.situacao_cadastral}</p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-xs text-slate-500">Razão Social</p>
-                  <p className="text-slate-900 dark:text-slate-200 font-medium">{apiData.razao_social}</p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-xs text-slate-500">Nome Fantasia</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.nome_fantasia || "—"}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">Porte</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.porte_empresa || "—"}</p>
-                </div>
-                <div>
-                  <p className="text-xs text-slate-500">CNAE</p>
-                  <p className="text-slate-900 dark:text-slate-200">{apiData.cnae_principal_descricao || "—"}</p>
-                </div>
-                <div className="col-span-2">
-                  <p className="text-xs text-slate-500">Endereço</p>
-                  <p className="text-slate-900 dark:text-slate-200">
-                    {[apiData.logradouro, apiData.numero, apiData.bairro, apiData.complemento].filter(Boolean).join(", ") || "—"}
-                    {apiData.cep && ` — CEP ${apiData.cep}`}
-                    {apiData.municipio && ` — ${apiData.municipio}/${apiData.uf}`}
-                  </p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          {jaExiste && (
-            <div className="rounded-lg border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/30 p-4">
-              <p className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">
-                {tipo === "pessoa" ? "Pessoa(s)" : "Representante(s)"} já cadastrado(s) com este CNPJ:
-              </p>
-              <div className="space-y-2">
-                {(tipo === "pessoa" ? existentes.crmPessoas : existentes.representantes).map((item: any) => (
-                  <Link
-                    key={item.id}
-                    href={tipo === "pessoa" ? `/comercial/crm/pessoas/${item.id}` : `/comercial/representantes/${item.id}`}
-                    target="_blank"
-                    className="flex items-center gap-1.5 text-sm text-blue-600 hover:underline"
-                  >
-                    {item.razaoSocial || item.nome} <ExternalLink size={12} />
-                  </Link>
-                ))}
-              </div>
-            </div>
-          )}
-
-          {apiData && !jaExiste && (
-            <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4 text-center">
-              <Building2 size={28} className="mx-auto text-slate-300 dark:text-slate-600 mb-2" />
-              <p className="font-medium text-slate-900 dark:text-slate-200">
-                Deseja criar {tipo === "pessoa" ? "uma nova Pessoa" : "um novo Representante"}?
-              </p>
-              <p className="text-xs text-slate-500 mt-1 mb-3">
-                Os dados serão preenchidos automaticamente com as informações da Receita Federal.
-              </p>
-              <Button onClick={handleCriar} disabled={creating} className="gap-2">
-                {creating ? (
-                  <Loader2 size={16} className="animate-spin" />
-                ) : (
-                  <Building2 size={16} />
-                )}
-                {creating ? "Criando..." : `Criar ${titulo}`}
+          <div className="p-5 space-y-4">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={cnpj}
+                onChange={(e) => setCnpj(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && handleConsultar()}
+                placeholder="Digite o CNPJ (com ou sem pontuação)"
+                aria-label="CNPJ"
+                className="flex-1 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 font-mono"
+                maxLength={18}
+              />
+              <Button onClick={handleConsultar} disabled={loading} className="gap-2">
+                {loading ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />}
+                Consultar
               </Button>
             </div>
-          )}
-        </div>
 
-        <div className="flex justify-end p-5 border-t border-slate-200 dark:border-slate-800">
-          <Button variant="outline" onClick={onClose}>Fechar</Button>
-        </div>
+            {consultado && !apiData && (
+              <div className="rounded-xl border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-950/30 p-4 flex items-start gap-3">
+                <AlertCircle size={18} className="text-amber-500 mt-0.5 shrink-0" />
+                <div>
+                  <p className="font-medium text-amber-800 dark:text-amber-300">
+                    CNPJ não encontrado
+                  </p>
+                  <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
+                    O CNPJ {formatCnpj(cnpj)} não foi localizado na base da Receita Federal.
+                  </p>
+                </div>
+              </div>
+            )}
+
+            {apiData && (
+              <div className="rounded-xl border border-emerald-200 dark:border-emerald-900 bg-emerald-50 dark:bg-emerald-950/30 p-4">
+                <div className="flex items-start gap-2">
+                  <Check size={18} className="text-emerald-500 mt-0.5 shrink-0" />
+                  <div>
+                    <p className="font-medium text-emerald-800 dark:text-emerald-300">
+                      {apiData.razao_social}
+                    </p>
+                    <p className="text-xs text-emerald-600 dark:text-emerald-400 mt-0.5">
+                      {apiData.nome_fantasia} — {apiData.situacao_cadastral}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {apiData && (
+              <div className="rounded-lg border border-slate-200 dark:border-slate-800 p-4 space-y-2 text-sm">
+                <div className="grid grid-cols-2 gap-2">
+                  <div>
+                    <p className="text-xs text-slate-500">CNPJ</p>
+                    <p className="text-slate-900 dark:text-slate-200 font-mono">
+                      {formatCnpj(apiData.cnpj)}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500">Situação</p>
+                    <p className="text-slate-900 dark:text-slate-200">
+                      {apiData.situacao_cadastral}
+                    </p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-xs text-slate-500">Razão Social</p>
+                    <p className="text-slate-900 dark:text-slate-200 font-medium">
+                      {apiData.razao_social}
+                    </p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-xs text-slate-500">Nome Fantasia</p>
+                    <p className="text-slate-900 dark:text-slate-200">
+                      {apiData.nome_fantasia || "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500">Porte</p>
+                    <p className="text-slate-900 dark:text-slate-200">
+                      {apiData.porte_empresa || "—"}
+                    </p>
+                  </div>
+                  <div>
+                    <p className="text-xs text-slate-500">CNAE</p>
+                    <p className="text-slate-900 dark:text-slate-200">
+                      {apiData.cnae_principal_descricao || "—"}
+                    </p>
+                  </div>
+                  <div className="col-span-2">
+                    <p className="text-xs text-slate-500">Endereço</p>
+                    <p className="text-slate-900 dark:text-slate-200">
+                      {[apiData.logradouro, apiData.numero, apiData.bairro, apiData.complemento]
+                        .filter(Boolean)
+                        .join(", ") || "—"}
+                      {apiData.cep && ` — CEP ${apiData.cep}`}
+                      {apiData.municipio && ` — ${apiData.municipio}/${apiData.uf}`}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {jaExiste && (
+              <div className="rounded-lg border border-blue-200 dark:border-blue-900 bg-blue-50 dark:bg-blue-950/30 p-4">
+                <p className="text-sm font-medium text-blue-800 dark:text-blue-300 mb-2">
+                  {tipo === "pessoa" ? "Pessoa(s)" : "Representante(s)"} já cadastrado(s) com este
+                  CNPJ:
+                </p>
+                <div className="space-y-2">
+                  {(tipo === "pessoa" ? existentes.crmPessoas : existentes.representantes).map(
+                    (item: any) => (
+                      <Link
+                        key={item.id}
+                        href={
+                          tipo === "pessoa"
+                            ? `/comercial/crm/pessoas/${item.id}`
+                            : `/comercial/representantes/${item.id}`
+                        }
+                        target="_blank"
+                        className="flex items-center gap-1.5 text-sm text-blue-600 hover:underline"
+                      >
+                        {item.razaoSocial || item.nome} <ExternalLink size={12} />
+                      </Link>
+                    )
+                  )}
+                </div>
+              </div>
+            )}
+
+            {apiData && !jaExiste && (
+              <div className="rounded-lg border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-800/50 p-4 text-center">
+                <Building2 size={28} className="mx-auto text-slate-300 dark:text-slate-600 mb-2" />
+                <p className="font-medium text-slate-900 dark:text-slate-200">
+                  Deseja criar {tipo === "pessoa" ? "uma nova Pessoa" : "um novo Representante"}?
+                </p>
+                <p className="text-xs text-slate-500 mt-1 mb-3">
+                  Os dados serão preenchidos automaticamente com as informações da Receita Federal.
+                </p>
+                <Button onClick={handleCriar} disabled={creating} className="gap-2">
+                  {creating ? (
+                    <Loader2 size={16} className="animate-spin" />
+                  ) : (
+                    <Building2 size={16} />
+                  )}
+                  {creating ? "Criando..." : `Criar ${titulo}`}
+                </Button>
+              </div>
+            )}
+          </div>
+
+          <div className="flex justify-end p-5 border-t border-slate-200 dark:border-slate-800">
+            <Button variant="outline" onClick={onClose}>
+              Fechar
+            </Button>
+          </div>
         </DialogPrimitive.Popup>
       </DialogPrimitive.Portal>
     </DialogPrimitive.Root>

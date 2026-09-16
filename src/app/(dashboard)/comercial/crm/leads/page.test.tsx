@@ -81,7 +81,9 @@ describe("LeadsPage ações", () => {
       expect(call).toBeDefined()
       expect(call!.body).toEqual({ status: "CONTATADO" })
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Lead alterado para CONTATADO"))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Lead alterado para CONTATADO")
+    )
   })
 
   it("alterna para o kanban", async () => {
@@ -120,7 +122,9 @@ describe("LeadsPage exclusão", () => {
       const call = findCall(fetchMock.calls, "/api/crm/leads/1", "DELETE")
       expect(call).toBeDefined()
     })
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith('Lead "João Pereira" excluído'))
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith('Lead "João Pereira" excluído')
+    )
   })
 
   it("não mostra o botão de excluir para não-administradores", async () => {

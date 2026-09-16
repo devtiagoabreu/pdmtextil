@@ -34,7 +34,10 @@ export async function GET(req: NextRequest) {
       })
       .from(ativosPlanosVistoria)
       .leftJoin(ativos, eq(ativosPlanosVistoria.ativoId, ativos.id))
-      .leftJoin(ativosTiposVistoria, eq(ativosPlanosVistoria.tipoVistoriaId, ativosTiposVistoria.id))
+      .leftJoin(
+        ativosTiposVistoria,
+        eq(ativosPlanosVistoria.tipoVistoriaId, ativosTiposVistoria.id)
+      )
       .leftJoin(usuarios, eq(ativosPlanosVistoria.responsavelId, usuarios.id))
       .orderBy(desc(ativosPlanosVistoria.id))
 
@@ -97,7 +100,7 @@ export async function POST(req: NextRequest) {
       "ATIVO_PLANO_CRIADO",
       `Plano de vistoria criado para o ativo #${plano.ativoId}`,
       `/ativos/planos/${plano.id}`,
-      session.user.name,
+      session.user.name
     )
 
     return NextResponse.json({ ...plano, ocorrenciasCriadas }, { status: 201 })

@@ -4,10 +4,7 @@ import { db } from "@/lib/db"
 import { crmVisitasLocalizacoes } from "@/lib/db/schema/crm-visitas-localizacoes"
 import { eq, desc } from "drizzle-orm"
 
-export async function GET(
-  _request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function GET(_request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -31,10 +28,7 @@ export async function GET(
   }
 }
 
-export async function POST(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -73,10 +67,7 @@ export async function POST(
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: Promise<{ id: string }> }
-) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
@@ -93,9 +84,7 @@ export async function DELETE(
       return NextResponse.json({ error: "ID da localização inválido" }, { status: 400 })
     }
 
-    await db
-      .delete(crmVisitasLocalizacoes)
-      .where(eq(crmVisitasLocalizacoes.id, localizacaoId))
+    await db.delete(crmVisitasLocalizacoes).where(eq(crmVisitasLocalizacoes.id, localizacaoId))
 
     return NextResponse.json({ success: true })
   } catch (error) {

@@ -18,7 +18,8 @@ export const dashboardContent: Record<string, InfoContent> = {
   },
   "/dashboard": {
     title: "Dashboard Solicitações de Desenvolvimento",
-    description: "Painel principal com métricas e indicadores das solicitações de desenvolvimento. Acompanhe o volume de solicitações criadas no mês, status atuais, distribuição por tipo e tendência mensal.",
+    description:
+      "Painel principal com métricas e indicadores das solicitações de desenvolvimento. Acompanhe o volume de solicitações criadas no mês, status atuais, distribuição por tipo e tendência mensal.",
     rules: [
       "Os dados exibidos refletem o estado atual do banco de dados em tempo real.",
       "O gráfico de tendência mensal mostra os últimos 6 meses.",
@@ -28,7 +29,8 @@ export const dashboardContent: Record<string, InfoContent> = {
   },
   "/dashboard/amostras": {
     title: "Dashboard Amostras de Desenvolvimento",
-    description: "Painel de métricas das amostras de desenvolvimento (tecido cru e acabamento). Acompanhe o total de amostras, aprovações, reprovações e tendência mensal de criação.",
+    description:
+      "Painel de métricas das amostras de desenvolvimento (tecido cru e acabamento). Acompanhe o total de amostras, aprovações, reprovações e tendência mensal de criação.",
     rules: [
       "Amostras são vinculadas a um produto ou a um acabamento.",
       "O status 'APROVADO' indica que a amostra foi validada pelo cliente ou equipe técnica.",
@@ -37,7 +39,8 @@ export const dashboardContent: Record<string, InfoContent> = {
   },
   "/dashboard/relatorios": {
     title: "Relatórios",
-    description: "Central de relatórios gerenciais com métricas e indicadores de desempenho do sistema.",
+    description:
+      "Central de relatórios gerenciais com métricas e indicadores de desempenho do sistema.",
     rules: [
       "Cada relatório possui filtros próprios para refinar a consulta.",
       "Os dados são extraídos em tempo real do banco de dados.",
@@ -46,7 +49,8 @@ export const dashboardContent: Record<string, InfoContent> = {
   },
   "/dashboard/relatorios/amostra-comercial-por-status": {
     title: "Relatório: Amostras Comerciais por Status",
-    description: "Relatório de requisições de amostra comercial filtradas por status, com gráfico mensal e exportação CSV/PDF.",
+    description:
+      "Relatório de requisições de amostra comercial filtradas por status, com gráfico mensal e exportação CSV/PDF.",
     rules: [
       "Selecione um status no filtro para carregar os dados.",
       "Use os filtros de data para restringir o período.",
@@ -55,7 +59,8 @@ export const dashboardContent: Record<string, InfoContent> = {
   },
   "/dashboard/relatorios/atividade-usuario": {
     title: "Atividade por Usuário",
-    description: "Relatório de auditoria com o registro de todas as ações realizadas por cada usuário no sistema.",
+    description:
+      "Relatório de auditoria com o registro de todas as ações realizadas por cada usuário no sistema.",
     rules: [
       "Os logs são gerados automaticamente para ações como deleção, erros, logins e cadastros.",
       "O relatório pode ser filtrado por período, usuário e tipo de ação.",
@@ -64,7 +69,8 @@ export const dashboardContent: Record<string, InfoContent> = {
   },
   "/dashboard/relatorios/solicitacoes-criadas": {
     title: "Solicitações de Desenvolvimento Criadas / Deletadas",
-    description: "Relatório comparativo entre solicitações de desenvolvimento criadas, deletadas e concluídas, com taxa de sucesso.",
+    description:
+      "Relatório comparativo entre solicitações de desenvolvimento criadas, deletadas e concluídas, com taxa de sucesso.",
     rules: [
       "A taxa de sucesso é calculada como (concluídas / total criadas) × 100.",
       "Solicitações deletadas são contabilizadas a partir dos logs do sistema.",
@@ -73,7 +79,8 @@ export const dashboardContent: Record<string, InfoContent> = {
   },
   "/dashboard/relatorios/tempo-status": {
     title: "Tempo em cada Status (Solic. de Desenvolvimento)",
-    description: "Relatório detalhado do tempo que cada solicitação de desenvolvimento permaneceu em cada status do fluxo.",
+    description:
+      "Relatório detalhado do tempo que cada solicitação de desenvolvimento permaneceu em cada status do fluxo.",
     rules: [
       "O cálculo do tempo é baseado no histórico de comunicação da solicitação.",
       "O status atual conta o tempo até o momento presente (se não concluído).",
@@ -82,7 +89,8 @@ export const dashboardContent: Record<string, InfoContent> = {
   },
   "/dashboard/relatorios/tempo-status-amostras": {
     title: "Tempo em cada Status (Amostras de Desenvolvimento)",
-    description: "Relatório de tempo por status específico para amostras de desenvolvimento (tecido cru e acabamento).",
+    description:
+      "Relatório de tempo por status específico para amostras de desenvolvimento (tecido cru e acabamento).",
     rules: [
       "O histórico é extraído da coluna historico (JSONB) de cada amostra.",
       "Amostras sem histórico registrado não aparecem no relatório.",
@@ -93,7 +101,8 @@ export const dashboardContent: Record<string, InfoContent> = {
   // ==================== REQUISIÇÕES DE CORTE ====================
   "/dashboard/requisicoes-corte": {
     title: "Dashboard — Requisições de Corte",
-    description: "Visão geral das requisições de corte (tecido cru): totais, itens solicitados, em processamento e atendidos, com evolução mensal.",
+    description:
+      "Visão geral das requisições de corte (tecido cru): totais, itens solicitados, em processamento e atendidos, com evolução mensal.",
     rules: [
       "Clique em um card para abrir o drill-down com a lista de requisições daquele status.",
       "Os status são: Solicitado → Processando → Atendido.",

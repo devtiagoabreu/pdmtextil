@@ -29,7 +29,8 @@ const faturamentos = [
 
 function buildHandler() {
   return ({ method, url }: { method: string; url: string }) => {
-    if (method === "DELETE" && /^\/api\/crm\/faturamentos\/\d+$/.test(url)) return { json: { success: true } }
+    if (method === "DELETE" && /^\/api\/crm\/faturamentos\/\d+$/.test(url))
+      return { json: { success: true } }
     if (method !== "GET") return { json: null }
 
     const u = new URL(url, "http://localhost")
@@ -37,9 +38,7 @@ function buildHandler() {
       const q = (u.searchParams.get("q") || "").toLowerCase()
       const status = u.searchParams.get("status")
       const filtered = faturamentos.filter(
-        (f) =>
-          (!q || f.numero.toLowerCase().includes(q)) &&
-          (!status || f.status === status)
+        (f) => (!q || f.numero.toLowerCase().includes(q)) && (!status || f.status === status)
       )
       return { json: { data: filtered, total: filtered.length, totalPages: 1 } }
     }
@@ -66,7 +65,10 @@ describe("FaturamentosPage", () => {
     expect(screen.getAllByText("Recebido").length).toBeGreaterThan(0)
     expect(screen.getByText("R$ 1.250,00")).toBeInTheDocument()
     expect(screen.getByText("1-2 de 2 faturamento(s)")).toBeInTheDocument()
-    expect(screen.getByRole("link", { name: "Novo Faturamento" })).toHaveAttribute("href", "/comercial/crm/faturamentos/novo")
+    expect(screen.getByRole("link", { name: "Novo Faturamento" })).toHaveAttribute(
+      "href",
+      "/comercial/crm/faturamentos/novo"
+    )
   })
 
   it("mostra estado vazio quando a API retorna vazio", async () => {
@@ -82,12 +84,18 @@ describe("FaturamentosPage", () => {
     renderPage(<FaturamentosPage />)
     await screen.findByText("NF-001")
 
-    fireEvent.change(screen.getByPlaceholderText("Buscar por número, referência ou oportunidade..."), {
-      target: { value: "NF-002" },
-    })
+    fireEvent.change(
+      screen.getByPlaceholderText("Buscar por número, referência ou oportunidade..."),
+      {
+        target: { value: "NF-002" },
+      }
+    )
 
     await waitFor(
-      () => expect(findCall(fetchMock.calls, "/api/crm/faturamentos?page=1&limit=50&q=NF-002", "GET")).toBeDefined(),
+      () =>
+        expect(
+          findCall(fetchMock.calls, "/api/crm/faturamentos?page=1&limit=50&q=NF-002", "GET")
+        ).toBeDefined(),
       { timeout: 2000 }
     )
     await waitFor(() => expect(screen.queryByText("NF-001")).not.toBeInTheDocument())
@@ -101,7 +109,10 @@ describe("FaturamentosPage", () => {
     fireEvent.change(screen.getByLabelText("Filtrar por status"), { target: { value: "RECEBIDO" } })
 
     await waitFor(
-      () => expect(findCall(fetchMock.calls, "/api/crm/faturamentos?page=1&limit=50&status=RECEBIDO", "GET")).toBeDefined(),
+      () =>
+        expect(
+          findCall(fetchMock.calls, "/api/crm/faturamentos?page=1&limit=50&status=RECEBIDO", "GET")
+        ).toBeDefined(),
       { timeout: 2000 }
     )
   })
@@ -111,14 +122,20 @@ describe("FaturamentosPage", () => {
     await screen.findByText("NF-001")
 
     const row = screen.getByText("NF-001").closest("tr")!
-    const trash = within(row).getAllByRole("button").find((b) => !b.closest("a"))!
+    const trash = within(row)
+      .getAllByRole("button")
+      .find((b) => !b.closest("a"))!
     fireEvent.click(trash)
 
     const dialog = screen.getByRole("dialog", { name: "Excluir faturamento" })
     fireEvent.click(within(dialog).getByRole("button", { name: "Excluir" }))
 
-    await waitFor(() => expect(findCall(fetchMock.calls, "/api/crm/faturamentos/1", "DELETE")).toBeDefined())
-    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Faturamento excluído com sucesso"))
+    await waitFor(() =>
+      expect(findCall(fetchMock.calls, "/api/crm/faturamentos/1", "DELETE")).toBeDefined()
+    )
+    await waitFor(() =>
+      expect(toastMock.success).toHaveBeenCalledWith("Faturamento excluído com sucesso")
+    )
     expect(screen.queryByRole("dialog")).not.toBeInTheDocument()
   })
 })
