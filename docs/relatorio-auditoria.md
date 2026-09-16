@@ -16,7 +16,12 @@ A auditoria levantou itens de **segurança** (autenticação de webhooks, contro
 | — | (mesma rodada) | `b7b290a3` | Acessibilidade (WCAG) em componentes globais |
 | 2 | 16/09 | `d3bf9974`, `5c66398d`, `9dd2d67e` | Segurança de webhooks/rotas admin, conexão de banco, idempotência, Prettier |
 
-**Validação final:** `tsc` sem erros, **278 arquivos / 1.491 testes** passando, `npm run build` OK, `npm run format:check` limpo.
+**Validação final:** `tsc` sem erros, **281 arquivos / 1.513 testes** passando, `npm run build` OK, `npm run format:check` limpo.
+
+> **Decisão do gestor:** **Aprovado com ressalva operacional** — contratar, exigindo a
+> correção do `package-lock.json` e uma instalação limpa verificável como primeiro
+> critério técnico de entrada. O comportamento diante da auditoria pesou a favor.
+> Ver seção "Decisão do gestor" abaixo.
 
 ---
 
@@ -138,11 +143,31 @@ A verificação da inspeção:
 - **Build com placeholders validado**: `npm run build` executado com `.env.local` proveniente de `.env.example` → EXIT 0 (equivale ao passo do CI).
 - **`engines`** adicionado ao `package.json` (`node >=20.9.0`) e `.nvmrc` fixando Node 20.
 
+## Decisão do gestor
+
+**Veredito: Aprovado com ressalva operacional — contratar.**
+
+Correção das rotas de banco considerada **adequada**; o comportamento diante da auditoria
+foi positivo e **pesa a favor** do candidato mais do que o problema residual do lockfile
+pesa contra. Como **primeiro critério técnico de entrada**, exige-se:
+
+1. **`package-lock.json` corrigido/consistente** — verificado: 75 dependências em
+   `package.json` e no lockfile (nada faltando/extra) e `npm install --package-lock-only`
+   regenera o arquivo com **SHA-256 idêntico** ao versionado (estado canônico).
+2. **Instalação limpa verificável** — `npm ci` em clone novo passou (EXIT 0), e agora é
+   validada **continuamente** pelo `.github/workflows/ci.yml` a cada push/PR.
+
+Ambos os critérios já estão atendidos e permanecem **monitoráveis**:
+o CI (`ci.yml`) roda `npm ci` → validações → build em runner vazio, e o resultado fica
+visível na aba **Actions** do repositório.
+
 ---
 
 ## Commits produzidos
 
 ```
+490ede44 ci: workflow de validacao com npm ci em clone limpo + documentos procedimento
+9c0b268e docs: adiciona evidencias ao relatorio (fallback removido, index nos 4 bancos, npm ci limpo)
 69bfc5e5 fix(seguranca): remove fallback de connectionString nas rotas de banco (criar/clonar/redundancia)
 ef1d53d1 docs: relatorio da auditoria do sistema (rodadas 1 e 2 + WCAG)
 9dd2d67e style: formata arquivos restantes com Prettier
