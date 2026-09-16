@@ -177,6 +177,21 @@ export type VistoriaResposta = {
 }
 ```
 
+### 3.6 Reformas — `ativos_reformas`
+
+Investimentos **capitalizáveis** no ativo (CPC 27). Colunas:
+
+- `ativoId int FK` → `ativos` (cascade).
+- `data date` — data da reforma.
+- `valor numeric(12,2)` — custo da reforma/melhorias (opcional).
+- `extensaoVidaUtilAnos int` — **0 = manutenção** (fora do cálculo) | `1..100` =
+  **capitaliza**: soma ao custo e reativa a depreciação sobre a nova vida útil.
+- `motivo varchar(200)` (opcional), `descricao text` (opcional).
+- `createdById int FK` → `usuarios`, `createdAt timestamptz`.
+
+Índice regular `idx_ativos_reformas_ativo_id` (não-unique — permitem-se várias reformas
+na mesma data).
+
 ---
 
 ## 4. Regras de negócio
@@ -214,6 +229,24 @@ Lógica em `src/lib/ativos/agendamento.ts` (teste unitário em
   pré-quarentena, auditoria externa.
 - Aprovar/negar item, anexar fotos/laudos e registrar custo são opções na execução.
 
+### 4.4 Depreciação e reformas (CPC 27)
+
+Lógica em `src/lib/ativos/depreciacao.ts`; o controle é exibido na **ficha do ativo**
+(`/ativos/ativos/[id]`), onde as **reformas** também são cadastradas.
+
+- Depreciação **linha reta**: `base = valorAquisicao - valorResidual`, rateio por
+  `vidaUtilAnos` (mensal e anual). Não há colunas de depreciação no banco — o cálculo é
+  **derivado** e exibe: depreciação acumulada, percentual, projeção de lançamentos
+  (`dataFim`, `lancamentos`) e a situação na data de referência.
+- **Reforma capitalizável** (`ativos_reformas`): quando `extensaoVidaUtilAnos > 0` e
+  `data >= dataAquisicao`, a reforma **soma ao custo** (base) e reativa a depreciação
+  sobre a nova vida útil (`dataFim` recalculada).
+- `extensaoVidaUtilAnos = 0` = **manutenção**: entra só como histórico, fora do cálculo.
+- Reforma **futura** não distorce a situação em datas anteriores de referência, mas conta
+  na projeção/fim da vida útil.
+- Ativo **100% depreciado** volta a depreciar ao registrar uma reforma capitalizável
+  (a ficha mostra um aviso enquanto o ativo estiver totalmente depreciado).
+
 ---
 
 ## 5. Telas / URLs
@@ -228,7 +261,7 @@ middleware; o matcher ganha `/ativos`).
 | `/ativos/ativos` | Lista de ativos | Busca por código/nome/marca/n° série; filtros por categoria/status/setor |
 | `/ativos/ativos/novo` | Form novo | 
 | `/ativos/ativos/[id]/editar` | Form edição |
-| `/ativos/ativos/[id]` | Ficha do ativo | Dados + planos de vistoria + **histórico** de vistorias |
+| `/ativos/ativos/[id]` | Ficha do ativo | Dados + planos de vistoria + **histórico** de vistorias + **controle de depreciação** (acumulada, percentual, fim da vida útil) + **reformas** (tabela + form inline) |
 | `/ativos/categorias` | Categorias | CRUD simples |
 | `/ativos/tipos-vistoria` | Tipos de vistoria | Lista com badge de periodicidade e base legal |
 | `/ativos/tipos-vistoria/novo`, `[id]/editar` | Form tipo | **Editor de checklist** (lista de itens: pergunta + tipo + obrigatório) |
@@ -259,6 +292,8 @@ nos POST/PUT/DELETE.
 | `/api/ativos/planos/[id]/gerar` | POST | Regera ocorrências do plano (idempotente) |
 | `/api/ativos/vistorias` | GET, POST | GET filtros: `status`, `setor`, `atrasadas`, `proximas`, `ativoId`; POST manual |
 | `/api/ativos/vistorias/[id]` | GET, PUT | PUT executa/conclui (checklist, resultado, datas) |
+| `/api/ativos/[id]/reformas` | GET, POST | GET lista reformas do ativo; POST cria (valida ativo, role p/ excluir) |
+| `/api/ativos/[id]/reformas/[reformaId]` | PUT, DELETE | Atualiza/exclui reforma (DELETE: ADMIN/SUDO + `notificarDelecao`) |
 | `/api/ativos/dashboard` | GET | Resumo: totais, pendentes, atrasadas, concluídas mês, compliance por setor, próximas |
 | `/api/ativos/vistorias/download` | GET | (opcional) export CSV/XLSX via `ExportarDados` no client |
 
@@ -277,6 +312,8 @@ Regras:
 - `ativoCategoriaSchema` — `nome` (min 2), `setor` (enum), `descricao` opcional.
 - `ativoSchema` — `codigo` (regex sensata), `nome`, `categoriaId` (int+), `status` enum,
   numéricos/técnicos opcionais, `maquinaId`/`responsavelId` ints opcionais.
+- `ativoReformaSchema` — `ativoId` opcional (a rota força o id do path), `data` date,
+  `valor` positivo opcional, `extensaoVidaUtilAnos` int 0–100, `motivo`/`descricao` opcionais.
 - `tipoVistoriaSchema` — `nome`, `setor` enum, `periodicidade` enum; se `OUTRA`
   → `diasIntervalo` obrigatório; `checklist` = array de `VistoriaItemTemplate` validado
   item a item.
@@ -324,9 +361,13 @@ Neon.
 | Cobertura | Arquivo | Estratégia |
 |---|---|---|
 | Lógica de agendamento | `src/lib/ativos/agendamento.test.ts` | Unitário puro (node) |
+| Depreciação e reformas | `src/lib/ativos/depreciacao.test.ts` | Unitário puro (node) |
 | Categorias (lista) | `ativos/categorias/page.test.tsx` | `listPageSpec` |
 | Categorias (form) | `.../categorias/form.test.tsx` | `formPageSpec` |
 | Ativos (lista) | `ativos/ativos/page.test.tsx` | `listPageSpec` |
+| Ficha/form do ativo (incl. reformas) | `ativos/ativos/[id]/form.test.tsx` | Custom (jsdom, `createFetchMock`) |
+| API reformas (lista/criar) | `src/app/api/ativos/[id]/reformas/route.test.ts` | Custom (route + db mock) |
+| API reformas (editar/excluir) | `.../reformas/[reformaId]/route.test.ts` | Custom (route + db mock) |
 | Tipos de vistoria (form com checklist) | `.../tipos-vistoria/form.test.tsx` | Custom (jsdom, `createFetchMock`) |
 | Agenda de vistorias | `ativos/vistorias/page.test.tsx` | Custom (jsdom): filtros, atrasada, executar checklist |
 | Dashboard | `ativos/dashboard/page.test.tsx` | Custom (jsdom) |
@@ -341,7 +382,8 @@ Critério de aceite: suíte completa verde — `npm run test`.
 - **Não conformidade → ação corretiva / ordem de serviço** com responsável, prazo, custo.
 - **Ordens de serviço corretivas avulsas** e integração com estoque de peças.
 - **QR code** colado no ativo abrindo a ficha/vistoria no mobile.
-- **Depreciação contábil** simples (custo → residual por vida útil) e export Excel/PDF.
+- **Depreciação** — export Excel/PDF do controle já implementado (cálculo pronto).
+- **Reavaliação/baixa por impairment** e depreciação por unidade produzida.
 - Integração com `proc_sites`/`proc_areas` da Engenharia de Processos.
 
 ---

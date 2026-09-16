@@ -79,6 +79,13 @@ Sistema de gestão de desenvolvimento de produtos têxteis (PDM — Product Deve
   - Receitas de beneficiamento versionadas
 - **Receitas** — receitas de beneficiamento com itens, estágios, produtos químicos, versionamento, duplicação
 
+### Módulo Ativos e Vistorias
+- **Ativos** — cadastro do ativo imobilizado: código único, nome, categoria (com setor responsável), localização, fabricante/modelo/nº de série, status (ATIVO, MANUTENÇÃO, INATIVO, BAIXADO) e máquina opcional
+- **Controle de Depreciação** — cálculo automático (linha reta): base depreciável, depreciação mensal/anual, acumulada, percentual depreciado, projeção anual de lançamentos e fim estimado da vida útil
+- **Reformas (CPC 27)** — reforma que estende a vida útil ou amplia a capacidade é **capitalizada**: soma ao custo e reativa a depreciação sobre a nova vida útil; manutenção rotineira (extensão 0) fica fora do cálculo; ativo totalmente depreciado volta a depreciar ao registrar uma reforma capitalizável
+- **Vistorias periódicas** — tipos de vistoria (checklist, periodicidade e base legal) → planos (ativo × tipo) → ocorrências agendadas com janela de 12 meses e alerta de atrasadas
+- **Dashboard de Ativos** — indicadores do parque: vistorias atrasadas/próximas/concluídas, canceladas e ativos por status
+
 ### Chat Corporativo
 - **Chat por Entidade** — conversas vinculadas a solicitações ou produtos
 - **Mensagens com @mention** — autocomplete de todos os usuários ativos, com suporte a acentos, destaque visual nas bolhas
@@ -189,6 +196,7 @@ src/
 │   │   │   ├── whatsapp-chat/       # Chat WhatsApp
 │   │   │   └── whatsapp-catalogos/  # Catálogos de produtos
 │   │   ├── amostras/          # Listagem e kanban de amostras
+│   │   ├── ativos/            # Ativos, vistorias, planos, categorias e dashboard
 │   │   ├── bi/                # Módulo BI (Google Sheets)
 │   │   ├── cadastros/         # Fios, cores, estampas, produtos, receitas...
 │   │   ├── chat/              # Chat corporativo
@@ -301,6 +309,10 @@ src/
   produtos_cru, produto_cru_composicao, produto_cru_estrutura,
   produto_cru_amostra, produto_cru_acabamento,
   produto_cru_receita, produto_cru_receita_item
+
+🏭 Ativos e Vistorias
+  ativos_categorias, ativos, ativos_tipos_vistoria,
+  ativos_planos_vistoria, ativos_vistorias, ativos_reformas
 
 🧪 Receitas de Beneficiamento
   receitas, receita_itens
