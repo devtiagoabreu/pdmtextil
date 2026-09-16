@@ -12,20 +12,21 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const { sourceBancoId, targetBancoId, sourceConnString, targetConnString, sourceDb, targetDb } =
-      await req.json()
-    const sourceResolvida = sourceBancoId
-      ? await resolverConnectionString(Number(sourceBancoId))
-      : (sourceConnString ?? null)
-    const targetResolvida = targetBancoId
-      ? await resolverConnectionString(Number(targetBancoId))
-      : (targetConnString ?? null)
-    if (!sourceResolvida || !targetResolvida || !sourceDb || !targetDb) {
+    const { sourceBancoId, targetBancoId, sourceDb, targetDb } = await req.json()
+    if (!sourceBancoId || !targetBancoId || !sourceDb || !targetDb) {
       return NextResponse.json(
         {
-          error:
-            "sourceBancoId/targetBancoId (ou connection strings), sourceDb e targetDb são obrigatórios",
+          error: "sourceBancoId, targetBancoId, sourceDb e targetDb são obrigatórios",
         },
+        { status: 400 }
+      )
+    }
+
+    const sourceResolvida = await resolverConnectionString(Number(sourceBancoId))
+    const targetResolvida = await resolverConnectionString(Number(targetBancoId))
+    if (!sourceResolvida || !targetResolvida) {
+      return NextResponse.json(
+        { error: "Conexão não encontrada para um dos bancoIds informados" },
         { status: 400 }
       )
     }

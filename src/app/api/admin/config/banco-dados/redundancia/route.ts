@@ -15,25 +15,25 @@ export async function POST(req: NextRequest) {
     const {
       primaryBancoId,
       standbyBancoId,
-      primaryConnString,
-      standbyConnString,
       publicationName,
       subscriptionName,
       primaryDb,
       standbyDb,
     } = await req.json()
-    const primaryResolvida = primaryBancoId
-      ? await resolverConnectionString(Number(primaryBancoId))
-      : (primaryConnString ?? null)
-    const standbyResolvida = standbyBancoId
-      ? await resolverConnectionString(Number(standbyBancoId))
-      : (standbyConnString ?? null)
-    if (!primaryResolvida || !standbyResolvida || !primaryDb || !standbyDb) {
+    if (!primaryBancoId || !standbyBancoId || !primaryDb || !standbyDb) {
       return NextResponse.json(
         {
-          error:
-            "primaryBancoId/standbyBancoId (ou connection strings), primaryDb e standbyDb são obrigatórios",
+          error: "primaryBancoId, standbyBancoId, primaryDb e standbyDb são obrigatórios",
         },
+        { status: 400 }
+      )
+    }
+
+    const primaryResolvida = await resolverConnectionString(Number(primaryBancoId))
+    const standbyResolvida = await resolverConnectionString(Number(standbyBancoId))
+    if (!primaryResolvida || !standbyResolvida) {
+      return NextResponse.json(
+        { error: "Conexão não encontrada para um dos bancoIds informados" },
         { status: 400 }
       )
     }

@@ -12,13 +12,18 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Não autorizado" }, { status: 401 })
     }
 
-    const { bancoId, connectionString, dbName } = await req.json()
-    const resolvida = bancoId
-      ? await resolverConnectionString(Number(bancoId))
-      : (connectionString ?? null)
-    if (!resolvida || !dbName) {
+    const { bancoId, dbName } = await req.json()
+    if (!bancoId || !dbName) {
       return NextResponse.json(
-        { error: "bancoId (ou connectionString) e dbName são obrigatórios" },
+        { error: "bancoId e dbName são obrigatórios" },
+        { status: 400 }
+      )
+    }
+
+    const resolvida = await resolverConnectionString(Number(bancoId))
+    if (!resolvida) {
+      return NextResponse.json(
+        { error: "Conexão não encontrada para o bancoId informado" },
         { status: 400 }
       )
     }
