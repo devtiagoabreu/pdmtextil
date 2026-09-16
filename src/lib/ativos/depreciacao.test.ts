@@ -131,6 +131,110 @@ describe("calcularDepreciacao", () => {
     expect(r.deprecia).toBe(true)
     expect(r.valorAquisicao).toBe(12000)
   })
+
+  it("não é afetado por uma lista de reformas vazia", () => {
+    const r = calcularDepreciacao({
+      valorAquisicao: 12000,
+      valorResidual: 2000,
+      vidaUtilAnos: 5,
+      dataAquisicao: "2024-01-01",
+      dataReferencia: REF,
+      reformas: [],
+    })
+    expect(r.depreciacaoAcumulada).toBeCloseTo(5333.33, 2)
+    expect(r.custoTotal).toBe(12000)
+    expect(r.valorReformas).toBe(0)
+    expect(r.vidaUtilAnosTotal).toBe(5)
+    expect(r.dataFim).toBe("2028-12-31")
+  })
+})
+
+describe("calcularDepreciacao com reformas", () => {
+  const BASE = {
+    valorAquisicao: 12000,
+    valorResidual: 2000,
+    vidaUtilAnos: 5,
+    dataAquisicao: "2024-01-01",
+    dataReferencia: "2026-09-01",
+  }
+
+  it("capitaliza reforma que estende a vida útil e recalcula a depreciação", () => {
+    const r = calcularDepreciacao({
+      ...BASE,
+      reformas: [{ data: "2026-07-01", valor: 3000, extensaoVidaUtilAnos: 2 }],
+    })
+    expect(r.deprecia).toBe(true)
+    expect(r.custoTotal).toBe(15000)
+    expect(r.valorReformas).toBe(3000)
+    expect(r.vidaUtilAnosTotal).toBe(7)
+    expect(r.baseDepreciavel).toBe(13000)
+    expect(r.mesesVidaUtil).toBe(84)
+    // 30 meses originais (jan/2024-jun/2026) + 2 meses pós-reforma até a referência
+    expect(r.mesesDecorridos).toBe(32)
+    expect(r.depreciacaoAcumulada).toBeCloseTo(5296.3, 1)
+    expect(r.valorContabil).toBeCloseTo(9703.7, 1)
+    expect(r.faltanteDepreciar).toBeCloseTo(7703.7, 1)
+    expect(r.totalmenteDepreciado).toBe(false)
+    expect(r.dataFim).toBe("2030-12-31")
+  })
+
+  it("reforma sem extensão de vida é manutenção e não entra no cálculo", () => {
+    const r = calcularDepreciacao({
+      ...BASE,
+      reformas: [{ data: "2026-07-01", valor: 3000, extensaoVidaUtilAnos: 0 }],
+    })
+    expect(r.custoTotal).toBe(12000)
+    expect(r.valorReformas).toBe(0)
+    expect(r.vidaUtilAnosTotal).toBe(5)
+    expect(r.depreciacaoAcumulada).toBeCloseTo(5333.33, 2)
+    expect(r.valorContabil).toBeCloseTo(6666.67, 2)
+    expect(r.dataFim).toBe("2028-12-31")
+  })
+
+  it("revigora ativo totalmente depreciado com reforma capitalizável", () => {
+    const r = calcularDepreciacao({
+      valorAquisicao: 12000,
+      valorResidual: 2000,
+      vidaUtilAnos: 2,
+      dataAquisicao: "2020-01-01",
+      dataReferencia: "2026-09-01",
+      reformas: [{ data: "2025-06-15", valor: 50000, extensaoVidaUtilAnos: 4 }],
+    })
+    expect(r.totalmenteDepreciado).toBe(false)
+    expect(r.custoTotal).toBe(62000)
+    expect(r.valorReformas).toBe(50000)
+    expect(r.vidaUtilAnosTotal).toBe(6)
+    // 24 meses originais + 15 meses após a reforma (jun/2025-ago/2026)
+    expect(r.depreciacaoAcumulada).toBe(25625)
+    expect(r.valorContabil).toBe(36375)
+    expect(r.dataFim).toBe("2029-05-31")
+  })
+
+  it("reforma futura não afeta a situação atual mas estende a projeção", () => {
+    const r = calcularDepreciacao({
+      ...BASE,
+      reformas: [{ data: "2028-01-01", valor: 3000, extensaoVidaUtilAnos: 2 }],
+    })
+    expect(r.custoTotal).toBe(12000)
+    expect(r.valorReformas).toBe(0)
+    expect(r.vidaUtilAnosTotal).toBe(5)
+    expect(r.depreciacaoAcumulada).toBeCloseTo(5333.33, 2)
+    expect(r.totalmenteDepreciado).toBe(false)
+    expect(r.dataFim).toBe("2030-12-31")
+  })
+
+  it("ignora reforma anterior à data de aquisição e valores negativos", () => {
+    const r = calcularDepreciacao({
+      ...BASE,
+      reformas: [
+        { data: "2023-01-01", valor: 9000, extensaoVidaUtilAnos: 3 },
+        { data: "2026-07-01", valor: -500, extensaoVidaUtilAnos: -1 },
+      ],
+    })
+    expect(r.valorReformas).toBe(0)
+    expect(r.vidaUtilAnosTotal).toBe(5)
+    expect(r.depreciacaoAcumulada).toBeCloseTo(5333.33, 2)
+  })
 })
 
 describe("formatadores", () => {

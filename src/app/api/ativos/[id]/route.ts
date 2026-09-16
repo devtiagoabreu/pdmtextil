@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { ativos, ativoCategorias } from "@/lib/db/schema/ativos"
+import { ativos, ativoCategorias, ativosReformas } from "@/lib/db/schema/ativos"
 import { maquinas } from "@/lib/db/schema/maqoper"
 import { usuarios } from "@/lib/db/schema/usuarios"
-import { eq } from "drizzle-orm"
+import { eq, asc } from "drizzle-orm"
 import { registrarLog, notificarDelecao } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
 import { validateRequest } from "@/lib/validation"
@@ -54,7 +54,23 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       return NextResponse.json({ error: "Ativo não encontrado" }, { status: 404 })
     }
 
-    return NextResponse.json(registro)
+    const reformas = await db
+      .select({
+        id: ativosReformas.id,
+        ativoId: ativosReformas.ativoId,
+        data: ativosReformas.data,
+        valor: ativosReformas.valor,
+        extensaoVidaUtilAnos: ativosReformas.extensaoVidaUtilAnos,
+        motivo: ativosReformas.motivo,
+        descricao: ativosReformas.descricao,
+        createdAt: ativosReformas.createdAt,
+        updatedAt: ativosReformas.updatedAt,
+      })
+      .from(ativosReformas)
+      .where(eq(ativosReformas.ativoId, registro.id))
+      .orderBy(asc(ativosReformas.data))
+
+    return NextResponse.json({ ...registro, reformas })
   } catch (error) {
     console.error("[GET /api/ativos/[id]]", error)
     return NextResponse.json({ error: "Erro interno do servidor" }, { status: 500 })

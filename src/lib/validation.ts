@@ -366,6 +366,15 @@ export const ativoPlanoVistoriaSchema = z.object({
   ativo: z.boolean().optional(),
 })
 
+export const ativoReformaSchema = z.object({
+  ativoId: z.number().int().positive().optional(),
+  data: z.string().min(1, "Data é obrigatória"),
+  valor: z.number().positive("Valor deve ser positivo").optional().nullable(),
+  extensaoVidaUtilAnos: z.number().int().min(0).max(100).optional().nullable(),
+  motivo: z.string().trim().max(200).optional().nullable(),
+  descricao: z.string().optional().nullable(),
+})
+
 export const vistoriaConclusaoSchema = z.object({
   status: z.enum(["CONCLUIDA", "NAO_CONFORME", "CANCELADA"]),
   dataRealizada: z.string().optional(),

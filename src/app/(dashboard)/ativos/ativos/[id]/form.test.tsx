@@ -34,8 +34,49 @@ function mockHandler({ method, url }: { method: string; url: string }) {
         responsavelId: 5,
         observacoes: null,
         ativo: true,
+        reformas: [
+          {
+            id: 41,
+            ativoId: 3,
+            data: "2025-06-15",
+            valor: "3000",
+            extensaoVidaUtilAnos: 2,
+            motivo: "Beneficiamento",
+            descricao: null,
+            createdAt: "2025-06-15T00:00:00.000Z",
+            updatedAt: "2025-06-15T00:00:00.000Z",
+          },
+        ],
       },
     }
+  }
+  if (method === "POST" && url === "/api/ativos/3/reformas") {
+    return {
+      status: 201,
+      json: {
+        id: 42,
+        data: "2026-07-01",
+        valor: "1500",
+        extensaoVidaUtilAnos: 1,
+        motivo: "Pintura",
+        descricao: null,
+      },
+    }
+  }
+  if (method === "PUT" && url === "/api/ativos/3/reformas/41") {
+    return {
+      json: {
+        id: 41,
+        data: "2025-06-15",
+        valor: "3500",
+        extensaoVidaUtilAnos: 2,
+        motivo: "Beneficiamento",
+        descricao: null,
+      },
+    }
+  }
+  if (method === "DELETE" && url === "/api/ativos/3/reformas/41") {
+    return { json: { success: true } }
   }
   if (method === "POST" && url === "/api/ativos") return { status: 201, json: { id: 9 } }
   if (method === "PUT" && url === "/api/ativos/3") return { json: { ok: true } }
@@ -130,7 +171,8 @@ describe("AtivoFormPage", () => {
       })
 
       await screen.findByText("Controle de Depreciação")
-      expect(screen.getByText("R$ 10.000,00")).toBeInTheDocument()
+      const valoresBase = screen.getAllByText("R$ 10.000,00")
+      expect(valoresBase.length).toBeGreaterThanOrEqual(2)
       expect(screen.getByText("Projeção anual")).toBeInTheDocument()
     })
   })
@@ -155,14 +197,65 @@ describe("AtivoFormPage", () => {
 
       fireEvent.click(screen.getByRole("button", { name: "Atualizar" }))
 
-      await waitFor(() =>
-        expect(findCall(fetchMock.calls, "/api/ativos/3", "PUT")).toBeDefined()
-      )
+      await waitFor(() => expect(findCall(fetchMock.calls, "/api/ativos/3", "PUT")).toBeDefined())
       const call = findCall(fetchMock.calls, "/api/ativos/3", "PUT")
       expect(call?.body?.responsavelId).toBe(5)
       expect(call?.body?.valorAquisicao).toBe(12000)
       await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Ativo atualizado!"))
       expect(navMock.router.push).toHaveBeenCalledWith("/ativos/ativos")
+    })
+
+    it("lista reformas existentes e mostra o custo total no controle de depreciação", async () => {
+      vi.stubGlobal("fetch", createFetchMock(mockHandler).fn)
+      renderPage(<AtivoFormPage />)
+
+      await screen.findByDisplayValue("EXT-003")
+      await screen.findByText("Reformas")
+      expect(screen.getByText("15/06/2025")).toBeInTheDocument()
+      expect(screen.getByText("Beneficiamento")).toBeInTheDocument()
+      await screen.findByText(/Custo total:/)
+      expect(screen.getByText("R$ 15.000,00")).toBeInTheDocument()
+    })
+
+    it("registra uma nova reforma via POST", async () => {
+      const fetchMock = createFetchMock(mockHandler)
+      vi.stubGlobal("fetch", fetchMock.fn)
+      renderPage(<AtivoFormPage />)
+
+      await screen.findByDisplayValue("EXT-003")
+      fireEvent.change(screen.getByLabelText("Data"), { target: { value: "2026-07-01" } })
+      fireEvent.change(screen.getByLabelText("Valor (R$)"), { target: { value: "1500" } })
+      fireEvent.change(screen.getByLabelText("Extensão de vida (anos)"), {
+        target: { value: "1" },
+      })
+      fireEvent.change(screen.getByLabelText("Motivo"), { target: { value: "Pintura" } })
+
+      fireEvent.click(screen.getByRole("button", { name: "Registrar reforma" }))
+
+      await waitFor(() =>
+        expect(findCall(fetchMock.calls, "/api/ativos/3/reformas", "POST")).toBeDefined()
+      )
+      const call = findCall(fetchMock.calls, "/api/ativos/3/reformas", "POST")
+      expect(call?.body?.data).toBe("2026-07-01")
+      expect(call?.body?.valor).toBe(1500)
+      expect(call?.body?.extensaoVidaUtilAnos).toBe(1)
+      expect(call?.body?.motivo).toBe("Pintura")
+      await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Reforma registrada!"))
+    })
+
+    it("exclui uma reforma via DELETE", async () => {
+      const fetchMock = createFetchMock(mockHandler)
+      vi.stubGlobal("fetch", fetchMock.fn)
+      renderPage(<AtivoFormPage />)
+
+      await screen.findByDisplayValue("EXT-003")
+      await screen.findByText("15/06/2025")
+      fireEvent.click(screen.getByRole("button", { name: "Excluir" }))
+
+      await waitFor(() =>
+        expect(findCall(fetchMock.calls, "/api/ativos/3/reformas/41", "DELETE")).toBeDefined()
+      )
+      await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Reforma excluída!"))
     })
   })
 })

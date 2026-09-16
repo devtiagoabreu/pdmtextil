@@ -901,6 +901,20 @@ CREATE INDEX IF NOT EXISTS idx_ativos_vistorias_status ON ativos_vistorias (stat
 CREATE INDEX IF NOT EXISTS idx_ativos_vistorias_data_programada ON ativos_vistorias (data_programada);
 CREATE INDEX IF NOT EXISTS idx_ativos_vistorias_ativo_id ON ativos_vistorias (ativo_id);
 
+CREATE TABLE IF NOT EXISTS ativos_reformas (
+  id SERIAL PRIMARY KEY,
+  ativo_id INTEGER NOT NULL REFERENCES ativos(id) ON DELETE CASCADE,
+  data DATE NOT NULL,
+  valor NUMERIC(12, 2),
+  extensao_vida_util_anos INTEGER,
+  motivo VARCHAR(200),
+  descricao TEXT,
+  created_at TIMESTAMP DEFAULT now(),
+  updated_at TIMESTAMP DEFAULT now()
+);
+
+CREATE INDEX IF NOT EXISTS idx_ativos_reformas_ativo_id ON ativos_reformas (ativo_id);
+
 -- setor -> area_id (FK proc_areas) em ativos_categorias/ativos_tipos_vistoria (bases existentes)
 ALTER TABLE ativos_categorias ADD COLUMN IF NOT EXISTS area_id INTEGER REFERENCES proc_areas(id) ON DELETE NO ACTION;
 ALTER TABLE ativos_tipos_vistoria ADD COLUMN IF NOT EXISTS area_id INTEGER REFERENCES proc_areas(id) ON DELETE NO ACTION;

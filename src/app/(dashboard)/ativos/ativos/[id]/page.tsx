@@ -76,6 +76,24 @@ const INITIAL: Ativo = {
   ativo: true,
 }
 
+type AtivoReformaItem = {
+  id: number | null
+  data: string
+  valor: string
+  extensaoVidaUtilAnos: string
+  motivo: string
+  descricao: string
+}
+
+const REFORMA_VAZIA: AtivoReformaItem = {
+  id: null,
+  data: "",
+  valor: "",
+  extensaoVidaUtilAnos: "",
+  motivo: "",
+  descricao: "",
+}
+
 export default function AtivoFormPage() {
   const params = useParams()
   const router = useRouter()
@@ -86,6 +104,9 @@ export default function AtivoFormPage() {
 
   const [ativo, setAtivo] = useState<Ativo>(INITIAL)
   const [saving, setSaving] = useState(false)
+  const [reformas, setReformas] = useState<AtivoReformaItem[]>([])
+  const [reformaForm, setReformaForm] = useState<AtivoReformaItem>(REFORMA_VAZIA)
+  const [salvandoReforma, setSalvandoReforma] = useState(false)
 
   const { data: categorias = [] } = useQuery<Categoria[]>({
     queryKey: ["ativos-categorias"],
@@ -105,7 +126,9 @@ export default function AtivoFormPage() {
     },
   })
 
-  const { data: ativoData, isLoading: loading } = useQuery<Partial<Ativo>>({
+  const { data: ativoData, isLoading: loading } = useQuery<
+    Partial<Ativo> & { reformas?: AtivoReformaItem[] }
+  >({
     queryKey: ["ativos-ativo", id],
     queryFn: async () => {
       const res = await fetch(`/api/ativos/${id}`)
@@ -137,6 +160,17 @@ export default function AtivoFormPage() {
         observacoes: ativoData.observacoes || "",
         ativo: ativoData.ativo ?? true,
       })
+      const reformasApi = ativoData?.reformas
+      if (reformasApi) {
+        setReformas(
+          reformasApi.map((r) => ({
+            ...r,
+            valor: r.valor != null ? String(r.valor) : "",
+            extensaoVidaUtilAnos:
+              r.extensaoVidaUtilAnos != null ? String(r.extensaoVidaUtilAnos) : "",
+          }))
+        )
+      }
     }
   }, [ativoData])
 
@@ -203,6 +237,89 @@ export default function AtivoFormPage() {
 
   const handleChange = (field: keyof Ativo, value: string | boolean) => {
     setAtivo((prev) => ({ ...prev, [field]: value }))
+  }
+
+  const reformasCalculo = reformas
+    .filter((r) => r.data && r.extensaoVidaUtilAnos && parseInt(r.extensaoVidaUtilAnos, 10) > 0)
+    .map((r) => ({
+      data: r.data,
+      valor: r.valor ? Number(r.valor) : 0,
+      extensaoVidaUtilAnos: parseInt(r.extensaoVidaUtilAnos, 10) || 0,
+    }))
+
+  const salvarReforma = async () => {
+    if (!reformaForm.data) {
+      toast.error("Informe a data da reforma")
+      return
+    }
+    if (!id) return
+    setSalvandoReforma(true)
+    try {
+      const url = reformaForm.id
+        ? `/api/ativos/${id}/reformas/${reformaForm.id}`
+        : `/api/ativos/${id}/reformas`
+      const method = reformaForm.id ? "PUT" : "POST"
+      const body = {
+        data: reformaForm.data,
+        valor: reformaForm.valor ? Number(reformaForm.valor) : null,
+        extensaoVidaUtilAnos: reformaForm.extensaoVidaUtilAnos
+          ? parseInt(reformaForm.extensaoVidaUtilAnos, 10)
+          : null,
+        motivo: reformaForm.motivo || null,
+        descricao: reformaForm.descricao || null,
+      }
+      const res = await fetch(url, {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      })
+      if (res.ok) {
+        const nova = await res.json()
+        toast.success(reformaForm.id ? "Reforma atualizada!" : "Reforma registrada!")
+        const normalizada: AtivoReformaItem = {
+          id: nova.id ?? null,
+          data: nova.data || "",
+          valor: nova.valor != null ? String(nova.valor) : "",
+          extensaoVidaUtilAnos:
+            nova.extensaoVidaUtilAnos != null ? String(nova.extensaoVidaUtilAnos) : "",
+          motivo: nova.motivo || "",
+          descricao: nova.descricao || "",
+        }
+        setReformas((prev) => {
+          if (reformaForm.id) {
+            return prev.map((r) => (r.id === normalizada.id ? normalizada : r))
+          }
+          return [...prev, normalizada]
+        })
+        setReformaForm(REFORMA_VAZIA)
+      } else {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao salvar reforma")
+      }
+    } catch (error: unknown) {
+      console.error(error)
+      toast.error(error instanceof Error ? error.message : "Erro ao salvar reforma")
+    } finally {
+      setSalvandoReforma(false)
+    }
+  }
+
+  const excluirReforma = async (reforma: AtivoReformaItem) => {
+    if (!reforma.id || !id) return
+    if (!window.confirm(`Excluir reforma de ${formatarDataISO(reforma.data)}?`)) return
+    try {
+      const res = await fetch(`/api/ativos/${id}/reformas/${reforma.id}`, { method: "DELETE" })
+      if (res.ok) {
+        toast.success("Reforma excluída!")
+        setReformas((prev) => prev.filter((r) => r.id !== reforma.id))
+      } else {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao excluir reforma")
+      }
+    } catch (error: unknown) {
+      console.error(error)
+      toast.error(error instanceof Error ? error.message : "Erro ao excluir reforma")
+    }
   }
 
   if (loading) {
@@ -453,112 +570,321 @@ export default function AtivoFormPage() {
           </div>
         </div>
 
-        {ativo.valorAquisicao && ativo.vidaUtilAnos && (() => {
-          const calc = calcularDepreciacao({
-            valorAquisicao: Number(ativo.valorAquisicao),
-            valorResidual: ativo.valorResidual ? Number(ativo.valorResidual) : 0,
-            vidaUtilAnos: parseInt(ativo.vidaUtilAnos, 10) || 0,
-            dataAquisicao: ativo.dataAquisicao || null,
-            dataReferencia: new Date(),
-          })
-          return (
-            <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 p-5 space-y-4">
-              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
-                Controle de Depreciação
-              </h3>
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 text-sm">
-                <div>
-                  <span className="text-slate-500 dark:text-slate-400 block">Base depreciável</span>
-                  <span className="font-medium">{formatarMoeda(calc.baseDepreciavel)}</span>
+        {ativo.valorAquisicao &&
+          ativo.vidaUtilAnos &&
+          (() => {
+            const calc = calcularDepreciacao({
+              valorAquisicao: Number(ativo.valorAquisicao),
+              valorResidual: ativo.valorResidual ? Number(ativo.valorResidual) : 0,
+              vidaUtilAnos: parseInt(ativo.vidaUtilAnos, 10) || 0,
+              dataAquisicao: ativo.dataAquisicao || null,
+              dataReferencia: new Date(),
+              reformas: reformasCalculo,
+            })
+            return (
+              <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 p-5 space-y-4">
+                <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">
+                  Controle de Depreciação
+                </h3>
+                {calc.valorReformas > 0 && (
+                  <div className="text-xs text-slate-600 dark:text-slate-300 flex flex-wrap gap-x-4 gap-y-1">
+                    <span>
+                      Custo total:{" "}
+                      <span className="font-medium">{formatarMoeda(calc.custoTotal)}</span>
+                    </span>
+                    <span>
+                      Reformas capitalizadas:{" "}
+                      <span className="font-medium">{formatarMoeda(calc.valorReformas)}</span>
+                    </span>
+                    <span>
+                      Vida útil total:{" "}
+                      <span className="font-medium">
+                        {calc.vidaUtilAnos} → {calc.vidaUtilAnosTotal} anos
+                      </span>
+                    </span>
+                  </div>
+                )}
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-4 text-sm">
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400 block">
+                      Base depreciável
+                    </span>
+                    <span className="font-medium">{formatarMoeda(calc.baseDepreciavel)}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400 block">
+                      Depreciação mensal
+                    </span>
+                    <span className="font-medium">{formatarMoeda(calc.depreciacaoMensal)}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400 block">
+                      Depreciação anual
+                    </span>
+                    <span className="font-medium">{formatarMoeda(calc.depreciacaoAnual)}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400 block">Vida útil</span>
+                    <span className="font-medium">
+                      {calc.mesesVidaUtil} meses ({calc.vidaUtilAnos} anos)
+                    </span>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-slate-500 dark:text-slate-400 block">Depreciação mensal</span>
-                  <span className="font-medium">{formatarMoeda(calc.depreciacaoMensal)}</span>
+                <div className="grid grid-cols-2 gap-4 sm:grid-cols-5 text-sm border-t border-slate-200 dark:border-slate-700 pt-4">
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400 block">Acumulada</span>
+                    <span className="font-semibold text-blue-700 dark:text-blue-400">
+                      {formatarMoeda(calc.depreciacaoAcumulada)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400 block">Faltante</span>
+                    <span className="font-medium">{formatarMoeda(calc.faltanteDepreciar)}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400 block">Valor contábil</span>
+                    <span className="font-semibold">{formatarMoeda(calc.valorContabil)}</span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400 block">% Depreciado</span>
+                    <span className="font-medium">
+                      {formatarPercentual(calc.percentualDepreciado)}
+                    </span>
+                  </div>
+                  <div>
+                    <span className="text-slate-500 dark:text-slate-400 block">
+                      Fim da vida útil
+                    </span>
+                    <span className="font-medium">{formatarDataISO(calc.dataFim)}</span>
+                  </div>
                 </div>
-                <div>
-                  <span className="text-slate-500 dark:text-slate-400 block">Depreciação anual</span>
-                  <span className="font-medium">{formatarMoeda(calc.depreciacaoAnual)}</span>
-                </div>
-                <div>
-                  <span className="text-slate-500 dark:text-slate-400 block">Vida útil</span>
-                  <span className="font-medium">
-                    {calc.mesesVidaUtil} meses ({calc.vidaUtilAnos} anos)
+                {calc.totalmenteDepreciado && (
+                  <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
+                    Totalmente depreciado
                   </span>
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4 sm:grid-cols-5 text-sm border-t border-slate-200 dark:border-slate-700 pt-4">
-                <div>
-                  <span className="text-slate-500 dark:text-slate-400 block">Acumulada</span>
-                  <span className="font-semibold text-blue-700 dark:text-blue-400">
-                    {formatarMoeda(calc.depreciacaoAcumulada)}
-                  </span>
-                </div>
-                <div>
-                  <span className="text-slate-500 dark:text-slate-400 block">Faltante</span>
-                  <span className="font-medium">{formatarMoeda(calc.faltanteDepreciar)}</span>
-                </div>
-                <div>
-                  <span className="text-slate-500 dark:text-slate-400 block">Valor contábil</span>
-                  <span className="font-semibold">{formatarMoeda(calc.valorContabil)}</span>
-                </div>
-                <div>
-                  <span className="text-slate-500 dark:text-slate-400 block">% Depreciado</span>
-                  <span className="font-medium">{formatarPercentual(calc.percentualDepreciado)}</span>
-                </div>
-                <div>
-                  <span className="text-slate-500 dark:text-slate-400 block">Fim da vida útil</span>
-                  <span className="font-medium">{formatarDataISO(calc.dataFim)}</span>
-                </div>
-              </div>
-              {calc.totalmenteDepreciado && (
-                <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400">
-                  Totalmente depreciado
-                </span>
-              )}
-              {calc.deprecia && !calc.totalmenteDepreciado && (
-                <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
-                  Em depreciação — {calc.mesesDecorridos}/{calc.mesesVidaUtil} meses
-                </span>
-              )}
-              {!calc.deprecia && (
-                <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
-                  Informe valor de aquisição, residual, vida útil e data para calcular
-                </span>
-              )}
-              {calc.lancamentos.length > 0 && (
-                <div className="overflow-x-auto border-t border-slate-200 dark:border-slate-700 pt-3">
-                  <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
-                    Projeção anual
+                )}
+                {calc.totalmenteDepreciado && (
+                  <p className="text-xs leading-relaxed text-red-700 dark:text-red-400 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-900 rounded-md p-3">
+                    O ativo está <span className="font-semibold">totalmente depreciado</span>. Para
+                    reativar a depreciação, registre uma reforma capitalizável (com extensão de vida
+                    útil) na seção Reformas — o valor soma ao custo e o cálculo recomeça sobre a
+                    nova vida útil.
                   </p>
-                  <table className="w-full text-xs">
-                    <thead>
-                      <tr className="border-b border-slate-200 dark:border-slate-700">
-                        <th className="text-left p-1.5 font-medium text-slate-500 dark:text-slate-400">Ano</th>
-                        <th className="text-center p-1.5 font-medium text-slate-500 dark:text-slate-400">Meses</th>
-                        <th className="text-right p-1.5 font-medium text-slate-500 dark:text-slate-400">Depreciação</th>
-                        <th className="text-right p-1.5 font-medium text-slate-500 dark:text-slate-400">Acumulada</th>
-                        <th className="text-right p-1.5 font-medium text-slate-500 dark:text-slate-400">Valor contábil</th>
-                        <th className="text-right p-1.5 font-medium text-slate-500 dark:text-slate-400">%</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {calc.lancamentos.map((l) => (
-                        <tr key={l.ano} className="border-b border-slate-100 dark:border-slate-800">
-                          <td className="p-1.5 font-medium">{l.ano}</td>
-                          <td className="p-1.5 text-center">{l.meses}</td>
-                          <td className="p-1.5 text-right">{formatarMoeda(l.depreciacaoAno)}</td>
-                          <td className="p-1.5 text-right">{formatarMoeda(l.depreciacaoAcumulada)}</td>
-                          <td className="p-1.5 text-right">{formatarMoeda(l.valorContabil)}</td>
-                          <td className="p-1.5 text-right">{formatarPercentual(l.percentualAcumulado)}</td>
+                )}
+                {calc.deprecia && !calc.totalmenteDepreciado && (
+                  <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400">
+                    Em depreciação — {calc.mesesDecorridos}/{calc.mesesVidaUtil} meses
+                  </span>
+                )}
+                {!calc.deprecia && (
+                  <span className="inline-flex rounded-full px-2 py-0.5 text-xs font-medium bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400">
+                    Informe valor de aquisição, residual, vida útil e data para calcular
+                  </span>
+                )}
+                {calc.lancamentos.length > 0 && (
+                  <div className="overflow-x-auto border-t border-slate-200 dark:border-slate-700 pt-3">
+                    <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mb-2">
+                      Projeção anual
+                    </p>
+                    <table className="w-full text-xs">
+                      <thead>
+                        <tr className="border-b border-slate-200 dark:border-slate-700">
+                          <th className="text-left p-1.5 font-medium text-slate-500 dark:text-slate-400">
+                            Ano
+                          </th>
+                          <th className="text-center p-1.5 font-medium text-slate-500 dark:text-slate-400">
+                            Meses
+                          </th>
+                          <th className="text-right p-1.5 font-medium text-slate-500 dark:text-slate-400">
+                            Depreciação
+                          </th>
+                          <th className="text-right p-1.5 font-medium text-slate-500 dark:text-slate-400">
+                            Acumulada
+                          </th>
+                          <th className="text-right p-1.5 font-medium text-slate-500 dark:text-slate-400">
+                            Valor contábil
+                          </th>
+                          <th className="text-right p-1.5 font-medium text-slate-500 dark:text-slate-400">
+                            %
+                          </th>
                         </tr>
-                      ))}
-                    </tbody>
-                  </table>
-                </div>
+                      </thead>
+                      <tbody>
+                        {calc.lancamentos.map((l) => (
+                          <tr
+                            key={l.ano}
+                            className="border-b border-slate-100 dark:border-slate-800"
+                          >
+                            <td className="p-1.5 font-medium">{l.ano}</td>
+                            <td className="p-1.5 text-center">{l.meses}</td>
+                            <td className="p-1.5 text-right">{formatarMoeda(l.depreciacaoAno)}</td>
+                            <td className="p-1.5 text-right">
+                              {formatarMoeda(l.depreciacaoAcumulada)}
+                            </td>
+                            <td className="p-1.5 text-right">{formatarMoeda(l.valorContabil)}</td>
+                            <td className="p-1.5 text-right">
+                              {formatarPercentual(l.percentualAcumulado)}
+                            </td>
+                          </tr>
+                        ))}
+                      </tbody>
+                    </table>
+                  </div>
+                )}
+              </div>
+            )
+          })()}
+
+        {isEditing && (
+          <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-slate-50 dark:bg-slate-900/60 p-5 space-y-4">
+            <div>
+              <h3 className="text-sm font-semibold text-slate-800 dark:text-slate-200">Reformas</h3>
+              <p className="text-xs text-slate-500 dark:text-slate-400 mt-1">
+                Reforma que estende a vida útil ou amplia a capacidade é capitalizada (soma ao custo
+                e reativa a depreciação — CPC 27). Manutenção rotineira (extensão 0) não entra no
+                cálculo.
+              </p>
+            </div>
+
+            {reformas.length > 0 && (
+              <div className="overflow-x-auto">
+                <table className="w-full text-xs">
+                  <thead>
+                    <tr className="border-b border-slate-200 dark:border-slate-700">
+                      <th className="text-left p-1.5 font-medium text-slate-500 dark:text-slate-400">
+                        Data
+                      </th>
+                      <th className="text-right p-1.5 font-medium text-slate-500 dark:text-slate-400">
+                        Valor
+                      </th>
+                      <th className="text-center p-1.5 font-medium text-slate-500 dark:text-slate-400">
+                        + Vida útil
+                      </th>
+                      <th className="text-left p-1.5 font-medium text-slate-500 dark:text-slate-400">
+                        Motivo
+                      </th>
+                      <th className="text-right p-1.5 font-medium text-slate-500 dark:text-slate-400" />
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {reformas.map((r) => (
+                      <tr
+                        key={r.id ?? "novo"}
+                        className="border-b border-slate-100 dark:border-slate-800"
+                      >
+                        <td className="p-1.5">{formatarDataISO(r.data || "")}</td>
+                        <td className="p-1.5 text-right">{formatarMoeda(Number(r.valor) || 0)}</td>
+                        <td className="p-1.5 text-center">
+                          {r.extensaoVidaUtilAnos ? `${r.extensaoVidaUtilAnos} ano(s)` : "—"}
+                        </td>
+                        <td className="p-1.5">{r.motivo || "—"}</td>
+                        <td className="p-1.5 text-right whitespace-nowrap">
+                          <div className="flex justify-end gap-1">
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => setReformaForm({ ...r })}
+                            >
+                              Editar
+                            </Button>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="sm"
+                              className="text-red-600 dark:text-red-400"
+                              onClick={() => excluirReforma(r)}
+                            >
+                              Excluir
+                            </Button>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">
+              <div className="space-y-1">
+                <Label htmlFor="reformaData" className="text-xs">
+                  Data
+                </Label>
+                <Input
+                  id="reformaData"
+                  type="date"
+                  value={reformaForm.data}
+                  onChange={(e) => setReformaForm((p) => ({ ...p, data: e.target.value }))}
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="reformaValor" className="text-xs">
+                  Valor (R$)
+                </Label>
+                <Input
+                  id="reformaValor"
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={reformaForm.valor}
+                  onChange={(e) => setReformaForm((p) => ({ ...p, valor: e.target.value }))}
+                  placeholder="3.000,00"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="reformaExtensao" className="text-xs">
+                  Extensão de vida (anos)
+                </Label>
+                <Input
+                  id="reformaExtensao"
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={reformaForm.extensaoVidaUtilAnos}
+                  onChange={(e) =>
+                    setReformaForm((p) => ({ ...p, extensaoVidaUtilAnos: e.target.value }))
+                  }
+                  placeholder="2"
+                />
+              </div>
+              <div className="space-y-1">
+                <Label htmlFor="reformaMotivo" className="text-xs">
+                  Motivo
+                </Label>
+                <Input
+                  id="reformaMotivo"
+                  value={reformaForm.motivo}
+                  onChange={(e) => setReformaForm((p) => ({ ...p, motivo: e.target.value }))}
+                  placeholder="Beneficiamento (CPC 27)"
+                />
+              </div>
+            </div>
+
+            <div className="flex flex-wrap gap-2">
+              <Button
+                type="button"
+                size="sm"
+                disabled={salvandoReforma}
+                onClick={salvarReforma}
+                className="gap-2"
+              >
+                {salvandoReforma && <Loader2 size={14} className="animate-spin" />}
+                {reformaForm.id ? "Atualizar reforma" : "Registrar reforma"}
+              </Button>
+              {reformaForm.id && (
+                <Button
+                  type="button"
+                  size="sm"
+                  variant="outline"
+                  onClick={() => setReformaForm(REFORMA_VAZIA)}
+                >
+                  Cancelar edição
+                </Button>
               )}
             </div>
-          )
-        })()}
+          </div>
+        )}
 
         <div className="space-y-2">
           <Label htmlFor="descricao" className="font-medium">

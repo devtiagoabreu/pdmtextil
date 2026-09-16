@@ -1505,6 +1505,22 @@ async function migrate() {
     await sql`CREATE INDEX IF NOT EXISTS idx_ativos_vistorias_ativo_id ON ativos_vistorias (ativo_id)`
     console.log("✓ Tabela ativos_vistorias criada")
 
+    await sql`
+      CREATE TABLE IF NOT EXISTS ativos_reformas (
+        id SERIAL PRIMARY KEY,
+        ativo_id INTEGER NOT NULL REFERENCES ativos(id) ON DELETE CASCADE,
+        data DATE NOT NULL,
+        valor NUMERIC(12, 2),
+        extensao_vida_util_anos INTEGER,
+        motivo VARCHAR(200),
+        descricao TEXT,
+        created_at TIMESTAMP DEFAULT now(),
+        updated_at TIMESTAMP DEFAULT now()
+      )
+    `
+    await sql`CREATE INDEX IF NOT EXISTS idx_ativos_reformas_ativo_id ON ativos_reformas (ativo_id)`
+    console.log("✓ Tabela ativos_reformas criada")
+
     // ===== setor → area_id (FK proc_areas) em ativos_categorias/ativos_tipos_vistoria =====
     await sql`ALTER TABLE ativos_categorias ADD COLUMN IF NOT EXISTS area_id INTEGER REFERENCES proc_areas(id) ON DELETE NO ACTION`
     await sql`ALTER TABLE ativos_tipos_vistoria ADD COLUMN IF NOT EXISTS area_id INTEGER REFERENCES proc_areas(id) ON DELETE NO ACTION`

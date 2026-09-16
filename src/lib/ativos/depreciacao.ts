@@ -1,11 +1,18 @@
 export type MetodoDepreciacao = "LINEAR"
 
+export type ReformaDepreciacao = {
+  data: string | Date | null
+  valor?: number | string | null
+  extensaoVidaUtilAnos?: number | null
+}
+
 export type ParametrosDepreciacao = {
   valorAquisicao?: number | string | null
   valorResidual?: number | string | null
   vidaUtilAnos?: number | null
   dataAquisicao?: string | Date | null
   dataReferencia?: string | Date | null
+  reformas?: ReformaDepreciacao[]
 }
 
 export type AnoLancamentoDepreciacao = {
@@ -36,6 +43,9 @@ export type ResultadoDepreciacao = {
   faltanteDepreciar: number
   totalmenteDepreciado: boolean
   lancamentos: AnoLancamentoDepreciacao[]
+  custoTotal: number
+  valorReformas: number
+  vidaUtilAnosTotal: number
 }
 
 const formatadorMoeda = new Intl.NumberFormat("pt-BR", {
@@ -97,14 +107,39 @@ function anoDe(data: Date): number {
   return data.getUTCFullYear()
 }
 
+function fimMes(data: Date): Date {
+  return new Date(Date.UTC(data.getUTCFullYear(), data.getUTCMonth() + 1, 0))
+}
+
 export function calcularDepreciacao(param: ParametrosDepreciacao): ResultadoDepreciacao {
   const valorAquisicao = paraNumero(param.valorAquisicao)
   const valorResidual = paraNumero(param.valorResidual)
   const vidaUtilAnos = Math.max(0, Math.floor(paraNumero(param.vidaUtilAnos)))
-  const baseDepreciavel = Math.max(valorAquisicao - valorResidual, 0)
   const dataInicio = param.dataAquisicao ? parseDataUTC(param.dataAquisicao) : null
   const dataRef = parseDataUTC(param.dataReferencia ?? new Date()) ?? new Date()
-  const deprecia = vidaUtilAnos > 0 && baseDepreciavel > 0 && dataInicio !== null
+
+  const reformasRaw = (param.reformas ?? [])
+    .filter((r) => {
+      const d = parseDataUTC(r.data)
+      if (!d || !dataInicio) return false
+      return d >= dataInicio && paraNumero(r.extensaoVidaUtilAnos) > 0
+    })
+    .map((r) => ({
+      data: parseDataUTC(r.data)!,
+      valor: Math.max(0, paraNumero(r.valor)),
+      ext: Math.max(0, Math.floor(paraNumero(r.extensaoVidaUtilAnos))),
+    }))
+    .sort((a, b) => a.data.getTime() - b.data.getTime())
+
+  const reformasRef = reformasRaw.filter((r) => r.data <= dataRef)
+  const sumReformas = reformasRef.reduce((s, r) => s + r.valor, 0)
+  const sumExtensions = reformasRef.reduce((s, r) => s + r.ext, 0)
+  const custoTotal = valorAquisicao + sumReformas
+  const vidaUtilAnosTotal = vidaUtilAnos + sumExtensions
+  const baseDepreciavel = Math.max(custoTotal - valorResidual, 0)
+  const mesesVidaUtilOriginal = vidaUtilAnos * 12
+
+  const deprecia = vidaUtilAnosTotal > 0 && baseDepreciavel > 0 && dataInicio !== null
 
   const vazio: ResultadoDepreciacao = {
     metodo: "LINEAR",
@@ -117,7 +152,7 @@ export function calcularDepreciacao(param: ParametrosDepreciacao): ResultadoDepr
     dataFim: null,
     depreciacaoAnual: 0,
     depreciacaoMensal: 0,
-    mesesVidaUtil: 0,
+    mesesVidaUtil: mesesVidaUtilOriginal,
     mesesDecorridos: 0,
     depreciacaoAcumulada: 0,
     percentualDepreciado: 0,
@@ -125,50 +160,88 @@ export function calcularDepreciacao(param: ParametrosDepreciacao): ResultadoDepr
     faltanteDepreciar: dois(baseDepreciavel),
     totalmenteDepreciado: false,
     lancamentos: [],
+    custoTotal: dois(custoTotal),
+    valorReformas: dois(sumReformas),
+    vidaUtilAnosTotal,
   }
 
   if (!deprecia || !dataInicio) return vazio
 
-  const inicio = dataInicio
-  const mesesVidaUtil = vidaUtilAnos * 12
-  const ultimoMes = addMesesUTC(inicio, mesesVidaUtil - 1)
-  const fim = new Date(Date.UTC(ultimoMes.getUTCFullYear(), ultimoMes.getUTCMonth() + 1, 0))
-    .toISOString()
-    .slice(0, 10)
-  const depreciacaoAnual = dois(baseDepreciavel / vidaUtilAnos)
-  const depreciacaoMensal = baseDepreciavel / mesesVidaUtil
-  const mesesDecorridos = Math.min(Math.max(diffMeses(inicio, dataRef), 0), mesesVidaUtil)
-  const depreciacaoAcumulada = Math.min(baseDepreciavel, dois(depreciacaoMensal * mesesDecorridos))
-  const totalmenteDepreciado = mesesDecorridos >= mesesVidaUtil
-  const faltanteDepreciar = dois(baseDepreciavel - depreciacaoAcumulada)
-  const valorContabil = dois(valorAquisicao - depreciacaoAcumulada)
-  const percentualDepreciado =
-    baseDepreciavel > 0 ? um((depreciacaoAcumulada / baseDepreciavel) * 100) : 0
+  const reformMeses = reformasRaw.map((r) => diffMeses(dataInicio, r.data))
+  let reformIdx = 0
+  const mesesAlvo = Math.min(Math.max(diffMeses(dataInicio, dataRef), 0), 2400)
 
-  const porAno = new Map<number, { meses: number; depreciacao: number }>()
-  let acumulado = 0
-  for (let mes = 0; mes < mesesVidaUtil; mes++) {
-    const atual = addMesesUTC(inicio, mes)
+  let cv = valorAquisicao
+  let mr = mesesVidaUtilOriginal
+  let acum = 0
+  let lastRate = 0
+  let cvRef = valorAquisicao
+  let mrRef = mr
+  let acumRef = 0
+  let mesesDecorridosRef = 0
+  let dataFimDate: Date | null = null
+
+  const porAno = new Map<number, { meses: number; depreciacao: number; cvFim: number }>()
+
+  for (let mes = 0; mes < 2400; mes++) {
+    const atual = addMesesUTC(dataInicio, mes)
+
+    while (reformIdx < reformasRaw.length && reformMeses[reformIdx] === mes) {
+      cv += reformasRaw[reformIdx].valor
+      mr += reformasRaw[reformIdx].ext * 12
+      reformIdx++
+    }
+
+    const baseRestante = cv - valorResidual
+    if ((mr <= 0 || baseRestante <= 0.005) && reformIdx >= reformasRaw.length) break
+    if (mr <= 0 || baseRestante <= 0.005) continue
+
+    const dep = baseRestante / mr
+    cv -= dep
+    acum += dep
+    mr -= 1
+    if (dep > 0) lastRate = dep
+
+    if (mes < mesesAlvo) {
+      cvRef = cv
+      mrRef = mr
+      acumRef = acum
+      mesesDecorridosRef++
+    }
+
     const ano = anoDe(atual)
-    const ultimoDoPeriodo = mes === mesesVidaUtil - 1
-    const depreciacaoDoMes = ultimoDoPeriodo ? dois(baseDepreciavel - acumulado) : depreciacaoMensal
-    const registro = porAno.get(ano) ?? { meses: 0, depreciacao: 0 }
+    const registro = porAno.get(ano) ?? { meses: 0, depreciacao: 0, cvFim: 0 }
     registro.meses += 1
-    registro.depreciacao += depreciacaoDoMes
+    registro.depreciacao += dep
+    registro.cvFim = cv
     porAno.set(ano, registro)
-    acumulado = Math.min(baseDepreciavel, dois(acumulado + depreciacaoDoMes))
+
+    dataFimDate = fimMes(atual)
   }
+
+  const mesesDecorridos = mesesDecorridosRef
+  const totalmenteDepreciado = mrRef <= 0 && cvRef <= valorResidual + 0.005
+  const depreciacaoAcumulada = dois(acumRef)
+  const valorContabil = dois(cvRef)
+  const faltanteDepreciar = dois(Math.max(baseDepreciavel - acumRef, 0))
+  const percentualDepreciado = baseDepreciavel > 0 ? um((acumRef / baseDepreciavel) * 100) : 0
+  const depreciacaoMensal = lastRate
+  const depreciacaoAnual = dois(lastRate * 12)
+  const dataFim = dataFimDate ? dataFimDate.toISOString().slice(0, 10) : null
+  const mesesVidaUtil = vidaUtilAnosTotal * 12
 
   const lancamentos: AnoLancamentoDepreciacao[] = []
   let acumuladoFim = 0
-  for (const [ano, { meses, depreciacao }] of [...porAno.entries()].sort((a, b) => a[0] - b[0])) {
+  for (const [ano, { meses, depreciacao, cvFim }] of [...porAno.entries()].sort(
+    (a, b) => a[0] - b[0]
+  )) {
     acumuladoFim = Math.min(baseDepreciavel, dois(acumuladoFim + depreciacao))
     lancamentos.push({
       ano,
       meses,
       depreciacaoAno: dois(depreciacao),
       depreciacaoAcumulada: dois(acumuladoFim),
-      valorContabil: dois(valorAquisicao - acumuladoFim),
+      valorContabil: dois(cvFim),
       percentualAcumulado: baseDepreciavel > 0 ? um((acumuladoFim / baseDepreciavel) * 100) : 0,
     })
   }
@@ -180,8 +253,8 @@ export function calcularDepreciacao(param: ParametrosDepreciacao): ResultadoDepr
     valorResidual,
     vidaUtilAnos,
     baseDepreciavel: dois(baseDepreciavel),
-    dataInicio: inicio.toISOString().slice(0, 10),
-    dataFim: fim,
+    dataInicio: dataInicio.toISOString().slice(0, 10),
+    dataFim,
     depreciacaoAnual,
     depreciacaoMensal,
     mesesVidaUtil,
@@ -192,5 +265,8 @@ export function calcularDepreciacao(param: ParametrosDepreciacao): ResultadoDepr
     faltanteDepreciar,
     totalmenteDepreciado,
     lancamentos,
+    custoTotal: dois(custoTotal),
+    valorReformas: dois(sumReformas),
+    vidaUtilAnosTotal,
   }
 }

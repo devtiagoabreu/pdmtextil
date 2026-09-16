@@ -10,6 +10,7 @@ import {
   date,
   jsonb,
   uniqueIndex,
+  index,
 } from "drizzle-orm/pg-core"
 import { maquinas } from "./maqoper"
 import { usuarios } from "./usuarios"
@@ -182,3 +183,24 @@ export const ativosVistorias = pgTable("ativos_vistorias", {
 
 export type AtivoVistoria = typeof ativosVistorias.$inferSelect
 export type NewAtivoVistoria = typeof ativosVistorias.$inferInsert
+
+export const ativosReformas = pgTable(
+  "ativos_reformas",
+  {
+    id: serial("id").primaryKey(),
+    ativoId: integer("ativo_id")
+      .notNull()
+      .references(() => ativos.id, { onDelete: "cascade" }),
+    data: date("data").notNull(),
+    valor: numeric("valor", { precision: 12, scale: 2 }),
+    extensaoVidaUtilAnos: integer("extensao_vida_util_anos"),
+    motivo: varchar("motivo", { length: 200 }),
+    descricao: text("descricao"),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (t: any) => [index("idx_ativos_reformas_ativo_id").on(t.ativoId)]
+)
+
+export type AtivoReforma = typeof ativosReformas.$inferSelect
+export type NewAtivoReforma = typeof ativosReformas.$inferInsert
