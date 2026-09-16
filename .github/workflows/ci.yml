@@ -1,0 +1,45 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  validar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      NODE_VERSION: "20"
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: npm
+
+      - name: Instalação limpa (npm ci)
+        run: npm ci
+
+      - name: Preparar .env.local a partir de .env.example
+        run: cp .env.example .env.local
+
+      - name: Formatação (Prettier)
+        run: npm run format:check
+
+      - name: Tipos (TypeScript)
+        run: npx tsc --noEmit
+
+      - name: Testes (Vitest)
+        run: npm run test
+
+      - name: Build de produção (Next.js)
+        run: npm run build

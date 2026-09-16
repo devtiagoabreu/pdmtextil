@@ -128,6 +128,16 @@ rm -rf /tmp/ci-fresh-test
 
 Resultado: `npm ci` EXIT 0, lockfileVersion 3 consistente, sem erros. A última linha de saída confirma: audit fix suggestions apenas (advisories, sem falhas). Reproduzível em qualquer máquina com Node.js 20+.
 
+### 4. Lockfile canônico + CI (decisão: "aprovar com ressalva operacional")
+
+A verificação da inspeção:
+- **`package.json` ↔ lockfile**: 75 dependências em ambos — nenhuma faltando, nenhuma extra.
+- **Estado canônico**: `npm install --package-lock-only` em clone limpo regenera o lockfile com **SHA-256 idêntico** ao versionado (arquivo já em estado canônico — não havia correção pendente).
+- **Procedimento documentado**: `docs/ci-instalacao-limpa.md` (pré-requisitos, instalação limpa com `npm ci`, passos de validação e ação ao adicionar dependências).
+- **CI automatizado**: `.github/workflows/ci.yml` roda em runner vazio (Node 20) a cada push/PR: `npm ci` → `.env.local` a partir de `.env.example` → `format:check` → `tsc --noEmit` → `test` → `build`. `workflow_dispatch` permite rodar manualmente.
+- **Build com placeholders validado**: `npm run build` executado com `.env.local` proveniente de `.env.example` → EXIT 0 (equivale ao passo do CI).
+- **`engines`** adicionado ao `package.json` (`node >=20.9.0`) e `.nvmrc` fixando Node 20.
+
 ---
 
 ## Commits produzidos
