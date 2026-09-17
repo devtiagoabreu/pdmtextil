@@ -93,7 +93,13 @@ function modeloDeProcesso(nome: string, objetivo: string | null, subs: Subproces
   return { schemaVersion: "1", nome, objetivo: objetivo || "", atividades, decisoes, fluxos }
 }
 
-async function ensureDiagrama(sql: postgres.Sql, nome: string, descricao: string | null, modelo: ModeloProcesso): Promise<boolean> {
+async function ensureDiagrama(
+  sql: postgres.Sql,
+  nome: string,
+  descricao: string | null,
+  modelo: ModeloProcesso,
+  areaId: number
+): Promise<boolean> {
   const [exist] = await sql`SELECT id FROM proc_diagramas WHERE LOWER(nome) = LOWER(${nome}) LIMIT 1`
   if (exist) return false
 
@@ -103,14 +109,15 @@ async function ensureDiagrama(sql: postgres.Sql, nome: string, descricao: string
   }
 
   await sql`
-    INSERT INTO proc_diagramas (nome, tipo, descricao, modelo, mermaid, markdown, bpmn_xml, ativo)
+    INSERT INTO proc_diagramas (nome, tipo, descricao, modelo, mermaid, markdown, bpmn_xml, ativo, area_id)
     VALUES (
       ${nome}, 'FLUXOGRAMA', ${descricao},
       ${sql.json(modelo)},
       ${modeloParaMermaid(modelo, "FLUXOGRAMA")},
       ${modeloParaMarkdown(modelo)},
       ${modeloParaBpmn(modelo)},
-      true
+      true,
+      ${areaId}
     )
   `
   return true
@@ -169,10 +176,28 @@ async function seedDb({ name, url }: { name: string; url?: string }): Promise<vo
 
       const nome = `${p.codigo} — ${p.nome}`
       const modelo = modeloDeProcesso(p.nome, p.objetivo, subprocessos)
-      const criado = await ensureDiagrama(sql, nome, p.objetivo, modelo)
+      const criado = await ensureDiagrama(sql, nome, p.objetivo, modelo, area.id)
       if (criado) criados++
       else existentes++
       console.log(`  ${criado ? "→ criado " : "  existe  "} ${nome}`)
+    }
+
+    // Backfill: vincula diagramas da área (criados antes da coluna area_id existir)
+    if (!dryRun) {
+      const backfill = await sql`
+        UPDATE proc_diagramas d
+        SET area_id = ${area.id}
+        WHERE d.area_id IS DISTINCT FROM ${area.id}
+          AND EXISTS (
+            SELECT 1 FROM proc_processos p
+            WHERE p.area_id = ${area.id}
+              AND LOWER(d.nome) = LOWER(p.codigo || ' — ' || p.nome)
+          )
+        RETURNING d.id
+      `
+      if (backfill.length > 0) {
+        console.log(`  → ${backfill.length} diagrama(s) existente(s) vinculado(s) à área (backfill)`)
+      }
     }
 
     console.log(`  [${name}] ${criados} diagrama(s) criado(s), ${existentes} já existente(s)`)

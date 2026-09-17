@@ -13,6 +13,8 @@ export async function GET(req: NextRequest) {
     const auth = await requireAuth()
     if (auth instanceof NextResponse) return auth
 
+    const areaId = req.nextUrl.searchParams.get("areaId")
+
     const lista = await db
       .select({
         id: procProcessos.id,
@@ -32,6 +34,7 @@ export async function GET(req: NextRequest) {
       .from(procProcessos)
       .leftJoin(procAreas, eq(procProcessos.areaId, procAreas.id))
       .leftJoin(procSites, eq(procAreas.siteId, procSites.id))
+      .where(areaId ? eq(procProcessos.areaId, parseInt(areaId)) : undefined)
       .orderBy(desc(procProcessos.createdAt))
 
     return NextResponse.json(lista)

@@ -278,6 +278,7 @@ export const procDiagramaModeloSchema = z.object({
 })
 
 export const procDiagramaSchema = z.object({
+  areaId: z.number().int().positive().optional().nullable(),
   nome: z.string().trim().min(1, "Nome é obrigatório").max(200),
   tipo: z.enum(["FLUXOGRAMA", "BPMN", "MAPAMENTAL", "LIVRE"]).optional(),
   descricao: z.string().optional().nullable(),

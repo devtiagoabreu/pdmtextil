@@ -1,14 +1,16 @@
 // @vitest-environment jsdom
 import ProcessoAtividadesPage from "./page"
 import { listPageSpec } from "@/test/list-page-spec"
+import { AREAS_MOCK } from "@/test/processos-mocks"
 
 listPageSpec({
   title: "ProcessoAtividadesPage",
   component: <ProcessoAtividadesPage />,
   apiBase: "atividades",
   apiPrefix: "/api/processos",
+  extraRoutes: { "/api/processos/areas": AREAS_MOCK },
   heading: "Atividades",
-  searchPlaceholder: "Buscar por nome, tipo, subprocesso ou responsável...",
+  searchPlaceholder: "Buscar por nome, subprocesso ou responsável...",
   emptyText: "Nenhuma atividade encontrada",
   newLinkText: "Nova Atividade",
   newHref: "/processos/atividades/novo",
@@ -19,6 +21,8 @@ listPageSpec({
       id: 1,
       subprocessoId: 1,
       subprocessoNome: "Preparação",
+      areaNome: "Produção",
+      siteNome: "Unidade Blumenau",
       nome: "Encaramento",
       tipo: "MANUAL",
       responsavel: "João",

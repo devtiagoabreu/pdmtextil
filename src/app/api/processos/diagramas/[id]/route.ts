@@ -99,6 +99,8 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
     const [atualizada] = await db
       .update(procDiagramas)
       .set({
+        areaId:
+          parsed.data.areaId !== undefined ? parsed.data.areaId : existente.areaId,
         nome: parsed.data.nome,
         tipo: parsed.data.tipo ?? existente.tipo,
         descricao: parsed.data.descricao || null,

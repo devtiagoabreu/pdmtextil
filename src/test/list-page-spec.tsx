@@ -11,6 +11,8 @@ export interface ListPageSpecConfig {
   apiBase: string
   /** Prefixo da rota de API (default "/api/cadastros") */
   apiPrefix?: string
+  /** Rotas adicionais servidas pelo handler default (ex: "/api/processos/areas") */
+  extraRoutes?: Record<string, unknown>
   heading: string
   searchPlaceholder: string
   emptyText: string
@@ -42,6 +44,8 @@ export function listPageSpec(cfg: ListPageSpecConfig) {
       const handler: MockFetchHandler =
         cfg.handler ??
         (({ method, url }) => {
+          const extra = cfg.extraRoutes?.[url]
+          if (extra !== undefined) return { json: extra }
           if (method === "GET" && url === `${apiPrefix}/${cfg.apiBase}`) return { json: cfg.data }
           if (method === "DELETE") {
             if (url.endsWith(`/${cfg.blockedId}`)) {

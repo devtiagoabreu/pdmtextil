@@ -1,12 +1,14 @@
 // @vitest-environment jsdom
 import ProcessoVisualPage from "./page"
 import { listPageSpec } from "@/test/list-page-spec"
+import { AREAS_MOCK } from "@/test/processos-mocks"
 
 listPageSpec({
   title: "ProcessoVisualPage",
   component: <ProcessoVisualPage />,
   apiBase: "diagramas",
   apiPrefix: "/api/processos",
+  extraRoutes: { "/api/processos/areas": AREAS_MOCK },
   heading: "Diagramas",
   searchPlaceholder: "Buscar por nome, tipo ou descrição...",
   emptyText: "Nenhum diagrama encontrado",
@@ -19,6 +21,8 @@ listPageSpec({
       id: 1,
       nome: "Fluxograma de recebimento",
       tipo: "FLUXOGRAMA",
+      areaNome: "Produção",
+      siteNome: "Unidade Blumenau",
       descricao: "Recebimento de matéria-prima",
       ativo: true,
     },

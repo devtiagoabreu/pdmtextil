@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { procSubprocessos, procProcessos } from "@/lib/db/schema/processos"
+import { procSubprocessos, procProcessos, procAreas, procSites } from "@/lib/db/schema/processos"
 import { eq, desc, and } from "drizzle-orm"
 import { registrarLog, notificar } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
@@ -14,12 +14,16 @@ export async function GET(req: NextRequest) {
     if (auth instanceof NextResponse) return auth
 
     const processoId = req.nextUrl.searchParams.get("processoId")
+    const areaId = req.nextUrl.searchParams.get("areaId")
 
     const base = db
       .select({
         id: procSubprocessos.id,
         processoId: procSubprocessos.processoId,
         processoNome: procProcessos.nome,
+        areaId: procProcessos.areaId,
+        areaNome: procAreas.nome,
+        siteNome: procSites.nome,
         nome: procSubprocessos.nome,
         descricao: procSubprocessos.descricao,
         ordem: procSubprocessos.ordem,
@@ -29,6 +33,8 @@ export async function GET(req: NextRequest) {
       })
       .from(procSubprocessos)
       .leftJoin(procProcessos, eq(procSubprocessos.processoId, procProcessos.id))
+      .leftJoin(procAreas, eq(procProcessos.areaId, procAreas.id))
+      .leftJoin(procSites, eq(procAreas.siteId, procSites.id))
 
     const lista = processoId
       ? await base
@@ -39,7 +45,11 @@ export async function GET(req: NextRequest) {
             )
           )
           .orderBy(procSubprocessos.ordem)
-      : await base.orderBy(desc(procSubprocessos.createdAt))
+      : areaId
+        ? await base
+            .where(eq(procProcessos.areaId, parseInt(areaId)))
+            .orderBy(desc(procSubprocessos.createdAt))
+        : await base.orderBy(desc(procSubprocessos.createdAt))
 
     return NextResponse.json(lista)
   } catch (error) {

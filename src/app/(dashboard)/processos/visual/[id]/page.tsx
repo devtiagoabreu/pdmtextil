@@ -13,6 +13,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { DIAGRAMA_TIPO_LABELS } from "@/lib/processos/constantes"
+import AreaSelect from "@/components/processos/area-select"
 import EditorDiagrama, { type DiagramaRegistro } from "../components/editor"
 
 export default function ProcessoDiagramaPage() {
@@ -23,7 +24,12 @@ export default function ProcessoDiagramaPage() {
   const isEditing = params.id && params.id !== "novo"
   const id = isEditing ? parseInt(params.id as string) : null
 
-  const [novo, setNovo] = useState({ nome: "", tipo: "FLUXOGRAMA", descricao: "" })
+  const [novo, setNovo] = useState({
+    nome: "",
+    tipo: "FLUXOGRAMA",
+    descricao: "",
+    areaId: "",
+  })
   const [saving, setSaving] = useState(false)
 
   const { data: diagrama, isLoading: carregando } = useQuery<DiagramaRegistro>({
@@ -47,7 +53,11 @@ export default function ProcessoDiagramaPage() {
       const res = await fetch("/api/processos/diagramas", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...novo, ativo: true }),
+        body: JSON.stringify({
+          ...novo,
+          areaId: novo.areaId ? parseInt(novo.areaId) : null,
+          ativo: true,
+        }),
       })
       if (!res.ok) {
         const err = await res.json()
@@ -117,6 +127,12 @@ export default function ProcessoDiagramaPage() {
               ))}
             </select>
           </div>
+          <AreaSelect
+            id="area-novo-diagrama"
+            label="Área"
+            value={novo.areaId}
+            onChange={(v) => setNovo((n) => ({ ...n, areaId: v }))}
+          />
           <div className="space-y-2">
             <Label htmlFor="descricao">Descrição</Label>
             <Textarea

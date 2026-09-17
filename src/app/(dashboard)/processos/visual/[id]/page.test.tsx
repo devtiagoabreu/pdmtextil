@@ -2,6 +2,7 @@
 import { describe, it, expect, beforeEach, vi } from "vitest"
 import { screen, fireEvent, waitFor } from "@testing-library/react"
 import { createFetchMock, renderPage, findCall, navMock, toastMock } from "@/test/harness"
+import { AREAS_MOCK } from "@/test/processos-mocks"
 import ProcessoDiagramaPage from "./page"
 
 vi.mock("@/components/processos/bpmn-editor", () => ({
@@ -17,6 +18,7 @@ const diagramaBase = {
   nome: "Fluxograma de recebimento",
   tipo: "FLUXOGRAMA",
   descricao: "Recebimento de matéria-prima",
+  areaId: null,
   modelo: {
     schemaVersion: "1",
     nome: "Recebimento",
@@ -46,6 +48,7 @@ const fluxoImportado = [
 
 function montarFetch(salvo?: (obj: unknown) => void) {
   const handler = ({ method, url, body }: { method: string; url: string; body?: unknown }) => {
+    if (method === "GET" && url === "/api/processos/areas") return { json: AREAS_MOCK }
     if (method === "GET" && url === "/api/processos/diagramas/5") return { json: diagramaBase }
     if (method === "POST" && url === "/api/processos/diagramas") {
       return { status: 201, json: { id: 99, ...(body as object) } }

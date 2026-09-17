@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
-import { procAtividades, procSubprocessos } from "@/lib/db/schema/processos"
+import {
+  procAtividades,
+  procSubprocessos,
+  procProcessos,
+  procAreas,
+  procSites,
+} from "@/lib/db/schema/processos"
 import { eq, desc, asc, and } from "drizzle-orm"
 import { registrarLog, notificar } from "@/lib/notificar"
 import { handleApiError } from "@/lib/api-error"
@@ -15,12 +21,17 @@ export async function GET(req: NextRequest) {
 
     const subprocessoId = req.nextUrl.searchParams.get("subprocessoId")
     const processoId = req.nextUrl.searchParams.get("processoId")
+    const areaId = req.nextUrl.searchParams.get("areaId")
 
     const base = db
       .select({
         id: procAtividades.id,
         subprocessoId: procAtividades.subprocessoId,
         subprocessoNome: procSubprocessos.nome,
+        processoId: procProcessos.id,
+        areaId: procProcessos.areaId,
+        areaNome: procAreas.nome,
+        siteNome: procSites.nome,
         nome: procAtividades.nome,
         tipo: procAtividades.tipo,
         responsavel: procAtividades.responsavel,
@@ -32,6 +43,9 @@ export async function GET(req: NextRequest) {
       })
       .from(procAtividades)
       .leftJoin(procSubprocessos, eq(procAtividades.subprocessoId, procSubprocessos.id))
+      .leftJoin(procProcessos, eq(procSubprocessos.processoId, procProcessos.id))
+      .leftJoin(procAreas, eq(procProcessos.areaId, procAreas.id))
+      .leftJoin(procSites, eq(procAreas.siteId, procSites.id))
 
     let lista
     if (subprocessoId) {
@@ -45,8 +59,17 @@ export async function GET(req: NextRequest) {
         .orderBy(asc(procAtividades.ordem))
     } else if (processoId) {
       lista = await base
-        .where(eq(procSubprocessos.processoId, parseInt(processoId)))
+        .where(
+          and(
+            eq(procSubprocessos.processoId, parseInt(processoId)),
+            areaId ? eq(procProcessos.areaId, parseInt(areaId)) : undefined
+          )
+        )
         .orderBy(asc(procSubprocessos.ordem), asc(procAtividades.ordem))
+    } else if (areaId) {
+      lista = await base
+        .where(eq(procProcessos.areaId, parseInt(areaId)))
+        .orderBy(desc(procAtividades.createdAt))
     } else {
       lista = await base.orderBy(desc(procAtividades.createdAt))
     }

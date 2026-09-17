@@ -20,6 +20,7 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { Label } from "@/components/ui/label"
 import { DIAGRAMA_TIPO_LABELS } from "@/lib/processos/constantes"
+import AreaSelect from "@/components/processos/area-select"
 import type { CanvasExcalidraw, ModeloProcesso } from "@/lib/processos/diagrama/types"
 import { modeloVazio } from "@/lib/processos/diagrama/modelo-semantico"
 import { modeloParaMermaid, mermaidParaModelo } from "@/lib/processos/diagrama/mermaid"
@@ -37,6 +38,9 @@ export interface DiagramaRegistro {
   nome: string
   tipo: string
   descricao?: string | null
+  areaId?: number | null
+  areaNome?: string | null
+  siteNome?: string | null
   modelo: unknown
   mermaid?: string | null
   markdown?: string | null
@@ -100,6 +104,7 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
   const [nome, setNome] = useState(diagrama.nome)
   const [tipo, setTipo] = useState(diagrama.tipo || "FLUXOGRAMA")
   const [descricao, setDescricao] = useState(diagrama.descricao || "")
+  const [areaId, setAreaId] = useState<number | null>(diagrama.areaId ?? null)
   const [ativo, setAtivo] = useState(diagrama.ativo)
   const [modelo, setModelo] = useState<ModeloCompleto>(() => normalizarModelo(diagrama.modelo))
   const [mermaidOverride, setMermaidOverride] = useState<string | null>(null)
@@ -152,7 +157,14 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
   }
 
   function salvarSemantico() {
-    salvar({ nome, tipo, descricao, ativo, modelo })
+    salvar({
+      nome,
+      tipo,
+      descricao,
+      areaId,
+      ativo,
+      modelo,
+    })
   }
 
   function salvarMermaid() {
@@ -300,6 +312,12 @@ export default function EditorDiagrama({ diagrama, onAtualizada }: EditorProps) 
               onChange={(e) => setDescricao(e.target.value)}
             />
           </div>
+          <AreaSelect
+            id="ed-area"
+            label="Área"
+            value={areaId ? String(areaId) : ""}
+            onChange={(v) => setAreaId(v ? parseInt(v) : null)}
+          />
         </div>
         <div className="flex items-center gap-4">
           <label className="flex items-center gap-2 text-sm">

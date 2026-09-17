@@ -142,6 +142,7 @@ export type NewProcAtividade = typeof procAtividades.$inferInsert
 
 export const procDiagramas = pgTable("proc_diagramas", {
   id: serial("id").primaryKey(),
+  areaId: integer("area_id").references(() => procAreas.id, { onDelete: "set null" }),
   nome: varchar("nome", { length: 200 }).notNull(),
   tipo: varchar("tipo", { length: 30 }).notNull().default("FLUXOGRAMA"),
   descricao: text("descricao"),

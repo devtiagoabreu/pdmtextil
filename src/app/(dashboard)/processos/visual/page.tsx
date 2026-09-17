@@ -10,6 +10,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Input } from "@/components/ui/input"
 import { matchesSearch } from "@/components/ui/list-filters"
+import AreaSelect from "@/components/processos/area-select"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { diagramaTipoLabel } from "@/lib/processos/constantes"
@@ -19,6 +20,8 @@ interface DiagramaProcesso {
   nome: string
   tipo: string
   descricao?: string | null
+  areaNome?: string | null
+  siteNome?: string | null
   ativo: boolean
   atualizadoEm?: string | null
 }
@@ -27,6 +30,7 @@ export default function ProcessoVisualPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
+  const [areaId, setAreaId] = useState("")
   const [deleteTarget, setDeleteTarget] = useState<DiagramaProcesso | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
@@ -36,9 +40,10 @@ export default function ProcessoVisualPage() {
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["proc-diagramas"],
+    queryKey: ["proc-diagramas", areaId],
     queryFn: async () => {
-      const res = await fetch("/api/processos/diagramas")
+      const params = areaId ? `?areaId=${areaId}` : ""
+      const res = await fetch(`/api/processos/diagramas${params}`)
       if (!res.ok) throw new Error("Falha ao carregar diagramas")
       return res.json()
     },
@@ -91,7 +96,7 @@ export default function ProcessoVisualPage() {
         </Link>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-end gap-2">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <Input
@@ -101,6 +106,12 @@ export default function ProcessoVisualPage() {
             className="pl-10"
           />
         </div>
+        <AreaSelect
+          id="filtro-area-diagramas"
+          value={areaId}
+          onChange={setAreaId}
+          className="w-64 p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+        />
       </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
@@ -116,6 +127,9 @@ export default function ProcessoVisualPage() {
               <tr>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
                   Nome
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Área
                 </th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
                   Tipo
@@ -142,6 +156,9 @@ export default function ProcessoVisualPage() {
                       <Workflow size={14} className="text-slate-400" />
                       {diag.nome}
                     </Link>
+                  </td>
+                  <td className="p-4 text-sm text-slate-500">
+                    {[diag.areaNome, diag.siteNome].filter(Boolean).join(" · ") || "—"}
                   </td>
                   <td className="p-4 text-sm text-slate-500">{diagramaTipoLabel(diag.tipo)}</td>
                   <td className="p-4 text-sm text-slate-500 max-w-[260px] truncate">

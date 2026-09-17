@@ -1528,6 +1528,11 @@ async function migrate() {
     await sql`CREATE INDEX IF NOT EXISTS idx_ativos_tipos_vistoria_area_id ON ativos_tipos_vistoria (area_id)`
     console.log("✓ Colunas area_id adicionadas em ativos_categorias e ativos_tipos_vistoria")
 
+    // ===== proc_diagramas.area_id (FK proc_areas, nullable) → vincula o diagrama à área =====
+    await sql`ALTER TABLE proc_diagramas ADD COLUMN IF NOT EXISTS area_id INTEGER REFERENCES proc_areas(id) ON DELETE SET NULL`
+    await sql`CREATE INDEX IF NOT EXISTS idx_proc_diagramas_area_id ON proc_diagramas (area_id)`
+    console.log("✓ Coluna area_id adicionada em proc_diagramas")
+
     console.log("\n✅ Migration concluída com sucesso!")
     
   } catch (error) {

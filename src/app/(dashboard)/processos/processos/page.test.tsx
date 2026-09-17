@@ -1,12 +1,14 @@
 // @vitest-environment jsdom
 import ProcessoProcessosPage from "./page"
 import { listPageSpec } from "@/test/list-page-spec"
+import { AREAS_MOCK } from "@/test/processos-mocks"
 
 listPageSpec({
   title: "ProcessoProcessosPage",
   component: <ProcessoProcessosPage />,
   apiBase: "processos",
   apiPrefix: "/api/processos",
+  extraRoutes: { "/api/processos/areas": AREAS_MOCK },
   heading: "Processos",
   searchPlaceholder: "Buscar por nome, área, código ou responsável...",
   emptyText: "Nenhum processo encontrado",

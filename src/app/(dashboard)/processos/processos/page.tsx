@@ -10,6 +10,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Input } from "@/components/ui/input"
 import { matchesSearch } from "@/components/ui/list-filters"
+import AreaSelect from "@/components/processos/area-select"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { statusLabel, STATUS_COLORS } from "@/lib/processos/constantes"
@@ -32,6 +33,7 @@ export default function ProcessoProcessosPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
+  const [areaId, setAreaId] = useState("")
   const [deleteTarget, setDeleteTarget] = useState<ProcessoDto | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
@@ -41,9 +43,10 @@ export default function ProcessoProcessosPage() {
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["proc-processos"],
+    queryKey: ["proc-processos", areaId],
     queryFn: async () => {
-      const res = await fetch("/api/processos/processos")
+      const params = areaId ? `?areaId=${areaId}` : ""
+      const res = await fetch(`/api/processos/processos${params}`)
       if (!res.ok) throw new Error("Falha ao carregar processos")
       return res.json()
     },
@@ -97,7 +100,7 @@ export default function ProcessoProcessosPage() {
         </Link>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-end gap-2">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <Input
@@ -107,6 +110,12 @@ export default function ProcessoProcessosPage() {
             className="pl-10"
           />
         </div>
+        <AreaSelect
+          id="filtro-area-processos"
+          value={areaId}
+          onChange={setAreaId}
+          className="w-64 p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+        />
       </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">

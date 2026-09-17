@@ -599,6 +599,7 @@ ALTER TABLE proc_atividades ADD COLUMN IF NOT EXISTS links JSONB DEFAULT '[]'::j
 
 CREATE TABLE IF NOT EXISTS proc_diagramas (
   id SERIAL PRIMARY KEY,
+  area_id INTEGER REFERENCES proc_areas(id) ON DELETE SET NULL,
   nome VARCHAR(200) NOT NULL,
   tipo VARCHAR(30) NOT NULL DEFAULT 'FLUXOGRAMA',
   descricao TEXT,
@@ -611,6 +612,10 @@ CREATE TABLE IF NOT EXISTS proc_diagramas (
   created_at TIMESTAMP DEFAULT NOW(),
   updated_at TIMESTAMP DEFAULT NOW()
 );
+
+-- area_id (FK proc_areas) em proc_diagramas (bases existentes)
+ALTER TABLE proc_diagramas ADD COLUMN IF NOT EXISTS area_id INTEGER REFERENCES proc_areas(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_proc_diagramas_area_id ON proc_diagramas (area_id);
 
 CREATE TABLE IF NOT EXISTS proc_treino_modulos (
   id SERIAL PRIMARY KEY,

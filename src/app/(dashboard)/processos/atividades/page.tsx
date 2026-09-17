@@ -10,6 +10,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Input } from "@/components/ui/input"
 import { matchesSearch } from "@/components/ui/list-filters"
+import AreaSelect from "@/components/processos/area-select"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 import { tipoAtividadeLabel } from "@/lib/processos/constantes"
@@ -18,6 +19,9 @@ interface Atividade {
   id: number
   subprocessoId: number
   subprocessoNome?: string | null
+  areaId?: number | null
+  areaNome?: string | null
+  siteNome?: string | null
   nome: string
   tipo: string
   responsavel?: string | null
@@ -29,6 +33,7 @@ export default function ProcessoAtividadesPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
+  const [areaId, setAreaId] = useState("")
   const [deleteTarget, setDeleteTarget] = useState<Atividade | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
@@ -38,9 +43,10 @@ export default function ProcessoAtividadesPage() {
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["proc-atividades"],
+    queryKey: ["proc-atividades", areaId],
     queryFn: async () => {
-      const res = await fetch("/api/processos/atividades")
+      const params = areaId ? `?areaId=${areaId}` : ""
+      const res = await fetch(`/api/processos/atividades${params}`)
       if (!res.ok) throw new Error("Falha ao carregar atividades")
       return res.json()
     },
@@ -93,16 +99,22 @@ export default function ProcessoAtividadesPage() {
         </Link>
       </div>
 
-      <div className="flex items-center gap-2">
+<div className="flex flex-wrap items-end gap-2">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <Input
-            placeholder="Buscar por nome, tipo, subprocesso ou responsável..."
+            placeholder="Buscar por nome, subprocesso ou responsável..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="pl-10"
           />
         </div>
+        <AreaSelect
+          id="filtro-area-atividades"
+          value={areaId}
+          onChange={setAreaId}
+          className="w-64 p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+        />
       </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
@@ -121,6 +133,9 @@ export default function ProcessoAtividadesPage() {
                 </th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
                   Subprocesso
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Área
                 </th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
                   Tipo
@@ -152,6 +167,9 @@ export default function ProcessoAtividadesPage() {
                     </Link>
                   </td>
                   <td className="p-4 text-sm text-slate-500">{atv.subprocessoNome || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">
+                    {[atv.areaNome, atv.siteNome].filter(Boolean).join(" · ") || "—"}
+                  </td>
                   <td className="p-4 text-sm text-slate-500">{tipoAtividadeLabel(atv.tipo)}</td>
                   <td className="p-4 text-sm text-slate-500">{atv.responsavel || "—"}</td>
                   <td className="p-4">

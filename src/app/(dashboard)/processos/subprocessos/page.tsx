@@ -10,6 +10,7 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import { Input } from "@/components/ui/input"
 import { matchesSearch } from "@/components/ui/list-filters"
+import AreaSelect from "@/components/processos/area-select"
 import { toast } from "sonner"
 import { ConfirmModal } from "@/components/ui/confirm-modal"
 
@@ -17,6 +18,9 @@ interface Subprocesso {
   id: number
   processoId: number
   processoNome?: string | null
+  areaId?: number | null
+  areaNome?: string | null
+  siteNome?: string | null
   nome: string
   descricao?: string | null
   ordem: number
@@ -27,6 +31,7 @@ export default function ProcessoSubprocessosPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
   const [search, setSearch] = useState("")
+  const [areaId, setAreaId] = useState("")
   const [deleteTarget, setDeleteTarget] = useState<Subprocesso | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
   const [deleteBlocked, setDeleteBlocked] = useState(false)
@@ -36,9 +41,10 @@ export default function ProcessoSubprocessosPage() {
     isLoading,
     refetch,
   } = useQuery({
-    queryKey: ["proc-subprocessos"],
+    queryKey: ["proc-subprocessos", areaId],
     queryFn: async () => {
-      const res = await fetch("/api/processos/subprocessos")
+      const params = areaId ? `?areaId=${areaId}` : ""
+      const res = await fetch(`/api/processos/subprocessos${params}`)
       if (!res.ok) throw new Error("Falha ao carregar subprocessos")
       return res.json()
     },
@@ -93,7 +99,7 @@ export default function ProcessoSubprocessosPage() {
         </Link>
       </div>
 
-      <div className="flex items-center gap-2">
+      <div className="flex flex-wrap items-end gap-2">
         <div className="relative flex-1 max-w-sm">
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" size={18} />
           <Input
@@ -103,6 +109,12 @@ export default function ProcessoSubprocessosPage() {
             className="pl-10"
           />
         </div>
+        <AreaSelect
+          id="filtro-area-subprocessos"
+          value={areaId}
+          onChange={setAreaId}
+          className="w-64 p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+        />
       </div>
 
       <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 overflow-hidden">
@@ -121,6 +133,9 @@ export default function ProcessoSubprocessosPage() {
                 </th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
                   Processo
+                </th>
+                <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
+                  Área
                 </th>
                 <th className="text-left text-xs font-medium text-slate-500 dark:text-slate-400 p-4">
                   Ordem
@@ -149,6 +164,9 @@ export default function ProcessoSubprocessosPage() {
                     </Link>
                   </td>
                   <td className="p-4 text-sm text-slate-500">{sub.processoNome || "—"}</td>
+                  <td className="p-4 text-sm text-slate-500">
+                    {[sub.areaNome, sub.siteNome].filter(Boolean).join(" · ") || "—"}
+                  </td>
                   <td className="p-4 text-sm text-slate-500">{sub.ordem}</td>
                   <td className="p-4">
                     <span
