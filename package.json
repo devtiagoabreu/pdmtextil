@@ -96,7 +96,6 @@
     "typescript": "^5",
     "vitest": "^4.1.7",
     "@vitest/mocker": "^4.1.11",
-    "rolldown": "^1.2.9",
-    "@rolldown/binding-win32-x64-msvc": "^1.2.9"
+    "rolldown": "^1.2.9"
   }
 }
