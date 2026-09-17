@@ -1319,6 +1319,41 @@ export const searchRegistry: SearchItem[] = [
     description: "Registro de reuniões com pauta, participantes, encaminhamentos, links e ata",
     module: "Reuniões",
   },
+
+  // Chamados
+  {
+    id: "chamados",
+    label: "Chamados",
+    keywords: [
+      "chamado",
+      "ticket",
+      "suporte",
+      "ti",
+      "manutencao",
+      "sla",
+      "atendimento",
+      "lista",
+    ],
+    href: "/chamados",
+    description: "Lista de chamados de TI e manutenção com filas, SLAs e acompanhamento",
+    module: "Chamados",
+  },
+  {
+    id: "chamados-novo",
+    label: "Novo Chamado",
+    keywords: ["chamado", "novo", "criar", "abrir", "ticket", "suporte", "solicitacao"],
+    href: "/chamados/novo",
+    description: "Abrir novo chamado de TI ou manutenção",
+    module: "Chamados",
+  },
+  {
+    id: "chamados-dashboard",
+    label: "Dashboard Chamados",
+    keywords: ["chamados", "dashboard", "metricas", "sla", "painel", "status", "prioridade"],
+    href: "/chamados/dashboard",
+    description: "Dashboard de métricas de chamados por status, prioridade e fila",
+    module: "Chamados",
+  },
 ]
 
 export function searchItems(query: string): SearchItem[] {

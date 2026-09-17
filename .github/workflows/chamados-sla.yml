@@ -1,0 +1,25 @@
+name: chamados-sla-cron
+
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+
+concurrency:
+  group: chamados-sla-cron
+  cancel-in-progress: false
+
+jobs:
+  verificar-sla:
+    runs-on: ubuntu-latest
+    env:
+      CRON_SECRET: ${{ secrets.CRON_SECRET }}
+    steps:
+      - name: Verificar SLA dos chamados (mensagens de estouro)
+        run: |
+          AUTH=()
+          if [ -n "$CRON_SECRET" ]; then
+            AUTH=(-H "Authorization: Bearer $CRON_SECRET")
+          fi
+          curl -fsS -X POST "${AUTH[@]}" \
+            https://pdmprotextil.vercel.app/api/chamados/cron

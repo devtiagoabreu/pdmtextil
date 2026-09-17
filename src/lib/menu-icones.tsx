@@ -47,6 +47,7 @@ import {
   Plane,
   Bot,
   Receipt,
+  LifeBuoy,
 } from "lucide-react"
 
 // [título (pt-BR), nome do ícone (lucide), componente]
@@ -110,6 +111,7 @@ const ENTRADAS: [string, string, LucideIcon][] = [
   ["Financeiro", "DollarSign", DollarSign],
   ["Status", "Tag", Tag],
   ["Ativos e Vistorias", "ShieldCheck", ShieldCheck],
+  ["Chamados", "LifeBuoy", LifeBuoy],
   ["Processos", "GitBranch", GitBranch],
   ["Reuniões", "Calendar", Calendar],
   ["Empresas", "Building2", Building2],
@@ -209,6 +211,7 @@ const URL_ICONES: [string, LucideIcon][] = [
   ["/processos/areas", MapPin],
   ["/processos/empresas", Building2],
   ["/processos", GitBranch],
+  ["/chamados", LifeBuoy],
 ]
 
 export function iconForUrl(url: string): LucideIcon {

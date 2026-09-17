@@ -36,5 +36,8 @@ export const config = {
     "/reunioes/:path*",
     "/ativos",
     "/ativos/:path*",
+    "/chamados",
+    "/chamados/:path*",
+    "/api/chamados/:path*",
   ],
 }

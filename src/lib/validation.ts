@@ -386,3 +386,39 @@ export const vistoriaConclusaoSchema = z.object({
   custo: z.number().positive().optional().nullable(),
   anexos: z.array(z.object({ url: z.string(), nome: z.string() })).optional(),
 })
+
+const chamadoAnexoSchema = z.object({
+  url: z.string().url("URL inválida"),
+  nome: z.string().trim().min(1, "Nome do anexo é obrigatório"),
+})
+
+export const chamadoSchema = z.object({
+  titulo: z.string().trim().min(1, "Título é obrigatório").max(200),
+  descricao: z.string().trim().min(1, "Descrição é obrigatória"),
+  categoria: z.enum([
+    "INCIDENTE",
+    "SOLICITACAO",
+    "MANUTENCAO_CORRETIVA",
+    "MANUTENCAO_PREVENTIVA",
+    "OUTRO",
+  ]),
+  prioridade: z.enum(["URGENTE", "ALTA", "MEDIA", "BAIXA"]),
+  areaId: z.number().int().positive("Fila (área) é obrigatória"),
+  ativoId: z.number().int().positive().optional().nullable(),
+  processoId: z.number().int().positive().optional().nullable(),
+  anexos: z.array(chamadoAnexoSchema).optional(),
+})
+
+export const chamadoMensagemSchema = z.object({
+  tipo: z.enum(["RESPOSTA", "NOTA", "SISTEMA"]).optional(),
+  mensagem: z.string().trim().min(1, "Mensagem é obrigatória"),
+  anexos: z.array(chamadoAnexoSchema).optional(),
+})
+
+export const chamadoStatusSchema = z.object({
+  status: z.enum(["EM_ANDAMENTO", "AGUARDANDO", "RESOLVIDO", "FECHADO", "REABERTO", "CANCELADO"]),
+})
+
+export const chamadoAssumirSchema = z.object({
+  responsavelId: z.number().int().positive().optional().nullable(),
+})
