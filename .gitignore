@@ -8,9 +8,15 @@ graphify-out/
 backups/
 bkp/
 
-# Logs
-logs
+# Logs (runtime/pasta raiz logs)
+/logs
+logs/
 *.log
+# Re-incluir os diretórios de código-fonte de auditoria
+!src/app/(dashboard)/admin/logs/
+!src/app/(dashboard)/admin/logs/**
+!src/app/api/admin/logs/
+!src/app/api/admin/logs/**
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*

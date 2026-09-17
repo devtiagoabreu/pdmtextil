@@ -16,6 +16,7 @@ import {
   Package,
   MessageSquare,
   BarChart3,
+  ScrollText,
 } from "lucide-react"
 
 interface MenuItem {
@@ -261,6 +262,24 @@ function SidebarContent({ onClose, collapsed }: { onClose?: () => void; collapse
               />
               Configurações
               {isAtiva("/admin/configuracoes") && (
+                <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />
+              )}
+            </NavLink>
+            <NavLink
+              href="/admin/logs"
+              onClick={onClose}
+              className={`flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-medium transition-all ${
+                isAtiva("/admin/logs")
+                  ? "bg-blue-50 text-blue-600 dark:bg-blue-950/50 dark:text-blue-400 shadow-sm"
+                  : "text-slate-600 hover:bg-slate-100 hover:text-slate-900 dark:text-slate-400 dark:hover:bg-slate-800 dark:hover:text-slate-200"
+              }`}
+            >
+              <ScrollText
+                size={18}
+                className={isAtiva("/admin/logs") ? "text-blue-600 dark:text-blue-400" : ""}
+              />
+              Logs de Auditoria
+              {isAtiva("/admin/logs") && (
                 <span className="ml-auto w-1.5 h-1.5 rounded-full bg-blue-600 dark:bg-blue-400" />
               )}
             </NavLink>

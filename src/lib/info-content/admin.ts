@@ -159,6 +159,17 @@ export const adminContent: Record<string, InfoContent> = {
       "O log guarda o histórico de tudo que acontece com o bot: monitoramento, alertas, fila, retry e leads criados.",
     ],
   },
+  "/admin/logs": {
+    title: "Logs de Auditoria",
+    description:
+      "Trilha de auditoria do sistema (tabela 'logs'): toda ação sensível — criação, edição, exclusão, login, alterações de permissões/cadastros e erros de API — é registrada com tipo, entidade, usuário e descrição. Visualização somente leitura.",
+    rules: [
+      "Apenas usuários ADMIN e SUDO podem visualizar os logs.",
+      "Os logs são somente leitura: não há como editar ou excluir um registro.",
+      "O viewer lista os registros mais recentes primeiro (ordem decrescente por data).",
+      "É possível buscar por ação, descrição, entidade, entidade ID ou usuário, e filtrar por tipo (Erro, Info, Aviso).",
+    ],
+  },
   "/admin/configuracoes/permissoes": {
     title: "Permissões",
     description:
