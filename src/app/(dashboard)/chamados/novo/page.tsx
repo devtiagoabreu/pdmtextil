@@ -33,6 +33,7 @@ interface Processo {
   id: number
   nome: string
   codigo?: string | null
+  areaId?: number | null
 }
 
 const selectClass =
@@ -79,6 +80,8 @@ export default function ChamadoNovoPage() {
       return res.json()
     },
   })
+
+  const processosDaArea = processos.filter((p) => p.areaId === parseInt(areaId))
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
@@ -217,7 +220,16 @@ export default function ChamadoNovoPage() {
             <select
               id="areaId"
               value={areaId}
-              onChange={(e) => setAreaId(e.target.value)}
+              onChange={(e) => {
+                const novaArea = parseInt(e.target.value)
+                setAreaId(e.target.value)
+                if (
+                  processoId &&
+                  processos.some((p) => p.id === parseInt(processoId) && p.areaId !== novaArea)
+                ) {
+                  setProcessoId("")
+                }
+              }}
               className={selectClass}
               required
             >
@@ -261,8 +273,10 @@ export default function ChamadoNovoPage() {
               onChange={(e) => setProcessoId(e.target.value)}
               className={selectClass}
             >
-              <option value="">Nenhum</option>
-              {processos.map((processo) => (
+              <option value="" disabled={!areaId}>
+                {areaId ? "Nenhum" : "Selecione a fila primeiro"}
+              </option>
+              {processosDaArea.map((processo) => (
                 <option key={processo.id} value={processo.id}>
                   {processo.codigo ? `${processo.codigo} — ` : ""}
                   {processo.nome}

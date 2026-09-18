@@ -60,7 +60,7 @@ const TICKET_MOCK = {
 
 const AREAS_MOCK = [{ id: 1, nome: "T.I.", siteNome: "Matriz" }]
 const ATIVOS_MOCK = [{ id: 10, nome: "Impressora Corte", codigo: "IMP-001" }]
-const PROCESSOS_MOCK: unknown[] = []
+const PROCESSOS_MOCK = [{ id: 30, nome: "Corte Têxtil", codigo: "PROC-1", areaId: 1 }]
 
 function mountPage(data: unknown = TICKET_MOCK) {
   navMock.setPathname("/chamados/7")
@@ -135,6 +135,76 @@ describe("ChamadoDetalhePage", () => {
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Mensagem enviada"))
   })
 
+  it("renderiza respostas em thread e permite responder a um comentário", async () => {
+    const threadMock = {
+      ...TICKET_MOCK,
+      mensagens: [
+        ...TICKET_MOCK.mensagens,
+        {
+          id: 4,
+          autorId: 3,
+          autorNome: "Carlos",
+          tipo: "RESPOSTA",
+          mensagem: "Já estou verificando.",
+          respostaAId: 2,
+          createdAt: "2026-09-17T13:00:00.000Z",
+        },
+      ],
+    }
+    const fetchMock = mountPage(threadMock)
+    renderPage(<ChamadoDetalhePage />)
+    await screen.findByText("Segue o detalhamento do problema.")
+    expect(screen.getByText("Já estou verificando.")).toBeInTheDocument()
+
+    const btnResponder = screen.getAllByRole("button", { name: "Responder" })[0]
+    fireEvent.click(btnResponder)
+
+    const textarea = await screen.findByPlaceholderText("Responder a João...")
+    fireEvent.change(textarea, { target: { value: "Vou resolver" } })
+    fireEvent.submit(textarea.closest("form")!)
+
+    await waitFor(() =>
+      expect(findCall(fetchMock.calls, "/api/chamados/7/mensagens", "POST")).toBeDefined()
+    )
+    const call = findCall(fetchMock.calls, "/api/chamados/7/mensagens", "POST")
+    expect(call?.body).toMatchObject({
+      tipo: "RESPOSTA",
+      mensagem: "Vou resolver",
+      respostaAId: 2,
+    })
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Resposta enviada"))
+  })
+
+  it("adiciona link com descrição no comentário", async () => {
+    const fetchMock = mountPage()
+    renderPage(<ChamadoDetalhePage />)
+    await screen.findByText("Segue o detalhamento do problema.")
+
+    fireEvent.click(screen.getByRole("button", { name: "Adicionar link" }))
+    fireEvent.change(screen.getByPlaceholderText("URL do link (https://...)"), {
+      target: { value: "https://exemplo.com/planilha" },
+    })
+    fireEvent.change(screen.getByPlaceholderText("Descrição do link (opcional)"), {
+      target: { value: "Planilha de corte v2" },
+    })
+    fireEvent.click(screen.getByRole("button", { name: "Adicionar link" }))
+    await screen.findByText("Planilha de corte v2")
+
+    const textarea = screen.getByPlaceholderText("Escreva sua resposta...")
+    fireEvent.change(textarea, { target: { value: "Segue o link" } })
+    fireEvent.submit(document.querySelector("form")!)
+
+    await waitFor(() =>
+      expect(findCall(fetchMock.calls, "/api/chamados/7/mensagens", "POST")).toBeDefined()
+    )
+    const call = findCall(fetchMock.calls, "/api/chamados/7/mensagens", "POST")
+    expect(call?.body).toMatchObject({
+      mensagem: "Segue o link",
+      anexos: [{ url: "https://exemplo.com/planilha", descricao: "Planilha de corte v2" }],
+    })
+    await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Mensagem enviada"))
+  })
+
   it("assume o chamado", async () => {
     const fetchMock = mountPage()
     renderPage(<ChamadoDetalhePage />)
@@ -175,6 +245,9 @@ describe("ChamadoDetalhePage", () => {
     fireEvent.change(within(editForm).getByLabelText("Título"), {
       target: { value: "Impressora do corte com erro" },
     })
+    fireEvent.change(within(editForm).getByLabelText("Processo"), {
+      target: { value: "30" },
+    })
     fireEvent.submit(editForm)
 
     await waitFor(() =>
@@ -186,6 +259,7 @@ describe("ChamadoDetalhePage", () => {
     expect(body.categoria).toBe("INCIDENTE")
     expect(body.areaId).toBe(1)
     expect(body.ativoId).toBe(10)
+    expect(body.processoId).toBe(30)
     await waitFor(() => expect(toastMock.success).toHaveBeenCalledWith("Chamado atualizado"))
   })
 })

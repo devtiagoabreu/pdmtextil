@@ -40,6 +40,12 @@ export type ChamadoPrioridade = (typeof CHAMADO_PRIORIDADES)[number]
 export const CHAMADO_MSG_TIPOS = ["RESPOSTA", "NOTA", "SISTEMA"] as const
 export type ChamadoMsgTipo = (typeof CHAMADO_MSG_TIPOS)[number]
 
+export type ChamadoAnexo = {
+  url: string
+  nome?: string | null
+  descricao?: string | null
+}
+
 export const tickets = pgTable(
   "tickets",
   {
@@ -66,7 +72,7 @@ export const tickets = pgTable(
     resolvidoEm: timestamp("resolvido_em"),
     fechadoEm: timestamp("fechado_em"),
     anexos: jsonb("anexos")
-      .$type<{ url: string; nome: string }[]>()
+      .$type<ChamadoAnexo[]>()
       .default([]),
     ativo: boolean("ativo").default(true),
     createdAt: timestamp("created_at").defaultNow(),
@@ -97,14 +103,18 @@ export const ticketMensagens = pgTable(
     }),
     tipo: varchar("tipo", { length: 20 }).notNull().default("RESPOSTA"),
     mensagem: text("mensagem").notNull(),
+    respostaAId: integer("resposta_a_id").references(() => ticketMensagens.id, {
+      onDelete: "set null",
+    }),
     anexos: jsonb("anexos")
-      .$type<{ url: string; nome: string }[]>()
+      .$type<ChamadoAnexo[]>()
       .default([]),
     createdAt: timestamp("created_at").defaultNow(),
   },
   (t: any) => [
     index("idx_ticket_mensagens_ticket_id").on(t.ticketId),
     index("idx_ticket_mensagens_created_at").on(t.createdAt),
+    index("idx_ticket_mensagens_resposta_a_id").on(t.respostaAId),
   ]
 )
 

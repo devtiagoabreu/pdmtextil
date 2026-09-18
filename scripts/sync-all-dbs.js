@@ -969,6 +969,9 @@ CREATE TABLE IF NOT EXISTS ticket_mensagens (
 
 CREATE INDEX IF NOT EXISTS idx_ticket_mensagens_ticket_id ON ticket_mensagens (ticket_id);
 CREATE INDEX IF NOT EXISTS idx_ticket_mensagens_created_at ON ticket_mensagens (created_at);
+
+ALTER TABLE ticket_mensagens ADD COLUMN IF NOT EXISTS resposta_a_id INTEGER REFERENCES ticket_mensagens(id) ON DELETE SET NULL;
+CREATE INDEX IF NOT EXISTS idx_ticket_mensagens_resposta_a_id ON ticket_mensagens (resposta_a_id);
 `
 
 async function migrateDb(name, url) {

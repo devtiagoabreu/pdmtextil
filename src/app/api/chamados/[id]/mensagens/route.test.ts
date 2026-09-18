@@ -4,6 +4,7 @@ import { NextRequest, NextResponse } from "next/server"
 import { requireAuth } from "@/lib/auth"
 import { db } from "@/lib/db"
 import { createQueryBuilder, resetDb } from "@/test/route-db-mock"
+import { notificarChamado } from "@/lib/chamados/notificar"
 import { POST } from "./route"
 
 vi.mock("@/lib/auth", () => ({ requireAuth: vi.fn() }))
@@ -92,5 +93,73 @@ describe("POST /api/chamados/[id]/mensagens", () => {
     const res = await post("3", { mensagem: "ok" })
     expect(res.status).toBe(201)
     expect((await res.json()).mensagem).toBe("ok")
+  })
+
+  it("retorna 400 quando o comentário pai não existe", async () => {
+    db.select.mockReturnValueOnce(createQueryBuilder([ticketRow]))
+    db.select.mockReturnValueOnce(createQueryBuilder([]))
+    const res = await post("3", { mensagem: "ok", respostaAId: 999 })
+    expect(res.status).toBe(400)
+    expect((await res.json()).error).toBe("Comentário pai não encontrado")
+  })
+
+  it("retorna 400 quando o comentário pai é de outro chamado", async () => {
+    db.select.mockReturnValueOnce(createQueryBuilder([ticketRow]))
+    db.select.mockReturnValueOnce(
+      createQueryBuilder([{ id: 60, ticketId: 999, autorId: 7 }])
+    )
+    const res = await post("3", { mensagem: "ok", respostaAId: 60 })
+    expect(res.status).toBe(400)
+    expect((await res.json()).error).toBe("Comentário pai não pertence a este chamado")
+  })
+
+  it("cria resposta a um comentário e notifica o autor do comentário", async () => {
+    vi.mocked(notificarChamado).mockClear()
+    db.select.mockReturnValueOnce(createQueryBuilder([ticketRow]))
+    db.select.mockReturnValueOnce(
+      createQueryBuilder([{ id: 50, ticketId: 3, autorId: 7 }])
+    )
+    db.insert.mockReturnValueOnce(
+      createQueryBuilder([
+        { id: 201, ticketId: 3, autorId: 10, tipo: "RESPOSTA", mensagem: "Vou verificar", respostaAId: 50, anexos: [], createdAt: new Date() },
+      ])
+    )
+    db.update.mockReturnValueOnce(createQueryBuilder([]))
+    const res = await post("3", { mensagem: "Vou verificar", respostaAId: 50 })
+    expect(res.status).toBe(201)
+    expect((await res.json()).respostaAId).toBe(50)
+    expect(notificarChamado).toHaveBeenCalledTimes(2)
+    expect(notificarChamado).toHaveBeenCalledWith(
+      expect.objectContaining({ usuarioId: 5 })
+    )
+    expect(notificarChamado).toHaveBeenCalledWith(
+      expect.objectContaining({ usuarioId: 7, mensagem: expect.stringContaining("seu comentário") })
+    )
+  })
+
+  it("aceita comentário com link e descrição", async () => {
+    db.select.mockReturnValueOnce(createQueryBuilder([ticketRow]))
+    db.insert.mockReturnValueOnce(
+      createQueryBuilder([
+        {
+          id: 202,
+          ticketId: 3,
+          autorId: 10,
+          tipo: "RESPOSTA",
+          mensagem: "Segue a planilha",
+          anexos: [{ url: "https://exemplo.com/doc.pdf", descricao: "Planilha v2" }],
+          createdAt: new Date(),
+        },
+      ])
+    )
+    db.update.mockReturnValueOnce(createQueryBuilder([]))
+    const res = await post("3", {
+      mensagem: "Segue a planilha",
+      anexos: [{ url: "https://exemplo.com/doc.pdf", descricao: "Planilha v2" }],
+    })
+    expect(res.status).toBe(201)
+    expect((await res.json()).anexos).toEqual([
+      { url: "https://exemplo.com/doc.pdf", descricao: "Planilha v2" },
+    ])
   })
 })

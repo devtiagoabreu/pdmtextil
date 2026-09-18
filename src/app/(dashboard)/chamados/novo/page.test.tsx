@@ -12,7 +12,10 @@ const ATIVOS_MOCK = [
   { id: 10, nome: "Impressora Corte", codigo: "IMP-001" },
   { id: 11, nome: "Luminária Galpão B", codigo: "LUM-002" },
 ]
-const PROCESSOS_MOCK = [{ id: 20, nome: "Corte", codigo: "PROC-1" }]
+const PROCESSOS_MOCK = [
+  { id: 20, nome: "Corte", codigo: "PROC-1", areaId: 1 },
+  { id: 21, nome: "Caldeira", codigo: "PROC-2", areaId: 2 },
+]
 
 function mountPage() {
   navMock.setPathname("/chamados/novo")
@@ -29,15 +32,19 @@ function mountPage() {
   return fetchMock
 }
 
-function preencherFormulario() {
+async function preencherFormulario() {
   const form = document.querySelector("form")!
+  const fila = screen.getByLabelText("Fila (área responsável)") as HTMLSelectElement
+  await waitFor(() => {
+    expect(Array.from(fila.options).some((o) => o.value === "1")).toBe(true)
+  })
   fireEvent.change(screen.getByLabelText("Título"), {
     target: { value: "Impressora não imprime" },
   })
   fireEvent.change(screen.getByLabelText("Descrição"), {
     target: { value: "Setor de corte sem impressora" },
   })
-  fireEvent.change(screen.getByLabelText("Fila (área responsável)"), {
+  fireEvent.change(fila, {
     target: { value: "1" },
   })
   return form
@@ -85,7 +92,7 @@ describe("ChamadoNovoPage", () => {
     renderPage(<ChamadoNovoPage />)
     await screen.findByLabelText("Fila (área responsável)")
 
-    fireEvent.submit(preencherFormulario())
+    fireEvent.submit(await preencherFormulario())
 
     await waitFor(() =>
       expect(findCall(fetchMock.calls, "/api/chamados", "POST")).toBeDefined()
@@ -104,5 +111,54 @@ describe("ChamadoNovoPage", () => {
     })
     await waitFor(() => expect(navMock.router.push).toHaveBeenCalledWith("/chamados/42"))
     expect(toastMock.success).toHaveBeenCalledWith("Chamado aberto!")
+  })
+
+  it("filtra processos pela fila selecionada", async () => {
+    mountPage()
+    renderPage(<ChamadoNovoPage />)
+    await screen.findByLabelText("Fila (área responsável)")
+
+    const fila = () => screen.getByLabelText("Fila (área responsável)") as HTMLSelectElement
+    const temProcesso = (texto: string) =>
+      Array.from(
+        screen.getByLabelText("Processo relacionado (opcional)").querySelectorAll("option")
+      ).some((o) => o.textContent?.includes(texto))
+
+    await waitFor(() => {
+      expect(Array.from(fila().options).some((o) => o.value === "1")).toBe(true)
+    })
+
+    fireEvent.change(fila(), { target: { value: "1" } })
+    await waitFor(() => {
+      expect(temProcesso("Corte")).toBe(true)
+      expect(temProcesso("Caldeira")).toBe(false)
+    })
+
+    fireEvent.change(fila(), { target: { value: "2" } })
+    await waitFor(() => {
+      expect(temProcesso("Caldeira")).toBe(true)
+      expect(temProcesso("Corte")).toBe(false)
+    })
+  })
+
+  it("reseta o processo ao trocar de fila", async () => {
+    mountPage()
+    renderPage(<ChamadoNovoPage />)
+    await screen.findByLabelText("Fila (área responsável)")
+
+    const fila = () => screen.getByLabelText("Fila (área responsável)") as HTMLSelectElement
+    const processoSel = () =>
+      screen.getByLabelText("Processo relacionado (opcional)") as HTMLSelectElement
+
+    await waitFor(() => {
+      expect(Array.from(fila().options).some((o) => o.value === "1")).toBe(true)
+    })
+
+    fireEvent.change(fila(), { target: { value: "1" } })
+    fireEvent.change(processoSel(), { target: { value: "20" } })
+    await waitFor(() => expect(processoSel().value).toBe("20"))
+
+    fireEvent.change(fila(), { target: { value: "2" } })
+    await waitFor(() => expect(processoSel().value).toBe(""))
   })
 })

@@ -389,7 +389,8 @@ export const vistoriaConclusaoSchema = z.object({
 
 const chamadoAnexoSchema = z.object({
   url: z.string().url("URL inválida"),
-  nome: z.string().trim().min(1, "Nome do anexo é obrigatório"),
+  nome: z.string().trim().min(1, "Nome do anexo é obrigatório").optional(),
+  descricao: z.string().trim().max(300).optional(),
 })
 
 export const chamadoSchema = z.object({
@@ -412,6 +413,7 @@ export const chamadoSchema = z.object({
 export const chamadoMensagemSchema = z.object({
   tipo: z.enum(["RESPOSTA", "NOTA", "SISTEMA"]).optional(),
   mensagem: z.string().trim().min(1, "Mensagem é obrigatória"),
+  respostaAId: z.number().int().positive().optional().nullable(),
   anexos: z.array(chamadoAnexoSchema).optional(),
 })
 

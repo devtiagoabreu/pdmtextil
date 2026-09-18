@@ -9,11 +9,15 @@ import {
   ArrowLeft,
   ArrowUpRight,
   CheckCircle2,
+  CornerDownRight,
   ExternalLink,
+  Link2,
   Loader2,
   Pencil,
+  Plus,
   Send,
   UserCheck,
+  X,
 } from "lucide-react"
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
@@ -39,7 +43,8 @@ interface Mensagem {
   autorNome: string | null
   tipo: string
   mensagem: string
-  anexos?: Array<{ nome?: string; url: string }> | null
+  respostaAId?: number | null
+  anexos?: Array<{ nome?: string | null; url: string; descricao?: string | null }> | null
   createdAt: string
 }
 
@@ -87,6 +92,7 @@ interface Processo {
   id: number
   nome: string
   codigo?: string | null
+  areaId?: number | null
 }
 
 const selectClass =
@@ -126,6 +132,296 @@ function statusesDisponiveis(status: ChamadoStatus): ChamadoStatus[] {
   }
 }
 
+interface ComposerProps {
+  chamadoId: number
+  respostaAId?: number | null
+  onEnviada?: () => void
+  placeholder?: string
+  botaoLabel?: string
+}
+
+function Composer({
+  chamadoId,
+  respostaAId,
+  onEnviada,
+  placeholder = "Escreva sua resposta...",
+  botaoLabel,
+}: ComposerProps) {
+  const [mensagem, setMensagem] = useState("")
+  const [tipo, setTipo] = useState<"RESPOSTA" | "NOTA">("RESPOSTA")
+  const [links, setLinks] = useState<{ url: string; descricao: string }[]>([])
+  const [linkUrl, setLinkUrl] = useState("")
+  const [linkDesc, setLinkDesc] = useState("")
+  const [mostrarLink, setMostrarLink] = useState(false)
+  const [submitting, setSubmitting] = useState(false)
+
+  const adicionarLink = () => {
+    let url = linkUrl.trim()
+    if (!url) {
+      toast.error("Informe a URL do link")
+      return
+    }
+    if (!/^https?:\/\//i.test(url)) url = `https://${url}`
+    try {
+      new URL(url)
+    } catch {
+      toast.error("URL inválida")
+      return
+    }
+    setLinks((prev) => [...prev, { url, descricao: linkDesc.trim() }])
+    setLinkUrl("")
+    setLinkDesc("")
+    setMostrarLink(false)
+  }
+
+  const enviar = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!mensagem.trim()) {
+      toast.error("Escreva uma mensagem")
+      return
+    }
+    setSubmitting(true)
+    try {
+      const res = await fetch(`/api/chamados/${chamadoId}/mensagens`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          tipo,
+          mensagem: mensagem.trim(),
+          respostaAId: respostaAId ?? null,
+          anexos: links,
+        }),
+      })
+      if (!res.ok) {
+        const err = await res.json()
+        throw new Error(err.error || "Erro ao enviar")
+      }
+      setMensagem("")
+      setLinks([])
+      setLinkUrl("")
+      setLinkDesc("")
+      setMostrarLink(false)
+      toast.success(respostaAId ? "Resposta enviada" : "Mensagem enviada")
+      onEnviada?.()
+    } catch (error: unknown) {
+      console.error(error)
+      toast.error(error instanceof Error ? error.message : "Erro ao enviar")
+    } finally {
+      setSubmitting(false)
+    }
+  }
+
+  return (
+    <form onSubmit={enviar} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 space-y-3">
+      <div className="flex items-center gap-2">
+        <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
+          Responder como:
+        </span>
+        <label className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-300">
+          <input
+            type="radio"
+            name="tipoResposta"
+            value="RESPOSTA"
+            checked={tipo === "RESPOSTA"}
+            onChange={() => setTipo("RESPOSTA")}
+          />
+          Resposta
+        </label>
+        <label className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-300">
+          <input
+            type="radio"
+            name="tipoResposta"
+            value="NOTA"
+            checked={tipo === "NOTA"}
+            onChange={() => setTipo("NOTA")}
+          />
+          Nota interna
+        </label>
+      </div>
+      <textarea
+        value={mensagem}
+        onChange={(e) => setMensagem(e.target.value)}
+        rows={3}
+        placeholder={placeholder}
+        className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
+      />
+      <div className="space-y-2">
+        {mostrarLink ? (
+          <div className="space-y-2 rounded-lg border border-slate-200 dark:border-slate-700 p-3 bg-slate-50 dark:bg-slate-800/50">
+            <Input
+              type="url"
+              value={linkUrl}
+              onChange={(e) => setLinkUrl(e.target.value)}
+              placeholder="URL do link (https://...)"
+              required
+            />
+            <Input
+              value={linkDesc}
+              onChange={(e) => setLinkDesc(e.target.value)}
+              placeholder="Descrição do link (opcional)"
+            />
+            <div className="flex gap-2">
+              <Button size="sm" type="button" onClick={adicionarLink} className="gap-1">
+                <Plus size={14} />
+                Adicionar link
+              </Button>
+              <Button size="sm" variant="outline" type="button" onClick={() => setMostrarLink(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        ) : (
+          <Button
+            size="sm"
+            variant="outline"
+            type="button"
+            onClick={() => setMostrarLink(true)}
+            className="gap-1"
+          >
+            <Link2 size={14} />
+            Adicionar link
+          </Button>
+        )}
+        {links.length > 0 && (
+          <div className="flex flex-wrap gap-2">
+            {links.map((l, i) => (
+              <span
+                key={i}
+                className="inline-flex items-center gap-1 rounded-full bg-slate-100 dark:bg-slate-800 text-xs text-slate-600 dark:text-slate-300 pl-2 pr-1 py-1"
+              >
+                <Link2 size={12} />
+                <span className="max-w-[240px] truncate">{l.descricao || l.url}</span>
+                <button
+                  type="button"
+                  aria-label="Remover link"
+                  onClick={() => setLinks((prev) => prev.filter((_, j) => j !== i))}
+                  className="rounded-full p-0.5 hover:bg-slate-200 dark:hover:bg-slate-700"
+                >
+                  <X size={12} />
+                </button>
+              </span>
+            ))}
+          </div>
+        )}
+      </div>
+      <div className="flex justify-end">
+        <Button type="submit" disabled={submitting} className="gap-2">
+          {submitting ? (
+            <Loader2 size={16} className="animate-spin" />
+          ) : (
+            <Send size={16} />
+          )}
+          {botaoLabel || "Enviar"}
+        </Button>
+      </div>
+    </form>
+  )
+}
+
+interface ThreadNode extends Mensagem {
+  filhos: ThreadNode[]
+}
+
+function montarThread(msgs: Mensagem[]): ThreadNode[] {
+  const porId = new Map<number, ThreadNode>()
+  for (const m of msgs) porId.set(m.id, { ...m, filhos: [] })
+  const raizes: ThreadNode[] = []
+  for (const no of porId.values()) {
+    const pai = no.respostaAId != null ? porId.get(no.respostaAId) : undefined
+    if (pai) pai.filhos.push(no)
+    else raizes.push(no)
+  }
+  return raizes
+}
+
+function ComentarioCard({
+  item,
+  chamadoId,
+  podeResponder,
+  onEnviada,
+}: {
+  item: ThreadNode
+  chamadoId: number
+  podeResponder: boolean
+  onEnviada: () => void
+}) {
+  const [respondendo, setRespondendo] = useState(false)
+  return (
+    <div className="p-4">
+      <div className="flex items-center justify-between gap-2 mb-1">
+        <span
+          className={`text-xs font-medium ${item.tipo === "SISTEMA" ? "text-purple-600 dark:text-purple-400" : "text-slate-500 dark:text-slate-400"}`}
+        >
+          {item.tipo === "SISTEMA"
+            ? "Sistema"
+            : item.tipo === "NOTA"
+              ? "Nota interna"
+              : item.autorNome || "—"}
+        </span>
+        <span className="text-xs text-slate-400">{formatarDataHora(item.createdAt)}</span>
+      </div>
+      <p
+        className={`whitespace-pre-wrap text-sm ${item.tipo === "SISTEMA" ? "text-purple-700 dark:text-purple-300 italic" : item.tipo === "NOTA" ? "text-amber-700 dark:text-amber-300" : "text-slate-700 dark:text-slate-300"}`}
+      >
+        {item.mensagem}
+      </p>
+      {item.anexos && item.anexos.length > 0 && (
+        <div className="flex flex-wrap gap-2 mt-2">
+          {item.anexos.map((anexo, i) => (
+            <a
+              key={i}
+              href={anexo.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
+            >
+              <ExternalLink size={12} />
+              {anexo.descricao || anexo.nome || anexo.url}
+            </a>
+          ))}
+        </div>
+      )}
+      {podeResponder && item.tipo !== "SISTEMA" && (
+        <button
+          type="button"
+          onClick={() => setRespondendo((v) => !v)}
+          className="inline-flex items-center gap-1 mt-2 text-xs text-slate-500 dark:text-slate-400 hover:text-blue-600 dark:hover:text-blue-400"
+        >
+          <CornerDownRight size={12} />
+          Responder
+        </button>
+      )}
+      {respondendo && (
+        <div className="mt-3">
+          <Composer
+            chamadoId={chamadoId}
+            respostaAId={item.id}
+            onEnviada={() => {
+              setRespondendo(false)
+              onEnviada()
+            }}
+            placeholder={`Responder a ${item.autorNome || "este comentário"}...`}
+            botaoLabel="Responder"
+          />
+        </div>
+      )}
+      {item.filhos.length > 0 && (
+        <div className="mt-1 ml-4 border-l-2 border-slate-100 dark:border-slate-800">
+          {item.filhos.map((filho) => (
+            <ComentarioCard
+              key={filho.id}
+              item={filho}
+              chamadoId={chamadoId}
+              podeResponder={podeResponder}
+              onEnviada={onEnviada}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  )
+}
+
 export default function ChamadoDetalhePage() {
   const params = useParams()
   const router = useRouter()
@@ -133,10 +429,6 @@ export default function ChamadoDetalhePage() {
   const info = getInfoContent(pathname)
   const queryClient = useQueryClient()
   const id = parseInt(params.id as string)
-
-  const [novaMensagem, setNovaMensagem] = useState("")
-  const [tipoResposta, setTipoResposta] = useState<"RESPOSTA" | "NOTA">("RESPOSTA")
-  const [submitting, setSubmitting] = useState(false)
 
   const [editando, setEditando] = useState(false)
   const [savingEdit, setSavingEdit] = useState(false)
@@ -195,37 +487,11 @@ export default function ChamadoDetalhePage() {
     },
   })
 
+  const processosDaArea = processos.filter((p) => p.areaId === parseInt(editAreaId))
+
   const refetch = () => {
     queryClient.invalidateQueries({ queryKey: ["chamado", id] })
     queryClient.invalidateQueries({ queryKey: ["chamados"] })
-  }
-
-  const enviarMensagem = async (e: React.FormEvent) => {
-    e.preventDefault()
-    if (!novaMensagem.trim()) {
-      toast.error("Escreva uma mensagem")
-      return
-    }
-    setSubmitting(true)
-    try {
-      const res = await fetch(`/api/chamados/${id}/mensagens`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ tipo: tipoResposta, mensagem: novaMensagem.trim() }),
-      })
-      if (!res.ok) {
-        const err = await res.json()
-        throw new Error(err.error || "Erro ao enviar")
-      }
-      setNovaMensagem("")
-      toast.success("Mensagem enviada")
-      refetch()
-    } catch (error: unknown) {
-      console.error(error)
-      toast.error(error instanceof Error ? error.message : "Erro ao enviar")
-    } finally {
-      setSubmitting(false)
-    }
   }
 
   const assumir = async () => {
@@ -516,7 +782,18 @@ export default function ChamadoDetalhePage() {
               <select
                 id="editAreaId"
                 value={editAreaId}
-                onChange={(e) => setEditAreaId(e.target.value)}
+                onChange={(e) => {
+                  const novaArea = parseInt(e.target.value)
+                  setEditAreaId(e.target.value)
+                  if (
+                    editProcessoId &&
+                    processos.some(
+                      (p) => p.id === parseInt(editProcessoId) && p.areaId !== novaArea
+                    )
+                  ) {
+                    setEditProcessoId("")
+                  }
+                }}
                 className={selectClass}
                 required
               >
@@ -559,7 +836,7 @@ export default function ChamadoDetalhePage() {
                 className={selectClass}
               >
                 <option value="">Nenhum</option>
-                {processos.map((processo) => (
+                {processosDaArea.map((processo) => (
                   <option key={processo.id} value={processo.id}>
                     {processo.codigo ? `${processo.codigo} — ` : ""}
                     {processo.nome}
@@ -586,94 +863,23 @@ export default function ChamadoDetalhePage() {
             Mensagens ({chamado.mensagens.length})
           </h2>
         </div>
-        {chamado.mensagens.length === 0 ? (
-          <div className="p-8 text-center text-slate-500">Nenhuma mensagem ainda</div>
-        ) : (
-          chamado.mensagens.map((m) => (
-            <div key={m.id} className="p-4">
-              <div className="flex items-center justify-between gap-2 mb-1">
-                <span
-                  className={`text-xs font-medium ${m.tipo === "SISTEMA" ? "text-purple-600 dark:text-purple-400" : "text-slate-500 dark:text-slate-400"}`}
-                >
-                  {m.tipo === "SISTEMA"
-                    ? "Sistema"
-                    : m.tipo === "NOTA"
-                      ? "Nota interna"
-                      : m.autorNome || "—"}
-                </span>
-                <span className="text-xs text-slate-400">{formatarDataHora(m.createdAt)}</span>
-              </div>
-              <p
-                className={`whitespace-pre-wrap text-sm ${m.tipo === "SISTEMA" ? "text-purple-700 dark:text-purple-300 italic" : m.tipo === "NOTA" ? "text-amber-700 dark:text-amber-300" : "text-slate-700 dark:text-slate-300"}`}
-              >
-                {m.mensagem}
-              </p>
-              {m.anexos && m.anexos.length > 0 && (
-                <div className="flex flex-wrap gap-2 mt-2">
-                  {m.anexos.map((anexo, i) => (
-                    <a
-                      key={i}
-                      href={anexo.url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1 text-xs text-blue-600 dark:text-blue-400 hover:underline"
-                    >
-                      <ExternalLink size={12} />
-                      {anexo.nome || `Anexo ${i + 1}`}
-                    </a>
-                  ))}
-                </div>
-              )}
-            </div>
-          ))
-        )}
+{chamado.mensagens.length === 0 ? (
+        <div className="p-8 text-center text-slate-500">Nenhuma mensagem ainda</div>
+      ) : (
+        montarThread(chamado.mensagens).map((raiz) => (
+          <ComentarioCard
+            key={raiz.id}
+            item={raiz}
+            chamadoId={chamado.id}
+            podeResponder={podeResponder}
+            onEnviada={refetch}
+          />
+        ))
+      )}
       </div>
 
       {podeResponder ? (
-        <form onSubmit={enviarMensagem} className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4 space-y-3">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium text-slate-700 dark:text-slate-300">
-              Responder como:
-            </span>
-            <label className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-300">
-              <input
-                type="radio"
-                name="tipoResposta"
-                value="RESPOSTA"
-                checked={tipoResposta === "RESPOSTA"}
-                onChange={() => setTipoResposta("RESPOSTA")}
-              />
-              Resposta
-            </label>
-            <label className="flex items-center gap-1 text-sm text-slate-600 dark:text-slate-300">
-              <input
-                type="radio"
-                name="tipoResposta"
-                value="NOTA"
-                checked={tipoResposta === "NOTA"}
-                onChange={() => setTipoResposta("NOTA")}
-              />
-              Nota interna
-            </label>
-          </div>
-          <textarea
-            value={novaMensagem}
-            onChange={(e) => setNovaMensagem(e.target.value)}
-            rows={3}
-            placeholder="Escreva sua resposta..."
-            className="w-full p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600"
-          />
-          <div className="flex justify-end">
-            <Button type="submit" disabled={submitting} className="gap-2">
-              {submitting ? (
-                <Loader2 size={16} className="animate-spin" />
-              ) : (
-                <Send size={16} />
-              )}
-              Enviar
-            </Button>
-          </div>
-        </form>
+        <Composer chamadoId={chamado.id} onEnviada={refetch} />
       ) : (
         <div className="text-center text-sm text-slate-500">
           Chamado {chamado.status.toLowerCase()} — nenhuma interação disponível.

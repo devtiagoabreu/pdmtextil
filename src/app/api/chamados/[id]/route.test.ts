@@ -89,15 +89,18 @@ describe("GET /api/chamados/[id]", () => {
       .mockReturnValueOnce(createQueryBuilder([ticketRow]))
       .mockReturnValueOnce(
         createQueryBuilder([
-          { id: 100, ticketId: 7, autorId: 5, autorNome: "João", tipo: "RESPOSTA", mensagem: "ok", anexos: [], createdAt: new Date() },
+          { id: 100, ticketId: 7, autorId: 5, autorNome: "João", tipo: "RESPOSTA", mensagem: "ok", respostaAId: null, anexos: [], createdAt: new Date() },
+          { id: 101, ticketId: 7, autorId: 6, autorNome: "Ana", tipo: "RESPOSTA", mensagem: "Vou ver", respostaAId: 100, anexos: [], createdAt: new Date() },
         ])
       )
     const res = await get()
     expect(res.status).toBe(200)
     const body = await res.json()
     expect(body.id).toBe(7)
-    expect(body.mensagens).toHaveLength(1)
+    expect(body.mensagens).toHaveLength(2)
     expect(body.mensagens[0].mensagem).toBe("ok")
+    expect(body.mensagens[0].respostaAId).toBeNull()
+    expect(body.mensagens[1].respostaAId).toBe(100)
   })
 })
 
@@ -134,6 +137,39 @@ describe("PUT /api/chamados/[id]", () => {
       categoria: "SOLICITACAO",
       prioridade: "BAIXA",
       areaId: 2,
+    })
+    expect(res.status).toBe(200)
+    expect((await res.json()).titulo).toBe("Novo título")
+  })
+
+  it("retorna 400 quando o processo não pertence à fila selecionada", async () => {
+    db.select
+      .mockReturnValueOnce(createQueryBuilder([{ ...ticketRow }]))
+      .mockReturnValueOnce(createQueryBuilder([{ id: 20, areaId: 1 }]))
+    const res = await put({
+      titulo: "Novo título",
+      descricao: "descricao maior",
+      categoria: "SOLICITACAO",
+      prioridade: "BAIXA",
+      areaId: 2,
+      processoId: 20,
+    })
+    expect(res.status).toBe(400)
+    expect((await res.json()).error).toContain("fila")
+  })
+
+  it("atualiza quando o processo pertence à fila", async () => {
+    db.select
+      .mockReturnValueOnce(createQueryBuilder([{ ...ticketRow }]))
+      .mockReturnValueOnce(createQueryBuilder([{ id: 20, areaId: 2 }]))
+    db.update.mockReturnValueOnce(createQueryBuilder([{ ...ticketRow, titulo: "Novo título" }]))
+    const res = await put({
+      titulo: "Novo título",
+      descricao: "descricao maior",
+      categoria: "SOLICITACAO",
+      prioridade: "BAIXA",
+      areaId: 2,
+      processoId: 20,
     })
     expect(res.status).toBe(200)
     expect((await res.json()).titulo).toBe("Novo título")

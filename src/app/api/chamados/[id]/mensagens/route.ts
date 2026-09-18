@@ -34,6 +34,25 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
       return NextResponse.json({ error: "Chamado não encontrado" }, { status: 404 })
     }
 
+    let comentarioPai: { autorId: number | null } | undefined
+    if (parsed.data.respostaAId) {
+      const [pai] = await db
+        .select({ id: ticketMensagens.id, ticketId: ticketMensagens.ticketId, autorId: ticketMensagens.autorId })
+        .from(ticketMensagens)
+        .where(eq(ticketMensagens.id, parsed.data.respostaAId))
+        .limit(1)
+      if (!pai) {
+        return NextResponse.json({ error: "Comentário pai não encontrado" }, { status: 400 })
+      }
+      if (pai.ticketId !== ticket.id) {
+        return NextResponse.json(
+          { error: "Comentário pai não pertence a este chamado" },
+          { status: 400 }
+        )
+      }
+      comentarioPai = { autorId: pai.autorId }
+    }
+
     const [mensagem] = await db
       .insert(ticketMensagens)
       .values({
@@ -41,6 +60,7 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         autorId: auth.userId,
         tipo: parsed.data.tipo || "RESPOSTA",
         mensagem: parsed.data.mensagem,
+        respostaAId: parsed.data.respostaAId || null,
         anexos: parsed.data.anexos || [],
       })
       .returning()
@@ -77,6 +97,20 @@ export async function POST(req: NextRequest, { params }: { params: Promise<{ id:
         usuarioId: ticket.solicitanteId,
         usuarioNome: session.user.name,
       })
+
+      if (
+        comentarioPai?.autorId &&
+        comentarioPai.autorId !== auth.userId &&
+        comentarioPai.autorId !== ticket.solicitanteId
+      ) {
+        await notificarChamado({
+          tipo: "CHAMADO",
+          mensagem: `Nova resposta ao seu comentário no chamado #${ticket.id}: ${ticket.titulo}`,
+          link: `/chamados/${ticket.id}`,
+          usuarioId: comentarioPai.autorId,
+          usuarioNome: session.user.name,
+        })
+      }
     }
 
     return NextResponse.json(mensagem, { status: 201 })

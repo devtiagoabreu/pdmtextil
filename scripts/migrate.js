@@ -1576,6 +1576,11 @@ async function migrate() {
     await sql`CREATE INDEX IF NOT EXISTS idx_ticket_mensagens_created_at ON ticket_mensagens (created_at)`
     console.log("✓ Tabela ticket_mensagens criada")
 
+    // ===== ticket_mensagens.resposta_a_id (autorreferência) → comentários em thread =====
+    await sql`ALTER TABLE ticket_mensagens ADD COLUMN IF NOT EXISTS resposta_a_id INTEGER REFERENCES ticket_mensagens(id) ON DELETE SET NULL`
+    await sql`CREATE INDEX IF NOT EXISTS idx_ticket_mensagens_resposta_a_id ON ticket_mensagens (resposta_a_id)`
+    console.log("✓ Coluna resposta_a_id adicionada em ticket_mensagens")
+
     // ===== proc_diagramas.area_id (FK proc_areas, nullable) → vincula o diagrama à área =====
     await sql`ALTER TABLE proc_diagramas ADD COLUMN IF NOT EXISTS area_id INTEGER REFERENCES proc_areas(id) ON DELETE SET NULL`
     await sql`CREATE INDEX IF NOT EXISTS idx_proc_diagramas_area_id ON proc_diagramas (area_id)`

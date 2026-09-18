@@ -130,4 +130,47 @@ describe("POST /api/chamados", () => {
     expect(res.status).toBe(201)
     expect((await res.json()).id).toBe(50)
   })
+
+  it("retorna 400 quando o processo não pertence à fila selecionada", async () => {
+    db.select.mockReturnValueOnce(createQueryBuilder([{ id: 20, areaId: 1 }]))
+    const res = await post({
+      titulo: "Teste",
+      descricao: "Problema",
+      categoria: "INCIDENTE",
+      prioridade: "MEDIA",
+      areaId: 2,
+      processoId: 20,
+    })
+    expect(res.status).toBe(400)
+    expect((await res.json()).error).toContain("fila")
+  })
+
+  it("retorna 400 quando o processo não existe", async () => {
+    db.select.mockReturnValueOnce(createQueryBuilder([]))
+    const res = await post({
+      titulo: "Teste",
+      descricao: "Problema",
+      categoria: "INCIDENTE",
+      prioridade: "MEDIA",
+      areaId: 2,
+      processoId: 999,
+    })
+    expect(res.status).toBe(400)
+    expect((await res.json()).error).toBe("Processo não encontrado")
+  })
+
+  it("cria chamado quando o processo pertence à fila", async () => {
+    db.select.mockReturnValueOnce(createQueryBuilder([{ id: 20, areaId: 2 }]))
+    db.insert.mockReturnValueOnce(createQueryBuilder([{ ...ticketRow, id: 51 }]))
+    const res = await post({
+      titulo: "Teste",
+      descricao: "Problema",
+      categoria: "INCIDENTE",
+      prioridade: "MEDIA",
+      areaId: 2,
+      processoId: 20,
+    })
+    expect(res.status).toBe(201)
+    expect((await res.json()).id).toBe(51)
+  })
 })

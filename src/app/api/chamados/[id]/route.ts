@@ -75,6 +75,7 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
         autorNome: autorMsg.name,
         tipo: ticketMensagens.tipo,
         mensagem: ticketMensagens.mensagem,
+        respostaAId: ticketMensagens.respostaAId,
         anexos: ticketMensagens.anexos,
         createdAt: ticketMensagens.createdAt,
       })
@@ -116,6 +117,23 @@ export async function PUT(req: NextRequest, { params }: { params: Promise<{ id: 
         { error: "Chamado fechado ou cancelado não pode ser editado" },
         { status: 400 }
       )
+    }
+
+    if (parsed.data.processoId) {
+      const [processo] = await db
+        .select({ areaId: procProcessos.areaId })
+        .from(procProcessos)
+        .where(eq(procProcessos.id, parsed.data.processoId))
+        .limit(1)
+      if (!processo) {
+        return NextResponse.json({ error: "Processo não encontrado" }, { status: 400 })
+      }
+      if (processo.areaId !== parsed.data.areaId) {
+        return NextResponse.json(
+          { error: "O processo deve pertencer à fila (área) selecionada" },
+          { status: 400 }
+        )
+      }
     }
 
     const prioridadeMudou = existente.prioridade !== parsed.data.prioridade

@@ -104,6 +104,23 @@ export async function POST(req: NextRequest) {
     const parsed = validateRequest(chamadoSchema, body)
     if ("error" in parsed) return parsed.error
 
+    if (parsed.data.processoId) {
+      const [processo] = await db
+        .select({ areaId: procProcessos.areaId })
+        .from(procProcessos)
+        .where(eq(procProcessos.id, parsed.data.processoId))
+        .limit(1)
+      if (!processo) {
+        return NextResponse.json({ error: "Processo não encontrado" }, { status: 400 })
+      }
+      if (processo.areaId !== parsed.data.areaId) {
+        return NextResponse.json(
+          { error: "O processo deve pertencer à fila (área) selecionada" },
+          { status: 400 }
+        )
+      }
+    }
+
     const sla = calcularSLA(parsed.data.prioridade as ChamadoPrioridade)
 
     const [nova] = await db
