@@ -1354,6 +1354,22 @@ export const searchRegistry: SearchItem[] = [
     description: "Dashboard de métricas de chamados por status, prioridade e fila",
     module: "Chamados",
   },
+  {
+    id: "chamados-categorias",
+    label: "Categorias de Chamado",
+    keywords: ["chamado", "categoria", "tipos", "classificacao", "codigo", "cor", "manutencao"],
+    href: "/chamados/categorias",
+    description: "Cadastro das categorias (tipos) de chamado disponíveis na abertura e nos filtros",
+    module: "Chamados",
+  },
+  {
+    id: "chamados-categoria-form",
+    label: "Nova Categoria de Chamado",
+    keywords: ["chamado", "categoria", "nova", "criar", "editar", "codigo", "cor"],
+    href: "/chamados/categorias/novo",
+    description: "Formulário de criação e edição de categoria de chamado",
+    module: "Chamados",
+  },
 ]
 
 export function searchItems(query: string): SearchItem[] {

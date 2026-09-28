@@ -16,6 +16,10 @@ const PROCESSOS_MOCK = [
   { id: 20, nome: "Corte", codigo: "PROC-1", areaId: 1 },
   { id: 21, nome: "Caldeira", codigo: "PROC-2", areaId: 2 },
 ]
+const CATEGORIAS_MOCK = [
+  { id: 1, codigo: "SOLICITACAO", nome: "Solicitação", cor: "blue", ativo: true, ordem: 10 },
+  { id: 2, codigo: "INCIDENTE", nome: "Incidente", cor: "red", ativo: true, ordem: 20 },
+]
 
 function mountPage() {
   navMock.setPathname("/chamados/novo")
@@ -23,6 +27,9 @@ function mountPage() {
     if (method === "GET" && url === "/api/processos/areas") return { json: AREAS_MOCK }
     if (method === "GET" && url === "/api/ativos") return { json: ATIVOS_MOCK }
     if (method === "GET" && url === "/api/processos/processos") return { json: PROCESSOS_MOCK }
+    if (method === "GET" && url === "/api/chamados/categorias?somenteAtivas=true") {
+      return { json: CATEGORIAS_MOCK }
+    }
     if (method === "POST" && url === "/api/chamados") {
       return { status: 201, json: { id: 42 } }
     }

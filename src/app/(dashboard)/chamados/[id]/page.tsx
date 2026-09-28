@@ -25,17 +25,15 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import {
-  chamadoCategoriaLabel,
   chamadoPrioridadeLabel,
   chamadoStatusLabel,
   CHAMADO_STATUS_COLORS,
   CHAMADO_PRIORIDADE_COLORS,
-  CHAMADO_CATEGORIA_COLORS,
   CHAMADO_STATUS_LABELS,
   CHAMADO_PRIORIDADE_LABELS,
-  CHAMADO_CATEGORIA_LABELS,
 } from "@/lib/chamados/constantes"
-import type { ChamadoStatus, ChamadoPrioridade, ChamadoCategoria } from "@/lib/db/schema/chamados"
+import { useChamadoCategorias } from "@/hooks/use-chamado-categorias"
+import type { ChamadoStatus, ChamadoPrioridade } from "@/lib/db/schema/chamados"
 
 interface Mensagem {
   id: number
@@ -52,7 +50,7 @@ interface Chamado {
   id: number
   titulo: string
   descricao: string
-  categoria: ChamadoCategoria
+  categoria: string
   status: ChamadoStatus
   prioridade: ChamadoPrioridade
   areaId: number
@@ -434,7 +432,7 @@ export default function ChamadoDetalhePage() {
   const [savingEdit, setSavingEdit] = useState(false)
   const [editTitulo, setEditTitulo] = useState("")
   const [editDescricao, setEditDescricao] = useState("")
-  const [editCategoria, setEditCategoria] = useState<ChamadoCategoria>("SOLICITACAO")
+  const [editCategoria, setEditCategoria] = useState("")
   const [editPrioridade, setEditPrioridade] = useState<ChamadoPrioridade>("MEDIA")
   const [editAreaId, setEditAreaId] = useState("")
   const [editAtivoId, setEditAtivoId] = useState("")
@@ -448,6 +446,12 @@ export default function ChamadoDetalhePage() {
       return res.json()
     },
   })
+
+  const {
+    categorias,
+    label: categoriaLabel,
+    badgeClass: categoriaBadgeClass,
+  } = useChamadoCategorias(false)
 
   useEffect(() => {
     if (chamado) {
@@ -608,8 +612,8 @@ export default function ChamadoDetalhePage() {
             <span className={badgeClass(CHAMADO_PRIORIDADE_COLORS[chamado.prioridade] || fallback)}>
               {chamadoPrioridadeLabel(chamado.prioridade)}
             </span>
-            <span className={badgeClass(CHAMADO_CATEGORIA_COLORS[chamado.categoria] || fallback)}>
-              {chamadoCategoriaLabel(chamado.categoria)}
+            <span className={badgeClass(categoriaBadgeClass(chamado.categoria))}>
+              {categoriaLabel(chamado.categoria)}
             </span>
           </div>
         </div>
@@ -748,12 +752,13 @@ export default function ChamadoDetalhePage() {
               <select
                 id="editCategoria"
                 value={editCategoria}
-                onChange={(e) => setEditCategoria(e.target.value as ChamadoCategoria)}
+                onChange={(e) => setEditCategoria(e.target.value)}
                 className={selectClass}
               >
-                {Object.entries(CHAMADO_CATEGORIA_LABELS).map(([key, label]) => (
-                  <option key={key} value={key}>
-                    {label}
+                <option value="">Selecione a categoria</option>
+                {categorias.map((c) => (
+                  <option key={c.codigo} value={c.codigo}>
+                    {c.nome}
                   </option>
                 ))}
               </select>

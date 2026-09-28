@@ -12,22 +12,20 @@ import { Input } from "@/components/ui/input"
 import { matchesSearch } from "@/components/ui/list-filters"
 import {
   chamadoStatusLabel,
-  chamadoCategoriaLabel,
   chamadoPrioridadeLabel,
   CHAMADO_STATUS_COLORS,
   CHAMADO_PRIORIDADE_COLORS,
-  CHAMADO_CATEGORIA_COLORS,
   CHAMADO_STATUS_LABELS,
   CHAMADO_PRIORIDADE_LABELS,
-  CHAMADO_CATEGORIA_LABELS,
 } from "@/lib/chamados/constantes"
-import type { ChamadoStatus, ChamadoPrioridade, ChamadoCategoria } from "@/lib/db/schema/chamados"
+import { useChamadoCategorias } from "@/hooks/use-chamado-categorias"
+import type { ChamadoStatus, ChamadoPrioridade } from "@/lib/db/schema/chamados"
 
 interface Chamado {
   id: number
   titulo: string
   descricao: string
-  categoria: ChamadoCategoria
+  categoria: string
   status: ChamadoStatus
   prioridade: ChamadoPrioridade
   areaId: number
@@ -69,8 +67,12 @@ export default function ChamadosPage() {
   const [search, setSearch] = useState("")
   const [status, setStatus] = useState("")
   const [prioridade, setPrioridade] = useState("")
+  const [categoria, setCategoria] = useState("")
   const [areaId, setAreaId] = useState("")
   const [minhasFilas, setMinhasFilas] = useState(false)
+
+  const { categorias, label: categoriaLabel, badgeClass: categoriaBadgeClass } =
+    useChamadoCategorias(false)
 
   const { data: chamados = [], isLoading } = useQuery<Chamado[]>({
     queryKey: ["chamados", minhasFilas],
@@ -96,8 +98,9 @@ export default function ChamadosPage() {
     const texto = matchesSearch(c, search)
     const porStatus = !status || c.status === status
     const porPrioridade = !prioridade || c.prioridade === prioridade
+    const porCategoria = !categoria || c.categoria === categoria
     const porFila = !areaId || String(c.areaId) === areaId
-    return texto && porStatus && porPrioridade && porFila
+    return texto && porStatus && porPrioridade && porCategoria && porFila
   })
 
   return (
@@ -162,6 +165,19 @@ export default function ChamadosPage() {
             {Object.entries(CHAMADO_PRIORIDADE_LABELS).map(([key, label]) => (
               <option key={key} value={key}>
                 {label}
+              </option>
+            ))}
+          </select>
+          <select
+            aria-label="Filtrar por categoria"
+            value={categoria}
+            onChange={(e) => setCategoria(e.target.value)}
+            className="p-2 rounded border bg-white dark:bg-slate-700 border-slate-300 dark:border-slate-600 text-sm"
+          >
+            <option value="">Todas as categorias</option>
+            {categorias.map((c) => (
+              <option key={c.codigo} value={c.codigo}>
+                {c.nome}
               </option>
             ))}
           </select>
@@ -242,12 +258,8 @@ export default function ChamadosPage() {
                       <span className="block text-xs text-slate-400">#{c.id}</span>
                     </td>
                     <td className="p-4">
-                      <span
-                        className={badgeClass(
-                          CHAMADO_CATEGORIA_COLORS[c.categoria] || fallback
-                        )}
-                      >
-                        {chamadoCategoriaLabel(c.categoria)}
+                      <span className={badgeClass(categoriaBadgeClass(c.categoria))}>
+                        {categoriaLabel(c.categoria)}
                       </span>
                     </td>
                     <td className="p-4 text-sm text-slate-500">{c.areaNome || "—"}</td>

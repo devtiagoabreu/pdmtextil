@@ -8,6 +8,7 @@ const ITENS = [
   { titulo: "Chamados", url: "/chamados", ordem: 0 },
   { titulo: "Novo Chamado", url: "/chamados/novo", ordem: 1 },
   { titulo: "Dashboard", url: "/chamados/dashboard", ordem: 2 },
+  { titulo: "Categorias", url: "/chamados/categorias", ordem: 3 },
 ]
 
 async function aplicarMenu(name, url) {

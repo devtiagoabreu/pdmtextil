@@ -52,6 +52,18 @@ const AREAS_MOCK = [
   { id: 2, nome: "Manutenção" },
 ]
 
+const CATEGORIAS_MOCK = [
+  { id: 1, codigo: "INCIDENTE", nome: "Incidente", cor: "red", ativo: true, ordem: 10 },
+  {
+    id: 2,
+    codigo: "MANUTENCAO_PREVENTIVA",
+    nome: "Manutenção preventiva",
+    cor: "emerald",
+    ativo: true,
+    ordem: 20,
+  },
+]
+
 function mountPage(chamados: unknown[] = CHAMADOS_MOCK, areas: unknown[] = AREAS_MOCK) {
   navMock.setPathname("/chamados")
   const fetchMock = createFetchMock(({ method, url }) => {
@@ -59,6 +71,7 @@ function mountPage(chamados: unknown[] = CHAMADOS_MOCK, areas: unknown[] = AREAS
     if (method === "GET" && url === "/api/chamados?minhasFilas=true") {
       return { json: chamados.filter((c) => (c as { responsavelNome: string | null }).responsavelNome) }
     }
+    if (method === "GET" && url === "/api/chamados/categorias") return { json: CATEGORIAS_MOCK }
     if (method === "GET" && url === "/api/processos/areas") return { json: areas }
     return { status: 404, json: { error: "Rota não mockada" } }
   })
@@ -78,7 +91,8 @@ describe("ChamadosPage", () => {
     expect(screen.getByRole("heading", { name: "Chamados" })).toBeInTheDocument()
     expect(await screen.findByText("Impressora não imprime")).toBeInTheDocument()
     expect(screen.getByText("Troca de lâmpada no galpão B")).toBeInTheDocument()
-    expect(screen.getByText("Incidente")).toBeInTheDocument()
+    const linha = screen.getByText("Impressora não imprime").closest("tr")!
+    expect(within(linha).getByText("Incidente")).toBeInTheDocument()
     expect(screen.getAllByText("Em andamento").length).toBeGreaterThan(0)
     expect(screen.getAllByText("Alta").length).toBeGreaterThan(0)
     expect(screen.getByText("Carlos")).toBeInTheDocument()
@@ -151,5 +165,18 @@ describe("ChamadosPage", () => {
 
     const row = screen.getByText("Impressora não imprime").closest("tr")!
     expect(within(row).queryByText("—")).toBeInTheDocument()
+  })
+
+  it("usa o código bruto quando a categoria não existe mais na base", async () => {
+    mountPage([
+      {
+        ...CHAMADOS_MOCK[0],
+        categoria: "CATEGORIA_REMOVIDA",
+      },
+    ])
+    renderPage(<ChamadosPage />)
+
+    const linha = (await screen.findByText("Impressora não imprime")).closest("tr")!
+    expect(within(linha).getByText("CATEGORIA_REMOVIDA")).toBeInTheDocument()
   })
 })

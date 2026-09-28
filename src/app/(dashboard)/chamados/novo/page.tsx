@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { useQuery } from "@tanstack/react-query"
 import { useRouter, usePathname } from "next/navigation"
 import { InfoButton } from "@/components/ui/info-button"
@@ -11,11 +11,9 @@ import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
-import {
-  CHAMADO_CATEGORIA_LABELS,
-  CHAMADO_PRIORIDADE_LABELS,
-} from "@/lib/chamados/constantes"
-import type { ChamadoCategoria, ChamadoPrioridade } from "@/lib/db/schema/chamados"
+import { CHAMADO_PRIORIDADE_LABELS } from "@/lib/chamados/constantes"
+import { useChamadoCategorias } from "@/hooks/use-chamado-categorias"
+import type { ChamadoPrioridade } from "@/lib/db/schema/chamados"
 
 interface Area {
   id: number
@@ -46,7 +44,7 @@ export default function ChamadoNovoPage() {
 
   const [titulo, setTitulo] = useState("")
   const [descricao, setDescricao] = useState("")
-  const [categoria, setCategoria] = useState<ChamadoCategoria>("SOLICITACAO")
+  const [categoria, setCategoria] = useState("")
   const [prioridade, setPrioridade] = useState<ChamadoPrioridade>("MEDIA")
   const [areaId, setAreaId] = useState("")
   const [ativoId, setAtivoId] = useState("")
@@ -83,6 +81,12 @@ export default function ChamadoNovoPage() {
 
   const processosDaArea = processos.filter((p) => p.areaId === parseInt(areaId))
 
+  const { categorias } = useChamadoCategorias()
+
+  useEffect(() => {
+    if (!categoria && categorias.length > 0) setCategoria(categorias[0].codigo)
+  }, [categorias, categoria])
+
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault()
     if (!titulo.trim()) {
@@ -91,6 +95,10 @@ export default function ChamadoNovoPage() {
     }
     if (!descricao.trim()) {
       toast.error("Descreva o problema ou solicitação")
+      return
+    }
+    if (!categoria) {
+      toast.error("Selecione a categoria")
       return
     }
     if (!areaId) {
@@ -184,12 +192,14 @@ export default function ChamadoNovoPage() {
             <select
               id="categoria"
               value={categoria}
-              onChange={(e) => setCategoria(e.target.value as ChamadoCategoria)}
+              onChange={(e) => setCategoria(e.target.value)}
               className={selectClass}
+              required
             >
-              {Object.entries(CHAMADO_CATEGORIA_LABELS).map(([key, label]) => (
-                <option key={key} value={key}>
-                  {label}
+              <option value="">Selecione a categoria</option>
+              {categorias.map((c) => (
+                <option key={c.codigo} value={c.codigo}>
+                  {c.nome}
                 </option>
               ))}
             </select>

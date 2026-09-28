@@ -927,11 +927,32 @@ CREATE INDEX IF NOT EXISTS idx_ativos_categorias_area_id ON ativos_categorias (a
 CREATE INDEX IF NOT EXISTS idx_ativos_tipos_vistoria_area_id ON ativos_tipos_vistoria (area_id);
 
 -- ==================== Chamados (Tickets de T.I./Manutenção) ====================
+CREATE TABLE IF NOT EXISTS chamado_categorias (
+  id SERIAL PRIMARY KEY,
+  codigo VARCHAR(40) NOT NULL UNIQUE,
+  nome VARCHAR(80) NOT NULL,
+  cor VARCHAR(20) NOT NULL DEFAULT 'slate',
+  ativo BOOLEAN NOT NULL DEFAULT true,
+  ordem INTEGER NOT NULL DEFAULT 0,
+  created_at TIMESTAMP DEFAULT now(),
+  updated_at TIMESTAMP DEFAULT now()
+);
+
+INSERT INTO chamado_categorias (codigo, nome, cor, ativo, ordem) VALUES
+  ('INCIDENTE', 'Incidente', 'red', true, 1),
+  ('SOLICITACAO', 'Solicitacao', 'blue', true, 2),
+  ('MANUTENCAO_CORRETIVA', 'Manutencao corretiva', 'amber', true, 3),
+  ('MANUTENCAO_PREVENTIVA', 'Manutencao preventiva', 'emerald', true, 4),
+  ('OUTRO', 'Outro', 'slate', true, 5)
+ON CONFLICT (codigo) DO NOTHING;
+
+CREATE INDEX IF NOT EXISTS idx_chamado_categorias_ordem ON chamado_categorias (ordem);
+
 CREATE TABLE IF NOT EXISTS tickets (
   id SERIAL PRIMARY KEY,
   titulo VARCHAR(200) NOT NULL,
   descricao TEXT NOT NULL,
-  categoria VARCHAR(30) NOT NULL DEFAULT 'SOLICITACAO',
+  categoria VARCHAR(40) NOT NULL DEFAULT 'SOLICITACAO',
   status VARCHAR(30) NOT NULL DEFAULT 'ABERTO',
   prioridade VARCHAR(20) NOT NULL DEFAULT 'MEDIA',
   area_id INTEGER NOT NULL REFERENCES proc_areas(id),
@@ -972,6 +993,9 @@ CREATE INDEX IF NOT EXISTS idx_ticket_mensagens_created_at ON ticket_mensagens (
 
 ALTER TABLE ticket_mensagens ADD COLUMN IF NOT EXISTS resposta_a_id INTEGER REFERENCES ticket_mensagens(id) ON DELETE SET NULL;
 CREATE INDEX IF NOT EXISTS idx_ticket_mensagens_resposta_a_id ON ticket_mensagens (resposta_a_id);
+
+-- tickets.categoria virou codigo de chamado_categorias (ate 40 chars)
+ALTER TABLE tickets ALTER COLUMN categoria TYPE VARCHAR(40);
 `
 
 async function migrateDb(name, url) {

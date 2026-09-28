@@ -15,12 +15,12 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import Link from "next/link"
 import {
-  chamadoCategoriaLabel,
   chamadoPrioridadeLabel,
   chamadoStatusLabel,
   CHAMADO_STATUS_COLORS,
   CHAMADO_PRIORIDADE_COLORS,
 } from "@/lib/chamados/constantes"
+import { useChamadoCategorias } from "@/hooks/use-chamado-categorias"
 import type { ChamadoStatus, ChamadoPrioridade } from "@/lib/db/schema/chamados"
 
 interface Recente {
@@ -71,6 +71,8 @@ function formatarData(data?: string | null): string {
 export default function ChamadosDashboardPage() {
   const pathname = usePathname()
   const info = getInfoContent(pathname)
+
+  const { label: categoriaLabel } = useChamadoCategorias(false)
 
   const { data, isLoading } = useQuery<DashboardData>({
     queryKey: ["chamados-dashboard"],
@@ -287,7 +289,7 @@ export default function ChamadosDashboardPage() {
                         </span>
                       </Link>
                       <span className="block text-xs text-slate-400">
-                        #{r.id} · {chamadoCategoriaLabel(r.categoria)}
+                        #{r.id} · {categoriaLabel(r.categoria)}
                       </span>
                     </td>
                     <td className="p-4 text-sm text-slate-500">{r.areaNome || "—"}</td>

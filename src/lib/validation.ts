@@ -393,16 +393,21 @@ const chamadoAnexoSchema = z.object({
   descricao: z.string().trim().max(300).optional(),
 })
 
+
+export const chamadoCategoriaSchema = z.object({
+  codigo: z.string().trim().min(1, "Informe o codigo").max(40, "Maximo 40 caracteres").transform(v => v.toUpperCase().replace(/\s+/g, "_")),
+  nome: z.string().trim().min(1, "Informe o nome").max(80, "Maximo 80 caracteres"),
+  cor: z.string().trim().min(1).max(20).default("slate"),
+  ativo: z.boolean().default(true),
+  ordem: z.number().int().min(0).max(999).default(0)
+})
+
+export const chamadoCategoriaUpdateSchema = chamadoCategoriaSchema.partial()
+
 export const chamadoSchema = z.object({
   titulo: z.string().trim().min(1, "Título é obrigatório").max(200),
   descricao: z.string().trim().min(1, "Descrição é obrigatória"),
-  categoria: z.enum([
-    "INCIDENTE",
-    "SOLICITACAO",
-    "MANUTENCAO_CORRETIVA",
-    "MANUTENCAO_PREVENTIVA",
-    "OUTRO",
-  ]),
+  categoria: z.string().trim().min(1, "Informe a categoria").max(40, "Maximo 40 caracteres"),
   prioridade: z.enum(["URGENTE", "ALTA", "MEDIA", "BAIXA"]),
   areaId: z.number().int().positive("Fila (área) é obrigatória"),
   ativoId: z.number().int().positive().optional().nullable(),

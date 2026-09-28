@@ -25,15 +25,6 @@ export const CHAMADO_STATUS = [
 ] as const
 export type ChamadoStatus = (typeof CHAMADO_STATUS)[number]
 
-export const CHAMADO_CATEGORIAS = [
-  "INCIDENTE",
-  "SOLICITACAO",
-  "MANUTENCAO_CORRETIVA",
-  "MANUTENCAO_PREVENTIVA",
-  "OUTRO",
-] as const
-export type ChamadoCategoria = (typeof CHAMADO_CATEGORIAS)[number]
-
 export const CHAMADO_PRIORIDADES = ["URGENTE", "ALTA", "MEDIA", "BAIXA"] as const
 export type ChamadoPrioridade = (typeof CHAMADO_PRIORIDADES)[number]
 
@@ -46,13 +37,32 @@ export type ChamadoAnexo = {
   descricao?: string | null
 }
 
+
+export const chamadoCategorias = pgTable(
+  "chamado_categorias",
+  {
+    id: serial("id").primaryKey(),
+    codigo: varchar("codigo", { length: 40 }).notNull().unique(),
+    nome: varchar("nome", { length: 80 }).notNull(),
+    cor: varchar("cor", { length: 20 }).notNull().default("slate"),
+    ativo: boolean("ativo").notNull().default(true),
+    ordem: integer("ordem").notNull().default(0),
+    createdAt: timestamp("created_at").defaultNow(),
+    updatedAt: timestamp("updated_at").defaultNow(),
+  },
+  (t: any) => [index("idx_chamado_categorias_ordem").on(t.ordem)]
+)
+
+export type ChamadoCategoriaRegistro = typeof chamadoCategorias.$inferSelect
+export type NovaChamadoCategoria = typeof chamadoCategorias.$inferInsert
+
 export const tickets = pgTable(
   "tickets",
   {
     id: serial("id").primaryKey(),
     titulo: varchar("titulo", { length: 200 }).notNull(),
     descricao: text("descricao").notNull(),
-    categoria: varchar("categoria", { length: 30 }).notNull().default("SOLICITACAO"),
+    categoria: varchar("categoria", { length: 40 }).notNull().default("SOLICITACAO"),
     status: varchar("status", { length: 30 }).notNull().default("ABERTO"),
     prioridade: varchar("prioridade", { length: 20 }).notNull().default("MEDIA"),
     areaId: integer("area_id")

@@ -51,4 +51,29 @@ export const chamadosContent: Record<string, InfoContent> = {
       "Chamados abertos e com SLA estourado merecem atenção prioritária.",
     ],
   },
+  "/chamados/categorias": {
+    title: "Categorias de Chamado",
+    description:
+      "Cadastro das categorias (tipos) de chamado usadas na abertura, na edição e nos filtros da lista.",
+    rules: [
+      "O código é gravado no chamado; deve ser único e sem espaços (virou com LETRAS MAIÚSCULAS e _).",
+      "Renomear o código atualiza automaticamente os chamados que já usavam a categoria antiga.",
+      "Categorias inativas somem dos selects de abertura/edição, mas continuam visíveis no filtro e no histórico.",
+      "A exclusão só é permitida quando não há chamado vinculado.",
+    ],
+    fields: [
+      { name: "Código", desc: "Identificador gravado em tickets.categoria (até 40 caracteres)" },
+      { name: "Nome", desc: "Rótulo exibido nos selects, badges e dashboards" },
+      { name: "Cor", desc: "Paleta da badge (red, blue, amber, emerald, slate, ...)" },
+      { name: "Ordem", desc: "Posição de exibição nos selects" },
+    ],
+  },
+  "/chamados/categorias/novo": {
+    title: "Nova Categoria de Chamado",
+    description: "Cria uma nova categoria de chamado com código, nome, cor, ordem e situação.",
+    rules: [
+      "Código e nome são obrigatórios.",
+      "A cor define a badge usada na lista, no detalhe e no dashboard.",
+    ],
+  },
 }
