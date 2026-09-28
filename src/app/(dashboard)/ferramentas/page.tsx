@@ -1,5 +1,5 @@
 import Link from "next/link"
-import { Send, Calculator, Wrench, Repeat, Search } from "lucide-react"
+import { Send, Calculator, Wrench, Repeat, Search, FileText } from "lucide-react"
 import { PageInfoButton } from "@/components/ui/page-info-button"
 
 const ferramentas = [
@@ -8,6 +8,12 @@ const ferramentas = [
     label: "Consulta CNPJ",
     desc: "Consultar dados de CNPJ na Receita Federal, comparar com registros locais e sincronizar",
     icon: Search,
+  },
+  {
+    href: "/ferramentas/nfe-cte",
+    label: "NF-e → CT-e por Período",
+    desc: "Listar as NF-e que possuem CT-e, com transportadora, tomador, fornecedor e percentual da nota",
+    icon: FileText,
   },
   {
     href: "/ferramentas/regra-de-tres",

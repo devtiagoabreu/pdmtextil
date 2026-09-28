@@ -531,6 +531,26 @@ export const searchRegistry: SearchItem[] = [
     description: "Consulta de CNPJ na Receita Federal",
     module: "Ferramentas",
   },
+  {
+    id: "ferramentas-nfe-cte",
+    label: "NF-e → CT-e por Período",
+    keywords: [
+      "cte",
+      "conhecimento",
+      "transporte",
+      "frete",
+      "nfe",
+      "nota fiscal",
+      "romaneio",
+      "transportadora",
+      "periodo",
+      "relatorio",
+      "ferramenta",
+    ],
+    href: "/ferramentas/nfe-cte",
+    description: "NF-e que possuem CT-e por período, com percentual da nota no CT-e",
+    module: "Ferramentas",
+  },
 
   // Documentos
   {

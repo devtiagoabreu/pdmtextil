@@ -43,4 +43,24 @@ export const ferramentasContent: Record<string, InfoContent> = {
       { name: "Resultado", desc: "Dados completos da empresa retornados pela Receita Federal" },
     ],
   },
+  "/ferramentas/nfe-cte": {
+    title: "NF-e → CT-e por Período",
+    description:
+      "Relatório que lista todas as NF-e que possuem CT-e em um período, com razão social da transportadora, do tomador e do fornecedor, e o percentual de cada NF-e no total do CT-e.",
+    rules: [
+      "A granularidade é NF-e: cada linha é uma nota, e os dados do CT-e são repetidos em suas linhas.",
+      "O período filtra pela data de emissão da NF-e. Sem cabeçalho de NF-e, vale a data do CT-e.",
+      "O percentual fecha em 100% por CT-e; arredondamento de centavos pode gerar 99,99% ou 100,01%.",
+      "O total do CT-e é o valor do frete, não o valor da carga — por isso o percentual costuma ser baixo.",
+      "NF-e sem cabeçalho aparece com data, valor e situação vazios, mas continua na lista.",
+      "Nome de fornecedor pode vir vazio quando o CNPJ não está cadastrado no ERP de origem.",
+      "A ferramenta é somente de leitura — não altera nenhum dado no sistema.",
+    ],
+    fields: [
+      { name: "Período", desc: "Intervalo de datas (padrão: últimos 2 meses)" },
+      { name: "CT-e", desc: "Número, série, emissão, frete, transportadora e tomador" },
+      { name: "NF-e", desc: "Número, série, emissão, valor, frete rateado e fornecedor" },
+      { name: "% NF-e no CT-e", desc: "Peso da nota no total do CT-e" },
+    ],
+  },
 }

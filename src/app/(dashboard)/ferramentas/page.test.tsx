@@ -20,6 +20,10 @@ describe("FerramentasHubPage", () => {
       "href",
       "/ferramentas/conversores"
     )
+    expect(screen.getByRole("link", { name: /NF-e → CT-e por Período/ })).toHaveAttribute(
+      "href",
+      "/ferramentas/nfe-cte"
+    )
     expect(screen.getByRole("link", { name: /Email em Massa/ })).toHaveAttribute(
       "href",
       "/admin/email-massa"
@@ -31,5 +35,6 @@ describe("FerramentasHubPage", () => {
     expect(screen.getByText(/Consultar dados de CNPJ na Receita Federal/)).toBeInTheDocument()
     expect(screen.getByText(/Conversão entre Ne, Nm, Tex, Dtex e Denier/)).toBeInTheDocument()
     expect(screen.getByText(/Resolve regra de três simples/)).toBeInTheDocument()
+    expect(screen.getByText(/Listar as NF-e que possuem CT-e/)).toBeInTheDocument()
   })
 })

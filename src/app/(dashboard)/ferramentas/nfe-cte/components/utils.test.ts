@@ -1,0 +1,326 @@
+import { describe, it, expect } from "vitest"
+import {
+  agruparPorCte,
+  calcularResumo,
+  extrairItems,
+  filtrarPorPeriodo,
+  formatarMoeda,
+  formatarNumero,
+  formatarPercentual,
+  isoParaData,
+  normalizarLinha,
+  normalizarResposta,
+  paraIso,
+  parseDataBr,
+  periodoMesCorrente,
+  periodoPadrao,
+  somarMeses,
+} from "./utils"
+import type { LinhaCte } from "./types"
+
+const cteBase = {
+  cte_numero: 195476,
+  cte_serie: "1",
+  cte_data: "18/09/2026",
+  cte_valor_total: 131.7,
+  cte_valor_frete: 0,
+  cte_situacao: 4,
+  cte_transportadora_razao: "E E CARGAS E ENCOMENDAS LTDA- SORRISO",
+  cte_transportadora_fantasia: "SORRISO TRANSPORTES",
+  cte_tomador_razao: "E E CARGAS E ENCOMENDAS LTDA- SORRISO",
+  cte_tomador_fantasia: "SORRISO TRANSPORTES",
+  soma_nf_do_cte: null,
+  pct_cte_sobre_total_nfs: null,
+  nf_numero: null,
+  nf_serie: null,
+  nf_data: null,
+  nf_valor_total: null,
+  pct_nf_no_total_cte: null,
+  nf_frete_rateado: null,
+  nf_situacao: null,
+  nf_fornecedor_razao: null,
+  nf_fornecedor_fantasia: null,
+} satisfies LinhaCte
+
+function linha(over: Partial<LinhaCte>): LinhaCte {
+  return { ...cteBase, ...over }
+}
+
+describe("normalizarLinha", () => {
+  it("aceita chaves minúsculas (formato real da API)", () => {
+    const r = normalizarLinha({ cte_numero: 195476, cte_data: "18/09/2026", cte_valor_total: 131.7 })
+    expect(r.cte_numero).toBe(195476)
+    expect(r.cte_data).toBe("18/09/2026")
+    expect(r.cte_valor_total).toBe(131.7)
+  })
+
+  it("aceita chaves maiúsculas (formato da documentação)", () => {
+    const r = normalizarLinha({ CTE_NUMERO: 195476, CTE_DATA: "18/09/2026", CTE_VALOR_TOTAL: 131.7 })
+    expect(r.cte_numero).toBe(195476)
+    expect(r.cte_data).toBe("18/09/2026")
+    expect(r.cte_valor_total).toBe(131.7)
+  })
+
+  it("converte string numérica com vírgula", () => {
+    const r = normalizarLinha({ cte_valor_total: "1.234,56", nf_valor_total: "20.737,52" })
+    expect(r.cte_valor_total).toBe(1234.56)
+    expect(r.nf_valor_total).toBe(20737.52)
+  })
+
+  it("normaliza null e string vazia para null", () => {
+    const r = normalizarLinha({ nf_numero: null, nf_serie: "", nf_data: "   " })
+    expect(r.nf_numero).toBeNull()
+    expect(r.nf_serie).toBeNull()
+    expect(r.nf_data).toBeNull()
+  })
+
+  it("não inventa campo para chave desconhecida", () => {
+    const r = normalizarLinha({ campo_inexistente: 10 })
+    expect((r as unknown as Record<string, unknown>).campo_inexistente).toBeUndefined()
+  })
+})
+
+describe("extraitItems", () => {
+  it("desembrulha items", () => {
+    expect(extrairItems({ items: [{ a: 1 }] })).toEqual([{ a: 1 }])
+  })
+
+  it("aceita array direto", () => {
+    expect(extrairItems([{ a: 1 }])).toEqual([{ a: 1 }])
+  })
+
+  it("aceita data e rows", () => {
+    expect(extrairItems({ data: [{ a: 1 }] })).toEqual([{ a: 1 }])
+    expect(extrairItems({ rows: [{ a: 2 }] })).toEqual([{ a: 2 }])
+  })
+
+  it("devolve lista vazia para payload sem itens", () => {
+    expect(extrairItems(null)).toEqual([])
+    expect(extrairItems({ erro: "x" })).toEqual([])
+  })
+})
+
+describe("normalizarResposta", () => {
+  it("normaliza a lista inteira", () => {
+    const r = normalizarResposta({ items: [{ nf_numero: "35832", cte_data: "18/09/2026" }] })
+    expect(r).toHaveLength(1)
+    expect(r[0].nf_numero).toBe(35832)
+  })
+})
+
+describe("datas", () => {
+  it("paraIso e isoParaData fazem round-trip", () => {
+    const d = new Date(2026, 8, 18, 12)
+    expect(paraIso(d)).toBe("2026-09-18")
+    expect(paraIso(isoParaData("2026-09-18")!)).toBe("2026-09-18")
+  })
+
+  it("isoParaData devolve null para entrada inválida", () => {
+    expect(isoParaData("18/09/2026")).toBeNull()
+    expect(isoParaData("")).toBeNull()
+  })
+
+  it("parseDataBr converte DD/MM/AAAA para ISO", () => {
+    expect(parseDataBr("18/09/2026")).toBe("2026-09-18")
+    expect(parseDataBr("01/08/2026")).toBe("2026-08-01")
+  })
+
+  it("parseDataBr devolve null para formatos não suportados", () => {
+    expect(parseDataBr("2026-09-18")).toBeNull()
+    expect(parseDataBr(null)).toBeNull()
+    expect(parseDataBr(undefined)).toBeNull()
+  })
+
+  it("somarMeses preserva o dia quando o mês tem menos dias", () => {
+    const d = new Date(2024, 2, 31, 12)
+    expect(paraIso(somarMeses(d, -1))).toBe("2024-02-29")
+  })
+
+  it("somarMeses soma meses cheio", () => {
+    const d = new Date(2026, 0, 15, 12)
+    expect(paraIso(somarMeses(d, 2))).toBe("2026-03-15")
+    expect(paraIso(somarMeses(d, -2))).toBe("2025-11-15")
+  })
+
+  it("periodoPadrao cobre os últimos 2 meses", () => {
+    const p = periodoPadrao(new Date(2026, 8, 28, 12))
+    expect(p.de).toBe("2026-07-28")
+    expect(p.ate).toBe("2026-09-28")
+  })
+
+  it("periodoMesCorrente começa no dia 1 do mês", () => {
+    const p = periodoMesCorrente(new Date(2026, 8, 28, 12))
+    expect(p.de).toBe("2026-09-01")
+    expect(p.ate).toBe("2026-09-28")
+  })
+})
+
+describe("filtrarPorPeriodo", () => {
+  const itens = [
+    linha({ nf_numero: 1, nf_data: "10/08/2026", cte_data: "10/08/2026" }),
+    linha({ nf_numero: 2, nf_data: "15/09/2026", cte_data: "15/09/2026" }),
+    linha({ nf_numero: 3, nf_data: "20/10/2026", cte_data: "20/10/2026" }),
+  ]
+
+  it("mantém somente o que está dentro do intervalo", () => {
+    const r = filtrarPorPeriodo(itens, { de: "2026-09-01", ate: "2026-09-30" })
+    expect(r.map((l) => l.nf_numero)).toEqual([2])
+  })
+
+  it("inclui as bordas do intervalo", () => {
+    const r = filtrarPorPeriodo(itens, { de: "2026-08-10", ate: "2026-10-20" })
+    expect(r).toHaveLength(3)
+  })
+
+  it("usa a data do CT-e quando a NF-e não tem data", () => {
+    const semData = [linha({ nf_numero: 9, nf_data: null, cte_data: "18/09/2026" })]
+    const r = filtrarPorPeriodo(semData, { de: "2026-09-01", ate: "2026-09-30" })
+    expect(r).toHaveLength(1)
+  })
+
+  it("mantém linha sem qualquer data para não sumir do relatório", () => {
+    const semData = [linha({ nf_numero: 9, nf_data: null, cte_data: null })]
+    expect(filtrarPorPeriodo(semData, { de: "2026-09-01", ate: "2026-09-30" })).toHaveLength(1)
+  })
+
+  it("sem datas define devolve tudo", () => {
+    expect(filtrarPorPeriodo(itens, { de: "", ate: "" })).toHaveLength(3)
+  })
+
+  it("permite só a data inicial", () => {
+    expect(filtrarPorPeriodo(itens, { de: "2026-09-01", ate: "" })).toHaveLength(2)
+  })
+
+  it("permite só a data final", () => {
+    expect(filtrarPorPeriodo(itens, { de: "", ate: "2026-09-30" })).toHaveLength(2)
+  })
+})
+
+describe("agruparPorCte", () => {
+  it("agrupa as NF-e do mesmo CT-e", () => {
+    const itens = [
+      linha({ nf_numero: 35835, nf_serie: "1" }),
+      linha({ nf_numero: 35832, nf_serie: "1" }),
+    ]
+    const g = agruparPorCte(itens)
+    expect(g).toHaveLength(1)
+    expect(g[0].nfs.map((n) => n.nf_numero)).toEqual([35832, 35835])
+  })
+
+  it("separa CT-es com números distintos", () => {
+    const g = agruparPorCte([linha({ cte_numero: 1 }), linha({ cte_numero: 2 })])
+    expect(g).toHaveLength(2)
+  })
+
+  it("separa o mesmo número em séries diferentes", () => {
+    const g = agruparPorCte([
+      linha({ cte_numero: 7, cte_serie: "1" }),
+      linha({ cte_numero: 7, cte_serie: "2" }),
+    ])
+    expect(g).toHaveLength(2)
+  })
+
+  it("calcula soma e percentual quando a API não devolve", () => {
+    const itens = [
+      linha({ nf_numero: 1, nf_valor_total: 250 }),
+      linha({ nf_numero: 2, nf_valor_total: 750 }),
+    ]
+    const g = agruparPorCte(itens)[0]
+    expect(g.somaNfCalculada).toBe(1000)
+    expect(g.pctCalculado).toBeCloseTo(13.17, 2)
+  })
+
+  it("usa soma e percentual da API quando presentes", () => {
+    const itens = [
+      linha({ soma_nf_do_cte: 25290.67, pct_cte_sobre_total_nfs: 6.31, nf_valor_total: 25290.67 }),
+    ]
+    const g = agruparPorCte(itens)[0]
+    expect(g.somaNf).toBe(25290.67)
+    expect(g.pctSobreNf).toBe(6.31)
+  })
+
+  it("percentual calculado fica nulo sem base de NF-e", () => {
+    const g = agruparPorCte([linha({ nf_valor_total: null })])[0]
+    expect(g.pctCalculado).toBeNull()
+  })
+
+  it("ordena por data do CT-e, do mais recente para o mais antigo", () => {
+    const g = agruparPorCte([
+      linha({ cte_numero: 1, cte_data: "10/08/2026" }),
+      linha({ cte_numero: 2, cte_data: "18/09/2026" }),
+      linha({ cte_numero: 3, cte_data: "15/09/2026" }),
+    ])
+    expect(g.map((x) => x.numero)).toEqual([2, 3, 1])
+  })
+
+  it("usa fantasia e cai para razão social ou travessão", () => {
+    const comFantasia = agruparPorCte([
+      linha({ cte_transportadora_fantasia: "SORRISO TRANSPORTES" }),
+    ])[0]
+    expect(comFantasia.transportadora).toBe("SORRISO TRANSPORTES")
+
+    const soRazao = agruparPorCte([
+      linha({ cte_transportadora_fantasia: null, cte_transportadora_razao: "TRANSPORTES X" }),
+    ])[0]
+    expect(soRazao.transportadora).toBe("TRANSPORTES X")
+
+    const nenhuma = agruparPorCte([
+      linha({ cte_transportadora_fantasia: null, cte_transportadora_razao: null }),
+    ])[0]
+    expect(nenhuma.transportadora).toBe("—")
+  })
+})
+
+describe("calcularResumo", () => {
+  it("conta linhas, CT-es, NF-e e totais", () => {
+    const itens = [
+      linha({ cte_numero: 1, nf_numero: 10, cte_valor_total: 100, nf_valor_total: 500 }),
+      linha({ cte_numero: 1, nf_numero: 11, cte_valor_total: 0, nf_valor_total: 300 }),
+      linha({ cte_numero: 2, nf_numero: 12, cte_valor_total: 50, nf_valor_total: null }),
+    ]
+    const r = calcularResumo(itens)
+    expect(r.linhas).toBe(3)
+    expect(r.ctes).toBe(2)
+    expect(r.nfs).toBe(3)
+    expect(r.comValorNf).toBe(2)
+    expect(r.totalFrete).toBe(150)
+    expect(r.totalNf).toBe(800)
+  })
+
+  it("conta linhas sem data de referência", () => {
+    const r = calcularResumo([linha({ nf_data: null, cte_data: null })])
+    expect(r.semData).toBe(1)
+  })
+
+  it("não conta a mesma NF duas vezes quando ela se repete no CT-e", () => {
+    const r = calcularResumo([
+      linha({ cte_numero: 1, nf_numero: 10 }),
+      linha({ cte_numero: 1, nf_numero: 10 }),
+    ])
+    expect(r.linhas).toBe(2)
+    expect(r.nfs).toBe(1)
+  })
+})
+
+describe("formatadores", () => {
+  it("formata moeda com 2 casas", () => {
+    expect(formatarMoeda(1234.5)).toMatch(/1\.234,50/)
+  })
+
+  it("formata percentual com 2 casas", () => {
+    expect(formatarPercentual(6)).toBe("6,00%")
+    expect(formatarPercentual(13.456)).toBe("13,46%")
+  })
+
+  it("formata número com separador pt-BR", () => {
+    expect(formatarNumero(1234)).toBe(formatarNumero(1234))
+    expect(formatarNumero(1234)).not.toBe("1234")
+  })
+
+  it("devolve travessão para valores ausentes", () => {
+    expect(formatarMoeda(null)).toBe("—")
+    expect(formatarMoeda(undefined)).toBe("—")
+    expect(formatarPercentual(null)).toBe("—")
+    expect(formatarNumero(null)).toBe("—")
+  })
+})
