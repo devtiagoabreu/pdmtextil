@@ -26,8 +26,11 @@ export interface LinhaCte {
   pct_nf_no_total_cte: number | null
   nf_frete_rateado: number | null
   nf_situacao: number | null
+  nf_cliente_razao: string | null
+  nf_cliente_fantasia: string | null
   nf_fornecedor_razao: string | null
   nf_fornecedor_fantasia: string | null
+  nf_cab_origem: string | null
 }
 
 export interface GrupoCte {
@@ -59,6 +62,7 @@ export interface Resumo {
   nfs: number
   semData: number
   comValorNf: number
+  semCabecalho: number
   totalFrete: number
   totalNf: number
 }

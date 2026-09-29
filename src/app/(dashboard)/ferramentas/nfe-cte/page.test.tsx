@@ -86,6 +86,28 @@ const semValores = {
   nf_serie: "1",
   nf_data: null,
   nf_valor_total: null,
+  nf_cab_origem: "SEM_CABECALHO",
+}
+
+const comCliente = {
+  cte_numero: 195478,
+  cte_serie: "1",
+  cte_data: br(dentroDoPeriodoPadrao),
+  cte_valor_total: 160,
+  cte_transportadora_fantasia: "SORRISO TRANSPORTES",
+  cte_tomador_fantasia: "SORRISO TRANSPORTES",
+  cte_situacao: 4,
+  nf_numero: 12600,
+  nf_serie: "1",
+  nf_data: br(dentroDoPeriodoPadrao),
+  nf_valor_total: 7690,
+  soma_nf_do_cte: 7690,
+  pct_nf_no_total_cte: 100,
+  nf_cliente_razao: "PH TECNICA COMERCIO E REPRESENTACOES LTDA",
+  nf_cliente_fantasia: "PH TECNICA",
+  nf_fornecedor_razao: "PH TECNICA COMERCIO E REPRESENTACOES LTDA",
+  nf_fornecedor_fantasia: "PH TECNICA",
+  nf_cab_origem: "CNPJ_FORNECEDOR",
 }
 
 function handler(
@@ -284,6 +306,91 @@ describe("NfeCtePage", () => {
 
     expect(await screen.findByText("Nenhuma NF-e no período selecionado")).toBeInTheDocument()
     expect(toastMock.error).toHaveBeenCalledWith("Nenhuma NF-e encontrada no período")
+  })
+
+  it("mostra o cliente da NF-e na coluna Cliente e usa o emissor como fallback", async () => {
+    const fetchMock = createFetchMock(handler([comCliente, dentroDoPeriodo]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    fireEvent.click(await screen.findByRole("button", { name: /CT-e 195478/ }))
+
+    const linhaCliente = screen.getByText("NF 12600/1").closest("tr")!
+    expect(within(linhaCliente).getByText("PH TECNICA")).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("button", { name: /CT-e 195476/ }))
+    const linhaFallback = screen.getByText("NF 35832/1").closest("tr")!
+    expect(within(linhaFallback).getByText("PGFIOS")).toBeInTheDocument()
+  })
+
+  it("marca a NF-e prevista e avisa que ela não existe no fiscal", async () => {
+    const fetchMock = createFetchMock(handler())
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    fireEvent.click(await screen.findByRole("button", { name: /CT-e 195477/ }))
+
+    const linha = screen.getByText("NF 35835/1").closest("tr")!
+    expect(within(linha).getByText("prevista")).toBeInTheDocument()
+    expect(
+      screen.getByText(/NF-e não localizada no fiscal: o CT-e aponta para nota prevista/)
+    ).toBeInTheDocument()
+    expect(
+      screen.getByText(/1 NF-e não localizadas no fiscal/)
+    ).toBeInTheDocument()
+  })
+
+  it("não marca prevista a NF-e que o endpoint resolveu", async () => {
+    const fetchMock = createFetchMock(handler([comCliente]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    fireEvent.click(await screen.findByRole("button", { name: /CT-e 195478/ }))
+
+    const linha = screen.getByText("NF 12600/1").closest("tr")!
+    expect(within(linha).queryByText("prevista")).not.toBeInTheDocument()
+    expect(screen.queryByText(/NF-e não localizadas no fiscal/)).not.toBeInTheDocument()
+    expect(screen.queryByText(/nota prevista/)).not.toBeInTheDocument()
+  })
+
+  it("exporta cliente, razão social, emissor e origem do cabeçalho no CSV", async () => {
+    const blobs: Blob[] = []
+    const criarUrl = vi.fn((b: Blob) => {
+      blobs.push(b)
+      return "blob:mock"
+    })
+    const revogar = vi.fn()
+    const createObjectURLOriginal = URL.createObjectURL
+    const revokeObjectURLOriginal = URL.revokeObjectURL
+    Object.defineProperty(URL, "createObjectURL", { value: criarUrl, configurable: true })
+    Object.defineProperty(URL, "revokeObjectURL", { value: revogar, configurable: true })
+
+    try {
+      const fetchMock = createFetchMock(handler([comCliente]))
+      vi.stubGlobal("fetch", fetchMock.fn)
+      await consultar(fetchMock)
+
+      await screen.findByText("CT-e 195478/1")
+      fireEvent.click(screen.getByRole("button", { name: /Exportar CSV/ }))
+
+      expect(criarUrl).toHaveBeenCalledTimes(1)
+      const csv = await blobs[0].text()
+      expect(csv).toContain("Cliente,Cliente (razao social),Fornecedor (emissor)")
+      expect(csv).toContain("Origem do cabecalho")
+      expect(csv).toContain(
+        "PH TECNICA,PH TECNICA COMERCIO E REPRESENTACOES LTDA,PH TECNICA"
+      )
+      expect(csv).toContain("CNPJ_FORNECEDOR")
+    } finally {
+      Object.defineProperty(URL, "createObjectURL", {
+        value: createObjectURLOriginal,
+        configurable: true,
+      })
+      Object.defineProperty(URL, "revokeObjectURL", {
+        value: revokeObjectURLOriginal,
+        configurable: true,
+      })
+    }
   })
 
   it("avisa quando o proxy retorna falha", async () => {

@@ -23,8 +23,11 @@ const CAMPOS_TEXTO = [
   "cte_tomador_fantasia",
   "nf_serie",
   "nf_data",
+  "nf_cliente_razao",
+  "nf_cliente_fantasia",
   "nf_fornecedor_razao",
   "nf_fornecedor_fantasia",
+  "nf_cab_origem",
 ] as const
 
 function toNumero(valor: unknown): number | null {
@@ -117,6 +120,31 @@ export function dataReferencia(linha: LinhaCte): string | null {
   return parseDataBr(linha.nf_data) || parseDataBr(linha.cte_data)
 }
 
+/**
+ * Nome que identifica quem é da NF-e. O endpoint v2 traz a razão social do
+ * cliente da nota (`NF_CLIENTE_*`); enquanto ele não estiver publicado, o
+ * emissor (`NF_FORNECEDOR_*`) é o único nome que existe — daí o fallback.
+ */
+export function nomeClienteNf(linha: LinhaCte): string | null {
+  return (
+    linha.nf_cliente_fantasia ||
+    linha.nf_cliente_razao ||
+    linha.nf_fornecedor_fantasia ||
+    linha.nf_fornecedor_razao ||
+    null
+  )
+}
+
+/**
+ * O endpoint responde `SEM_CABECALHO` quando o número que o CT-e declara não
+ * existe na `OBRF_010` — normalmente nota prevista, ainda não emitida. Nesse
+ * caso não é "NF-e sem valor": é NF-e que não existe, e a tela precisa dizer
+ * isso em vez de deixar a célula vazia.
+ */
+export function nfSemCabecalho(linha: LinhaCte): boolean {
+  return linha.nf_cab_origem === "SEM_CABECALHO"
+}
+
 export function filtrarPorPeriodo(itens: LinhaCte[], periodo: Periodo): LinhaCte[] {
   const de = periodo.de || ""
   const ate = periodo.ate || ""
@@ -188,6 +216,7 @@ export function agruparPorCte(itens: LinhaCte[]): GrupoCte[] {
 export function calcularResumo(itens: LinhaCte[]): Resumo {
   let semData = 0
   let comValorNf = 0
+  let semCabecalho = 0
   let totalFrete = 0
   let totalNf = 0
   const ctes = new Set<string>()
@@ -195,9 +224,10 @@ export function calcularResumo(itens: LinhaCte[]): Resumo {
 
   for (const linha of itens) {
     ctes.add(chaveCte(linha))
-    nfs.add(`${linha.nf_numero ?? "?"}-${linha.nf_serie ?? "?"}-${linha.nf_fornecedor_razao ?? ""}`)
+    nfs.add(`${linha.nf_numero ?? "?"}-${linha.nf_serie ?? "?"}-${nomeClienteNf(linha) ?? ""}`)
     if (!dataReferencia(linha)) semData++
     if (linha.nf_valor_total != null) comValorNf++
+    if (nfSemCabecalho(linha)) semCabecalho++
     totalFrete += linha.cte_valor_total || 0
     totalNf += linha.nf_valor_total || 0
   }
@@ -208,6 +238,7 @@ export function calcularResumo(itens: LinhaCte[]): Resumo {
     nfs: nfs.size,
     semData,
     comValorNf,
+    semCabecalho,
     totalFrete,
     totalNf,
   }

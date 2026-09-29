@@ -8,6 +8,8 @@ import {
   formatarNumero,
   formatarPercentual,
   isoParaData,
+  nfSemCabecalho,
+  nomeClienteNf,
   normalizarLinha,
   normalizarResposta,
   paraIso,
@@ -38,8 +40,11 @@ const cteBase = {
   pct_nf_no_total_cte: null,
   nf_frete_rateado: null,
   nf_situacao: null,
+  nf_cliente_razao: null,
+  nf_cliente_fantasia: null,
   nf_fornecedor_razao: null,
   nf_fornecedor_fantasia: null,
+  nf_cab_origem: null,
 } satisfies LinhaCte
 
 function linha(over: Partial<LinhaCte>): LinhaCte {
@@ -77,6 +82,92 @@ describe("normalizarLinha", () => {
   it("não inventa campo para chave desconhecida", () => {
     const r = normalizarLinha({ campo_inexistente: 10 })
     expect((r as unknown as Record<string, unknown>).campo_inexistente).toBeUndefined()
+  })
+
+  it("lê a razão social do cliente e a origem do cabeçalho da NF-e", () => {
+    const r = normalizarLinha({
+      nf_cliente_razao: "E E CARGAS E ENCOMENDAS LTDA- SORRISO",
+      nf_cliente_fantasia: "SORRISO TRANSPORTES",
+      nf_cab_origem: "CNPJ_CLIENTE_NF",
+    })
+    expect(r.nf_cliente_razao).toBe("E E CARGAS E ENCOMENDAS LTDA- SORRISO")
+    expect(r.nf_cliente_fantasia).toBe("SORRISO TRANSPORTES")
+    expect(r.nf_cab_origem).toBe("CNPJ_CLIENTE_NF")
+  })
+
+  // O endpoint v2 devolve os aliases em MAIÚSCULO. Se algum campo novo ficar fora
+  // de CAMPOS_NUMERICOS/CAMPOS_TEXTO, ele é descartado em silêncio aqui e some da
+  // tela — e nenhum teste com payload minúsculo acusaria.
+  it("preserva os três campos novos do v2 quando vêm em maiúsculas", () => {
+    const r = normalizarLinha({
+      CTE_NUMERO: 195476,
+      NF_NUMERO: 35832,
+      NF_VALOR_TOTAL: "20.737,52",
+      NF_CLIENTE_RAZAO: "PH TECNICA COMERCIO E REPRESENTACOES LTDA",
+      NF_CLIENTE_FANTASIA: "PH TECNICA",
+      NF_CAB_ORIGEM: "SEM_CABECALHO",
+    })
+    expect(r.nf_cliente_razao).toBe("PH TECNICA COMERCIO E REPRESENTACOES LTDA")
+    expect(r.nf_cliente_fantasia).toBe("PH TECNICA")
+    expect(r.nf_cab_origem).toBe("SEM_CABECALHO")
+    expect(r.nf_valor_total).toBe(20737.52)
+    expect(r.nf_numero).toBe(35832)
+  })
+
+  it("não inventa origem de cabeçalho quando o endpoint v1 não manda a coluna", () => {
+    const r = normalizarLinha({ NF_NUMERO: 35832, CTE_NUMERO: 195476 })
+    expect(r.nf_cab_origem).toBeNull()
+  })
+})
+
+describe("nomeClienteNf", () => {
+  it("prefere a fantasia do cliente", () => {
+    expect(
+      nomeClienteNf(
+        linha({
+          nf_cliente_fantasia: "SORRISO TRANSPORTES",
+          nf_cliente_razao: "E E CARGAS E ENCOMENDAS LTDA- SORRISO",
+          nf_fornecedor_fantasia: "PGFIOS",
+        })
+      )
+    ).toBe("SORRISO TRANSPORTES")
+  })
+
+  it("cai para a razão social do cliente antes do emissor", () => {
+    expect(
+      nomeClienteNf(
+        linha({
+          nf_cliente_razao: "E E CARGAS E ENCOMENDAS LTDA- SORRISO",
+          nf_fornecedor_fantasia: "PGFIOS",
+        })
+      )
+    ).toBe("E E CARGAS E ENCOMENDAS LTDA- SORRISO")
+  })
+
+  it("usa o emissor enquanto o endpoint não trouxer o cliente", () => {
+    expect(nomeClienteNf(linha({ nf_fornecedor_fantasia: "PGFIOS" }))).toBe("PGFIOS")
+    expect(nomeClienteNf(linha({ nf_fornecedor_razao: "SEMEAR ECOTEXTIL LTDA" }))).toBe(
+      "SEMEAR ECOTEXTIL LTDA"
+    )
+  })
+
+  it("devolve null quando a NF-e não tem nome nenhum", () => {
+    expect(nomeClienteNf(linha({}))).toBeNull()
+  })
+})
+
+describe("nfSemCabecalho", () => {
+  it("reconhece a NF-e prevista, sem cabeçalho no fiscal", () => {
+    expect(nfSemCabecalho(linha({ nf_cab_origem: "SEM_CABECALHO" }))).toBe(true)
+  })
+
+  it("não confunde nota resolvida com nota prevista", () => {
+    expect(nfSemCabecalho(linha({ nf_cab_origem: "CNPJ_FORNECEDOR" }))).toBe(false)
+    expect(nfSemCabecalho(linha({ nf_cab_origem: "DOCUMENTO_SERIE" }))).toBe(false)
+  })
+
+  it("trata NF-e sem a coluna de origem como resolvida (endpoint v1)", () => {
+    expect(nfSemCabecalho(linha({}))).toBe(false)
   })
 })
 
@@ -285,6 +376,16 @@ describe("calcularResumo", () => {
     expect(r.comValorNf).toBe(2)
     expect(r.totalFrete).toBe(150)
     expect(r.totalNf).toBe(800)
+  })
+
+  it("conta as NF-e previstas, que não têm valor no fiscal", () => {
+    const r = calcularResumo([
+      linha({ nf_numero: 10, nf_valor_total: 500, nf_cab_origem: "CNPJ_FORNECEDOR" }),
+      linha({ nf_numero: 11, nf_valor_total: null, nf_cab_origem: "SEM_CABECALHO" }),
+      linha({ nf_numero: 12, nf_valor_total: null, nf_cab_origem: "SEM_CABECALHO" }),
+    ])
+    expect(r.semCabecalho).toBe(2)
+    expect(r.comValorNf).toBe(1)
   })
 
   it("conta linhas sem data de referência", () => {

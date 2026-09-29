@@ -5,7 +5,12 @@
 > transportadora, tomador e fornecedor, e o percentual de cada NF no total do CT-e.
 
 **Arquivo do SQL pronto para o programador usar:**
-[`docs/rel-nf-cte.sql`](./rel-nf-cte.sql) → **Select 3**
+[`docs/rel-nf-cte.sql`](./rel-nf-cte.sql) → **Select 3** (é a **v2**, com a correção dos
+campos nulos described em [§13](#13-campos-nulos-diagnóstico-e-correção-v2))
+
+> ⚠️ O SQL da §2 é a **v1** — é o que está publicado no endpoint hoje e é ele que
+> devolve `NF_VALOR_TOTAL`, `SOMA_NF_DO_CTE` e os percentuais nulos. A correção está na
+> §13 e no arquivo `.sql`. Não reimplemente a §2.
 
 ---
 
@@ -693,16 +698,332 @@ minúsculas na entrada, então as duas grafias funcionam.
 ### A API quase nunca devolve a soma e os percentuais
 
 Em 208 linhas reais, `soma_nf_do_cte`, `pct_cte_sobre_total_nfs`, `pct_nf_no_total_cte`,
-`nf_valor_total` e `nf_data` vieram preenchidos em **9 linhas**; `nf_fornecedor_razao` em 72.
-O motivo está em §6: o `LEFT JOIN` com a `OBRF_010` da NF-e só acha o cabeçalho quando o CNPJ
+`nf_valor_total` e `nf_data` vieram preenchidos em **9 linhas**; `nf_fornecedor_razao` em 72. O motivo está em §6: o `LEFT JOIN` com a `OBRF_010` da NF-e só acha o cabeçalho quando o CNPJ
 (`CGC_CLI_FOR_9/4/2`) bate com o fornecedor do relacionamento.
 
 Por isso a tela **recalcula** a soma das NFs e o percentual do CT-e no cliente
 (`agruparPorCte`) e rotula como `(calculada)` / `(calculado)` tudo o que não veio da API —
 assim não se confunde valor do ERP com valor derivado.
 
+> Essas 9 linhas são um problema **do SQL do endpoint**, não da tela. A correção é a v2
+> (§13). Depois que o endpoint for republicado, `agruparPorCte` deve continuar como rede de
+> segurança, mas o valor exibido passa a ser o do ERP.
+
 ### A faixa padrão do endpoint é fixa no servidor
 
 Sem parâmetros a API devolve de 01/08/2026 a 31/08/2026 (somente agosto no dia da verificação).
 A tela aplica por cima o período escolhido, com padrão de **últimos 2 meses**, então o filtro
 real tem alcance maior que o da API.
+
+---
+
+## 13. Campos nulos — diagnóstico e correção (v2)
+
+Data: 2026-09-28 · SQL completo em [`docs/rel-nf-cte.sql`](./rel-nf-cte.sql)
+· Diagnóstico reproduzível com `node scripts/diag-nfe-cte.js`
+
+### 13.1 O que foi medido na API real
+
+208 linhas, 202 CT-es (01/08/2026 a 31/08/2026):
+
+| Campo | Preenchido | Nulo |
+|---|---|---|
+| `soma_nf_do_cte` | 9 | 199 |
+| `pct_cte_sobre_total_nfs` | 9 | 199 |
+| `pct_nf_no_total_cte` | 9 | 199 |
+| `nf_data` | 9 | 199 |
+| `nf_valor_total` | 9 | 199 |
+| `nf_frete_rateado` | 9 | 199 |
+| `nf_situacao` | 9 | 199 |
+| `nf_fornecedor_razao` | 72 | 136 |
+| `nf_fornecedor_fantasia` | 55 | 153 |
+
+Tudo que vem do **CT-e** vem preenchido (`cte_numero`, `cte_data`, `cte_valor_total`,
+`cte_situacao`, transportadora e tomador). Só morre o que depende do **cabeçalho da NF**.
+Nenhum CT-e tem mistura (parte das NFs preenchida, parte não) — a quebra é por nota, não
+por CT-e.
+
+Distribuição: 166 dos 202 CT-es são da SORRISO, com 1 NF cada; 6 CT-es têm NF-e preenchida
+(`11711`, `11757`, `11789`, `194350`, `194997`, `382006`).
+
+### 13.2 Causa
+
+A linha do `LEFT JOIN` da v1:
+
+```sql
+LEFT JOIN OBRF_010 nfe
+   ON   nfe.CGC_CLI_FOR_9 = nf.FORNECEDOR9
+    AND nfe.CGC_CLI_FOR_4 = nf.FORNECEDOR4
+    AND nfe.CGC_CLI_FOR_2 = nf.FORNECEDOR2
+```
+
+`CGC_CLI_FOR_*` na `OBRF_010` é o código do **cliente (comprador)** da nota;
+`OBRF_016.FORNECEDOR_*` é o **emissor**. Mesmo formato (9/4/2), coisas diferentes. O join
+acerta só em nota de **entrada** — 9 de 208 linhas; em nota de **saída** (que é o caso da
+SORRISO) o `ON` nunca casa.
+
+Quando o `ON` não casa, o `LEFT JOIN` devolve `nfe` inteiro como nulo — e como
+`SOMA_NF_DO_CTE`, `PCT_NF_NO_TOTAL_CTE` e `PCT_CTE_SOBRE_TOTAL_NFS` são calculados sobre
+`nfe.TOTAL_DOCTO`, os percentuais morrem junto. **Uma única cláusula derruba 7 campos.**
+
+Em paralelo, a razão social do cliente da NF não existia em nenhuma coluna: a v1 só
+trazia o nome por `OBRF_016.FORNECEDOR_*` na `SUPR_010` (72/208), que é o emissor.
+
+> Os 5 blocos de auditoria no fim do `.sql` confirmam em minutos se é isso mesmo
+> (`SEM_CABECALHO` alto = o cabeçalho não existe na `OBRF_010`; `QTD_CAB > 0` com CNPJ
+> diferente = é a chave).
+
+### 13.3 O que a v2 faz
+
+1. **CTE `cab`** — 1 linha por `(DOCUMENTO, SERIE)` da `OBRF_010`, preferindo espécie de
+   NF. Por ser única na chave, os 3 `LEFT JOIN` não duplicam linhas.
+2. **3 caminhos para o cabeçalho**, e o caminho usado sai em `NF_CAB_ORIGEM`:
+   `CNPJ_FORNECEDOR` (nota de entrada) → `CNPJ_CLIENTE_NF` (nota de saída: o comprador da
+   NF é o `CGC_CLI_FOR` do próprio CT-e) → `DOCUMENTO_SERIE` (último recurso) →
+   `SEM_CABECALHO`.
+3. **`NF_CLIENTE_RAZAO` / `NF_CLIENTE_FANTASIA`** — razão social do cliente, pelo CGC da
+   própria nota. É o campo que faltava.
+4. **Janelas calculadas sobre o total já resolvido** — `SOMA_NF_DO_CTE`,
+   `PCT_NF_NO_TOTAL_CTE` e `PCT_CTE_SOBRE_TOTAL_NFS` passam a ser calculados fora da
+   view interna, depois do `COALESCE`, e não antes.
+
+### 13.4 Diff do payload
+
+Novos: `NF_CLIENTE_RAZAO`, `NF_CLIENTE_FANTASIA`, `NF_CAB_ORIGEM`.
+Tudo o mais mantém o nome — a tela (`components/types.ts`, `components/utils.ts`) não
+quebra.
+
+A tela já foi adaptada para a v2: `CAMPOS_TEXTO` lê os dois campos novos, a coluna da
+tabela virou "Cliente" e usa `nomeClienteNf()` (fantasia do cliente → razão social do
+cliente → fantasia do emissor → razão social do emissor), e o CSV ganhou "Cliente",
+"Cliente (razão social)", "Fornecedor (emissor)" e "Origem do cabeçalho". Continua
+funcionando com a v1 publicada, porque o fallback é o emissor.
+
+---
+
+## 14. Validação no Oracle (2026-09-28)
+
+A v2 foi executada no console do ERP contra agosto/2026 e **rodou**. O que foi medido:
+
+| NF | `NF_CAB_ORIGEM` | Antes (v1) | Depois (v2) |
+|---|---|---|---|
+| CT-e 194997 / NF 12600 | `CNPJ_FORNECEDOR` | linha completa | linha completa + `NF_CLIENTE_*` |
+| CT-e 194912 / NF 35708 | `SEM_CABECALHO` | sem valor | sem valor |
+| CT-e 194913 / NF 35697 | `SEM_CABECALHO` | sem valor | sem valor |
+
+Duas conclusões:
+
+1. **O caminho `CNPJ_FORNECEDOR` funciona** e traz `NF_CLIENTE_RAZAO`/`NF_CLIENTE_FANTASIA`
+   (`PH TECNICA COMERCIO E REPRESENTACOES LTDA`) — o campo que o pedido pedia.
+2. **`SEM_CABECALHO` não é problema de chave.** O terceiro caminho (`DOCUMENTO_SERIE`) não
+   tem condição de CNPJ nenhuma, só `documento + série`; se ele não acha, é porque **não
+   existe linha na `OBRF_010` para essas notas**. NFs 35708, 35697 e 35696 não têm
+   cabeçalho fiscal na base — somar caminho SQL não resolve.
+
+### 14.1 Versão definitiva do endpoint
+
+É a query que rodou, com duas mudanças:
+
+- **Sem bind variable.** O endpoint não recebe parâmetro: a janela é calculada no próprio
+  SQL, de 2 meses atrás até hoje, com `ADD_MONTHS(TRUNC(SYSDATE), -2)` e
+  `TRUNC(SYSDATE) + 1`. É o mesmo recorte que a tela usa por padrão (`periodoPadrao()` em
+  `components/utils.ts`), então os dois batem.
+- `NVL(nfs.especie_docto,'X') <> 'CTE'` no caminho `DOCUMENTO_SERIE`, para o último recurso
+  nunca capturar o cabeçalho de um CT-e que por acaso tenha o mesmo número e série.
+
+> Consequência: a tela **não consegue alargar** a janela além de 2 meses, só estreitar —
+> os campos De/Até filtram o que o endpoint devolveu. Para um período maior, é preciso
+  mudar a expressão do `WHERE` no SQL.
+
+### 14.2 Versão definitiva do endpoint
+
+É a query que rodou, com duas mudanças:
+
+- **Sem bind variable.** O endpoint não recebe parâmetro: a janela é calculada no próprio
+  SQL, de 2 meses atrás até hoje, com `ADD_MONTHS(TRUNC(SYSDATE), -2)` e
+  `TRUNC(SYSDATE) + 1`. É o mesmo recorte que a tela usa por padrão (`periodoPadrao()` em
+  `components/utils.ts`), então os dois batem.
+- `UPPER(nfs.especie_docto) LIKE 'NF%'` no caminho `DOCUMENTO_SERIE`, para o último recurso
+  nunca capturar um documento que não seja NF-e. O valor da espécie foi confirmado na base:
+  a NF-e é `NFe` (o CT-e é `CTE`).
+
+> Consequência: a tela **não consegue alargar** a janela além de 2 meses, só estreitar —
+> os campos De/Até filtram o que o endpoint devolveu. Para um período maior, é preciso
+> mudar a expressão do `WHERE` no SQL.
+
+---
+
+## 15. Causa raiz fechada: 188 NF-e previstas (2026-09-28)
+
+Investigação completa, na ordem em que foi feita. Cada passo eliminou uma hipótese.
+
+| # | Teste | Resultado | O que provou |
+|---|---|---|---|
+| 1 | NF 12600/1 e CT-e 194997 pelo `CNPJ_FORNECEDOR` | `7690,00` + `NF_CLIENTE_RAZAO` preenchida | o caminho 1 e o campo novo funcionam |
+| 2 | Mesma NF pelo 3º caminho, só `documento + série` | `SEM_CABECALHO` | **não é problema de chave** — o 3º caminho não filtra CNPJ |
+| 3 | `OBRF_010` na faixa `35600..35850` | `35607/1 NFe 315,06` de **16/06/2025** | a faixa 35xxx na base é numeração de **2025** |
+| 4 | `OBRF_010` nos números exatos dos CT-es de 2026 | **vazio** | esses documentos não existem, em nenhuma série |
+| 5 | Controle: 18813/18814/18815/1 e 12600/1 | `20.737,52` / `21.299,74` / `41.713,82` / `7.690,00`, todos `NFe` | a fonte e as fórmulas estão **certas** |
+| 6 | Colunas de `OBRF_016` (17) | nenhuma é valor | a ponte CT-e↔NF não guarda valor |
+| 7 | Laudo de vínculos quebrados | **188 linhas / 188 notas** | 93% dos CT-es do período apontam para NF-e inexistente |
+
+**Conclusão:** `OBRF_010.TOTAL_DOCTO` continua sendo a única fonte do valor da NF-e, e ela
+funciona. O que não existe são as **188 notas** que os CT-es de 28/07 a 28/09/2026
+declaram. Não é bug de SQL, nem de join, nem de cadastro do usuário: os documentos não
+estão gravados no módulo fiscal.
+
+Hipótese mais provável: são **notas previstas** — o CT-e foi criado com o vínculo da NF-e
+antes de a nota ser emitida. As 14 NFs que funcionam (12600, faixa 23xxx, março/2024) são
+notas de verdade.
+
+### 15.1 O que fazer
+
+**Com o ERP/Systêxtil** — esse é o texto do chamado:
+
+> Nos CT-e de 28/07/2026 a 28/09/2026, 188 dos 202 CT-es têm o vínculo de NF-e
+> (`OBRF_016.NUMERO_NOTA`) apontando para documento inexistente na `OBRF_010` (espécie
+> `NFe`). Os números ficam na faixa 35xxx, que na base é numeração de 2025 — exemplo:
+> `35607/1 NFe 16/06/2025`. Nenhuma dessas 188 notas tem cabeçalho, então valor, data e
+> cliente não existem para consulta. Suspeita: são notas previstas no CT-e, não emitidas.
+> Confirmar se devem ser emitidas ou se o vínculo está gravado errado.
+
+Para reproduzir e medir de novo:
+
+```sql
+SELECT COUNT(*) AS linhas_sem_cabecalho, COUNT(DISTINCT nf.numero_nota) AS notas_inexistentes
+  FROM obrf_016 nf
+  LEFT JOIN obrf_010 nfe
+    ON nfe.documento = nf.numero_nota AND nfe.serie = nf.serie_nota
+ WHERE nfe.documento IS NULL
+   AND EXISTS (SELECT 1 FROM obrf_010 cte
+                WHERE cte.documento = nf.num_conhecimento
+                  AND cte.serie     = nf.ser_conhecimento
+                  AND cte.especie_docto = 'CTE'
+                  AND cte.data_emissao >= ADD_MONTHS(TRUNC(SYSDATE), -2))
+```
+
+**Na tela** — o relatório passou a distinguir "sem valor" de "não existe". Como o payload
+traz `NF_CAB_ORIGEM`, não precisa de mudança no SQL:
+
+- badge **prevista** na linha da NF-e quando `NF_CAB_ORIGEM = 'SEM_CABECALHO'`;
+- aviso no rodapé do card: *"NF-e não localizada no fiscal: o CT-e aponta para nota
+  prevista, sem valor e sem data."*;
+- contador no resumo: *"N NF-e não localizadas no fiscal"*;
+- `NF_CAB_ORIGEM` já sai no CSV, na coluna *"Origem do cabeçalho"*.
+
+Conforme o ERP for emitindo as notas previstas, o relatório passa a preencher sozinho —
+o SQL já está publicado com os 3 caminhos e o `COALESCE`.
+
+---
+
+## 16. SQL publicado: 2 bugs achados no payload (2026-09-28/29)
+
+O SQL foi publicado e responde `200`. Fui medir o payload de verdade em vez de confiar no
+"rodou" — e achei dois defeitos que nenhum teste de console detectaria, porque os dois só
+aparecem no resultado, não no erro.
+
+### 16.1 Bug 1 — auto-join gerava linha duplicada e percentual errado
+
+`rel` e `nf` são a **mesma tabela** (`OBRF_016`) e as duas se ligavam pelo mesmo
+conhecimento. Isso é produto cartesiano: um CT-e com 2 NFs produz 2×2 = 4 linhas.
+
+Medido no endpoint publicado:
+
+| CT-e | NFs no CT-e | Linhas no payload | `%` de cada NF |
+|---|---|---|---|
+| 11757/1 | 2 (23391, 23392) | **4** | 22,06% e 27,94% |
+| 351348/1 | 2 (31933, 35653) | **4** | — |
+| todas as outras (189) | 1 | 1 | correto |
+
+O detalhe que quase escapou: a soma dos percentuais do CT-e 11757 dava **100%** e parecia
+tudo certo. O que estava errado era o valor de cada NF — 23391 real é 44,12%
+(28.605,27 / 64.832,93), não 22,06%. Como cada NF entrava duas vezes na janela
+`SUM(...) OVER (PARTITION BY ...)`, o denominador dobrava e todo percentual saía pela
+metade. **`SOMA_NF_DO_CTE` também saía dobrado.** CT-es com 1 NF não eram afetados — por
+isso o bug passou.
+
+**Correção:** remover `rel`. Ele não filtrava nada; a ligação CT-e→NF já vem em `nf`.
+
+### 16.2 Bug 2 — fallback por documento+série casou nota de 3 anos
+
+O último recurso (`DOCUMENTO_SERIE`, sem CNPJ) não tem condição de vínculo nenhuma. Amarrou:
+
+```
+CT-e 156277/1  01/08/2023  x  NF 28490/1  03/09/2026   = +1129 dias
+```
+
+A linha entrou no relatório porque o `WHERE` filtra por `COALESCE(nf_data, cte_data)`, e
+`nf_data` era recente — a data do CT-e de 2023 não filtrava nada.
+
+**Correção:** trava de data no fallback — a NF-e precisa estar entre **-60 e +180 dias**
+do CT-e. Os 9 acertos por CNPJ estão todos entre -5 e 0 dias, então só o caminho sem CNPJ
+precisava da trava. A janela é larga de propósito: pega NF emitida antes ou depois do
+CT-e, e barra o caso de 3 anos.
+
+### 16.3 v2.1 publicada e verificada no payload (29/09/2026)
+
+Republicado e medido. **Os dois bugs estão corrigidos** — as 9 conferências passaram:
+
+| # | Conferência | v2.0 | v2.1 |
+|---|---|---|---|
+| 1 | Pares CT-e/NF duplicados | 4 | **0** |
+| 2 | CT-es com soma de pct ≠ 100% | 0 (mas por acidente) | **0** (com pct certo) |
+| 3 | Linhas com NF-e > 45 dias do CT-e | 1 (o de 2023) | **0** |
+| 4 | CT-e 11757/1 | 4 linhas, 22,06% / 27,94% | **2 linhas, 44,12% / 55,88%** |
+| 5 | `SOMA_NF_DO_CTE` do 11757 | 129.665,86 (dobrado) | **64.832,93** (bate com a soma manual) |
+| 6 | CT-e 156277/1 (2023) | casado com NF de 2026 | **saiu do relatório** |
+| 7 | `DOCUMENTO_SERIE` | 1 (falso positivo) | **0** |
+| 8 | Colunas / campos novos | 24 | **24**, os 3 presentes |
+| 9 | Janela | — | 29/07/2026 a 18/09/2026 (2 meses, correta) |
+
+As 7 NFs com valor, todas resolvidas por `CNPJ_FORNECEDOR` e com cliente:
+
+| CT-e | NF-e | Valor | % | Cliente |
+|---|---|---|---|---|
+| 11789/1 | 23479/1 | 25.290,67 | 100% | PGFIOS |
+| 194997/1 | 12600/1 | 7.690,00 | 100% | PH TECNICA |
+| 382006/2 | 20184/1 | 3.024,82 | 100% | KING KOMFORT |
+| 11757/1 | 23391/1 | 28.605,27 | **44,12%** | PGFIOS |
+| 11757/1 | 23392/1 | 36.227,66 | **55,88%** | PGFIOS |
+| 194350/1 | 20762/1 | 395,00 | 100% | CHEMICALS UNIVERSAL |
+| 11711/1 | 23282/1 | 15.249,49 | 100% | PGFIOS |
+
+Os 44,12% / 55,88% foram conferidos à mão contra o payload: 28.605,27 / 64.832,93.
+
+#### 16.3.1 Por que 201 linhas e não as 193 que eu previ
+
+Previ 193 e o endpoint devolveu **201**. A previsão estava errada — e o erro é
+instruativo, porque mostra o quanto o bug 2 contaminava a contagem.
+
+O filtro de período é `COALESCE(nf_data, cte_data)`. Na v2.0 o fallback sem trava
+amarrava NFs erradas, e a data falso-entrada decideva se a linha entrava:
+
+- NF casada por engano com data **recente** → trazia um CT-e antigo para o relatório;
+- NF casada por engano com data **antiga** → excluía um CT-e novo que deveria estar lá.
+
+Ou seja, a v2.0 não era um superconjunto da v2.1: o fallback estava **empurrando e
+puxando** linhas nos dois sentidos. Por isso "197 − 4 duplicadas" não podia ser a conta.
+A v2.1 não é mais linhas por erro — é a contagem limpa de 201 vínculos (CT-e, NF-e) na
+janela, e ela fecha: 199 CT-es distintos, sendo 2 com 2 NFs cada (11757/1 e 351348/1),
+201 no total, zero repetida, zero linha sem `nf_numero`.
+
+> **Regra que daqui pra frente:** não Razão de contagem de linha. As conferências que
+> valem são as de 1 a 6 acima — duplicata, soma de 100%, distância de data, e a conferência
+> à mão de um caso com mais de uma NF-e.
+
+> **Nota sobre `DOCUMENTO_SERIE`:** com a trava de data ele dá 0 acertos nos dados atuais.
+> Mantido como rede de segurança para NF-e com CNPJ divergente do cadastro. Se preferirem
+> remover de vez, é apagar o `LEFT JOIN obrf_010 nfs`, as entradas `nfs.` dos três
+> `COALESCE` e o rótulo `DOCUMENTO_SERIE` do `CASE` — o relatório passa a ter só os 2
+> caminhos por CNPJ, que são os que funcionam.
+
+### 16.4 Lição de processo
+
+O SQL "rodou" e o payload "veio com 24 colunas". Nenhuma das duas coisas diz que os
+números estão certos — e a v2.0 rodou, veio com as 24 colunas, e estava com 4 linhas
+duplicadas, percentual pela metade e uma NF-e de 3 anos no relatório. O que pegou os
+dois bugs foi comparar o resultado com o documento: `23391 + 23392` tem que fechar em
+100%, e nenhum par CT-e/NF pode se repetir. **Rode essa conferência toda publicação,
+não só o teste de erro.**
+
+

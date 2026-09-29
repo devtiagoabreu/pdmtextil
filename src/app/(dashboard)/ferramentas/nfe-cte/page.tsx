@@ -14,6 +14,7 @@ import {
   filtrarPorPeriodo,
   formatarMoeda,
   formatarNumero,
+  nomeClienteNf,
   nomeTranspDistinct,
   normalizarResposta,
   periodoMesCorrente,
@@ -45,8 +46,11 @@ function baixarCsv(itens: LinhaCte[], nome: string) {
     ["Valor NF-e", (l) => l.nf_valor_total],
     ["% NF-e no CT-e", (l) => l.pct_nf_no_total_cte],
     ["Frete rateado", (l) => l.nf_frete_rateado],
-    ["Fornecedor", (l) => l.nf_fornecedor_fantasia || l.nf_fornecedor_razao],
+    ["Cliente", (l) => nomeClienteNf(l)],
+    ["Cliente (razao social)", (l) => l.nf_cliente_razao],
+    ["Fornecedor (emissor)", (l) => l.nf_fornecedor_fantasia || l.nf_fornecedor_razao],
     ["Situacao NF-e", (l) => l.nf_situacao],
+    ["Origem do cabecalho", (l) => l.nf_cab_origem],
   ]
   const cabecalho = colunas.map(([t]) => csvCell(t)).join(",")
   const linhas = itens.map((l) => colunas.map(([, get]) => csvCell(get(l))).join(","))
@@ -287,6 +291,9 @@ export default function NfeCtePage() {
                   {grupos.length} CT-es · {resumo.linhas} NF-e
                   {resumo.semData > 0
                     ? ` · ${resumo.semData} sem data de referência (mantidas)`
+                    : ""}
+                  {resumo.semCabecalho > 0
+                    ? ` · ${resumo.semCabecalho} NF-e não localizadas no fiscal`
                     : ""}
                 </p>
                 <button

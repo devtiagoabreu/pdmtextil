@@ -1,6 +1,12 @@
 import { ChevronDown, ChevronRight } from "lucide-react"
 import type { GrupoCte } from "./types"
-import { formatarMoeda, formatarNumero, formatarPercentual } from "./utils"
+import {
+  formatarMoeda,
+  formatarNumero,
+  formatarPercentual,
+  nfSemCabecalho,
+  nomeClienteNf,
+} from "./utils"
 
 interface TabelaProps {
   grupos: GrupoCte[]
@@ -18,7 +24,8 @@ export function TabelaCte({ grupos, expandido, onToggle }: TabelaProps) {
     <div className="space-y-2">
       {grupos.map((grupo) => {
         const aberto = expandido.has(grupo.chave)
-        const fornecedor = grupo.nfs.find((n) => n.nf_fornecedor_fantasia || n.nf_fornecedor_razao)
+        const comNome = grupo.nfs.find((n) => nomeClienteNf(n))
+        const todasSemCabecalho = grupo.nfs.length > 0 && grupo.nfs.every(nfSemCabecalho)
         return (
           <div
             key={grupo.chave}
@@ -78,7 +85,7 @@ export function TabelaCte({ grupos, expandido, onToggle }: TabelaProps) {
                         Emissão
                       </th>
                       <th className="px-4 py-2 text-[10px] font-medium uppercase text-slate-400">
-                        Fornecedor
+                        Cliente
                       </th>
                       <th className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-400">
                         Valor
@@ -96,12 +103,17 @@ export function TabelaCte({ grupos, expandido, onToggle }: TabelaProps) {
                       >
                         <td className="px-4 py-2 font-medium text-slate-900 dark:text-slate-200">
                           {rotuloNf(linha)}
+                          {nfSemCabecalho(linha) && (
+                            <span className="ml-2 rounded bg-amber-100 px-1.5 py-0.5 text-[10px] font-medium uppercase text-amber-700 dark:bg-amber-900/40 dark:text-amber-300">
+                              prevista
+                            </span>
+                          )}
                         </td>
                         <td className="px-4 py-2 text-slate-600 dark:text-slate-300">
                           {linha.nf_data ?? "—"}
                         </td>
                         <td className="px-4 py-2 text-slate-600 dark:text-slate-300">
-                          {linha.nf_fornecedor_fantasia || linha.nf_fornecedor_razao || "—"}
+                          {nomeClienteNf(linha) ?? "—"}
                         </td>
                         <td className="px-4 py-2 text-right font-mono text-slate-900 dark:text-slate-100">
                           {formatarMoeda(linha.nf_valor_total)}
@@ -129,10 +141,17 @@ export function TabelaCte({ grupos, expandido, onToggle }: TabelaProps) {
                     </tr>
                   </tbody>
                 </table>
-                {!fornecedor && (
+                {todasSemCabecalho ? (
                   <p className="px-4 pb-3 text-xs text-amber-600 dark:text-amber-400">
-                    Nenhuma NF deste CT-e tem fornecedor vinculado.
+                    NF-e não localizada no fiscal: o CT-e aponta para nota prevista, sem valor
+                    e sem data.
                   </p>
+                ) : (
+                  !comNome && (
+                    <p className="px-4 pb-3 text-xs text-amber-600 dark:text-amber-400">
+                      Nenhuma NF deste CT-e tem cliente ou fornecedor vinculado.
+                    </p>
+                  )
                 )}
               </div>
             )}
