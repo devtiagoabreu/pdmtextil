@@ -45,6 +45,23 @@ export interface LinhaCte {
   nf_item_icms: number | null
   nf_pct_rateio_no_cte: number | null
   nf_valor_origem: string | null
+  nf_od_pedido: number | null
+  nf_od_data: string | null
+  nf_od_valor: number | null
+  nf_od_qtde: number | null
+  nf_od_cliente_razao: string | null
+  nf_od_cliente_fantasia: string | null
+  nf_od_cod_cidade: number | null
+  nf_od_cidade: string | null
+  nf_od_regiao: string | null
+  nf_od_representante: string | null
+  nf_od_romaneio: number | null
+  nf_od_qtde_rolos: number | null
+  nf_od_peso_bruto: number | null
+  nf_od_peso_liquido: number | null
+  nf_od_faturamento: string | null
+  nf_od_cfop: string | null
+  nf_od_natureza: string | null
 }
 
 export interface GrupoCte {
@@ -86,6 +103,7 @@ export interface Resumo {
   semData: number
   comValorNf: number
   semCabecalho: number
+  comDespacho: number
   totalFrete: number
   totalNf: number
   totalRateio: number

@@ -49,6 +49,12 @@ function baixarCsv(itens: LinhaCte[], nome: string) {
     ["Tomador", (l) => l.cte_tomador_fantasia || l.cte_tomador_razao],
     ["NF-e", (l) => (l.nf_serie ? `${l.nf_numero}/${l.nf_serie}` : l.nf_numero)],
     ["Data NF-e", (l) => l.nf_data],
+    ["Pedido de despacho", (l) => l.nf_od_pedido],
+    ["Romaneio", (l) => l.nf_od_romaneio],
+    ["Data de despacho", (l) => l.nf_od_data],
+    ["Cliente (despacho)", (l) => l.nf_od_cliente_fantasia || l.nf_od_cliente_razao],
+    ["Cidade (despacho)", (l) => l.nf_od_cidade],
+    ["Representante", (l) => l.nf_od_representante],
     ["Valor NF-e", (l) => l.nf_valor_total],
     ["% NF-e no CT-e", (l) => l.pct_nf_no_total_cte],
     ["Origem do valor", (l) => l.nf_valor_origem],
@@ -310,6 +316,18 @@ export default function NfeCtePage() {
                   </p>
                   <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">
                     {formatarMoeda(resumo.totalRateio)}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    NF-e em ordem de despacho
+                  </p>
+                  <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                    {formatarNumero(resumo.comDespacho)}
+                    <span className="text-sm font-normal text-slate-400">
+                      {" "}
+                      / {resumo.linhas}
+                    </span>
                   </p>
                 </div>
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">

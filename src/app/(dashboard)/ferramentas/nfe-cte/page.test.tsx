@@ -142,6 +142,35 @@ const comRateio = {
   nf_valor_origem: "RATEIO_CTE",
 }
 
+// Linha real devolvida pela v3.1b: mesma NF 35835, agora com os campos de
+// ordem de despacho. A NF existe no fiscal e tem pedido de romaneio válido.
+const comDespacho = {
+  cte_numero: 195477,
+  cte_serie: "1",
+  cte_data: br(dentroDoPeriodoPadrao),
+  cte_valor_total: 79.32,
+  cte_transportadora_fantasia: "SORRISO TRANSPORTES",
+  cte_tomador_fantasia: "SORRISO TRANSPORTES",
+  soma_rateio_do_cte: 79.32,
+  nf_numero: 35835,
+  nf_serie: "1",
+  nf_data: br(dentroDoPeriodoPadrao),
+  nf_valor_total: 4730,
+  nf_cliente_razao: "PH TECNICA COMERCIO E REPRESENTACOES LTDA",
+  nf_cliente_fantasia: "PH TECNICA",
+  nf_cab_origem: "CNPJ_CLIENTE_NF",
+  nf_item_valor_total: 79.32,
+  nf_pct_rateio_no_cte: 100,
+  nf_valor_origem: "CABECALHO_NF",
+  nf_od_pedido: 8305,
+  nf_od_data: br(dentroDoPeriodoPadrao),
+  nf_od_valor: 4730,
+  nf_od_cliente_fantasia: "PH TECNICA",
+  nf_od_cidade: "SAO PAULO",
+  nf_od_romaneio: 24795,
+  nf_od_qtde_rolos: 3,
+}
+
 const comDoisItens = {
   cte_numero: 195480,
   cte_serie: "1",
@@ -341,13 +370,16 @@ describe("NfeCtePage", () => {
 
     fireEvent.click(await screen.findByRole("button", { name: /CT-e 195477/ }))
 
+    // colunas: Nota | Despacho | Emissão | Cliente | Valor da nota | Rateio | % no CT-e
     const linha = screen.getByText("NF 35835/1").closest("tr")!
     const celulas = within(linha).getAllByRole("cell")
+    expect(celulas).toHaveLength(7)
     expect(celulas[1]).toHaveTextContent("—")
     expect(celulas[2]).toHaveTextContent("—")
     expect(celulas[3]).toHaveTextContent("—")
     expect(celulas[4]).toHaveTextContent("—")
     expect(celulas[5]).toHaveTextContent("—")
+    expect(celulas[6]).toHaveTextContent("—")
   })
 
   it("resume CT-es, NF-e com valor e rateio", async () => {
@@ -542,12 +574,38 @@ describe("NfeCtePage", () => {
 
     fireEvent.click(await screen.findByRole("button", { name: /CT-e 195477/ }))
 
+    // colunas: Nota | Despacho | Emissão | Cliente | Valor da nota | Rateio | % no CT-e
     const linha = screen.getByRole("button", { name: /NF 35835/ }).closest("tr")!
-    const rateio = within(linha).getAllByRole("cell")[4]
+    const rateio = within(linha).getAllByRole("cell")[5]
     expect(rateio).toHaveTextContent("R$ 79,32")
     expect(rateio).toHaveTextContent("100,00% do CT-e")
     // o valor da nota continua vazio: o rateio não é o total da NF-e
-    expect(within(linha).getAllByRole("cell")[3]).toHaveTextContent("—")
+    expect(within(linha).getAllByRole("cell")[4]).toHaveTextContent("—")
+  })
+
+  it("mostra pedido e romaneio da ordem de despacho na linha da NF-e", async () => {
+    const fetchMock = createFetchMock(handler([comDespacho]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    fireEvent.click(await screen.findByRole("button", { name: /CT-e 195477/ }))
+
+    // colunas: Nota | Despacho | Emissão | Cliente | Valor da nota | Rateio | % no CT-e
+    const linha = screen.getByRole("button", { name: /NF 35835/ }).closest("tr")!
+    const despacho = within(linha).getAllByRole("cell")[1]
+    expect(despacho).toHaveTextContent("pedido 8.305")
+    expect(despacho).toHaveTextContent("romaneio 24.795")
+  })
+
+  it("conta as NF-e em ordem de despacho no resumo", async () => {
+    const fetchMock = createFetchMock(handler([comDespacho, { ...comDespacho, nf_numero: 35840 }]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    await screen.findByText("NF-e em ordem de despacho")
+    const card = screen.getByText("NF-e em ordem de despacho").closest("div")!
+    expect(card).toHaveTextContent("2")
+    expect(card).toHaveTextContent("/ 2")
   })
 
   it("sinaliza o CT-es cujo rateio não fecha com o total", async () => {

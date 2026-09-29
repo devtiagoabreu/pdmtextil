@@ -10,6 +10,7 @@ import {
   formatarPercentual,
   isoParaData,
   nfSemCabecalho,
+  nfTemDespacho,
   nfTemRateio,
   nomeClienteNf,
   normalizarLinha,
@@ -62,6 +63,23 @@ const cteBase = {
   nf_item_icms: null,
   nf_pct_rateio_no_cte: null,
   nf_valor_origem: null,
+  nf_od_pedido: null,
+  nf_od_data: null,
+  nf_od_valor: null,
+  nf_od_qtde: null,
+  nf_od_cliente_razao: null,
+  nf_od_cliente_fantasia: null,
+  nf_od_cod_cidade: null,
+  nf_od_cidade: null,
+  nf_od_regiao: null,
+  nf_od_representante: null,
+  nf_od_romaneio: null,
+  nf_od_qtde_rolos: null,
+  nf_od_peso_bruto: null,
+  nf_od_peso_liquido: null,
+  nf_od_faturamento: null,
+  nf_od_cfop: null,
+  nf_od_natureza: null,
 } satisfies LinhaCte
 
 function linha(over: Partial<LinhaCte>): LinhaCte {
@@ -179,6 +197,95 @@ describe("normalizarLinha", () => {
     const r = normalizarLinha({ NF_ITEM_VALOR_TOTAL: "1.340,47", NF_ITEM_ICMS: "160,86" })
     expect(r.nf_item_valor_total).toBe(1340.47)
     expect(r.nf_item_icms).toBe(160.86)
+  })
+
+  // A v3.1b junta a ordem de despacho à linha da NF-e. Mesmo risco das v2/v3:
+  // alias fora da whitelist desaparece em silêncio. O payload abaixo é a linha
+  // real devolvida pelo endpoint, com os aliases em maiúsculas.
+  it("preserva os 17 campos de despacho da v3.1b quando vêm em maiúsculas", () => {
+    const r = normalizarLinha({
+      NF_OD_PEDIDO: 8305,
+      NF_OD_DATA: "25/09/2026",
+      NF_OD_VALOR: "4.730,00",
+      NF_OD_QTDE: "12,5",
+      NF_OD_CLIENTE_RAZAO: "PH TECNICA COMERCIO E REPRESENTACOES LTDA",
+      NF_OD_CLIENTE_FANTASIA: "PH TECNICA",
+      NF_OD_COD_CIDADE: 7107,
+      NF_OD_CIDADE: "SAO PAULO",
+      NF_OD_REGIAO: "Sudeste",
+      NF_OD_REPRESENTANTE: "MARIA SOUZA",
+      NF_OD_ROMANEIO: 24795,
+      NF_OD_QTDE_ROLOS: 3,
+      NF_OD_PESO_BRUTO: "1.200,75",
+      NF_OD_PESO_LIQUIDO: "1.150,25",
+      NF_OD_FATURAMENTO: "Nao",
+      NF_OD_CFOP: "5.924",
+      NF_OD_NATUREZA: "Venda de mercadoria",
+    })
+    expect(r.nf_od_pedido).toBe(8305)
+    expect(r.nf_od_data).toBe("25/09/2026")
+    expect(r.nf_od_valor).toBe(4730)
+    expect(r.nf_od_qtde).toBe(12.5)
+    expect(r.nf_od_cliente_razao).toBe("PH TECNICA COMERCIO E REPRESENTACOES LTDA")
+    expect(r.nf_od_cliente_fantasia).toBe("PH TECNICA")
+    expect(r.nf_od_cod_cidade).toBe(7107)
+    expect(r.nf_od_cidade).toBe("SAO PAULO")
+    expect(r.nf_od_regiao).toBe("Sudeste")
+    expect(r.nf_od_representante).toBe("MARIA SOUZA")
+    expect(r.nf_od_romaneio).toBe(24795)
+    expect(r.nf_od_qtde_rolos).toBe(3)
+    expect(r.nf_od_peso_bruto).toBe(1200.75)
+    expect(r.nf_od_peso_liquido).toBe(1150.25)
+    expect(r.nf_od_faturamento).toBe("Nao")
+    expect(r.nf_od_cfop).toBe("5.924")
+    expect(r.nf_od_natureza).toBe("Venda de mercadoria")
+  })
+
+  it("mantém o CFOP da v3.1b como texto, e não como número", () => {
+    // "5.924" viraria 5924 se fosse para a whitelist numérica — o código CFOP
+    // precisa preservar o ponto para continuar legível.
+    const r = normalizarLinha({ NF_OD_CFOP: "5.924" })
+    expect(r.nf_od_cfop).toBe("5.924")
+  })
+})
+
+describe("nfTemDespacho", () => {
+  it("reconhece NF-e com pedido real", () => {
+    expect(nfTemDespacho(linha({ nf_od_pedido: 8305 }))).toBe(true)
+  })
+
+  it("ignora PEDIDO = 0, que é placeholder de NF-e sem ordem", () => {
+    expect(nfTemDespacho(linha({ nf_od_pedido: 0 }))).toBe(false)
+  })
+
+  it("ignora NF-e sem pedido de despacho", () => {
+    expect(nfTemDespacho(linha({ nf_od_pedido: null }))).toBe(false)
+  })
+})
+
+describe("nomeClienteNf com despacho", () => {
+  it("prefere o cliente fiscal sobre o da ordem de despacho", () => {
+    expect(
+      nomeClienteNf(linha({ nf_cliente_fantasia: "CLIENTE FISCAL", nf_od_cliente_fantasia: "CLIENTE OD" }))
+    ).toBe("CLIENTE FISCAL")
+  })
+
+  it("cai para o cliente da ordem de despacho quando o fiscal não tem", () => {
+    expect(
+      nomeClienteNf(
+        linha({
+          nf_cliente_fantasia: null,
+          nf_cliente_razao: null,
+          nf_fornecedor_fantasia: null,
+          nf_fornecedor_razao: null,
+          nf_od_cliente_fantasia: "CLIENTE OD",
+        })
+      )
+    ).toBe("CLIENTE OD")
+  })
+
+  it("usa a razão social do despacho quando não há fantasia", () => {
+    expect(nomeClienteNf(linha({ nf_od_cliente_razao: "PH TECNICA LTDA" }))).toBe("PH TECNICA LTDA")
   })
 })
 
@@ -543,6 +650,16 @@ describe("calcularResumo", () => {
     ])
     expect(r.semCabecalho).toBe(2)
     expect(r.comValorNf).toBe(1)
+  })
+
+  it("conta as NF-e em ordem de despacho e ignora PEDIDO = 0", () => {
+    const r = calcularResumo([
+      linha({ nf_numero: 10, nf_od_pedido: 8305 }),
+      linha({ nf_numero: 11, nf_od_pedido: 8005 }),
+      linha({ nf_numero: 12, nf_od_pedido: 0 }),
+      linha({ nf_numero: 13, nf_od_pedido: null }),
+    ])
+    expect(r.comDespacho).toBe(2)
   })
 
   it("conta linhas sem data de referência", () => {

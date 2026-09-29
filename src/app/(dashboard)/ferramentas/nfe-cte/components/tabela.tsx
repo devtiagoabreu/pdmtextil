@@ -6,6 +6,7 @@ import {
   formatarNumero,
   formatarPercentual,
   nfSemCabecalho,
+  nfTemDespacho,
   nfTemRateio,
   nomeClienteNf,
 } from "./utils"
@@ -173,6 +174,9 @@ export function TabelaCte({
                         Emissão
                       </th>
                       <th className="px-4 py-2 text-[10px] font-medium uppercase text-slate-400">
+                        Despacho
+                      </th>
+                      <th className="px-4 py-2 text-[10px] font-medium uppercase text-slate-400">
                         Cliente
                       </th>
                       <th className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-400">
@@ -223,6 +227,22 @@ export function TabelaCte({
                             )}
                           </td>
                           <td className="px-4 py-2 text-slate-600 dark:text-slate-300">
+                            {nfTemDespacho(linha) ? (
+                              <>
+                                <span className="block font-mono">
+                                  pedido {formatarNumero(linha.nf_od_pedido)}
+                                </span>
+                                {linha.nf_od_romaneio != null && (
+                                  <span className="block text-[10px] text-slate-400">
+                                    romaneio {formatarNumero(linha.nf_od_romaneio)}
+                                  </span>
+                                )}
+                              </>
+                            ) : (
+                              "—"
+                            )}
+                          </td>
+                          <td className="px-4 py-2 text-slate-600 dark:text-slate-300">
                             {linha.nf_data ?? "—"}
                           </td>
                           <td className="px-4 py-2 text-slate-600 dark:text-slate-300">
@@ -246,7 +266,7 @@ export function TabelaCte({
                       )
                     })}
                     <tr>
-                      <td className="px-4 py-2 text-xs uppercase text-slate-400" colSpan={3}>
+                      <td className="px-4 py-2 text-xs uppercase text-slate-400" colSpan={4}>
                         Total do CT-e
                       </td>
                       <td className="px-4 py-2 text-right font-mono font-semibold text-slate-900 dark:text-slate-100">

@@ -22,6 +22,14 @@ const CAMPOS_NUMERICOS = [
   "nf_item_valor_total",
   "nf_item_icms",
   "nf_pct_rateio_no_cte",
+  "nf_od_pedido",
+  "nf_od_valor",
+  "nf_od_qtde",
+  "nf_od_cod_cidade",
+  "nf_od_romaneio",
+  "nf_od_qtde_rolos",
+  "nf_od_peso_bruto",
+  "nf_od_peso_liquido",
 ] as const
 
 const CAMPOS_TEXTO = [
@@ -42,6 +50,15 @@ const CAMPOS_TEXTO = [
   "nf_item_unidade",
   "nf_item_descricoes",
   "nf_valor_origem",
+  "nf_od_data",
+  "nf_od_cliente_razao",
+  "nf_od_cliente_fantasia",
+  "nf_od_cidade",
+  "nf_od_regiao",
+  "nf_od_representante",
+  "nf_od_faturamento",
+  "nf_od_cfop",
+  "nf_od_natureza",
 ] as const
 
 function toNumero(valor: unknown): number | null {
@@ -143,10 +160,22 @@ export function nomeClienteNf(linha: LinhaCte): string | null {
   return (
     linha.nf_cliente_fantasia ||
     linha.nf_cliente_razao ||
+    linha.nf_od_cliente_fantasia ||
+    linha.nf_od_cliente_razao ||
     linha.nf_fornecedor_fantasia ||
     linha.nf_fornecedor_razao ||
     null
   )
+}
+
+/**
+ * A ordem de despacho é a origem operacional da NF-e. O `PEDIDO = 0` não é um
+ * pedido real: é o placeholder que a base usa quando a NF-e não entrou em
+ * nenhuma ordem, e nesse caso os dados de despacho não descrevem nada. Por isso
+ * o corte é `> 0`, e não apenas "não nulo".
+ */
+export function nfTemDespacho(linha: LinhaCte): boolean {
+  return linha.nf_od_pedido != null && linha.nf_od_pedido > 0
 }
 
 /**
@@ -274,6 +303,7 @@ export function calcularResumo(itens: LinhaCte[]): Resumo {
   let semData = 0
   let comValorNf = 0
   let semCabecalho = 0
+  let comDespacho = 0
   let totalFrete = 0
   let totalNf = 0
   let totalRateio = 0
@@ -287,6 +317,7 @@ export function calcularResumo(itens: LinhaCte[]): Resumo {
     if (!dataReferencia(linha)) semData++
     if (linha.nf_valor_total != null) comValorNf++
     if (nfSemCabecalho(linha)) semCabecalho++
+    if (nfTemDespacho(linha)) comDespacho++
     totalFrete += linha.cte_valor_total || 0
     totalNf += linha.nf_valor_total || 0
     totalRateio += linha.nf_item_valor_total || 0
@@ -300,6 +331,7 @@ export function calcularResumo(itens: LinhaCte[]): Resumo {
     semData,
     comValorNf,
     semCabecalho,
+    comDespacho,
     totalFrete,
     totalNf,
     totalRateio,
