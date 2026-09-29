@@ -460,12 +460,13 @@ SELECT b.cte_numero,
 SELECT b.cte_numero,
        b.cte_serie,
        TO_CHAR(b.cte_data, 'DD/MM/YYYY')                                    AS cte_data,
+       TO_CHAR(b.cte_data_transacao, 'DD/MM/YYYY')                          AS cte_data_transacao,
        b.cte_valor_total,
-       SUM(b.nf_valor_total) OVER (PARTITION BY b.cte_numero, b.cte_serie)  AS soma_nf_do_cte,
-       ROUND(b.cte_valor_total
-             / NULLIF(SUM(b.nf_valor_total) OVER (PARTITION BY b.cte_numero, b.cte_serie), 0)
-             * 100, 2)                                                      AS pct_cte_sobre_total_nfs,
        b.cte_valor_frete,
+       b.cte_natureza,
+       b.cte_tipo_conhecimento,
+       b.cte_cod_cidade_origem,
+       b.cte_cod_cidade_destino,
        b.cte_situacao,
        b.cte_transportadora_razao,
        b.cte_transportadora_fantasia,
@@ -475,21 +476,41 @@ SELECT b.cte_numero,
        b.nf_serie,
        TO_CHAR(b.nf_data, 'DD/MM/YYYY')                                    AS nf_data,
        b.nf_valor_total,
+       SUM(b.nf_valor_total) OVER (PARTITION BY b.cte_numero, b.cte_serie)  AS soma_nf_do_cte,
        ROUND(b.nf_valor_total
              / NULLIF(SUM(b.nf_valor_total) OVER (PARTITION BY b.cte_numero, b.cte_serie), 0)
              * 100, 2)                                                      AS pct_nf_no_total_cte,
+       ROUND(b.cte_valor_total
+             / NULLIF(SUM(b.nf_valor_total) OVER (PARTITION BY b.cte_numero, b.cte_serie), 0)
+             * 100, 2)                                                      AS pct_cte_sobre_total_nfs,
        b.nf_frete_rateado,
        b.nf_situacao,
        b.nf_cliente_razao,
        b.nf_cliente_fantasia,
        b.nf_fornecedor_razao,
        b.nf_fornecedor_fantasia,
-       b.nf_cab_origem
+       b.nf_cab_origem,
+       b.nf_item_qtd,
+       b.nf_item_qtd_total,
+       b.nf_item_unidade,
+       b.nf_item_descricoes,
+       b.nf_item_valor_total,
+       b.nf_item_icms,
+       SUM(b.nf_item_valor_total) OVER (PARTITION BY b.cte_numero, b.cte_serie) AS soma_rateio_do_cte,
+       ROUND(b.nf_item_valor_total / NULLIF(b.cte_valor_total, 0) * 100, 2)    AS nf_pct_rateio_no_cte,
+       CASE WHEN b.nf_cab_origem <> 'SEM_CABECALHO' THEN 'CABECALHO_NF'
+            WHEN b.nf_item_valor_total IS NOT NULL  THEN 'RATEIO_CTE'
+            ELSE 'SEM_VALOR' END                  AS nf_valor_origem
   FROM ( SELECT cte.documento AS cte_numero,
                 cte.serie AS cte_serie,
                 cte.data_emissao AS cte_data,
+                cte.data_transacao AS cte_data_transacao,
                 cte.total_docto AS cte_valor_total,
                 cte.valor_frete AS cte_valor_frete,
+                cte.natoper_nat_oper AS cte_natureza,
+                cte.tipo_conhecimento AS cte_tipo_conhecimento,
+                cte.cod_cidade_cte AS cte_cod_cidade_origem,
+                cte.cod_cidade_cte_dest AS cte_cod_cidade_destino,
                 cte.situacao_entrada AS cte_situacao,
                 transp.nome_fornecedor AS cte_transportadora_razao,
                 transp.nome_fantasia AS cte_transportadora_fantasia,
@@ -508,7 +529,13 @@ SELECT b.cte_numero,
                 cli.nome_fornecedor AS nf_cliente_razao,
                 cli.nome_fantasia AS nf_cliente_fantasia,
                 forn.nome_fornecedor AS nf_fornecedor_razao,
-                forn.nome_fantasia AS nf_fornecedor_fantasia
+                forn.nome_fantasia AS nf_fornecedor_fantasia,
+                it.item_qtd AS nf_item_qtd,
+                it.item_qtd_total AS nf_item_qtd_total,
+                it.item_unidade AS nf_item_unidade,
+                it.item_descricoes AS nf_item_descricoes,
+                it.item_valor_total AS nf_item_valor_total,
+                it.item_icms AS nf_item_icms
            FROM obrf_016 nf
            JOIN obrf_010 cte
              ON cte.documento     = nf.num_conhecimento
@@ -548,6 +575,24 @@ SELECT b.cte_numero,
              ON forn.fornecedor9 = nf.fornecedor9
             AND forn.fornecedor4 = nf.fornecedor4
             AND forn.fornecedor2 = nf.fornecedor2
+           LEFT JOIN (SELECT i.capa_ent_nrdoc              AS capa_ent_nrdoc,
+                             i.capa_ent_serie              AS capa_ent_serie,
+                             i.num_nf_saida                AS num_nf_saida,
+                             i.serie_nf_saida               AS serie_nf_saida,
+                             COUNT(*)                      AS item_qtd,
+                             SUM(i.quantidade)             AS item_qtd_total,
+                             MAX(i.unidade_medida)         AS item_unidade,
+                             LISTAGG(SUBSTR(i.descricao_item, 1, 60), ' | ')
+                               WITHIN GROUP (ORDER BY i.sequencia) AS item_descricoes,
+                             SUM(i.valor_total)            AS item_valor_total,
+                             SUM(i.valor_icms)             AS item_icms
+                        FROM obrf_015 i
+                       WHERE i.num_nf_saida IS NOT NULL
+                       GROUP BY i.capa_ent_nrdoc, i.capa_ent_serie, i.num_nf_saida, i.serie_nf_saida) it
+             ON it.capa_ent_nrdoc = cte.documento
+            AND it.capa_ent_serie = cte.serie
+            AND it.num_nf_saida   = nf.numero_nota
+            AND it.serie_nf_saida = nf.serie_nota
        ) b
  WHERE COALESCE(b.nf_data, b.cte_data) >= ADD_MONTHS(TRUNC(SYSDATE), -2)
    AND COALESCE(b.nf_data, b.cte_data) <  TRUNC(SYSDATE) + 1

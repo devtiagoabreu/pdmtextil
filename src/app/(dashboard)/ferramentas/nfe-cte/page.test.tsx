@@ -110,6 +110,92 @@ const comCliente = {
   nf_cab_origem: "CNPJ_FORNECEDOR",
 }
 
+// Linha real devolvida pelo endpoint v3: CT-e 195477 / NF 35835. A nota é
+// prevista (não existe no fiscal) mas tem cota de frete rateada.
+const comRateio = {
+  cte_numero: 195477,
+  cte_serie: "1",
+  cte_data: br(dentroDoPeriodoPadrao),
+  cte_data_transacao: br(dentroDoPeriodoPadrao),
+  cte_valor_total: 79.32,
+  cte_valor_frete: 0,
+  cte_natureza: 119,
+  cte_tipo_conhecimento: 3,
+  cte_cod_cidade_origem: 7702,
+  cte_cod_cidade_destino: 8606,
+  cte_situacao: 4,
+  cte_transportadora_fantasia: "SORRISO TRANSPORTES",
+  cte_tomador_fantasia: "SORRISO TRANSPORTES",
+  soma_rateio_do_cte: 79.32,
+  nf_numero: 35835,
+  nf_serie: "1",
+  nf_data: null,
+  nf_valor_total: null,
+  nf_cab_origem: "SEM_CABECALHO",
+  nf_item_qtd: 1,
+  nf_item_qtd_total: 1,
+  nf_item_unidade: "UN",
+  nf_item_descricoes: "SERVICOS FRETES COMPRAS",
+  nf_item_valor_total: 79.32,
+  nf_item_icms: 9.52,
+  nf_pct_rateio_no_cte: 100,
+  nf_valor_origem: "RATEIO_CTE",
+}
+
+const comDoisItens = {
+  cte_numero: 195480,
+  cte_serie: "1",
+  cte_data: br(dentroDoPeriodoPadrao),
+  cte_valor_total: 165.56,
+  cte_transportadora_fantasia: "SORRISO TRANSPORTES",
+  cte_tomador_fantasia: "SORRISO TRANSPORTES",
+  soma_rateio_do_cte: 165.56,
+  nf_numero: 35843,
+  nf_serie: "1",
+  nf_data: null,
+  nf_valor_total: null,
+  nf_cab_origem: "SEM_CABECALHO",
+  nf_item_qtd: 2,
+  nf_item_qtd_total: 3,
+  nf_item_unidade: "KG",
+  nf_item_descricoes: "SERVICOS FRETES COMPRAS | SERVICOS FRETES VENDA",
+  nf_item_valor_total: 165.56,
+  nf_item_icms: 19.87,
+  nf_pct_rateio_no_cte: 100,
+  nf_valor_origem: "RATEIO_CTE",
+}
+
+// CT-e 351348/1: o rateio dos itens (917,34) não fecha com o total (199,99).
+const rateioDivergenteA = {
+  cte_numero: 351348,
+  cte_serie: "1",
+  cte_data: br(dentroDoPeriodoPadrao),
+  cte_valor_total: 199.99,
+  cte_transportadora_fantasia: "JADLOG",
+  cte_tomador_fantasia: "JADLOG",
+  soma_rateio_do_cte: 917.34,
+  nf_numero: 31933,
+  nf_serie: "1",
+  nf_data: null,
+  nf_valor_total: null,
+  nf_cab_origem: "SEM_CABECALHO",
+  nf_item_qtd: 1,
+  nf_item_unidade: "UN",
+  nf_item_descricoes: "SERVICOS FRETES COMPRAS",
+  nf_item_valor_total: 717.35,
+  nf_item_icms: 86.08,
+  nf_pct_rateio_no_cte: 358.69,
+  nf_valor_origem: "RATEIO_CTE",
+}
+
+const rateioDivergenteB = {
+  ...rateioDivergenteA,
+  nf_numero: 35653,
+  nf_item_valor_total: 199.99,
+  nf_item_icms: 24,
+  nf_pct_rateio_no_cte: 100,
+}
+
 function handler(
   items: Record<string, unknown>[] = [dentroDoPeriodo, segundaNfDoMesmoCte, foraDoPeriodo, semValores]
 ) {
@@ -261,16 +347,18 @@ describe("NfeCtePage", () => {
     expect(celulas[2]).toHaveTextContent("—")
     expect(celulas[3]).toHaveTextContent("—")
     expect(celulas[4]).toHaveTextContent("—")
+    expect(celulas[5]).toHaveTextContent("—")
   })
 
-  it("resume CT-es, NF-e com valor e total do frete", async () => {
+  it("resume CT-es, NF-e com valor e rateio", async () => {
     const fetchMock = createFetchMock(handler())
     vi.stubGlobal("fetch", fetchMock.fn)
     await consultar(fetchMock)
 
     await screen.findByText("CT-e 195476/1")
-    expect(screen.getByText("NF-e com valor")).toBeInTheDocument()
-    expect(screen.getByText("Total do frete")).toBeInTheDocument()
+    expect(screen.getByText("NF-e com valor de nota")).toBeInTheDocument()
+    expect(screen.getByText("Total dos CT-es")).toBeInTheDocument()
+    expect(screen.getByText("Rateio dos itens")).toBeInTheDocument()
   })
 
   it("oferece os atalhos de último período e mês corrente", async () => {
@@ -408,5 +496,125 @@ describe("NfeCtePage", () => {
 
     await screen.findByText("Consulte o relatório para ver as NF-e")
     expect(toastMock.error).toHaveBeenCalledWith("API retornou erro: 500")
+  })
+
+  it("abre os itens da NF-e e mostra descrição, quantidade, rateio e ICMS", async () => {
+    const fetchMock = createFetchMock(handler([comRateio]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    fireEvent.click(await screen.findByRole("button", { name: /CT-e 195477/ }))
+
+    const botaoItem = screen.getByRole("button", { name: /NF 35835/ })
+    expect(botaoItem).toHaveAttribute("aria-expanded", "false")
+    fireEvent.click(botaoItem)
+
+    expect(botaoItem).toHaveAttribute("aria-expanded", "true")
+    const tabelaItens = screen.getByText("Item do CT-e").closest("table")!
+    expect(within(tabelaItens).getByText("SERVICOS FRETES COMPRAS")).toBeInTheDocument()
+    expect(within(tabelaItens).getByText("1 UN")).toBeInTheDocument()
+    expect(within(tabelaItens).getByText("R$ 79,32")).toBeInTheDocument()
+    expect(within(tabelaItens).getByText("R$ 9,52")).toBeInTheDocument()
+  })
+
+  it("separa em linhas as descrições agregadas do endpoint", async () => {
+    const fetchMock = createFetchMock(handler([comDoisItens]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    fireEvent.click(await screen.findByRole("button", { name: /CT-e 195480/ }))
+    fireEvent.click(screen.getByRole("button", { name: /NF 35843/ }))
+
+    const tabelaItens = screen.getByText("Item do CT-e").closest("table")!
+    expect(within(tabelaItens).getByText("SERVICOS FRETES COMPRAS")).toBeInTheDocument()
+    expect(within(tabelaItens).getByText("SERVICOS FRETES VENDA")).toBeInTheDocument()
+    // a quantidade total aparece nas duas linhas, porque a SQL agrupa
+    expect(within(tabelaItens).getAllByText("3 KG")).toHaveLength(2)
+    // com mais de um item o rateio é do CT-e inteiro, então não se repete por linha:
+    // valor e ICMS ficam em travessão nas duas linhas
+    expect(within(tabelaItens).getAllByText("—")).toHaveLength(4)
+  })
+
+  it("mostra a cota de rateio da NF-e prevista e o percentual do CT-e", async () => {
+    const fetchMock = createFetchMock(handler([comRateio]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    fireEvent.click(await screen.findByRole("button", { name: /CT-e 195477/ }))
+
+    const linha = screen.getByRole("button", { name: /NF 35835/ }).closest("tr")!
+    const rateio = within(linha).getAllByRole("cell")[4]
+    expect(rateio).toHaveTextContent("R$ 79,32")
+    expect(rateio).toHaveTextContent("100,00% do CT-e")
+    // o valor da nota continua vazio: o rateio não é o total da NF-e
+    expect(within(linha).getAllByRole("cell")[3]).toHaveTextContent("—")
+  })
+
+  it("sinaliza o CT-es cujo rateio não fecha com o total", async () => {
+    const fetchMock = createFetchMock(handler([rateioDivergenteA, rateioDivergenteB]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    const card = await screen.findByRole("button", { name: /CT-e 351348/ })
+    expect(within(card).getByText("rateio não fecha")).toBeInTheDocument()
+    expect(screen.getByText(/1 CT-es com rateio divergente do total/)).toBeInTheDocument()
+  })
+
+  it("não sinaliza rateio que fecha com o total do CT-e", async () => {
+    const fetchMock = createFetchMock(handler([comRateio]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    const card = await screen.findByRole("button", { name: /CT-e 195477/ })
+    expect(within(card).queryByText("rateio não fecha")).not.toBeInTheDocument()
+    expect(screen.queryByText(/rateio divergente/)).not.toBeInTheDocument()
+  })
+
+  it("avisa que o valor da NF prevista vem do rateio, e não da nota", async () => {
+    const fetchMock = createFetchMock(handler([comRateio]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    fireEvent.click(await screen.findByRole("button", { name: /CT-e 195477/ }))
+    expect(
+      screen.getByText(/O rateio acima vem dos itens do próprio CT-e, não da nota/)
+    ).toBeInTheDocument()
+  })
+
+  it("exporta os itens e o rateio no CSV", async () => {
+    const blobs: Blob[] = []
+    const criarUrl = vi.fn((b: Blob) => {
+      blobs.push(b)
+      return "blob:mock"
+    })
+    const revogar = vi.fn()
+    const createObjectURLOriginal = URL.createObjectURL
+    const revokeObjectURLOriginal = URL.revokeObjectURL
+    Object.defineProperty(URL, "createObjectURL", { value: criarUrl, configurable: true })
+    Object.defineProperty(URL, "revokeObjectURL", { value: revogar, configurable: true })
+
+    try {
+      const fetchMock = createFetchMock(handler([comRateio]))
+      vi.stubGlobal("fetch", fetchMock.fn)
+      await consultar(fetchMock)
+
+      await screen.findByText("CT-e 195477/1")
+      fireEvent.click(screen.getByRole("button", { name: /Exportar CSV/ }))
+
+      const csv = await blobs[0].text()
+      expect(csv).toContain("Origem do valor,Itens rateados,Quantidade total,Unidade")
+      expect(csv).toContain("Valor do rateio,ICMS do rateio,% rateio no CT-e")
+      expect(csv).toContain("RATEIO_CTE")
+      expect(csv).toContain("SERVICOS FRETES COMPRAS")
+    } finally {
+      Object.defineProperty(URL, "createObjectURL", {
+        value: createObjectURLOriginal,
+        configurable: true,
+      })
+      Object.defineProperty(URL, "revokeObjectURL", {
+        value: revokeObjectURLOriginal,
+        configurable: true,
+      })
+    }
   })
 })

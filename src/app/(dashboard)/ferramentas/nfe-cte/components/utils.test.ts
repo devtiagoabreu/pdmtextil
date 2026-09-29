@@ -2,6 +2,7 @@ import { describe, it, expect } from "vitest"
 import {
   agruparPorCte,
   calcularResumo,
+  descricoesItem,
   extrairItems,
   filtrarPorPeriodo,
   formatarMoeda,
@@ -9,6 +10,7 @@ import {
   formatarPercentual,
   isoParaData,
   nfSemCabecalho,
+  nfTemRateio,
   nomeClienteNf,
   normalizarLinha,
   normalizarResposta,
@@ -16,6 +18,7 @@ import {
   parseDataBr,
   periodoMesCorrente,
   periodoPadrao,
+  rateioFechaComCte,
   somarMeses,
 } from "./utils"
 import type { LinhaCte } from "./types"
@@ -24,14 +27,20 @@ const cteBase = {
   cte_numero: 195476,
   cte_serie: "1",
   cte_data: "18/09/2026",
+  cte_data_transacao: "25/09/2026",
   cte_valor_total: 131.7,
   cte_valor_frete: 0,
+  cte_natureza: 119,
+  cte_tipo_conhecimento: 3,
+  cte_cod_cidade_origem: 7702,
+  cte_cod_cidade_destino: 8606,
   cte_situacao: 4,
   cte_transportadora_razao: "E E CARGAS E ENCOMENDAS LTDA- SORRISO",
   cte_transportadora_fantasia: "SORRISO TRANSPORTES",
   cte_tomador_razao: "E E CARGAS E ENCOMENDAS LTDA- SORRISO",
   cte_tomador_fantasia: "SORRISO TRANSPORTES",
   soma_nf_do_cte: null,
+  soma_rateio_do_cte: null,
   pct_cte_sobre_total_nfs: null,
   nf_numero: null,
   nf_serie: null,
@@ -45,6 +54,14 @@ const cteBase = {
   nf_fornecedor_razao: null,
   nf_fornecedor_fantasia: null,
   nf_cab_origem: null,
+  nf_item_qtd: null,
+  nf_item_qtd_total: null,
+  nf_item_unidade: null,
+  nf_item_descricoes: null,
+  nf_item_valor_total: null,
+  nf_item_icms: null,
+  nf_pct_rateio_no_cte: null,
+  nf_valor_origem: null,
 } satisfies LinhaCte
 
 function linha(over: Partial<LinhaCte>): LinhaCte {
@@ -117,6 +134,106 @@ describe("normalizarLinha", () => {
   it("não inventa origem de cabeçalho quando o endpoint v1 não manda a coluna", () => {
     const r = normalizarLinha({ NF_NUMERO: 35832, CTE_NUMERO: 195476 })
     expect(r.nf_cab_origem).toBeNull()
+  })
+
+  // O v3 publishou os itens/rateio. Same risco do v2: campo fora da whitelist
+  // some da tela sem erro nenhum. O payload abaixo é a linha real do CT-e
+  // 195477 / NF 35835 devolvida pelo endpoint.
+  it("preserva os campos de item/rateio do v3 quando vêm em maiúsculas", () => {
+    const r = normalizarLinha({
+      CTE_NUMERO: 195477,
+      CTE_DATA_TRANSACAO: "25/09/2026",
+      CTE_NATUREZA: 119,
+      CTE_TIPO_CONHECIMENTO: 3,
+      CTE_COD_CIDADE_ORIGEM: 7702,
+      CTE_COD_CIDADE_DESTINO: 8606,
+      SOMA_RATEIO_DO_CTE: 79.32,
+      NF_NUMERO: 35835,
+      NF_CAB_ORIGEM: "SEM_CABECALHO",
+      NF_ITEM_QTD: 1,
+      NF_ITEM_QTD_TOTAL: 1,
+      NF_ITEM_UNIDADE: "UN",
+      NF_ITEM_DESCRICOES: "SERVICOS FRETES COMPRAS",
+      NF_ITEM_VALOR_TOTAL: 79.32,
+      NF_ITEM_ICMS: 9.52,
+      NF_PCT_RATEIO_NO_CTE: 100,
+      NF_VALOR_ORIGEM: "RATEIO_CTE",
+    })
+    expect(r.cte_data_transacao).toBe("25/09/2026")
+    expect(r.cte_natureza).toBe(119)
+    expect(r.cte_tipo_conhecimento).toBe(3)
+    expect(r.cte_cod_cidade_origem).toBe(7702)
+    expect(r.cte_cod_cidade_destino).toBe(8606)
+    expect(r.soma_rateio_do_cte).toBe(79.32)
+    expect(r.nf_item_qtd).toBe(1)
+    expect(r.nf_item_qtd_total).toBe(1)
+    expect(r.nf_item_unidade).toBe("UN")
+    expect(r.nf_item_descricoes).toBe("SERVICOS FRETES COMPRAS")
+    expect(r.nf_item_valor_total).toBe(79.32)
+    expect(r.nf_item_icms).toBe(9.52)
+    expect(r.nf_pct_rateio_no_cte).toBe(100)
+    expect(r.nf_valor_origem).toBe("RATEIO_CTE")
+  })
+
+  it("lê o rateio em vírgula decimal", () => {
+    const r = normalizarLinha({ NF_ITEM_VALOR_TOTAL: "1.340,47", NF_ITEM_ICMS: "160,86" })
+    expect(r.nf_item_valor_total).toBe(1340.47)
+    expect(r.nf_item_icms).toBe(160.86)
+  })
+})
+
+describe("nfTemRateio", () => {
+  it("reconhece NF-e que só tem cota de frete, sem cabeçalho no fiscal", () => {
+    expect(
+      nfTemRateio(linha({ nf_valor_total: null, nf_item_valor_total: 79.32 }))
+    ).toBe(true)
+  })
+
+  it("reconhece rateio só com descrição de item", () => {
+    expect(nfTemRateio(linha({ nf_item_descricoes: "SERVICOS FRETES COMPRAS" }))).toBe(true)
+  })
+
+  it("diz que não tem quando a NF-e não tem item nenhum", () => {
+    expect(nfTemRateio(linha({}))).toBe(false)
+  })
+})
+
+describe("descricoesItem", () => {
+  it("separa a coluna agregada do endpoint em linhas", () => {
+    expect(
+      descricoesItem(linha({ nf_item_descricoes: "SERVICOS FRETES COMPRAS | SERVICOS FRETES VENDA" }))
+    ).toEqual(["SERVICOS FRETES COMPRAS", "SERVICOS FRETES VENDA"])
+  })
+
+  it("devolve lista vazia sem descrição", () => {
+    expect(descricoesItem(linha({}))).toEqual([])
+    expect(descricoesItem(linha({ nf_item_descricoes: "   " }))).toEqual([])
+  })
+})
+
+describe("rateioFechaComCte", () => {
+  it("confere quando o rateio fecha com o total do CT-e", () => {
+    expect(
+      rateioFechaComCte(linha({ cte_valor_total: 79.32, soma_rateio_do_cte: 79.32 }))
+    ).toBe(true)
+  })
+
+  it("aceita diferença de arredondamento de centavo", () => {
+    expect(
+      rateioFechaComCte(linha({ cte_valor_total: 199.99, soma_rateio_do_cte: 199.99 }))
+    ).toBe(true)
+  })
+
+  it("aponta o rateio que passa do total do CT-e", () => {
+    // CT-e 351348/1: item da NF 31933 carrega 717,35 num CT-e de 199,99.
+    expect(
+      rateioFechaComCte(linha({ cte_valor_total: 199.99, soma_rateio_do_cte: 917.34 }))
+    ).toBe(false)
+  })
+
+  it("não acusa divergência quando falta um dos lados", () => {
+    expect(rateioFechaComCte(linha({ cte_valor_total: null, soma_rateio_do_cte: 100 }))).toBe(true)
+    expect(rateioFechaComCte(linha({ cte_valor_total: 100, soma_rateio_do_cte: null }))).toBe(true)
   })
 })
 
@@ -360,6 +477,46 @@ describe("agruparPorCte", () => {
     ])[0]
     expect(nenhuma.transportadora).toBe("—")
   })
+
+  it("leva os dados da capa do CT-e para o grupo", () => {
+    const g = agruparPorCte([linha({})])[0]
+    expect(g.dataTransacao).toBe("25/09/2026")
+    expect(g.natureza).toBe(119)
+    expect(g.tipoConhecimento).toBe(3)
+    expect(g.codCidadeOrigem).toBe(7702)
+    expect(g.codCidadeDestino).toBe(8606)
+  })
+
+  it("soma o rateio das NF-e quando a API não devolve", () => {
+    const g = agruparPorCte([
+      linha({ nf_numero: 23391, cte_valor_total: 3038.14, nf_item_valor_total: 1340.47 }),
+      linha({ nf_numero: 23392, cte_valor_total: 3038.14, nf_item_valor_total: 1697.67 }),
+    ])[0]
+    expect(g.somaRateio).toBeNull()
+    expect(g.somaRateioCalculada).toBeCloseTo(3038.14, 2)
+  })
+
+  it("usa a soma do rateio da API quando presente", () => {
+    const g = agruparPorCte([
+      linha({ cte_valor_total: 3038.14, soma_rateio_do_cte: 3038.14 }),
+    ])[0]
+    expect(g.somaRateio).toBe(3038.14)
+  })
+
+  it("marca o grupo com rateio divergente do total do CT-e", () => {
+    // CT-e 351348/1: rateio 917,34 contra total 199,99.
+    const g = agruparPorCte([
+      linha({ cte_numero: 351348, cte_valor_total: 199.99, soma_rateio_do_cte: 917.34 }),
+    ])[0]
+    expect(g.rateioDivergente).toBe(true)
+  })
+
+  it("não marca grupo com rateio que fecha", () => {
+    const g = agruparPorCte([
+      linha({ cte_valor_total: 79.32, soma_rateio_do_cte: 79.32 }),
+    ])[0]
+    expect(g.rateioDivergente).toBe(false)
+  })
 })
 
 describe("calcularResumo", () => {
@@ -391,6 +548,22 @@ describe("calcularResumo", () => {
   it("conta linhas sem data de referência", () => {
     const r = calcularResumo([linha({ nf_data: null, cte_data: null })])
     expect(r.semData).toBe(1)
+  })
+
+  it("soma o rateio dos itens e conta os CT-es divergentes", () => {
+    const r = calcularResumo([
+      linha({ cte_numero: 1, nf_numero: 10, nf_item_valor_total: 79.32 }),
+      linha({ cte_numero: 2, nf_numero: 11, nf_item_valor_total: 1340.47 }),
+      linha({
+        cte_numero: 3,
+        nf_numero: 12,
+        nf_item_valor_total: 717.35,
+        cte_valor_total: 199.99,
+        soma_rateio_do_cte: 917.34,
+      }),
+    ])
+    expect(r.totalRateio).toBeCloseTo(2137.14, 2)
+    expect(r.ctesRateioDivergente).toBe(1)
   })
 
   it("não conta a mesma NF duas vezes quando ela se repete no CT-e", () => {

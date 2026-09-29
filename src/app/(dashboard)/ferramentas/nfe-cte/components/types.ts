@@ -10,14 +10,20 @@ export interface LinhaCte {
   cte_numero: number | null
   cte_serie: string | null
   cte_data: string | null
+  cte_data_transacao: string | null
   cte_valor_total: number | null
   cte_valor_frete: number | null
+  cte_natureza: number | null
+  cte_tipo_conhecimento: number | null
+  cte_cod_cidade_origem: number | null
+  cte_cod_cidade_destino: number | null
   cte_situacao: number | null
   cte_transportadora_razao: string | null
   cte_transportadora_fantasia: string | null
   cte_tomador_razao: string | null
   cte_tomador_fantasia: string | null
   soma_nf_do_cte: number | null
+  soma_rateio_do_cte: number | null
   pct_cte_sobre_total_nfs: number | null
   nf_numero: number | null
   nf_serie: string | null
@@ -31,6 +37,14 @@ export interface LinhaCte {
   nf_fornecedor_razao: string | null
   nf_fornecedor_fantasia: string | null
   nf_cab_origem: string | null
+  nf_item_qtd: number | null
+  nf_item_qtd_total: number | null
+  nf_item_unidade: string | null
+  nf_item_descricoes: string | null
+  nf_item_valor_total: number | null
+  nf_item_icms: number | null
+  nf_pct_rateio_no_cte: number | null
+  nf_valor_origem: string | null
 }
 
 export interface GrupoCte {
@@ -38,16 +52,25 @@ export interface GrupoCte {
   numero: number | null
   serie: string | null
   data: string | null
+  dataTransacao: string | null
   dataIso: string | null
   valorTotal: number | null
   valorFrete: number | null
+  natureza: number | null
+  tipoConhecimento: number | null
+  codCidadeOrigem: number | null
+  codCidadeDestino: number | null
   situacao: number | null
   transportadora: string
   tomador: string
   somaNf: number | null
+  somaRateio: number | null
   pctSobreNf: number | null
   somaNfCalculada: number
+  somaRateioCalculada: number
   pctCalculado: number | null
+  /** Rateio dos itens não bate com o total do CT-e (inconsistência de cadastro no ERP). */
+  rateioDivergente: boolean
   nfs: LinhaCte[]
 }
 
@@ -65,4 +88,6 @@ export interface Resumo {
   semCabecalho: number
   totalFrete: number
   totalNf: number
+  totalRateio: number
+  ctesRateioDivergente: number
 }

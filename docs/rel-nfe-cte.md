@@ -1026,4 +1026,156 @@ dois bugs foi comparar o resultado com o documento: `23391 + 23392` tem que fech
 100%, e nenhum par CT-e/NF pode se repetir. **Rode essa conferência toda publicação,
 não só o teste de erro.**
 
+---
+
+## 17. v3.0 — itens e rateio por NF (29/09/2026)
+
+O relatório não trazia os dados da NF porque só lia cabeçalho (`OBRF_010`) e o índice
+CT-e↔NF (`OBRF_016`). Os **itens/rateio estão em `OBRF_015`**, que tem as duas pontas:
+`CAPA_ENT_NRDOC`/`CAPA_ENT_SERIE` (CT-e) e `NUM_NF_SAIDA`/`SERIE_NF_SAIDA` (NF).
+
+A tela do ERP "Importação de XML de CT-e" mostrou o caminho. O CT-e 195477 tem
+`TOTAL_DOCTO` 79,32, um item de 79,32 com base ICMS 79,32 e valor ICMS 9,52, e o item
+aponta `Nota fiscal: 35835 1`. O endpoint devolve exatamente 79,32 e 9,52 para o
+CT-e 195477 / NF 35835. Bate com a tela campo a campo.
+
+### 17.1 Como entra, e por que não quebra a matemática
+
+`OBRF_015` entra por **subquery agregada**, não por `LEFT JOIN` cru:
+
+```sql
+LEFT JOIN (SELECT i.capa_ent_nrdoc, i.capa_ent_serie, i.num_nf_saida, i.serie_nf_saida,
+                  COUNT(*) AS item_qtd, SUM(i.quantidade) AS item_qtd_total,
+                  MAX(i.unidade_medida) AS item_unidade,
+                  LISTAGG(SUBSTR(i.descricao_item, 1, 60), ' | ')
+                    WITHIN GROUP (ORDER BY i.sequencia) AS item_descricoes,
+                  SUM(i.valor_total) AS item_valor_total, SUM(i.valor_icms) AS item_icms
+             FROM obrf_015 i
+            WHERE i.num_nf_saida IS NOT NULL
+            GROUP BY i.capa_ent_nrdoc, i.capa_ent_serie, i.num_nf_saida, i.serie_nf_saida) it
+```
+
+Agrupar pela chave CT-e+NF devolve **no máximo uma linha por par**, então o join de
+itens não multiplica nada — que era exatamente o bug da v2.0. Verificado: 201 linhas
+antes e depois, zero par repetido.
+
+`WITH` não foi usado porque o console do ERP recusa. Subquery no `FROM` é aceito.
+
+### 17.2 Valor de nota e valor de rateio, separados de propósito
+
+`VALOR_TOTAL` do item é a **cota de frete rateada no CT-e**, não o total da nota fiscal.
+Quando o CT-e tem 1 item e 1 NF os dois números coincidem — foi o que me enganou na
+primeira leitura da tela. Num CT-e com 2 NFs, o rateio diz quanto do frete coube a cada
+nota. Por isso `NF_VALOR_TOTAL` continua sendo **só** o do cabeçalho, e o rateio vem em
+colunas próprias, com a procedência declarada:
+
+| `NF_VALOR_ORIGEM` | Significado | Linhas |
+|---|---|---|
+| `CABECALHO_NF` | valor da nota veio de `OBRF_010` | 7 |
+| `RATEIO_CTE` | só existe a cota de frete, no `OBRF_015` | 194 |
+| `SEM_VALOR` | nem um nem outro | **0** |
+
+Misturar os dois no mesmo campo quebraria o `PCT_NF_NO_TOTAL_CTE`, que passaria a somar
+total de nota com cota de frete.
+
+### 17.3 Verificação do payload publicado (201 linhas, 38 colunas)
+
+| # | Conferência | Resultado |
+|---|---|---|
+| 1 | Pares CT-e/NF duplicados | **0** (o join de itens não multiplicou) |
+| 2 | Linhas sem valor de nenhum tipo | **0** (era 194) |
+| 3 | Soma dos `PCT_NF_NO_TOTAL_CTE` = 100% por CT-e | **OK** |
+| 4 | Soma do `NF_PCT_RATEIO_NO_CTE` = 100% por CT-e | 198 de 199 |
+| 5 | Soma do rateio = total do CT-e | 198 de 199 |
+| 6 | NF-e a mais de 45 dias do CT-e | **0** |
+| 7 | Taxa por NF, CT-e 11757/1 | 44,12% / 55,88% |
+
+**A prova de que o rateio é confiável:** no CT-e 11757/1 o rateio por NF deu 44,12% e
+55,88% — o mesmo split do valor das notas (28.605,27 e 36.227,66 sobre 64.832,93). Dois
+caminhos independentes, um pelo rateio de frete e outro pelos totais de nota, chegando
+no mesmo lugar.
+
+Totais do período: rateio R$ 50.475,85, ICMS de item R$ 5.798,16, soma dos CT-es
+R$ 49.758,50.
+
+### 17.4 Dado inconsistente no ERP: CT-e 351348/1
+
+Único ponto do período em que o rateio não fecha. Vale 458,69% do CT-e:
+
+| NF | Rateio | % do CT-e |
+|---|---|---|
+| 31933/1 | R$ 717,35 | 358,69% |
+| 35653/1 | R$ 199,99 | 100,00% |
+
+O item da NF 31933 carrega 717,35 enquanto o `TOTAL_DOCTO` do CT-e é 199,99. A diferença
+de todo o período é **exatamente 717,35** — ou seja, fora esse CT-e, os 198 restantes
+fecham ao centavo. Não é erro do SQL: é o CT-e com o total do cabeçalho inconsistente
+com o rateio dos itens, ou com item de NF que não entrou no total. Para confirmar:
+
+```sql
+SELECT capa_ent_nrdoc, capa_ent_serie, sequencia, num_nf_saida, serie_nf_saida,
+       descricao_item, quantidade, valor_total, valor_icms
+  FROM obrf_015
+ WHERE capa_ent_nrdoc = 351348 AND capa_ent_serie = '1'
+ ORDER BY sequencia;
+
+SELECT documento, serie, especie_docto, total_docto, data_emissao
+  FROM obrf_010
+ WHERE documento = 351348;
+```
+
+Se os itens somarem 917,34 e o cabeçalho estiver 199,99, é inconsistência de cadastro no
+ERP e entra no mesmo chamado da seção 15.1.
+
+> **Não capei o valor no total do CT-e de propósito.** Se o rateio passa do total do
+> CT-e, o certo é o dado aparecer e a divergência ficar visível — `SOMA_RATEIO_DO_CTE`
+> ao lado de `CTE_VALOR_TOTAL` já mostra a conta. Arredondar ou limitar seria inventar
+> número.
+
+---
+
+## 18. Tela: terceiro nível, CT-e → NF-e → item (29/09/2026)
+
+Com o v3 publicado, a tela `Ferramentas > NF-e → CT-e por Período` passou a mostrar o
+rateio. Antes disso ela ignorava as 14 colunas novas — e o motivo é um detalhe do
+`normalizarLinha` que vale registrar:
+
+> **Coluna nova no endpoint que não entrar em `CAMPOS_NUMERICOS`/`CAMPOS_TEXTO` some da
+> tela sem erro nenhum.** Não dá erro de tipo, não dá warning, não quebra teste com
+> payload minúsculo — porque o `normalizarLinha` só joga na tela o que está na
+> whitelist. Foi exatamente o que aconteceu com os 3 campos do v2, e o teste que
+> pegou isso foi o que mandava os aliases em **MAIÚSCULO**, como o endpoint real
+> responde. Todo campo novo do endpoint precisa de teste em maiúsculo junto.
+
+O que mudou:
+
+| Onde | Antes | Agora |
+|---|---|---|
+| Card do CT-e | frete, soma das NFs, % das NFs | + rateio dos itens, data de transação, aviso de rateio divergente |
+| Linha da NF-e | valor da nota, % no CT-e | + coluna **Rateio** com o valor e o % do CT-e |
+| 3º nível | não existia | clique na NF-e abre os itens: descrição, quantidade, rateio e ICMS |
+| Resumo | 4 cards | 5 cards, com **Rateio dos itens** no lugar do "Total do frete" (renomeado para "Total dos CT-es", que é o que ele sempre somou) |
+| CSV | 17 colunas | 31 colunas, com origem do valor, itens, rateio e dados da capa |
+
+Três decisões que não são óbvias:
+
+1. **`NF_VALOR_TOTAL` continua vazio na NF prevista.** O rateio aparece em coluna
+   própria, ao lado. Se eu preenchesse o valor da nota com a cota de frete, o
+   `PCT_NF_NO_TOTAL_CTE` passaria a somar total de nota com cota de frete e não
+   significaria nada — e o usuário não distinguiria "nota de 79,32" de "frete de
+   79,32" no contexto de um CT-e.
+2. **A nota prevista ganhou aviso de que o valor vem do rateio.** O texto do rodapé
+   do CT-e passou a dizer isso, porque "79,32 numa NF-e que não existe no fiscal" sem
+   explicação parece bug.
+3. **Rateio divergente é sinalizado, não corrigido.** Badge "rateio não fecha" no card
+   e contador no cabeçalho. Cortar o valor no total do CT-e esconderia o problema de
+   cadastro que a seção 17.4 documenta.
+
+Testes: 68 unitários em `utils.test.ts` (whitelist do v3, `nfTemRateio`,
+`descricoesItem`, `rateioFechaComCte`, agrupamento e resumo) e 27 de página em
+`page.test.tsx` (abrir itens, descrições agregadas virarem linhas, cota na linha da NF,
+badge de divergência, aviso da prevista, CSV). Suíte completa: 1756 testes, 305
+arquivos, verde.
+
+
 

@@ -36,15 +36,29 @@ function baixarCsv(itens: LinhaCte[], nome: string) {
   const colunas: [string, (l: LinhaCte) => unknown][] = [
     ["CT-e", (l) => (l.cte_serie ? `${l.cte_numero}/${l.cte_serie}` : l.cte_numero)],
     ["Data CT-e", (l) => l.cte_data],
+    ["Data transacao", (l) => l.cte_data_transacao],
+    ["Natureza", (l) => l.cte_natureza],
+    ["Tipo conhecimento", (l) => l.cte_tipo_conhecimento],
+    ["Cidade origem", (l) => l.cte_cod_cidade_origem],
+    ["Cidade destino", (l) => l.cte_cod_cidade_destino],
     ["Valor CT-e", (l) => l.cte_valor_total],
     ["Soma NFs do CT-e", (l) => l.soma_nf_do_cte],
     ["% CT-e sobre NFs", (l) => l.pct_cte_sobre_total_nfs],
+    ["Soma rateio do CT-e", (l) => l.soma_rateio_do_cte],
     ["Transportadora", (l) => l.cte_transportadora_fantasia || l.cte_transportadora_razao],
     ["Tomador", (l) => l.cte_tomador_fantasia || l.cte_tomador_razao],
     ["NF-e", (l) => (l.nf_serie ? `${l.nf_numero}/${l.nf_serie}` : l.nf_numero)],
     ["Data NF-e", (l) => l.nf_data],
     ["Valor NF-e", (l) => l.nf_valor_total],
     ["% NF-e no CT-e", (l) => l.pct_nf_no_total_cte],
+    ["Origem do valor", (l) => l.nf_valor_origem],
+    ["Itens rateados", (l) => l.nf_item_qtd],
+    ["Quantidade total", (l) => l.nf_item_qtd_total],
+    ["Unidade", (l) => l.nf_item_unidade],
+    ["Itens (descricoes)", (l) => l.nf_item_descricoes],
+    ["Valor do rateio", (l) => l.nf_item_valor_total],
+    ["ICMS do rateio", (l) => l.nf_item_icms],
+    ["% rateio no CT-e", (l) => l.nf_pct_rateio_no_cte],
     ["Frete rateado", (l) => l.nf_frete_rateado],
     ["Cliente", (l) => nomeClienteNf(l)],
     ["Cliente (razao social)", (l) => l.nf_cliente_razao],
@@ -80,6 +94,7 @@ export default function NfeCtePage() {
   const [carregado, setCarregado] = useState(false)
   const [loading, setLoading] = useState(false)
   const [expandido, setExpandido] = useState<Set<string>>(new Set())
+  const [itensAbertos, setItensAbertos] = useState<Set<string>>(new Set())
 
   useEffect(() => {
     let ativo = true
@@ -137,6 +152,7 @@ export default function NfeCtePage() {
     setTermo("")
     setPeriodo(periodoPadrao())
     setExpandido(new Set())
+    setItensAbertos(new Set())
   }, [])
 
   const filtrados = useMemo(() => {
@@ -167,6 +183,15 @@ export default function NfeCtePage() {
 
   function toggle(chave: string) {
     setExpandido((prev) => {
+      const next = new Set(prev)
+      if (next.has(chave)) next.delete(chave)
+      else next.add(chave)
+      return next
+    })
+  }
+
+  function toggleItem(chave: string) {
+    setItensAbertos((prev) => {
       const next = new Set(prev)
       if (next.has(chave)) next.delete(chave)
       else next.add(chave)
@@ -258,7 +283,7 @@ export default function NfeCtePage() {
             </div>
           ) : grupos.length > 0 ? (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
+              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
                   <p className="text-xs text-slate-500 dark:text-slate-400">NF-e</p>
                   <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">
@@ -272,28 +297,46 @@ export default function NfeCtePage() {
                   </p>
                 </div>
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">Total do frete</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Total dos CT-es
+                  </p>
                   <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">
                     {formatarMoeda(resumo.totalFrete)}
                   </p>
                 </div>
                 <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">NF-e com valor</p>
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    Rateio dos itens
+                  </p>
+                  <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">
+                    {formatarMoeda(resumo.totalRateio)}
+                  </p>
+                </div>
+                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
+                  <p className="text-xs text-slate-500 dark:text-slate-400">
+                    NF-e com valor de nota
+                  </p>
                   <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">
                     {formatarNumero(resumo.comValorNf)}
-                    <span className="text-sm font-normal text-slate-400"> / {resumo.linhas}</span>
+                    <span className="text-sm font-normal text-slate-400">
+                      {" "}
+                      / {resumo.linhas}
+                    </span>
                   </p>
                 </div>
               </div>
 
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between gap-4">
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   {grupos.length} CT-es · {resumo.linhas} NF-e
                   {resumo.semData > 0
                     ? ` · ${resumo.semData} sem data de referência (mantidas)`
                     : ""}
                   {resumo.semCabecalho > 0
-                    ? ` · ${resumo.semCabecalho} NF-e não localizadas no fiscal`
+                    ? ` · ${resumo.semCabecalho} NF-e não localizadas no fiscal (valor vem do rateio do CT-e)`
+                    : ""}
+                  {resumo.ctesRateioDivergente > 0
+                    ? ` · ${resumo.ctesRateioDivergente} CT-es com rateio divergente do total`
                     : ""}
                 </p>
                 <button
@@ -306,7 +349,13 @@ export default function NfeCtePage() {
                 </button>
               </div>
 
-              <TabelaCte grupos={grupos} expandido={expandido} onToggle={toggle} />
+              <TabelaCte
+                grupos={grupos}
+                expandido={expandido}
+                onToggle={toggle}
+                itensAbertos={itensAbertos}
+                onToggleItem={toggleItem}
+              />
             </div>
           ) : carregado ? (
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center">

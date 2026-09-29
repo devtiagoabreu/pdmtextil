@@ -4,19 +4,30 @@ const CAMPOS_NUMERICOS = [
   "cte_numero",
   "cte_valor_total",
   "cte_valor_frete",
+  "cte_natureza",
+  "cte_tipo_conhecimento",
+  "cte_cod_cidade_origem",
+  "cte_cod_cidade_destino",
   "cte_situacao",
   "soma_nf_do_cte",
+  "soma_rateio_do_cte",
   "pct_cte_sobre_total_nfs",
   "nf_numero",
   "nf_valor_total",
   "pct_nf_no_total_cte",
   "nf_frete_rateado",
   "nf_situacao",
+  "nf_item_qtd",
+  "nf_item_qtd_total",
+  "nf_item_valor_total",
+  "nf_item_icms",
+  "nf_pct_rateio_no_cte",
 ] as const
 
 const CAMPOS_TEXTO = [
   "cte_serie",
   "cte_data",
+  "cte_data_transacao",
   "cte_transportadora_razao",
   "cte_transportadora_fantasia",
   "cte_tomador_razao",
@@ -28,6 +39,9 @@ const CAMPOS_TEXTO = [
   "nf_fornecedor_razao",
   "nf_fornecedor_fantasia",
   "nf_cab_origem",
+  "nf_item_unidade",
+  "nf_item_descricoes",
+  "nf_valor_origem",
 ] as const
 
 function toNumero(valor: unknown): number | null {
@@ -145,6 +159,38 @@ export function nfSemCabecalho(linha: LinhaCte): boolean {
   return linha.nf_cab_origem === "SEM_CABECALHO"
 }
 
+/**
+ * O endpoint v3 traz os itens do CT-e (`OBRF_015`) rateados por NF-e. Uma NF
+ * prevista — que não tem cabeçalho na `OBRF_010` — ainda tem valor de frete
+ * rateado, então ela não está "sem dado": está com dado de outra origem.
+ */
+export function nfTemRateio(linha: LinhaCte): boolean {
+  return linha.nf_item_valor_total != null || linha.nf_item_descricoes != null
+}
+
+/**
+ * As descrições chegam agregadas em uma coluna, separadas por ` | `, porque a
+ * SQL agrupa por CT-e+NF. Aqui viram linhas de verdade para a tabela de itens.
+ */
+export function descricoesItem(linha: LinhaCte): string[] {
+  const bruto = linha.nf_item_descricoes
+  if (!bruto) return []
+  return bruto
+    .split("|")
+    .map((d) => d.trim())
+    .filter(Boolean)
+}
+
+/**
+ * O rateio dos itens deveria fechar com o total do CT-e. Quando não fecha, é
+ * cadastro inconsistente no ERP (item com valor maior que o total do
+ * conhecimento) — a tela precisa apontar em vez de esconder.
+ */
+export function rateioFechaComCte(linha: LinhaCte): boolean {
+  if (linha.cte_valor_total == null || linha.soma_rateio_do_cte == null) return true
+  return Math.abs(linha.soma_rateio_do_cte - linha.cte_valor_total) <= 0.01
+}
+
 export function filtrarPorPeriodo(itens: LinhaCte[], periodo: Periodo): LinhaCte[] {
   const de = periodo.de || ""
   const ate = periodo.ate || ""
@@ -173,24 +219,34 @@ export function agruparPorCte(itens: LinhaCte[]): GrupoCte[] {
         numero: linha.cte_numero,
         serie: linha.cte_serie,
         data: linha.cte_data,
+        dataTransacao: linha.cte_data_transacao,
         dataIso: parseDataBr(linha.cte_data),
         valorTotal: linha.cte_valor_total,
         valorFrete: linha.cte_valor_frete,
+        natureza: linha.cte_natureza,
+        tipoConhecimento: linha.cte_tipo_conhecimento,
+        codCidadeOrigem: linha.cte_cod_cidade_origem,
+        codCidadeDestino: linha.cte_cod_cidade_destino,
         situacao: linha.cte_situacao,
         transportadora:
           linha.cte_transportadora_fantasia || linha.cte_transportadora_razao || "—",
         tomador: linha.cte_tomador_fantasia || linha.cte_tomador_razao || "—",
         somaNf: linha.soma_nf_do_cte,
+        somaRateio: linha.soma_rateio_do_cte,
         pctSobreNf: linha.pct_cte_sobre_total_nfs,
         somaNfCalculada: 0,
+        somaRateioCalculada: 0,
         pctCalculado: null,
+        rateioDivergente: false,
         nfs: [],
       }
       mapa.set(chave, grupo)
     }
     grupo.nfs.push(linha)
     grupo.somaNfCalculada += linha.nf_valor_total || 0
+    grupo.somaRateioCalculada += linha.nf_item_valor_total || 0
     if (linha.soma_nf_do_cte != null) grupo.somaNf = linha.soma_nf_do_cte
+    if (linha.soma_rateio_do_cte != null) grupo.somaRateio = linha.soma_rateio_do_cte
     if (linha.pct_cte_sobre_total_nfs != null) grupo.pctSobreNf = linha.pct_cte_sobre_total_nfs
   }
 
@@ -203,6 +259,7 @@ export function agruparPorCte(itens: LinhaCte[]): GrupoCte[] {
     )
     const base = g.somaNf ?? g.somaNfCalculada
     g.pctCalculado = base && g.valorTotal != null ? (g.valorTotal / base) * 100 : null
+    g.rateioDivergente = g.nfs.some((n) => !rateioFechaComCte(n))
   }
 
   return grupos.sort((a, b) => {
@@ -219,8 +276,10 @@ export function calcularResumo(itens: LinhaCte[]): Resumo {
   let semCabecalho = 0
   let totalFrete = 0
   let totalNf = 0
+  let totalRateio = 0
   const ctes = new Set<string>()
   const nfs = new Set<string>()
+  const ctesDivergentes = new Set<string>()
 
   for (const linha of itens) {
     ctes.add(chaveCte(linha))
@@ -230,6 +289,8 @@ export function calcularResumo(itens: LinhaCte[]): Resumo {
     if (nfSemCabecalho(linha)) semCabecalho++
     totalFrete += linha.cte_valor_total || 0
     totalNf += linha.nf_valor_total || 0
+    totalRateio += linha.nf_item_valor_total || 0
+    if (!rateioFechaComCte(linha)) ctesDivergentes.add(chaveCte(linha))
   }
 
   return {
@@ -241,6 +302,8 @@ export function calcularResumo(itens: LinhaCte[]): Resumo {
     semCabecalho,
     totalFrete,
     totalNf,
+    totalRateio,
+    ctesRateioDivergente: ctesDivergentes.size,
   }
 }
 
