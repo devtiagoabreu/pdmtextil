@@ -528,8 +528,166 @@ SELECT b.cte_numero,
    nao so uma linha. Em 2 meses de janela so 4 CT-es tinham 2 itens, mas um CT-e
    grande e um unico dado derrubando o relatorio inteiro. Se o ERP for 12.2+:
 
-      LISTAGG(...) WITHIN GROUP (ORDER BY i.sequencia)
-        ON OVERFLOW TRUNCATE '...' WITH COUNT
+       LISTAGG(...) WITHIN GROUP (ORDER BY i.sequencia)
+         ON OVERFLOW TRUNCATE '...' WITH COUNT
+
+   ---------------------------------------------------------------------------
+   v3.1b — ORDEM DE DESPACHO EM MODO ADITIVO (29/09/2026) — esta e a versao do SELECT
+
+   v3.1a (mesma data) nao rodou: ORA-12705, "nao e possivel acessar arquivos de dados
+   NLS ou ambiente invalido especificado". Esse nao e erro de SQL — e falha na abertura
+   da sessao. SELECT 1 FROM dual passou na mesma hora, entao o ambiente esta sao e o que
+   morreu foi a sessao da query: ela ficou pesada demais, a conexao do pool caiu e
+   voltou quebrada. A v3.1b corta o custo em dois lugares (itens 5 e 6).
+
+   Por que: o relatorio nasceu para reunir as NOTAS DE SAIDA vinculadas aos CT-es.
+   Ate aqui a NF era procurada so no fiscal (OBRF_010), que devolveu SEM_CABECALHO
+   em 194 das 201 linhas. Cruzado contra a api_ordem_despacho, 162 dessas 194
+   existem la — as notas nao estavam perdidas, estavam na fonte errada. A ordem de
+   despacho (pedido -> NF -> romaneio/rolos) tem o tipo de documento que o relatorio
+   quer reunir.
+
+   O QUE MUDA EM RELACAO A v3.0: SO A COLUNA. O SELECT de fora ganha 17 colunas
+   NF_OD_* e o bloco interno ganha um LEFT JOIN (dsp). Nenhum calculo existente foi
+   tocado — nf_valor_total, nf_cab_origem, nf_valor_origem, as window functions, o
+   WHERE e o ORDER BY sao os mesmos da v3.0.
+
+   POR QUE ESTA VERSAO EXISTE, E O QUE ELA NAO E. A primeira tentativa (v3.1) somava
+   a coluna nova com mudanca no COALESCE do nf_valor_total e com o ramo ORDEM_DESPACHO
+   no nf_cab_origem. Nao foi publicada: dava ORA-06502 ao rodar. Como cada peca
+   isolada passava nas medicoes (chave 4.417/4.417, TO_CHAR 46.929/46.929, peso
+   11.632.320 somados, join novo 24.360 linhas, dsp materializando), o problema nao
+   era coluna ruim — era a interacao. A v3.1a separa DADO de VALOR: primeiro prova que
+   o join funciona sem tocar em nenhum calculo, e so depois liga o valor (v3.2). Se
+   rodar, o ORA-06502 era a mudanca de tipo na window function; se nao rodar, e o
+   join e o bloco interno precisa ser reescrito.
+
+   1) A ORDEM DE DESPACHO ENTRA POR SUBQUERY AGREGADA, COM GROUP BY NA CHAVE DA NF.
+
+        LEFT JOIN (SELECT TRIM(d.nf) AS nf_chave, MAX(...), SUM(...)
+                     FROM pmdvw_nfs d
+                     LEFT JOIN pmdvw_vendas w
+                       ON w.pedido = d.pedido
+                     LEFT JOIN (SELECT x.pedido, MAX(x.romaneio) AS romaneio, ...
+                                  FROM (SELECT r.pedido, ..., DENSE_RANK() OVER
+                                           (PARTITION BY r.pedido ORDER BY r.romaneio DESC) AS rn
+                                          FROM pmdvw_rolos r
+                                         WHERE r.romaneio IS NOT NULL
+                                           AND r.situacao = 'Fora do estoque') x
+                                      GROUP BY x.pedido) rol
+                            ON rol.pedido = d.pedido
+                           AND d.pedido > 0
+                    WHERE TRIM(d.entrada_saida) = 'Saida'
+                      AND d.data_movto >= ADD_MONTHS(TRUNC(SYSDATE), -3)
+                    GROUP BY TRIM(d.nf)) dsp
+          ON dsp.nf_chave = TRIM(nf.numero_nota || '-' || nf.serie_nota)
+
+      Sem o GROUP BY, um LEFT JOIN cru na PMDVW_NFS devolve uma linha por PEDIDO x NF
+      e multiplica o relatorio inteiro — exatamente o defeito da v2.0, que nao posso
+      repetir. Agregando pela chave da NF o join traz no maximo uma linha.
+
+   2) A CHAVE E NUMERO DA NOTA + '-' + SERIE.
+
+      A PMDVW_NFS traz a chave pronta num campo so: '35832-1'. O OBRF_016 traz
+      NUMERO_NOTA e SERIE_NOTA separados. A concatenacao usa || e nao TO_CHAR de
+      proposito: || converte numero em texto sozinho, entao funciona se NUMERO_NOTA
+      for NUMBER ou VARCHAR (medido: Typ=2 NUMBER e Typ=1 VARCHAR). TO_CHAR sobre
+      NUMBER daria o mesmo resultado, mas quebraria com ORA-00904 se fosse VARCHAR.
+      TRIM nos dois lados porque campo do tipo CHAR vem preenchido com espaco.
+      Medido: 4.417 linhas de OBRF_016 concatenam sem erro.
+
+   3) ROMANEI E ROLOS VIRARAM LEFT JOIN, E OS FILTROS DE FATURAMENTO SAIRAM.
+
+      A api_ordem_despacho tem INNER JOIN com PMDVW_ROLOS e exige
+      SITUACAO = 'Fora do estoque'. NF faturada cujo pedido ainda nao tem rolo
+      expedido nao aparece na lista — foi assim que a NF 35835 (pedido 8305) sumiu
+      do cruzamento. Aqui o romaneio virou LEFT JOIN: a NF entra com pedido, cliente,
+      valor e data, e o romaneio vem vazio se ainda nao existir. O relatorio quer a
+      NOTA, nao o romaneio.
+
+      FATURAMENTO_SIM_NAO = 'Sim' e CFOP <> '0' tambem sairam, e os dois campos
+      viraram coluna (NF_OD_FATURAMENTO / NF_OD_CFOP). Eles existem para a ordem de
+      despacho mostrar so o que ja foi faturado; no relatorio seriam um filtro a
+      mais, escondendo nota de quem factura e despacha no mesmo dia. Sem eles o join
+      nao traz falso positivo: a chave e o numero exato que veio no proprio CT-e.
+
+   4) O QUE FICOU DE FORA DE PROPONITO, E VOLTA NA v3.2
+
+      NF_VALOR_TOTAL segue sem o VALOR_SAIDA do despacho. Consequencia esperada e
+      correta: as 194 NFs que o fiscal nao acham continuam SEM VALOR ate a v3.2, e o
+      relatorio mostra os mesmos 7 valores de sempre (194 RATEIO_CTE + 7
+      CABECALHO_NF). Se a contagem de linhas sem valor mudar, isso sim e quebra.
+
+      NF_CAB_ORIGEM continua sendo so sobre o fiscal: SEM_CABECALHO quer dizer
+      "o OBRF_010 nao achou", e nao "a NF nao existe". A v3.2 acrescenta o
+      ORDEM_DESPACHO.
+
+      NF_VALOR_ORIGEM continua sem o valor ORDEM_DESPACHO, pelo mesmo motivo.
+
+      NF_DATA continua vindo so do OBRF_010. DATA_MOVTO e data de movimentacao, nao
+      de emissao, e trocar a coluna do filtro mudaria quais CT-es entram na janela
+      (antes caia no CTE_DATA, agora cairia no movimento). A data do despacho sai em
+      NF_OD_DATA, ao lado, e nao no lugar.
+
+    5) DUAS CORRECOES DENTRO DO DSP
+
+       PEDIDO ZERADO. O teste do dsp devolveu NFs com PEDIDO = 0 (10-99 e 102-99,
+       as duas com romaneio 24795). Sem trava no ON, o LEFT JOIN por pedido traz
+       romaneio e peso de um pedido inexistente. O corte e d.pedido > 0 e nao
+       d.pedido IS NOT NULL: 0 nao e NULL, e o 0 e o placeholder que a base usa
+       quando a NF-e nao entrou em nenhuma ordem. Medido: 46.929 NFs de saida, o
+       filtro e o que mantem pedido e romaneio do mesmo embarque. A tela do PDM
+       (nfTemDespacho) usa a mesma regra, para nao exibir romaneio de pedido zero.
+
+   6) CUSTO — AS DUAS MUDANCAS QUE A v3.1b FEZ NA v3.1a
+
+      a) ULTIMO ROMANEO EM UMA VARREDURA SO, COM DENSE_RANK. A v3.1a (e a v3.1) faziam
+         a mesma coisa com o JOIN aninhado em `ult`: DUAS varreduras de PMDVW_ROLOS
+         mais um self-join por PEDIDO, dentro de uma subquery que ja agrupa 241 mil
+         linhas de PMDVW_NFS. DENSE_RANK faz a mesma selecao (so as rolos do romaneio
+         mais alto de cada pedido) numa varredura e uma ordenacao, sem tabela de hash
+         do rolos inteiro. Resultado identico, custo bem menor.
+
+         O sintoma nao era ORA de sintaxe nem de tipo: era a sessao morrendo de
+         trabalho. E por isso que PMDVW_ROLOS precisa estar medido dentro do dsp
+         antes de subir — a soma simples em PMDVW_ROLOS passa, mas duas varreduras
+         com self-join, nao.
+
+      b) CORTE POR DATA NO DSP. O relatorio so quer CT-e dos ultimos 2 meses
+         (WHERE do fim da query), e por ANTT o conhecimento e despachado em poucos
+         dias apos a emissao. Entao a ordem de despacho so e consultada a partir de
+         3 meses atras:
+
+             AND d.data_movto >= ADD_MONTHS(TRUNC(SYSDATE), -3)
+
+         O -3 em vez de -2 e folga de um mes. O que isso NAO faz: nao corta nenhuma
+         NF do relatorio, so deixa as colunas NF_OD_* vazias para NF despachada ha
+         muito mais que isso. Se alguma NF do periodo aparecer sem pedido, o
+         primeiro ajuste e alargar este numero, nao mexer no join.
+
+   7) LIMITACAO CONHECIDA: o GROUP BY e pela NF, nao pelo par NF + PEDIDO. Se a mesma
+      nota estiver em dois pedidos, o agrupamento soma os VALOR_SAIDA dos dois e
+      mostra um pedido so (o MAX). A ordem de despacho separa por pedido; aqui a
+      precedencia foi nunca duplicar linha no relatorio. Se aparecer numero de nota
+      que nao bate com o esperado, e esse caso.
+
+   O QUE MEDIR ASSIM QUE PUBLICAR
+
+      201 linhas (igual a v3.0), 55 colunas (38 + 17), zero par CT-e/NF duplicado,
+      194 linhas sem valor (como a v3.0), e — o que interessa — quantas linhas vieram
+      com NF_OD_PEDIDO preenchido. O cruzamento com a api_ordem_despacho diz 162. Se
+      vier perto disso, a chave numero-serie funciona em producao e a v3.2 fica
+      liberada. Se vier 0, o join esta errado e o bloco interno precisa ser reescrito.
+
+   O QUE FALTA MEDIR (docs/probe-nf-ordem-despacho.sql): 39 NFs seguem sem casar.
+   7 sao as antigas de compra que o OBRF_010 ja resolve. As outras 32 sao de 2026, e
+   o probe diz se e falta na PMDVW_NFS, filtro de flag ou romaneio. O LEFT JOIN do
+   item 3 ja resolve o caso do romaneio, se for esse.
+
+   Nao coloquei ON OVERFLOW TRUNCATE no LISTAGG do OBRF_015: exige 12.2+ e, se a base
+   for antiga, derruba a query INTEIRA. Confirmar a versao antes:
+
+      SELECT banner FROM v$version
    ============================================================================ */
 SELECT b.cte_numero,
        b.cte_serie,
@@ -567,11 +725,28 @@ SELECT b.cte_numero,
        b.nf_item_qtd,
        b.nf_item_qtd_total,
        b.nf_item_unidade,
-       b.nf_item_descricoes,
-       b.nf_item_valor_total,
-       b.nf_item_icms,
-       SUM(b.nf_item_valor_total) OVER (PARTITION BY b.cte_numero, b.cte_serie) AS soma_rateio_do_cte,
-       ROUND(b.nf_item_valor_total / NULLIF(b.cte_valor_total, 0) * 100, 2)    AS nf_pct_rateio_no_cte,
+        b.nf_item_descricoes,
+        b.nf_item_valor_total,
+        b.nf_item_icms,
+         b.nf_od_pedido,
+         TO_CHAR(b.nf_od_data, 'DD/MM/YYYY')                     AS nf_od_data,
+        b.nf_od_valor,
+        b.nf_od_qtde,
+        b.nf_od_cliente_razao,
+        b.nf_od_cliente_fantasia,
+        b.nf_od_cod_cidade,
+        b.nf_od_cidade,
+        b.nf_od_regiao,
+        b.nf_od_representante,
+        b.nf_od_romaneio,
+        b.nf_od_qtde_rolos,
+        b.nf_od_peso_bruto,
+        b.nf_od_peso_liquido,
+        b.nf_od_faturamento,
+        b.nf_od_cfop,
+        b.nf_od_natureza,
+        SUM(b.nf_item_valor_total) OVER (PARTITION BY b.cte_numero, b.cte_serie) AS soma_rateio_do_cte,
+        ROUND(b.nf_item_valor_total / NULLIF(b.cte_valor_total, 0) * 100, 2)    AS nf_pct_rateio_no_cte,
        CASE WHEN b.nf_cab_origem <> 'SEM_CABECALHO' THEN 'CABECALHO_NF'
             WHEN b.nf_item_valor_total IS NOT NULL  THEN 'RATEIO_CTE'
             ELSE 'SEM_VALOR' END                  AS nf_valor_origem
@@ -609,7 +784,24 @@ SELECT b.cte_numero,
                 it.item_unidade AS nf_item_unidade,
                 it.item_descricoes AS nf_item_descricoes,
                 it.item_valor_total AS nf_item_valor_total,
-                it.item_icms AS nf_item_icms
+                it.item_icms AS nf_item_icms,
+                dsp.pedido            AS nf_od_pedido,
+                dsp.data_movto        AS nf_od_data,
+                dsp.valor_saida       AS nf_od_valor,
+                dsp.qtde_saida        AS nf_od_qtde,
+                dsp.nome_cliente      AS nf_od_cliente_razao,
+                dsp.fantasia          AS nf_od_cliente_fantasia,
+                dsp.cid               AS nf_od_cod_cidade,
+                dsp.cidade            AS nf_od_cidade,
+                dsp.nome_regiao       AS nf_od_regiao,
+                dsp.nome_represenante AS nf_od_representante,
+                dsp.romaneio          AS nf_od_romaneio,
+                dsp.qtde_rolos        AS nf_od_qtde_rolos,
+                dsp.peso_bruto        AS nf_od_peso_bruto,
+                dsp.peso_liquido      AS nf_od_peso_liquido,
+                dsp.faturamento       AS nf_od_faturamento,
+                dsp.cfop              AS nf_od_cfop,
+                dsp.natureza          AS nf_od_natureza
            FROM obrf_016 nf
            JOIN obrf_010 cte
              ON cte.documento     = nf.num_conhecimento
@@ -666,8 +858,51 @@ SELECT b.cte_numero,
              ON it.capa_ent_nrdoc = cte.documento
             AND it.capa_ent_serie = cte.serie
             AND it.num_nf_saida   = nf.numero_nota
-            AND it.serie_nf_saida = nf.serie_nota
-       ) b
+             AND it.serie_nf_saida = nf.serie_nota
+            LEFT JOIN (SELECT TRIM(d.nf)                 AS nf_chave,
+                              MAX(d.pedido)              AS pedido,
+                              MAX(d.data_movto)          AS data_movto,
+                              SUM(d.valor_saida)         AS valor_saida,
+                              SUM(d.qtde_saida)          AS qtde_saida,
+                              MAX(d.faturamento_sim_nao) AS faturamento,
+                              MAX(d.cfop)                AS cfop,
+                              MAX(d.natureza)            AS natureza,
+                              MAX(w.nome_cliente)        AS nome_cliente,
+                              MAX(w.fantasia)            AS fantasia,
+                              MAX(w.cid)                 AS cid,
+                              MAX(w.cidade)              AS cidade,
+                              MAX(w.nome_regiao)         AS nome_regiao,
+                              MAX(w.nome_represenante)   AS nome_represenante,
+                              MAX(rol.romaneio)          AS romaneio,
+                              MAX(rol.qtde_rolos)        AS qtde_rolos,
+                              MAX(rol.peso_bruto)        AS peso_bruto,
+                              MAX(rol.peso_liquido)      AS peso_liquido
+                         FROM pmdvw_nfs d
+                         LEFT JOIN pmdvw_vendas w
+                           ON w.pedido = d.pedido
+                         LEFT JOIN (SELECT x.pedido,
+                                           MAX(x.romaneio) AS romaneio,
+                                           COUNT(DISTINCT CASE WHEN x.rn = 1 THEN x.codigo_rolo END) AS qtde_rolos,
+                                           SUM(CASE WHEN x.rn = 1 THEN x.peso_bruto END) AS peso_bruto,
+                                           SUM(CASE WHEN x.rn = 1 THEN x.peso_liquido END) AS peso_liquido
+                                      FROM (SELECT r.pedido,
+                                                   r.romaneio,
+                                                   r.codigo_rolo,
+                                                   r.peso_bruto,
+                                                   r.peso_liquido,
+                                                   DENSE_RANK() OVER (PARTITION BY r.pedido
+                                                                       ORDER BY r.romaneio DESC) AS rn
+                                               FROM pmdvw_rolos r
+                                              WHERE r.romaneio IS NOT NULL
+                                                AND r.situacao = 'Fora do estoque') x
+                                     GROUP BY x.pedido) rol
+                           ON rol.pedido = d.pedido
+                       AND d.pedido > 0
+                     WHERE TRIM(d.entrada_saida) = 'Saida'
+                       AND d.data_movto >= ADD_MONTHS(TRUNC(SYSDATE), -3)
+                     GROUP BY TRIM(d.nf)) dsp
+              ON dsp.nf_chave = TRIM(nf.numero_nota || '-' || nf.serie_nota)
+        ) b
  WHERE COALESCE(b.nf_data, b.cte_data) >= ADD_MONTHS(TRUNC(SYSDATE), -2)
    AND COALESCE(b.nf_data, b.cte_data) <  TRUNC(SYSDATE) + 1
  ORDER BY b.cte_data DESC, b.cte_numero, b.cte_serie, b.nf_numero, b.nf_serie
