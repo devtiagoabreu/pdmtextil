@@ -48,6 +48,21 @@ node scripts/compare-schemas.js
 
 Compara colunas entre os 4 bancos e lista diferenças.
 
+## Integrações Systêxtil: URL do neon (2026-09-29)
+
+- A tabela `integracoes` do **neon** tinha `base_url` e `token_url` no caminho
+  `/apexbd/systextil/`, que responde **404**. O caminho válido é `/apexbd/erp/`
+  (200 em token e endpoint). As 5 integrações afetadas foram corrigidas.
+- A falha é **silenciosa**: a integração aparece `ativo = true` no banco e só quebra
+  em produção, no proxy, porque o token nunca sai.
+- Ao cadastrar/recriar integração no neon, use `/apexbd/erp/` nos dois campos.
+- `node scripts/fix-neon-systextil-urls.js [--dry-run]` — reescreve token_url e
+  base_url do caminho morto, **só depois de confirmar que a URL nova responde**.
+  Idempotente, roda nos 4 bancos.
+- Seeds: `scripts/seed-integracao-cte.js` e `scripts/seed-integracao-ordem-despacho.js`
+  (lógica comum em `scripts/lib/seed-integracao.js`). Usam `--verificar` para testar
+  token+endpoint antes de gravar.
+
 ## Sync de FKs de `clientes_representantes` (2026-08-14)
 
 - O schema (Drizzle) declara `clientes_representantes.cliente_id` e `.representante_id` com `onDelete: "cascade"`, mas o `pdm_textil` tinha as FKs como **NO ACTION** (os outros 3 bancos já estavam CASCADE).

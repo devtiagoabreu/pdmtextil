@@ -1177,5 +1177,87 @@ Testes: 68 unitários em `utils.test.ts` (whitelist do v3, `nfTemRateio`,
 badge de divergência, aviso da prevista, CSV). Suíte completa: 1756 testes, 305
 arquivos, verde.
 
+---
+
+## 19. Integração separada: Ordem de Despacho (29/09/2026)
+
+### O que é
+
+A seção 15 fechou a causa das NFs previstas (o CT-e aponta para nota que não existe
+no fiscal), mas deixou aberta a pergunta prática: **onde estariam essas NFs, se não no
+`OBRF_010`?** A resposta do ERP foi a **ordem de despacho** — é lá que ficam as notas
+fiscais vinculadas a cada pedido.
+
+- endpoint: `api_ordem_despacho`
+- integração no PDM: tela `"ordem-despacho"`, seed `scripts/seed-integracao-ordem-despacho.js`
+- URL: `https://promoda.systextil.com.br/apexbd/erp/systextil-intg-plm/api_ordem_despacho`
+
+### O que o endpoint devolve
+
+Uma linha por **pedido × NF**, cruzando três views:
+
+| View | Papel |
+|---|---|
+| `PMDVW_VENDAS` | dados do pedido (cliente, região, representante, tipo de frete, transportadora, redespacho) |
+| `PMDVW_NFS` | as NFs do pedido — só `ENTRADA_SAIDA = 'Saida'`, `FATURAMENTO_SIM_NAO = 'Sim'`, `CFOP != '0'` |
+| `PMDVW_ROLOS` | romaneio mais recente com `SITUACAO = 'Fora do estoque'` (qtde de rolos, quantidade, peso bruto/líquido) |
+
+31 campos no retorno. A chave da NF vem no formato **`numero-serie`** (`"14-99"`,
+`"26759-1"`), não em colunas separadas — detalhe que importa ao cruzar com o CT-e, onde
+`NF_NUMERO`/`NF_SERIE` vêm separados. `CNPJ_TRANS`/`CNPJ_REDESP` são textuais (`"0/0-0"`
+quando é `PROPRIO`).
+
+### Estado
+
+| Banco | id | telas |
+|---|---|---|
+| pdm_textil | 8 | `["ordem-despacho"]` |
+| pdm_pro_textil | 1 | `["ordem-despacho"]` |
+| pdm_ibirapuera | 1 | `["ordem-despacho"]` |
+| neon | 7 | `["ordem-despacho"]` |
+
+Verificada na API (token + `HTTP 200`, 100 registros) nos 4 bancos.
+
+### Pendente (o "depois" combinado)
+
+**Compor o SELECT do CT-e com o das NFs.** Hoje o relatório procura a NF de três
+formas dentro do fiscal (`CNPJ_FORNECEDOR`, `CNPJ_CLIENTE_NF`, `DOCUMENTO_SERIE`) e,
+quando não acha, marca `SEM_CABECALHO`. A ideia é usar a ordem de despacho como mais
+uma fonte, para as NFs que existem no despacho mas não no fiscal. O endpoint já está
+registrado e testado; falta o SQL do CT-e passar a consultá-lo.
+
+### Efeitos colaterais deste trabalho
+
+1. **5 integrações do neon estavam mortas e foram corrigidas.** Elas usavam o caminho
+   `/apexbd/systextil/`, que responde **404** — tanto no `token_url` quanto no
+   `base_url`. Sem token nenhum proxy consegue chamar nada: a integração aparecia
+   ativa no banco e não funcionava. O caminho válido é `/apexbd/erp/` (**200** em
+   token e endpoint). `scripts/fix-neon-systextil-urls.js` reescreve os dois campos,
+   depois de confirmar que a URL nova responde — e só grava o que ainda aponta para
+   o caminho morto (idempotente, roda nos 4 bancos).
+
+   | neon | integração | antes | agora |
+   |---|---|---|---|
+   | 1 | `api_systextil_get_romaneios_pdm` | `systextil` | `erp` |
+   | 2 | `api_systextil_get_clientes_pdm` | `systextil` | `erp` |
+   | 3 | `api_listagem_clientes_ativos_com_representantes` | `systextil` | `erp` |
+   | 4 | `api_email_clientes_ativos_com_representante` | `systextil` | `erp` |
+   | 5 | `api_systextil_get_romaneios_pdm_rec_corte` | `systextil` | `erp` |
+   | 6 | `api_rel_nfe_cte_periodo` | token `systextil` | `erp` |
+   | 7 | `api_ordem_despacho` | (nova, já `erp`) | `erp` |
+
+   As 7 do neon respondem **HTTP 200** hoje. Nos outros 3 bancos não havia nenhuma
+   integração no caminho morto.
+2. **A integração do CT-e passou a existir também em `pdm_pro_textil` (id 2) e
+   `pdm_ibirapuera` (id 2)**, que antes não a tinham.
+3. **`scripts/lib/seed-integracao.js`**: lógica de seed extraída para um módulo comum
+   (usado pelos dois seeds) e correção de gravação de `telas` — era gravado como
+   **string** `'["nfe-cte"]'`, agora é **array** de verdade (`sql.json`). O
+   `/api/integracao/listar` usa `telas.includes(tela)`; com string funcionava só por
+   coincidência (substring), e um nome de tela contido em outro daria falso positivo.
+   Nova flag `--origem-db=<nome>` para clonar credenciais de outro banco quando a origem
+   local está quebrada (foi o caso do neon).
+
+
 
 
