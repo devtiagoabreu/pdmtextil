@@ -456,6 +456,80 @@ SELECT b.cte_numero,
    datas que empurravam E puxavam linhas nos dois sentidos — a v2.0 nao era superconjunto
    da v2.1. Valide por: duplicata = 0, soma dos pct de cada CT-e = 100%, distancia
    data CT-e x data NF-e <= 45 dias, e a conferencia a mao de um CT-e com 2+ NFs.
+
+   ---------------------------------------------------------------------------
+   v3.0 — ITENS E RATEIO POR NF (29/09/2026) — esta e a versao do SELECT abaixo
+
+   O relatorio nao trazia os dados da NF porque so lia cabecalho (OBRF_010) e o indice
+   CT-e<->NF (OBRF_016). Os itens/rateio estao na OBRF_015, que tem as duas pontas:
+   CAPA_ENT_NRDOC/CAPA_ENT_SERIE (o CT-e) e NUM_NF_SAIDA/SERIE_NF_SAIDA (a NF).
+
+   1) A OBRF_015 entra por SUBQUERY AGREGADA, nao por LEFT JOIN cru:
+
+        LEFT JOIN (SELECT i.capa_ent_nrdoc, i.capa_ent_serie, i.num_nf_saida,
+                          i.serie_nf_saida, COUNT(*) AS item_qtd,
+                          SUM(i.quantidade) AS item_qtd_total,
+                          MAX(i.unidade_medida) AS item_unidade,
+                          LISTAGG(SUBSTR(i.descricao_item, 1, 60), ' | ')
+                            WITHIN GROUP (ORDER BY i.sequencia) AS item_descricoes,
+                          SUM(i.valor_total) AS item_valor_total,
+                          SUM(i.valor_icms) AS item_icms
+                     FROM obrf_015 i
+                    WHERE i.num_nf_saida IS NOT NULL
+                    GROUP BY i.capa_ent_nrdoc, i.capa_ent_serie,
+                             i.num_nf_saida, i.serie_nf_saida) it
+
+      Agrupar pela chave CT-e+NF devolve no MAXIMO uma linha por par, entao o join de
+      itens nao multiplica nada — que e exatamente o bug da v2.0, e o mesmo que
+      reapareceria aqui. Medido: 201 linhas antes e depois, zero par repetido.
+
+      Por que subquery e nao WITH: o console do ERP recusa WITH. Subquery no FROM e
+      aceito.
+
+   2) VALOR DA NOTA E VALOR DO RATEIO FICARAM EM COLUNAS SEPARADAS, de proposito.
+
+      VALOR_TOTAL do item e a COTA DE FRETE rateada no CT-e, nao o total da nota fiscal.
+      Com 1 item e 1 NF os dois numeros coincidem, e foi o que me enganou na primeira
+      leitura da tela do ERP. Com 2+ NFs o rateio diz quanto do frete coube a cada nota.
+
+      Por isso NF_VALOR_TOTAL continua sendo SO o do cabecalho, e a procedencia vai em
+      NF_VALOR_ORIGEM: CABECALHO_NF / RATEIO_CTE / SEM_VALOR. Misturar os dois no mesmo
+      campo quebraria o PCT_NF_NO_TOTAL_CTE, que passaria a somar total de nota com
+      cota de frete.
+
+   3) Capa do CT-e: natureza da operacao, tipo de conhecimento, data de transacao e
+      codigos de cidade de origem/destino.
+
+   Resultado MEDIDO no payload publicado (29/09/2026): 201 linhas, 38 colunas,
+   199 CT-es, zero par CT-e/NF duplicado, zero linha sem nf_numero, ZERO linha sem
+   valor de nenhum tipo (194 RATEIO_CTE + 7 CABECALHO_NF), soma dos pct de cada CT-e
+   = 100%, zero NF-e a mais de 45 dias do CT-e.
+
+   A prova de que o rateio presta: no CT-e 11757/1 o rateio por NF deu 44,12% e 55,88%
+   — o MESMO split do valor das notas (28605,27 e 36227,66 sobre 64832,93). Dois
+   caminhos independentes, um pelo rateio de frete e outro pelos totais de nota,
+   chegando no mesmo lugar.
+
+   DIVERGENCIA CONHECIDA (nao e bug do SQL): o CT-e 351348/1 tem rateio de 917,34
+   contra total de 199,99 — o item da NF 31933 carrega 717,35. A diferenca do periodo
+   inteiro e exatamente 717,35, ou seja, fora esse CT-e os outros 198 fecham ao
+   centavo. Nao limitei o valor no total de proposito: se o rateio passa do total, o
+   dado tem que aparecer e a conta fica visivel (SOMA_RATEIO_DO_CTE ao lado de
+   CTE_VALOR_TOTAL). Arredondar ou capar seria inventar numero. Confirmar com:
+
+      SELECT capa_ent_nrdoc, capa_ent_serie, sequencia, num_nf_saida,
+             descricao_item, quantidade, valor_total, valor_icms
+        FROM obrf_015
+       WHERE capa_ent_nrdoc = 351348 AND capa_ent_serie = '1'
+       ORDER BY sequencia;
+
+   Risco conhecido do LISTAGG: sem ON OVERFLOW TRUNCATE, um CT-e com mais de ~63
+   itens (60 chars + separador) estoura o limite de 4000 e derruba a query INTEIRA,
+   nao so uma linha. Em 2 meses de janela so 4 CT-es tinham 2 itens, mas um CT-e
+   grande e um unico dado derrubando o relatorio inteiro. Se o ERP for 12.2+:
+
+      LISTAGG(...) WITHIN GROUP (ORDER BY i.sequencia)
+        ON OVERFLOW TRUNCATE '...' WITH COUNT
    ============================================================================ */
 SELECT b.cte_numero,
        b.cte_serie,
