@@ -1094,6 +1094,23 @@ SELECT b.cte_numero,
  *      sem pct_nf_no_total_cte, sem nf_pct_rateio_no_cte
  *    - bloco `dsp` intacto (inclusive o DENSE_RANK do `rol`)
  *
+ *  VALOR DA NF (30/09/2026, medido no endpoint real): nf_valor_total vinha
+ *  preenchido em apenas 6 das 198 linhas. Motivo: os tres LEFT JOIN no cabecalho
+ *  fiscal (OBRF_010) dependem de CNPJ bater, e 192 das 198 linhas vinham
+ *  nf_cab_origem = 'SEM_CABECALHO' — o numero da NF existe, mas o CT-e nao
+ *  traz CNPJ de fornecedor/cliente que case com a OBRF_010.
+ *
+ *  Como o proprio endpoint ja le PMDVW_NFS no bloco `dsp` (agrupado por
+ *  TRIM(d.nf), ou seja, por numero-serie), o total da NF estava disponivel e
+ *  simply nao era usado. Fix: dsp.valor_saida e dsp.data_movto viram o ultimo
+ *  nivel do COALESCE de nf_valor_total / nf_data, e nf_cab_origem ganha o valor
+ *  'PMDVW_NFS' para deixar a origem explicita na tela.
+ *
+ *  CUIDADO: dsp.valor_saida e valor de FATURAMENTO (SUM(valor_saida)), nao o
+ *  total fiscal (OBRF_010.total_docto). Por isso fica como ULTIMO fallback —
+ *  quando o cabecalho existe, ele manda. E a origem nova e marcada
+ *  'FATURAMENTO_NFS' em nf_valor_origem, diferente de 'CABECALHO_NF'.
+ *
  *  A PAGINACAO (30/09/2026, medido no endpoint real): a ferramenta Apex aplica
  *  o ROWNUM internamente via `limit`/`offset` — o SQL publicado NAO tem teto:
  *
@@ -1162,9 +1179,11 @@ SELECT b.cte_numero,
        SUBSTR(TRIM(b.nf_od_faturamento), 1, 3)                              AS nf_od_faturamento,
        SUBSTR(TRIM(b.nf_od_cfop), 1, 10)                                    AS nf_od_cfop,
        SUBSTR(TRIM(b.nf_od_natureza), 1, 10)                                AS nf_od_natureza,
-       CASE WHEN b.nf_cab_origem <> 'SEM_CABECALHO' THEN 'CABECALHO_NF'
-            WHEN b.nf_item_valor_total IS NOT NULL  THEN 'RATEIO_CTE'
-            ELSE 'SEM_VALOR' END                                                     AS nf_valor_origem
+        CASE WHEN b.nf_cab_origem IN ('CNPJ_FORNECEDOR','CNPJ_CLIENTE_NF','DOCUMENTO_SERIE')
+                  THEN 'CABECALHO_NF'
+             WHEN b.nf_cab_origem = 'PMDVW_NFS'         THEN 'FATURAMENTO_NFS'
+             WHEN b.nf_item_valor_total IS NOT NULL    THEN 'RATEIO_CTE'
+             ELSE 'SEM_VALOR' END                                                AS nf_valor_origem
   FROM ( SELECT cte.documento AS cte_numero,
                 cte.serie AS cte_serie,
                 cte.data_emissao AS cte_data,
@@ -1182,13 +1201,16 @@ SELECT b.cte_numero,
                 tomador.nome_fantasia AS cte_tomador_fantasia,
                 nf.numero_nota AS nf_numero,
                 nf.serie_nota AS nf_serie,
-                COALESCE(nfe.data_emissao, nfc.data_emissao, nfs.data_emissao) AS nf_data,
-                COALESCE(nfe.total_docto, nfc.total_docto, nfs.total_docto) AS nf_valor_total,
+                 COALESCE(nfe.data_emissao, nfc.data_emissao, nfs.data_emissao,
+                          dsp.data_movto)                                 AS nf_data,
+                 COALESCE(nfe.total_docto, nfc.total_docto, nfs.total_docto,
+                          dsp.valor_saida)                                  AS nf_valor_total,
                 COALESCE(nfe.valor_frete, nfc.valor_frete, nfs.valor_frete) AS nf_frete_rateado,
                 COALESCE(nfe.situacao_entrada, nfc.situacao_entrada, nfs.situacao_entrada) AS nf_situacao,
                 CASE WHEN nfe.documento IS NOT NULL THEN 'CNPJ_FORNECEDOR'
                      WHEN nfc.documento IS NOT NULL THEN 'CNPJ_CLIENTE_NF'
                      WHEN nfs.documento IS NOT NULL THEN 'DOCUMENTO_SERIE'
+                     WHEN dsp.nf_chave IS NOT NULL  THEN 'PMDVW_NFS'
                      ELSE 'SEM_CABECALHO' END AS nf_cab_origem,
                 cli.nome_fornecedor AS nf_cliente_razao,
                 cli.nome_fantasia AS nf_cliente_fantasia,

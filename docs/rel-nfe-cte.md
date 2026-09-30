@@ -1512,6 +1512,1178 @@ passar pelos cálculos, ele ainda soma e percentualiza no grupo.
 - `nf_item_descricoes` nulo → linha de item com "N item(ns) sem descrição" e CSV com a coluna
   "Itens (descricoes)" vazia.
 
+esse sql é para mostrar os dados que o valor da nf é acessado....e que tentei inseiri no atual sql das ctes
+
+WITH VENDAS AS (
+    SELECT
+        PEDIDO,
+        MAX(NOME_CLIENTE) AS NOME_CLIENTE,
+        MAX(FANTASIA) AS FANTASIA,
+        MAX(REGIAO) AS REGIAO,
+        MAX(NOME_REGIAO) AS NOME_REGIAO,
+        MAX(CID) AS CID,
+        MAX(CIDADE) AS CIDADE,
+        MAX(REP) AS REP,
+        MAX(NOME_REPRESENANTE) AS NOME_REPRESENANTE,
+        MAX(TIPO_FRETE) AS TIPO_FRETE,
+        MAX(CNPJ_TRANS) AS CNPJ_TRANS,
+        MAX(TRANSPORTADORA) AS TRANSPORTADORA,
+        MAX(TIPO_REDESPACHO) AS TIPO_REDESPACHO,
+        MAX(CNPJ_REDESP) AS CNPJ_REDESP,
+        MAX(REDESPACHO) AS REDESPACHO,
+        LPAD(SUBSTR(MAX(v.CNPJ), 1, INSTR(MAX(v.CNPJ), '-') - 1), 8, '0') ||
+        LPAD(
+            SUBSTR(
+                MAX(v.CNPJ),
+                INSTR(MAX(v.CNPJ), '-') + 1,
+                INSTR(MAX(v.CNPJ), '/') - INSTR(MAX(v.CNPJ), '-') - 1
+            ),
+            4,
+            '0'
+        ) ||
+        LPAD(
+            SUBSTR(MAX(v.CNPJ), INSTR(MAX(v.CNPJ), '/') + 1),
+            2,
+            '0'
+        ) AS CNPJ_FORMATADO
+    FROM PMDVW_VENDAS v
+    GROUP BY PEDIDO
+),
+NFS AS (
+    SELECT
+        PEDIDO,
+        NF, -- Incluído no SELECT para separar os faturamentos
+        MAX(ENTRADA_SAIDA) AS ENTRADA_SAIDA,
+        MAX(FATURAMENTO_SIM_NAO) AS FATURAMENTO_SIM_NAO,
+        MAX(NATUREZA) AS NATUREZA,
+        MAX(CFOP) AS CFOP,
+        MAX(DATA_MOVTO) AS DATA_MOVTO,
+        SUM(QTDE_SAIDA) AS QTDE_SAIDA,
+        SUM(VALOR_SAIDA) AS VALOR_SAIDA
+    FROM PMDVW_NFS
+    WHERE ENTRADA_SAIDA = 'Saida'
+      AND FATURAMENTO_SIM_NAO = 'Sim'
+      AND CFOP != '0'
+    GROUP BY PEDIDO, NF -- Agrupando por Pedido E Nota para não somar tudo do mesmo pedido
+),
+ROLOS AS (
+    SELECT
+        r.PEDIDO,
+        MAX(r.ROMANEIO) AS ROMANEIO,
+        COUNT(DISTINCT r.CODIGO_ROLO) AS QTDE_ROLOS,
+        SUM(r.QUANTIDADE) AS QUANTIDADE,
+        SUM(r.PESO_BRUTO) AS PESO_BRUTO,
+        SUM(r.PESO_LIQUIDO) AS PESO_LIQUIDO
+    FROM PMDVW_ROLOS r
+    INNER JOIN (
+        SELECT PEDIDO, MAX(ROMANEIO) AS ULTIMO_ROMANEIO
+        FROM PMDVW_ROLOS
+        WHERE ROMANEIO IS NOT NULL
+          AND SITUACAO = 'Fora do estoque'
+        GROUP BY PEDIDO
+    ) ult ON ult.PEDIDO = r.PEDIDO AND ult.ULTIMO_ROMANEIO = r.ROMANEIO
+    WHERE r.ROMANEIO IS NOT NULL
+      AND r.SITUACAO = 'Fora do estoque'
+    GROUP BY r.PEDIDO
+)
+SELECT
+    v.PEDIDO,
+    v.CNPJ_FORMATADO AS CNPJ,
+    v.NOME_CLIENTE,
+    v.FANTASIA,
+    v.REGIAO,
+    v.NOME_REGIAO,
+    v.CID,
+    v.CIDADE,
+    v.REP,
+    v.NOME_REPRESENANTE,
+    n.NF,
+    n.ENTRADA_SAIDA,
+    n.FATURAMENTO_SIM_NAO,
+    n.NATUREZA,
+    n.CFOP,
+    n.DATA_MOVTO,
+    v.TIPO_FRETE,
+    v.CNPJ_TRANS,
+    v.TRANSPORTADORA,
+    v.TIPO_REDESPACHO,
+    v.CNPJ_REDESP,
+    v.REDESPACHO,
+    n.QTDE_SAIDA,
+    n.VALOR_SAIDA,
+    r.ROMANEIO,
+    r.QTDE_ROLOS,
+    r.QUANTIDADE,
+    r.PESO_BRUTO,
+    r.PESO_LIQUIDO
+FROM VENDAS v
+INNER JOIN NFS n ON n.PEDIDO = v.PEDIDO -- O vínculo principal continua no pedido, mas agora as linhas de NF estão separadas
+INNER JOIN ROLOS r ON r.PEDIDO = v.PEDIDO
+ORDER BY v.PEDIDO, n.NF
+
+
+
+retorno desse sql:
+{
+  "items" :
+  [
+    {
+      "PEDIDO" : 131,
+      "CNPJ" : "52431426000101",
+      "NOME_CLIENTE" : "RANER INDUSTRIA COMERCIO IMPORTACAO E",
+      "FANTASIA" : "RANER INDUSTRIA COMERCIO IMPORTACAO E",
+      "REGIAO" : 0,
+      "NOME_REGIAO" : ".",
+      "CID" : 7702,
+      "CIDADE" : "SANTA BARBARA D OESTE",
+      "REP" : 147,
+      "NOME_REPRESENANTE" : "ALESSANDRA ELIZABEL CASELLA",
+      "NF" : "14-99",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "99-SP",
+      "CFOP" : "5.124",
+      "DATA_MOVTO" : "2022-10-31T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "0/0-0",
+      "TRANSPORTADORA" : "PROPRIO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 12273,
+      "VALOR_SAIDA" : 18286.77,
+      "ROMANEIO" : 618,
+      "QTDE_ROLOS" : 7,
+      "QUANTIDADE" : 1410,
+      "PESO_BRUTO" : 240.884,
+      "PESO_LIQUIDO" : 238.854
+    },
+    {
+      "PEDIDO" : 132,
+      "CNPJ" : "02935938000471",
+      "NOME_CLIENTE" : "COMERCIO DE CONFECCOES R M LTDA",
+      "FANTASIA" : "ENXOVAIS BEIJA FLOR",
+      "REGIAO" : 0,
+      "NOME_REGIAO" : ".",
+      "CID" : 3225,
+      "CIDADE" : "FEIRA DE SANTANA",
+      "REP" : 147,
+      "NOME_REPRESENANTE" : "ALESSANDRA ELIZABEL CASELLA",
+      "NF" : "26759-1",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "24-BA",
+      "CFOP" : "6.124",
+      "DATA_MOVTO" : "2022-11-10T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "0/0-0",
+      "TRANSPORTADORA" : "PROPRIO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 1852,
+      "VALOR_SAIDA" : 1981.64,
+      "ROMANEIO" : 799,
+      "QTDE_ROLOS" : 8,
+      "QUANTIDADE" : 926,
+      "PESO_BRUTO" : 47.9,
+      "PESO_LIQUIDO" : 46.3
+    },
+    {
+      "PEDIDO" : 133,
+      "CNPJ" : "52431426000101",
+      "NOME_CLIENTE" : "RANER INDUSTRIA COMERCIO IMPORTACAO E",
+      "FANTASIA" : "RANER INDUSTRIA COMERCIO IMPORTACAO E",
+      "REGIAO" : 0,
+      "NOME_REGIAO" : ".",
+      "CID" : 7702,
+      "CIDADE" : "SANTA BARBARA D OESTE",
+      "REP" : 147,
+      "NOME_REPRESENANTE" : "ALESSANDRA ELIZABEL CASELLA",
+      "NF" : "22-99",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "99-SP",
+      "CFOP" : "5.124",
+      "DATA_MOVTO" : "2022-11-07T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "0/0-0",
+      "TRANSPORTADORA" : "PROPRIO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 8192.1,
+      "VALOR_SAIDA" : 11796.63,
+      "ROMANEIO" : 715,
+      "QTDE_ROLOS" : 49,
+      "QUANTIDADE" : 4064.7,
+      "PESO_BRUTO" : 741.791,
+      "PESO_LIQUIDO" : 727.581
+    },
+    {
+      "PEDIDO" : 134,
+      "CNPJ" : "52431426000101",
+      "NOME_CLIENTE" : "RANER INDUSTRIA COMERCIO IMPORTACAO E",
+      "FANTASIA" : "RANER INDUSTRIA COMERCIO IMPORTACAO E",
+      "REGIAO" : 0,
+      "NOME_REGIAO" : ".",
+      "CID" : 7702,
+      "CIDADE" : "SANTA BARBARA D OESTE",
+      "REP" : 147,
+      "NOME_REPRESENANTE" : "ALESSANDRA ELIZABEL CASELLA",
+      "NF" : "13-99",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "99-SP",
+      "CFOP" : "5.124",
+      "DATA_MOVTO" : "2022-10-31T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "0/0-0",
+      "TRANSPORTADORA" : "PROPRIO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 4107.1,
+      "VALOR_SAIDA" : 5832.08,
+      "ROMANEIO" : 619,
+      "QTDE_ROLOS" : 21,
+      "QUANTIDADE" : 2182,
+      "PESO_BRUTO" : 503.586,
+      "PESO_LIQUIDO" : 497.496
+    },
+    {
+      "PEDIDO" : 135,
+      "CNPJ" : "07552712000162",
+      "NOME_CLIENTE" : "ART TEXTIL DO BRASIL LTDA",
+      "FANTASIA" : "ART TEXTIL DO BRASIL LTDA",
+      "REGIAO" : 0,
+      "NOME_REGIAO" : ".",
+      "CID" : 355,
+      "CIDADE" : "AMERICANA",
+      "REP" : 147,
+      "NOME_REPRESENANTE" : "ALESSANDRA ELIZABEL CASELLA",
+      "NF" : "4-99",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "99-SP",
+      "CFOP" : "5.124",
+      "DATA_MOVTO" : "2022-10-26T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "0/0-0",
+      "TRANSPORTADORA" : "PROPRIO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 3906.5,
+      "VALOR_SAIDA" : 10078.77,
+      "ROMANEIO" : 495,
+      "QTDE_ROLOS" : 81,
+      "QUANTIDADE" : 3906.5,
+      "PESO_BRUTO" : 4248.325,
+      "PESO_LIQUIDO" : 4248.325
+    },
+    {
+      "PEDIDO" : 136,
+      "CNPJ" : "07552712000162",
+      "NOME_CLIENTE" : "ART TEXTIL DO BRASIL LTDA",
+      "FANTASIA" : "ART TEXTIL DO BRASIL LTDA",
+      "REGIAO" : 0,
+      "NOME_REGIAO" : ".",
+      "CID" : 355,
+      "CIDADE" : "AMERICANA",
+      "REP" : 147,
+      "NOME_REPRESENANTE" : "ALESSANDRA ELIZABEL CASELLA",
+      "NF" : "5-99",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "99-SP",
+      "CFOP" : "5.124",
+      "DATA_MOVTO" : "2022-10-26T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "0/0-0",
+      "TRANSPORTADORA" : "PROPRIO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 1959.3,
+      "VALOR_SAIDA" : 3918.6,
+      "ROMANEIO" : 471,
+      "QTDE_ROLOS" : 37,
+      "QUANTIDADE" : 1959.3,
+      "PESO_BRUTO" : 0,
+      "PESO_LIQUIDO" : 0
+    },
+    {
+      "PEDIDO" : 137,
+      "CNPJ" : "52431426000101",
+      "NOME_CLIENTE" : "RANER INDUSTRIA COMERCIO IMPORTACAO E",
+      "FANTASIA" : "RANER INDUSTRIA COMERCIO IMPORTACAO E",
+      "REGIAO" : 0,
+      "NOME_REGIAO" : ".",
+      "CID" : 7702,
+      "CIDADE" : "SANTA BARBARA D OESTE",
+      "REP" : 147,
+      "NOME_REPRESENANTE" : "ALESSANDRA ELIZABEL CASELLA",
+      "NF" : "9-99",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "99-SP",
+      "CFOP" : "5.124",
+      "DATA_MOVTO" : "2022-10-28T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "0/0-0",
+      "TRANSPORTADORA" : "PROPRIO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 14729.5,
+      "VALOR_SAIDA" : 11961.37,
+      "ROMANEIO" : 557,
+      "QTDE_ROLOS" : 20,
+      "QUANTIDADE" : 2117.5,
+      "PESO_BRUTO" : 488.59,
+      "PESO_LIQUIDO" : 482.79
+    },
+    {
+      "PEDIDO" : 138,
+      "CNPJ" : "24940593000134",
+      "NOME_CLIENTE" : "FEITOSA INDUSTRIA TEXTIL LTDA ME",
+      "FANTASIA" : "FEITOSA",
+      "REGIAO" : 0,
+      "NOME_REGIAO" : ".",
+      "CID" : 7702,
+      "CIDADE" : "SANTA BARBARA D OESTE",
+      "REP" : 147,
+      "NOME_REPRESENANTE" : "ALESSANDRA ELIZABEL CASELLA",
+      "NF" : "2-99",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "99-SP",
+      "CFOP" : "5.124",
+      "DATA_MOVTO" : "2022-10-24T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "0/0-0",
+      "TRANSPORTADORA" : "PROPRIO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 22402.6,
+      "VALOR_SAIDA" : 26883.12,
+      "ROMANEIO" : 459,
+      "QTDE_ROLOS" : 18,
+      "QUANTIDADE" : 1158.3,
+      "PESO_BRUTO" : 467.243,
+      "PESO_LIQUIDO" : 461.003
+    },
+    {
+      "PEDIDO" : 139,
+      "CNPJ" : "52431426000101",
+      "NOME_CLIENTE" : "RANER INDUSTRIA COMERCIO IMPORTACAO E",
+      "FANTASIA" : "RANER INDUSTRIA COMERCIO IMPORTACAO E",
+      "REGIAO" : 0,
+      "NOME_REGIAO" : ".",
+      "CID" : 7702,
+      "CIDADE" : "SANTA BARBARA D OESTE",
+      "REP" : 147,
+      "NOME_REPRESENANTE" : "ALESSANDRA ELIZABEL CASELLA",
+      "NF" : "8-99",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "99-SP",
+      "CFOP" : "5.124",
+      "DATA_MOVTO" : "2022-10-28T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "0/0-0",
+      "TRANSPORTADORA" : "PROPRIO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 7653.4,
+      "VALOR_SAIDA" : 14235.32,
+      "ROMANEIO" : 550,
+      "QTDE_ROLOS" : 49,
+      "QUANTIDADE" : 3919,
+      "PESO_BRUTO" : 825.44,
+      "PESO_LIQUIDO" : 822.99
+    },
+    {
+      "PEDIDO" : 140,
+      "CNPJ" : "52431426000101",
+      "NOME_CLIENTE" : "RANER INDUSTRIA COMERCIO IMPORTACAO E",
+      "FANTASIA" : "RANER INDUSTRIA COMERCIO IMPORTACAO E",
+      "REGIAO" : 0,
+      "NOME_REGIAO" : ".",
+      "CID" : 7702,
+      "CIDADE" : "SANTA BARBARA D OESTE",
+      "REP" : 147,
+      "NOME_REPRESENANTE" : "ALESSANDRA ELIZABEL CASELLA",
+      "NF" : "3-99",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "99-SP",
+      "CFOP" : "5.124",
+      "DATA_MOVTO" : "2022-10-24T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "0/0-0",
+      "TRANSPORTADORA" : "PROPRIO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 8115.2,
+      "VALOR_SAIDA" : 5842.94,
+      "ROMANEIO" : 462,
+      "QTDE_ROLOS" : 25,
+      "QUANTIDADE" : 2019.2,
+      "PESO_BRUTO" : 0,
+      "PESO_LIQUIDO" : 0
+    },
+    {
+      "PEDIDO" : 142,
+      "CNPJ" : "02935938000471",
+      "NOME_CLIENTE" : "COMERCIO DE CONFECCOES R M LTDA",
+      "FANTASIA" : "ENXOVAIS BEIJA FLOR",
+      "REGIAO" : 0,
+      "NOME_REGIAO" : ".",
+      "CID" : 3225,
+      "CIDADE" : "FEIRA DE SANTANA",
+      "REP" : 147,
+      "NOME_REPRESENANTE" : "ALESSANDRA ELIZABEL CASELLA",
+      "NF" : "26629-1",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "24-BA",
+      "CFOP" : "6.124",
+      "DATA_MOVTO" : "2022-10-24T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "0/0-0",
+      "TRANSPORTADORA" : "PROPRIO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 13634,
+      "VALOR_SAIDA" : 14588.38,
+      "ROMANEIO" : 465,
+      "QTDE_ROLOS" : 11,
+      "QUANTIDADE" : 1171.8,
+      "PESO_BRUTO" : 291.382,
+      "PESO_LIQUIDO" : 287.092
+    },
+    {
+      "PEDIDO" : 143,
+      "CNPJ" : "24940593000134",
+      "NOME_CLIENTE" : "FEITOSA INDUSTRIA TEXTIL LTDA ME",
+      "FANTASIA" : "FEITOSA",
+      "REGIAO" : 0,
+      "NOME_REGIAO" : ".",
+      "CID" : 7702,
+      "CIDADE" : "SANTA BARBARA D OESTE",
+      "REP" : 147,
+      "NOME_REPRESENANTE" : "ALESSANDRA ELIZABEL CASELLA",
+      "NF" : "26-99",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "99-SP",
+      "CFOP" : "5.124",
+      "DATA_MOVTO" : "2022-11-10T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "0/0-0",
+      "TRANSPORTADORA" : "PROPRIO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 11664.4,
+      "VALOR_SAIDA" : 27994.56,
+      "ROMANEIO" : 795,
+      "QTDE_ROLOS" : 34,
+      "QUANTIDADE" : 1949,
+      "PESO_BRUTO" : 827.182,
+      "PESO_LIQUIDO" : 775.702
+    },
+    {
+      "PEDIDO" : 145,
+      "CNPJ" : "02935938000471",
+      "NOME_CLIENTE" : "COMERCIO DE CONFECCOES R M LTDA",
+      "FANTASIA" : "ENXOVAIS BEIJA FLOR",
+      "REGIAO" : 0,
+      "NOME_REGIAO" : ".",
+      "CID" : 3225,
+      "CIDADE" : "FEIRA DE SANTANA",
+      "REP" : 147,
+      "NOME_REPRESENANTE" : "ALESSANDRA ELIZABEL CASELLA",
+      "NF" : "26759-1",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "24-BA",
+      "CFOP" : "6.124",
+      "DATA_MOVTO" : "2022-11-10T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "0/0-0",
+      "TRANSPORTADORA" : "PROPRIO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 11924,
+      "VALOR_SAIDA" : 12758.68,
+      "ROMANEIO" : 796,
+      "QTDE_ROLOS" : 9,
+      "QUANTIDADE" : 930,
+      "PESO_BRUTO" : 189.51,
+      "PESO_LIQUIDO" : 186
+    },
+    {
+      "PEDIDO" : 146,
+      "CNPJ" : "02935938000471",
+      "NOME_CLIENTE" : "COMERCIO DE CONFECCOES R M LTDA",
+      "FANTASIA" : "ENXOVAIS BEIJA FLOR",
+      "REGIAO" : 0,
+      "NOME_REGIAO" : ".",
+      "CID" : 3225,
+      "CIDADE" : "FEIRA DE SANTANA",
+      "REP" : 147,
+      "NOME_REPRESENANTE" : "ALESSANDRA ELIZABEL CASELLA",
+      "NF" : "26759-1",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "24-BA",
+      "CFOP" : "6.124",
+      "DATA_MOVTO" : "2022-11-10T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "0/0-0",
+      "TRANSPORTADORA" : "PROPRIO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 17346,
+      "VALOR_SAIDA" : 18560.22,
+      "ROMANEIO" : 803,
+      "QTDE_ROLOS" : 4,
+      "QUANTIDADE" : 443,
+      "PESO_BRUTO" : 109.335,
+      "PESO_LIQUIDO" : 108.535
+    },
+    {
+      "PEDIDO" : 147,
+      "CNPJ" : "07552712000162",
+      "NOME_CLIENTE" : "ART TEXTIL DO BRASIL LTDA",
+      "FANTASIA" : "ART TEXTIL DO BRASIL LTDA",
+      "REGIAO" : 0,
+      "NOME_REGIAO" : ".",
+      "CID" : 355,
+      "CIDADE" : "AMERICANA",
+      "REP" : 147,
+      "NOME_REPRESENANTE" : "ALESSANDRA ELIZABEL CASELLA",
+      "NF" : "23-99",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "99-SP",
+      "CFOP" : "5.124",
+      "DATA_MOVTO" : "2022-11-07T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "0/0-0",
+      "TRANSPORTADORA" : "PROPRIO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 1909.2,
+      "VALOR_SAIDA" : 4925.74,
+      "ROMANEIO" : 716,
+      "QTDE_ROLOS" : 40,
+      "QUANTIDADE" : 1909.2,
+      "PESO_BRUTO" : 823.012,
+      "PESO_LIQUIDO" : 811.412
+    },
+    {
+      "PEDIDO" : 148,
+      "CNPJ" : "07552712000162",
+      "NOME_CLIENTE" : "ART TEXTIL DO BRASIL LTDA",
+      "FANTASIA" : "ART TEXTIL DO BRASIL LTDA",
+      "REGIAO" : 0,
+      "NOME_REGIAO" : ".",
+      "CID" : 355,
+      "CIDADE" : "AMERICANA",
+      "REP" : 147,
+      "NOME_REPRESENANTE" : "ALESSANDRA ELIZABEL CASELLA",
+      "NF" : "24-99",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "99-SP",
+      "CFOP" : "5.124",
+      "DATA_MOVTO" : "2022-11-08T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "0/0-0",
+      "TRANSPORTADORA" : "PROPRIO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 2208,
+      "VALOR_SAIDA" : 4416,
+      "ROMANEIO" : 735,
+      "QTDE_ROLOS" : 38,
+      "QUANTIDADE" : 2208,
+      "PESO_BRUTO" : 603.144,
+      "PESO_LIQUIDO" : 590.644
+    },
+    {
+      "PEDIDO" : 149,
+      "CNPJ" : "10694685000258",
+      "NOME_CLIENTE" : "IRENE ALVES DA COSTA DUTRA",
+      "FANTASIA" : "IRENE ALVES DA COSTA - CASA DAS REDES",
+      "REGIAO" : 24,
+      "NOME_REGIAO" : "RIO GRANDE DO NORTE",
+      "CID" : 8024,
+      "CIDADE" : "SANTO ANTONIO-RN",
+      "REP" : 192,
+      "NOME_REPRESENANTE" : "LEDO CESAR FERREIRA DA SILVA",
+      "NF" : "26730-1",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "1-RN",
+      "CFOP" : "6.101",
+      "DATA_MOVTO" : "2022-11-03T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "7298073/1-50",
+      "TRANSPORTADORA" : "E E CARGAS E ENCOMENDAS LTDA- SORRISO",
+      "TIPO_REDESPACHO" : "2-A pagar",
+      "CNPJ_REDESP" : "17344049/2-45",
+      "REDESPACHO" : "RODOVIARIO LUZ TRANSPORTES EIRELI",
+      "QTDE_SAIDA" : 360,
+      "VALOR_SAIDA" : 3248.4,
+      "ROMANEIO" : 684,
+      "QTDE_ROLOS" : 6,
+      "QUANTIDADE" : 360,
+      "PESO_BRUTO" : 151.93,
+      "PESO_LIQUIDO" : 150.12
+    },
+    {
+      "PEDIDO" : 150,
+      "CNPJ" : "30452952000107",
+      "NOME_CLIENTE" : "STARTEN ESTOFADOS LTDA.",
+      "FANTASIA" : "STARTEN ESTOFADOS",
+      "REGIAO" : 31,
+      "NOME_REGIAO" : "MINAS GERAIS",
+      "CID" : 8254,
+      "CIDADE" : "SAO GERALDO-MG",
+      "REP" : 163,
+      "NOME_REPRESENANTE" : "MARCO E MOREIRA REPRES LTDA - IGOR",
+      "NF" : "26793-1",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "1-MG",
+      "CFOP" : "6.101",
+      "DATA_MOVTO" : "2022-11-17T00:00:00Z",
+      "TIPO_FRETE" : "2-A pagar",
+      "CNPJ_TRANS" : "0/0-0",
+      "TRANSPORTADORA" : "PROPRIO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 2027,
+      "VALOR_SAIDA" : 15405.2,
+      "ROMANEIO" : 698,
+      "QTDE_ROLOS" : 34,
+      "QUANTIDADE" : 2027,
+      "PESO_BRUTO" : 763.006,
+      "PESO_LIQUIDO" : 754.016
+    },
+    {
+      "PEDIDO" : 151,
+      "CNPJ" : "32258146000128",
+      "NOME_CLIENTE" : "J DE F ARAUJO ASSENTOS",
+      "FANTASIA" : "ART ASSENTOS",
+      "REGIAO" : 31,
+      "NOME_REGIAO" : "MINAS GERAIS",
+      "CID" : 3715,
+      "CIDADE" : "GUIDOVAL",
+      "REP" : 163,
+      "NOME_REPRESENANTE" : "MARCO E MOREIRA REPRES LTDA - IGOR",
+      "NF" : "26639-1",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "1-MG",
+      "CFOP" : "6.101",
+      "DATA_MOVTO" : "2022-10-26T00:00:00Z",
+      "TIPO_FRETE" : "2-A pagar",
+      "CNPJ_TRANS" : "25335282/3-70",
+      "TRANSPORTADORA" : "TRANSPORTE CAMILLO DOS SANTOS-LT",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 427,
+      "VALOR_SAIDA" : 3287.9,
+      "ROMANEIO" : 476,
+      "QTDE_ROLOS" : 7,
+      "QUANTIDADE" : 427,
+      "PESO_BRUTO" : 155.033,
+      "PESO_LIQUIDO" : 153.293
+    },
+    {
+      "PEDIDO" : 152,
+      "CNPJ" : "15530582000195",
+      "NOME_CLIENTE" : "LR DO BRASIL INDUSTRIA E COMERCIO DE M",
+      "FANTASIA" : "LR DO BRASIL ESTOFADOS",
+      "REGIAO" : 11,
+      "NOME_REGIAO" : "SÃO PAULO",
+      "CID" : 9927,
+      "CIDADE" : "VOTUPORANGA",
+      "REP" : 137,
+      "NOME_REPRESENANTE" : "RODRIGO GONÇALVES CONSTANTINO REPR. ME",
+      "NF" : "26632-1",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "1-SP",
+      "CFOP" : "5.101",
+      "DATA_MOVTO" : "2022-10-25T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "3088450/1-76",
+      "TRANSPORTADORA" : "ZERO HORA TRANSPORTES E ENCOMENDAS LTDA",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 2042,
+      "VALOR_SAIDA" : 14743.24,
+      "ROMANEIO" : 475,
+      "QTDE_ROLOS" : 28,
+      "QUANTIDADE" : 1734,
+      "PESO_BRUTO" : 630.626,
+      "PESO_LIQUIDO" : 622.506
+    },
+    {
+      "PEDIDO" : 153,
+      "CNPJ" : "37143897000112",
+      "NOME_CLIENTE" : "INNOVA DECOR IND E COM DE MOVEIS E ESTOF",
+      "FANTASIA" : "INNOVA DECOR",
+      "REGIAO" : 41,
+      "NOME_REGIAO" : "PARANÁ",
+      "CID" : 575,
+      "CIDADE" : "ARAPONGAS",
+      "REP" : 178,
+      "NOME_REPRESENANTE" : "JEMA REPRES COM LTDA - ALESSANDRO",
+      "NF" : "26642-1",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "1-PR",
+      "CFOP" : "6.101",
+      "DATA_MOVTO" : "2022-10-26T00:00:00Z",
+      "TIPO_FRETE" : "2-A pagar",
+      "CNPJ_TRANS" : "428307/19-17",
+      "TRANSPORTADORA" : "EXPRESSO SAO MIGUEL S/A",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 197,
+      "VALOR_SAIDA" : 1554.33,
+      "ROMANEIO" : 497,
+      "QTDE_ROLOS" : 3,
+      "QUANTIDADE" : 197,
+      "PESO_BRUTO" : 71.593,
+      "PESO_LIQUIDO" : 70.723
+    },
+    {
+      "PEDIDO" : 154,
+      "CNPJ" : "11695541000106",
+      "NOME_CLIENTE" : "DISTRIB E IMPORT DE TECIDOS LUCENA LTDA",
+      "FANTASIA" : "MARAJO TECIDOS",
+      "REGIAO" : 26,
+      "NOME_REGIAO" : "PERNAMBUCO",
+      "CID" : 2099,
+      "CIDADE" : "CARUARU",
+      "REP" : 158,
+      "NOME_REPRESENANTE" : "REALTEX REPRESENTACOES LTDA - AUGUSTO",
+      "NF" : "26656-1",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "1-PE",
+      "CFOP" : "6.101",
+      "DATA_MOVTO" : "2022-10-26T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "7298073/1-50",
+      "TRANSPORTADORA" : "E E CARGAS E ENCOMENDAS LTDA- SORRISO",
+      "TIPO_REDESPACHO" : "2-A pagar",
+      "CNPJ_REDESP" : "69083244/1-81",
+      "REDESPACHO" : "J L FERREIRA TRANSPORTES",
+      "QTDE_SAIDA" : 3000,
+      "VALOR_SAIDA" : 27090,
+      "ROMANEIO" : 517,
+      "QTDE_ROLOS" : 60,
+      "QUANTIDADE" : 3000,
+      "PESO_BRUTO" : 722.4,
+      "PESO_LIQUIDO" : 705
+    },
+    {
+      "PEDIDO" : 155,
+      "CNPJ" : "10968343000106",
+      "NOME_CLIENTE" : "L.S LOCAL SURF COMERCIO E CONFECCOES LTD",
+      "FANTASIA" : "L.S LOCAL SURF COMERCIO E CONFECCOES LTD",
+      "REGIAO" : 11,
+      "NOME_REGIAO" : "SÃO PAULO",
+      "CID" : 8606,
+      "CIDADE" : "SAO PAULO",
+      "REP" : 56,
+      "NOME_REPRESENANTE" : "FRANCISCO ALBERTO TIRONI  - TIRONI",
+      "NF" : "26612-1",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "1-SP",
+      "CFOP" : "5.101",
+      "DATA_MOVTO" : "2022-10-20T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "7298073/1-50",
+      "TRANSPORTADORA" : "E E CARGAS E ENCOMENDAS LTDA- SORRISO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 5000,
+      "VALOR_SAIDA" : 19950,
+      "ROMANEIO" : 383,
+      "QTDE_ROLOS" : 13,
+      "QUANTIDADE" : 2600,
+      "PESO_BRUTO" : 332.14,
+      "PESO_LIQUIDO" : 327.6
+    },
+    {
+      "PEDIDO" : 156,
+      "CNPJ" : "35100841000155",
+      "NOME_CLIENTE" : "WILLIAM R CANTANHEDE",
+      "FANTASIA" : "RIO SUL MALHAS",
+      "REGIAO" : 21,
+      "NOME_REGIAO" : "MARANHAO",
+      "CID" : 7580,
+      "CIDADE" : "ROSARIO-MA",
+      "REP" : 153,
+      "NOME_REPRESENANTE" : "LCS REPRESENTACOES LTDA - MACIO",
+      "NF" : "26665-1",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "1-MA",
+      "CFOP" : "6.101",
+      "DATA_MOVTO" : "2022-10-28T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "7298073/1-50",
+      "TRANSPORTADORA" : "E E CARGAS E ENCOMENDAS LTDA- SORRISO",
+      "TIPO_REDESPACHO" : "2-A pagar",
+      "CNPJ_REDESP" : "6780720/2-84",
+      "REDESPACHO" : "URBANO ALVES DOS SANTOS-TRANSMEARIM",
+      "QTDE_SAIDA" : 350,
+      "VALOR_SAIDA" : 3244.5,
+      "ROMANEIO" : 500,
+      "QTDE_ROLOS" : 7,
+      "QUANTIDADE" : 350,
+      "PESO_BRUTO" : 84.28,
+      "PESO_LIQUIDO" : 82.25
+    },
+    {
+      "PEDIDO" : 157,
+      "CNPJ" : "01566615000142",
+      "NOME_CLIENTE" : "FRAN S COMERCIO DE PRODUTOS LTDA",
+      "FANTASIA" : "JONEL TECIDOS",
+      "REGIAO" : 11,
+      "NOME_REGIAO" : "SÃO PAULO",
+      "CID" : 8606,
+      "CIDADE" : "SAO PAULO",
+      "REP" : 157,
+      "NOME_REPRESENANTE" : "CONCI E SABAINI REPRES TEXTEIS - REGINA",
+      "NF" : "26653-1",
+      "ENTRADA_SAIDA" : "Saida",
+      "FATURAMENTO_SIM_NAO" : "Sim",
+      "NATUREZA" : "1-SP",
+      "CFOP" : "5.101",
+      "DATA_MOVTO" : "2022-10-26T00:00:00Z",
+      "TIPO_FRETE" : "1-Pago",
+      "CNPJ_TRANS" : "7298073/1-50",
+      "TRANSPORTADORA" : "E E CARGAS E ENCOMENDAS LTDA- SORRISO",
+      "TIPO_REDESPACHO" : "0-Indefinido",
+      "CNPJ_REDESP" : "0/0-0",
+      "REDESPACHO" : "PROPRIO",
+      "QTDE_SAIDA" : 350,
+      "VALOR_SAIDA" : 3360,
+      "ROMANEIO" : 515,
+      "QTDE_ROLOS" : 7,
+      "QUANTIDADE" : 350,
+      "PESO_BRUTO" : 84.28,
+      "PESO_LIQUIDO" : 82.25
+    }
+  ]
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+aqui temos o atual código do endpoint da cte e que precisa se alterado para trazer o valor da nf:
+
+> **O que foi alterado (30/09/2026):** `nf_valor_total` só vinha preenchido em **6 das 198 linhas**.
+> Os três `LEFT JOIN` do cabeçalho fiscal (`OBRF_010`) dependem de CNPJ bater, e 192 linhas
+> vinham `SEM_CABECALHO` — o número da NF existe, mas o CT-e não traz CNPJ de fornecedor/cliente
+> que case com a `OBRF_010`.
+>
+> O próprio endpoint já lê `PMDVW_NFS` no bloco `dsp` (agrupado por `TRIM(d.nf)`, ou seja, por
+> número-série), então o total da NF **já estava disponível e não era usado**. O fix foi:
+>
+> | Onde | Antes | Depois |
+> |---|---|---|
+> | `nf_data` | `COALESCE(nfe, nfc, nfs)` | `COALESCE(nfe, nfc, nfs, dsp.data_movto)` |
+> | `nf_valor_total` | `COALESCE(nfe, nfc, nfs)` | `COALESCE(nfe, nfc, nfs, dsp.valor_saida)` |
+> | `nf_cab_origem` | 4 casos | + `PMDVW_NFS` quando o `dsp` achou a NF |
+> | `nf_valor_origem` | `CABECALHO_NF` / `RATEIO_CTE` | + `FATURAMENTO_NFS` (origem nova) |
+>
+> **Atenção:** `dsp.valor_saida` é valor de **faturamento** (`SUM(valor_saida)`), não o total
+> fiscal (`OBRF_010.total_docto`). Por isso fica como **último** fallback — quando o cabeçalho
+> existe, ele manda. E a origem nova é marcada `FATURAMENTO_NFS`, distinta de `CABECALHO_NF`,
+> para não confundir as duas coisas na tela.
+>
+> Sem join novo: o `dsp` já existia, e agrupar por `TRIM(d.nf)` (e não por `PEDIDO, NF` como o
+> SQL de faturamento original) é o que dá o total da **NF** inteira, que é o denominador correto
+> dos percentuais por CT-e.
+
+SELECT
+    b.cte_numero,
+    b.cte_serie,
+    TO_CHAR(b.cte_data, 'DD/MM/YYYY') AS cte_data,
+    TO_CHAR(b.cte_data_transacao, 'DD/MM/YYYY') AS cte_data_transacao,
+    b.cte_valor_total,
+    b.cte_valor_frete,
+    b.cte_natureza,
+    b.cte_tipo_conhecimento,
+    b.cte_cod_cidade_origem,
+    b.cte_cod_cidade_destino,
+    b.cte_situacao,
+    SUBSTR(TRIM(b.cte_transportadora_razao), 1, 60) AS cte_transportadora_razao,
+    SUBSTR(TRIM(b.cte_transportadora_fantasia), 1, 60) AS cte_transportadora_fantasia,
+    SUBSTR(TRIM(b.cte_tomador_razao), 1, 60) AS cte_tomador_razao,
+    SUBSTR(TRIM(b.cte_tomador_fantasia), 1, 60) AS cte_tomador_fantasia,
+    b.nf_numero,
+    b.nf_serie,
+    TO_CHAR(b.nf_data, 'DD/MM/YYYY') AS nf_data,
+    b.nf_valor_total,
+    b.nf_frete_rateado,
+    b.nf_situacao,
+    SUBSTR(TRIM(b.nf_cliente_razao), 1, 60) AS nf_cliente_razao,
+    SUBSTR(TRIM(b.nf_cliente_fantasia), 1, 60) AS nf_cliente_fantasia,
+    SUBSTR(TRIM(b.nf_fornecedor_razao), 1, 60) AS nf_fornecedor_razao,
+    SUBSTR(TRIM(b.nf_fornecedor_fantasia), 1, 60) AS nf_fornecedor_fantasia,
+    b.nf_cab_origem,
+    b.nf_item_qtd,
+    b.nf_item_qtd_total,
+    SUBSTR(TRIM(b.nf_item_unidade), 1, 10) AS nf_item_unidade,
+    CAST(NULL AS VARCHAR2(1)) AS nf_item_descricoes,
+    b.nf_item_valor_total,
+    b.nf_item_icms,
+    b.nf_od_pedido,
+    TO_CHAR(b.nf_od_data, 'DD/MM/YYYY') AS nf_od_data,
+    b.nf_od_valor,
+    b.nf_od_qtde,
+    SUBSTR(TRIM(b.nf_od_cliente_razao), 1, 60) AS nf_od_cliente_razao,
+    SUBSTR(TRIM(b.nf_od_cliente_fantasia), 1, 60) AS nf_od_cliente_fantasia,
+    b.nf_od_cod_cidade,
+    SUBSTR(TRIM(b.nf_od_cidade), 1, 40) AS nf_od_cidade,
+    SUBSTR(TRIM(b.nf_od_regiao), 1, 30) AS nf_od_regiao,
+    SUBSTR(TRIM(b.nf_od_representante), 1, 60) AS nf_od_representante,
+    b.nf_od_romaneio,
+    b.nf_od_qtde_rolos,
+    b.nf_od_peso_bruto,
+    b.nf_od_peso_liquido,
+    SUBSTR(TRIM(b.nf_od_faturamento), 1, 3) AS nf_od_faturamento,
+    SUBSTR(TRIM(b.nf_od_cfop), 1, 10) AS nf_od_cfop,
+    SUBSTR(TRIM(b.nf_od_natureza), 1, 10) AS nf_od_natureza,
+    CASE
+        WHEN b.nf_cab_origem IN ('CNPJ_FORNECEDOR', 'CNPJ_CLIENTE_NF', 'DOCUMENTO_SERIE') THEN 'CABECALHO_NF'
+        WHEN b.nf_cab_origem = 'PMDVW_NFS' THEN 'FATURAMENTO_NFS'
+        WHEN b.nf_item_valor_total IS NOT NULL THEN 'RATEIO_CTE'
+        ELSE 'SEM_VALOR'
+    END AS nf_valor_origem
+FROM (
+    SELECT
+        cte.documento AS cte_numero,
+        cte.serie AS cte_serie,
+        cte.data_emissao AS cte_data,
+        cte.data_transacao AS cte_data_transacao,
+        cte.total_docto AS cte_valor_total,
+        cte.valor_frete AS cte_valor_frete,
+        cte.natoper_nat_oper AS cte_natureza,
+        cte.tipo_conhecimento AS cte_tipo_conhecimento,
+        cte.cod_cidade_cte AS cte_cod_cidade_origem,
+        cte.cod_cidade_cte_dest AS cte_cod_cidade_destino,
+        cte.situacao_entrada AS cte_situacao,
+        transp.nome_fornecedor AS cte_transportadora_razao,
+        transp.nome_fantasia AS cte_transportadora_fantasia,
+        tomador.nome_fornecedor AS cte_tomador_razao,
+        tomador.nome_fantasia AS cte_tomador_fantasia,
+        nf.numero_nota AS nf_numero,
+        nf.serie_nota AS nf_serie,
+        COALESCE(nfe.data_emissao, nfc.data_emissao, nfs.data_emissao, dsp.data_movto) AS nf_data,
+        COALESCE(nfe.total_docto, nfc.total_docto, nfs.total_docto, dsp.valor_saida) AS nf_valor_total,
+        COALESCE(nfe.valor_frete, nfc.valor_frete, nfs.valor_frete) AS nf_frete_rateado,
+        COALESCE(nfe.situacao_entrada, nfc.situacao_entrada, nfs.situacao_entrada) AS nf_situacao,
+        CASE
+            WHEN nfe.documento IS NOT NULL THEN 'CNPJ_FORNECEDOR'
+            WHEN nfc.documento IS NOT NULL THEN 'CNPJ_CLIENTE_NF'
+            WHEN nfs.documento IS NOT NULL THEN 'DOCUMENTO_SERIE'
+            WHEN dsp.nf_chave IS NOT NULL THEN 'PMDVW_NFS'
+            ELSE 'SEM_CABECALHO'
+        END AS nf_cab_origem,
+        cli.nome_fornecedor AS nf_cliente_razao,
+        cli.nome_fantasia AS nf_cliente_fantasia,
+        forn.nome_fornecedor AS nf_fornecedor_razao,
+        forn.nome_fantasia AS nf_fornecedor_fantasia,
+        it.item_qtd AS nf_item_qtd,
+        it.item_qtd_total AS nf_item_qtd_total,
+        it.item_unidade AS nf_item_unidade,
+        it.item_valor_total AS nf_item_valor_total,
+        it.item_icms AS nf_item_icms,
+        dsp.pedido AS nf_od_pedido,
+        dsp.data_movto AS nf_od_data,
+        dsp.valor_saida AS nf_od_valor,
+        dsp.qtde_saida AS nf_od_qtde,
+        dsp.nome_cliente AS nf_od_cliente_razao,
+        dsp.fantasia AS nf_od_cliente_fantasia,
+        dsp.cid AS nf_od_cod_cidade,
+        dsp.cidade AS nf_od_cidade,
+        dsp.nome_regiao AS nf_od_regiao,
+        dsp.nome_represenante AS nf_od_representante,
+        dsp.romaneio AS nf_od_romaneio,
+        dsp.qtde_rolos AS nf_od_qtde_rolos,
+        dsp.peso_bruto AS nf_od_peso_bruto,
+        dsp.peso_liquido AS nf_od_peso_liquido,
+        dsp.faturamento AS nf_od_faturamento,
+        dsp.cfop AS nf_od_cfop,
+        dsp.natureza AS nf_od_natureza
+    FROM obrf_016 nf
+    JOIN obrf_010 cte
+      ON cte.documento = nf.num_conhecimento
+     AND cte.serie = nf.ser_conhecimento
+     AND cte.especie_docto = 'CTE'
+    LEFT JOIN obrf_010 nfe
+      ON nfe.documento = nf.numero_nota
+     AND nfe.serie = nf.serie_nota
+     AND nfe.cgc_cli_for_9 = nf.fornecedor9
+     AND nfe.cgc_cli_for_4 = nf.fornecedor4
+     AND nfe.cgc_cli_for_2 = nf.fornecedor2
+    LEFT JOIN obrf_010 nfc
+      ON nfc.documento = nf.numero_nota
+     AND nfc.serie = nf.serie_nota
+     AND nfc.cgc_cli_for_9 = cte.cgc_cli_for_9
+     AND nfc.cgc_cli_for_4 = cte.cgc_cli_for_4
+     AND nfc.cgc_cli_for_2 = cte.cgc_cli_for_2
+    LEFT JOIN obrf_010 nfs
+      ON nfs.documento = nf.numero_nota
+     AND nfs.serie = nf.serie_nota
+     AND UPPER(nfs.especie_docto) LIKE 'NF%'
+     AND nfs.data_emissao >= cte.data_emissao - 60
+     AND nfs.data_emissao <= cte.data_emissao + 180
+    LEFT JOIN supr_010 cli
+      ON cli.fornecedor9 = COALESCE(nfe.cgc_cli_for_9, nfc.cgc_cli_for_9, nfs.cgc_cli_for_9)
+     AND cli.fornecedor4 = COALESCE(nfe.cgc_cli_for_4, nfc.cgc_cli_for_4, nfs.cgc_cli_for_4)
+     AND cli.fornecedor2 = COALESCE(nfe.cgc_cli_for_2, nfc.cgc_cli_for_2, nfs.cgc_cli_for_2)
+    LEFT JOIN supr_010 transp
+      ON transp.fornecedor9 = cte.transpa_forne9
+     AND transp.fornecedor4 = cte.transpa_forne4
+     AND transp.fornecedor2 = cte.transpa_forne2
+    LEFT JOIN supr_010 tomador
+      ON tomador.fornecedor9 = cte.cgc_cli_for_9
+     AND tomador.fornecedor4 = cte.cgc_cli_for_4
+     AND tomador.fornecedor2 = cte.cgc_cli_for_2
+    LEFT JOIN supr_010 forn
+      ON forn.fornecedor9 = nf.fornecedor9
+     AND forn.fornecedor4 = nf.fornecedor4
+     AND forn.fornecedor2 = nf.fornecedor2
+    LEFT JOIN (
+        SELECT
+            i.capa_ent_nrdoc AS capa_ent_nrdoc,
+            i.capa_ent_serie AS capa_ent_serie,
+            i.num_nf_saida AS num_nf_saida,
+            i.serie_nf_saida AS serie_nf_saida,
+            COUNT(*) AS item_qtd,
+            SUM(i.quantidade) AS item_qtd_total,
+            MAX(i.unidade_medida) AS item_unidade,
+            SUM(i.valor_total) AS item_valor_total,
+            SUM(i.valor_icms) AS item_icms
+        FROM obrf_015 i
+        WHERE i.num_nf_saida IS NOT NULL
+        GROUP BY
+            i.capa_ent_nrdoc,
+            i.capa_ent_serie,
+            i.num_nf_saida,
+            i.serie_nf_saida
+    ) it
+      ON it.capa_ent_nrdoc = cte.documento
+     AND it.capa_ent_serie = cte.serie
+     AND it.num_nf_saida = nf.numero_nota
+     AND it.serie_nf_saida = nf.serie_nota
+    LEFT JOIN (
+        SELECT
+            TRIM(d.nf) AS nf_chave,
+            MAX(d.pedido) AS pedido,
+            MAX(d.data_movto) AS data_movto,
+            SUM(d.valor_saida) AS valor_saida,
+            SUM(d.qtde_saida) AS qtde_saida,
+            MAX(TRIM(d.faturamento_sim_nao)) AS faturamento,
+            MAX(TRIM(d.cfop)) AS cfop,
+            MAX(TRIM(d.natureza)) AS natureza,
+            MAX(TRIM(w.nome_cliente)) AS nome_cliente,
+            MAX(TRIM(w.fantasia)) AS fantasia,
+            MAX(w.cid) AS cid,
+            MAX(TRIM(w.cidade)) AS cidade,
+            MAX(TRIM(w.nome_regiao)) AS nome_regiao,
+            MAX(TRIM(w.nome_represenante)) AS nome_represenante,
+            MAX(rol.romaneio) AS romaneio,
+            MAX(rol.qtde_rolos) AS qtde_rolos,
+            MAX(rol.peso_bruto) AS peso_bruto,
+            MAX(rol.peso_liquido) AS peso_liquido
+        FROM pmdvw_nfs d
+        LEFT JOIN pmdvw_vendas w
+          ON w.pedido = d.pedido
+        LEFT JOIN (
+            SELECT
+                x.pedido,
+                MAX(x.romaneio) AS romaneio,
+                COUNT(DISTINCT CASE WHEN x.rn = 1 THEN x.codigo_rolo END) AS qtde_rolos,
+                SUM(CASE WHEN x.rn = 1 THEN x.peso_bruto END) AS peso_bruto,
+                SUM(CASE WHEN x.rn = 1 THEN x.peso_liquido END) AS peso_liquido
+            FROM (
+                SELECT
+                    r.pedido,
+                    r.romaneio,
+                    r.codigo_rolo,
+                    r.peso_bruto,
+                    r.peso_liquido,
+                    DENSE_RANK() OVER (
+                        PARTITION BY r.pedido
+                        ORDER BY r.romaneio DESC
+                    ) AS rn
+                FROM pmdvw_rolos r
+                WHERE r.romaneio IS NOT NULL
+                  AND r.situacao = 'Fora do estoque'
+            ) x
+            GROUP BY x.pedido
+        ) rol
+          ON rol.pedido = d.pedido
+        WHERE TRIM(d.entrada_saida) = 'Saida'
+          AND d.pedido > 0
+        GROUP BY TRIM(d.nf)
+    ) dsp
+      ON dsp.nf_chave = TRIM(nf.numero_nota || '-' || nf.serie_nota)
+) b
+WHERE COALESCE(b.nf_data, b.cte_data) >= ADD_MONTHS(TRUNC(SYSDATE), -2)
+  AND COALESCE(b.nf_data, b.cte_data) < TRUNC(SYSDATE) + 1
+ORDER BY
+    b.cte_data DESC,
+    b.cte_numero,
+    b.cte_serie,
+    b.nf_numero,
+    b.nf_serie
+
 
 
 
