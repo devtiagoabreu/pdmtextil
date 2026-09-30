@@ -1072,3 +1072,237 @@ SELECT b.cte_numero,
  WHERE COALESCE(b.nf_data, b.cte_data) >= ADD_MONTHS(TRUNC(SYSDATE), -2)
    AND COALESCE(b.nf_data, b.cte_data) <  TRUNC(SYSDATE) + 1
  ORDER BY b.cte_data DESC, b.cte_numero, b.cte_serie, b.nf_numero, b.nf_serie
+
+/* --- 15) O RELATORIO INTEIRO COM TETO DE LINHAS -----------------------------
+ * ESTA SENTENCA FOI GERADA MECANICAMENTE de docs/rel-nf-cte.sql (o ultimo
+ * SELECT, exatamente o que comeca em "SELECT b.cte_numero,"). NAO DIGITAR NA
+ * MAO: a primeira versao desta sonda foi montada aqui no chat e saiu com o join
+ * da transportadora errado -- "cte.transpa_for2" em vez de "cte.transpa_forne2"
+ * -- e o console respondeu ORA-00904: "CTE"."TRANSPA_FOR2": identificador
+ * invalido. Copie daqui, nao do chat.
+ *
+ * Sonde 20, 60 e 120 trocando o ultimo numero. O ponto em que estourar e o
+ * tamanho do buffer do runner, em caracteres. Se passar no 120, o que sobra e o
+ * que esta sonda nao traz: as 2 window functions, o WHERE externo ou o ORDER BY.
+ * ========================================================================== */
+/* >>> RELATORIO GERADO, NAO DIGITAR <<< */
+SELECT * FROM (
+SELECT b.cte_numero,
+       b.cte_serie,
+       TO_CHAR(b.cte_data, 'DD/MM/YYYY')                                              AS cte_data,
+       TO_CHAR(b.cte_data_transacao, 'DD/MM/YYYY')                                    AS cte_data_transacao,
+       b.cte_valor_total,
+       b.cte_valor_frete,
+       b.cte_natureza,
+       b.cte_tipo_conhecimento,
+       b.cte_cod_cidade_origem,
+       b.cte_cod_cidade_destino,
+       b.cte_situacao,
+       SUBSTR(TRIM(b.cte_transportadora_razao), 1, 60)                      AS cte_transportadora_razao,
+       SUBSTR(TRIM(b.cte_transportadora_fantasia), 1, 60)                   AS cte_transportadora_fantasia,
+       SUBSTR(TRIM(b.cte_tomador_razao), 1, 60)                             AS cte_tomador_razao,
+       SUBSTR(TRIM(b.cte_tomador_fantasia), 1, 60)                          AS cte_tomador_fantasia,
+       b.nf_numero,
+       b.nf_serie,
+       TO_CHAR(b.nf_data, 'DD/MM/YYYY')                                               AS nf_data,
+       b.nf_valor_total,
+       SUM(b.nf_valor_total) OVER (PARTITION BY b.cte_numero, b.cte_serie)  AS soma_nf_do_cte,
+       ROUND(b.nf_valor_total
+             / NULLIF(SUM(b.nf_valor_total) OVER (PARTITION BY b.cte_numero, b.cte_serie), 0)
+             * 100, 2)                                                      AS pct_nf_no_total_cte,
+       ROUND(b.cte_valor_total
+             / NULLIF(SUM(b.nf_valor_total) OVER (PARTITION BY b.cte_numero, b.cte_serie), 0)
+             * 100, 2)                                                      AS pct_cte_sobre_total_nfs,
+       b.nf_frete_rateado,
+       b.nf_situacao,
+       SUBSTR(TRIM(b.nf_cliente_razao), 1, 60)                              AS nf_cliente_razao,
+       SUBSTR(TRIM(b.nf_cliente_fantasia), 1, 60)                           AS nf_cliente_fantasia,
+       SUBSTR(TRIM(b.nf_fornecedor_razao), 1, 60)                           AS nf_fornecedor_razao,
+       SUBSTR(TRIM(b.nf_fornecedor_fantasia), 1, 60)                        AS nf_fornecedor_fantasia,
+       b.nf_cab_origem,
+       b.nf_item_qtd,
+       b.nf_item_qtd_total,
+       SUBSTR(TRIM(b.nf_item_unidade), 1, 10)                               AS nf_item_unidade,
+       SUBSTR(TRIM(b.nf_item_descricoes), 1, 300)                           AS nf_item_descricoes,
+       b.nf_item_valor_total,
+       b.nf_item_icms,
+       b.nf_od_pedido,
+       TO_CHAR(b.nf_od_data, 'DD/MM/YYYY')                                            AS nf_od_data,
+       b.nf_od_valor,
+       b.nf_od_qtde,
+       SUBSTR(TRIM(b.nf_od_cliente_razao), 1, 60)                           AS nf_od_cliente_razao,
+       SUBSTR(TRIM(b.nf_od_cliente_fantasia), 1, 60)                        AS nf_od_cliente_fantasia,
+       b.nf_od_cod_cidade,
+       SUBSTR(TRIM(b.nf_od_cidade), 1, 40)                                  AS nf_od_cidade,
+       SUBSTR(TRIM(b.nf_od_regiao), 1, 30)                                  AS nf_od_regiao,
+       SUBSTR(TRIM(b.nf_od_representante), 1, 60)                           AS nf_od_representante,
+       b.nf_od_romaneio,
+       b.nf_od_qtde_rolos,
+       b.nf_od_peso_bruto,
+       b.nf_od_peso_liquido,
+       SUBSTR(TRIM(b.nf_od_faturamento), 1, 3)                              AS nf_od_faturamento,
+       SUBSTR(TRIM(b.nf_od_cfop), 1, 10)                                    AS nf_od_cfop,
+       SUBSTR(TRIM(b.nf_od_natureza), 1, 10)                                AS nf_od_natureza,
+       SUM(b.nf_item_valor_total) OVER (PARTITION BY b.cte_numero, b.cte_serie) AS soma_rateio_do_cte,
+       ROUND(b.nf_item_valor_total / NULLIF(b.cte_valor_total, 0) * 100, 2) AS nf_pct_rateio_no_cte,
+       CASE WHEN b.nf_cab_origem <> 'SEM_CABECALHO' THEN 'CABECALHO_NF'
+            WHEN b.nf_item_valor_total IS NOT NULL  THEN 'RATEIO_CTE'
+            ELSE 'SEM_VALOR' END                                                     AS nf_valor_origem
+  FROM ( SELECT cte.documento AS cte_numero,
+                cte.serie AS cte_serie,
+                cte.data_emissao AS cte_data,
+                cte.data_transacao AS cte_data_transacao,
+                cte.total_docto AS cte_valor_total,
+                cte.valor_frete AS cte_valor_frete,
+                cte.natoper_nat_oper AS cte_natureza,
+                cte.tipo_conhecimento AS cte_tipo_conhecimento,
+                cte.cod_cidade_cte AS cte_cod_cidade_origem,
+                cte.cod_cidade_cte_dest AS cte_cod_cidade_destino,
+                cte.situacao_entrada AS cte_situacao,
+                transp.nome_fornecedor AS cte_transportadora_razao,
+                transp.nome_fantasia AS cte_transportadora_fantasia,
+                tomador.nome_fornecedor AS cte_tomador_razao,
+                tomador.nome_fantasia AS cte_tomador_fantasia,
+                nf.numero_nota AS nf_numero,
+                nf.serie_nota AS nf_serie,
+                COALESCE(nfe.data_emissao, nfc.data_emissao, nfs.data_emissao) AS nf_data,
+                COALESCE(nfe.total_docto, nfc.total_docto, nfs.total_docto) AS nf_valor_total,
+                COALESCE(nfe.valor_frete, nfc.valor_frete, nfs.valor_frete) AS nf_frete_rateado,
+                COALESCE(nfe.situacao_entrada, nfc.situacao_entrada, nfs.situacao_entrada) AS nf_situacao,
+                CASE WHEN nfe.documento IS NOT NULL THEN 'CNPJ_FORNECEDOR'
+                     WHEN nfc.documento IS NOT NULL THEN 'CNPJ_CLIENTE_NF'
+                     WHEN nfs.documento IS NOT NULL THEN 'DOCUMENTO_SERIE'
+                     ELSE 'SEM_CABECALHO' END AS nf_cab_origem,
+                cli.nome_fornecedor AS nf_cliente_razao,
+                cli.nome_fantasia AS nf_cliente_fantasia,
+                forn.nome_fornecedor AS nf_fornecedor_razao,
+                forn.nome_fantasia AS nf_fornecedor_fantasia,
+                it.item_qtd AS nf_item_qtd,
+                it.item_qtd_total AS nf_item_qtd_total,
+                it.item_unidade AS nf_item_unidade,
+                it.item_descricoes AS nf_item_descricoes,
+                it.item_valor_total AS nf_item_valor_total,
+                it.item_icms AS nf_item_icms,
+                dsp.pedido            AS nf_od_pedido,
+                dsp.data_movto        AS nf_od_data,
+                dsp.valor_saida       AS nf_od_valor,
+                dsp.qtde_saida        AS nf_od_qtde,
+                dsp.nome_cliente      AS nf_od_cliente_razao,
+                dsp.fantasia          AS nf_od_cliente_fantasia,
+                dsp.cid               AS nf_od_cod_cidade,
+                dsp.cidade            AS nf_od_cidade,
+                dsp.nome_regiao       AS nf_od_regiao,
+                dsp.nome_represenante AS nf_od_representante,
+                dsp.romaneio          AS nf_od_romaneio,
+                dsp.qtde_rolos        AS nf_od_qtde_rolos,
+                dsp.peso_bruto        AS nf_od_peso_bruto,
+                dsp.peso_liquido      AS nf_od_peso_liquido,
+                dsp.faturamento       AS nf_od_faturamento,
+                dsp.cfop              AS nf_od_cfop,
+                dsp.natureza          AS nf_od_natureza
+           FROM obrf_016 nf
+           JOIN obrf_010 cte
+             ON cte.documento     = nf.num_conhecimento
+            AND cte.serie         = nf.ser_conhecimento
+            AND cte.especie_docto = 'CTE'
+           LEFT JOIN obrf_010 nfe
+             ON nfe.documento     = nf.numero_nota
+            AND nfe.serie         = nf.serie_nota
+            AND nfe.cgc_cli_for_9 = nf.fornecedor9
+            AND nfe.cgc_cli_for_4 = nf.fornecedor4
+            AND nfe.cgc_cli_for_2 = nf.fornecedor2
+           LEFT JOIN obrf_010 nfc
+             ON nfc.documento     = nf.numero_nota
+            AND nfc.serie         = nf.serie_nota
+            AND nfc.cgc_cli_for_9 = cte.cgc_cli_for_9
+            AND nfc.cgc_cli_for_4 = cte.cgc_cli_for_4
+            AND nfc.cgc_cli_for_2 = cte.cgc_cli_for_2
+           LEFT JOIN obrf_010 nfs
+             ON nfs.documento = nf.numero_nota
+            AND nfs.serie     = nf.serie_nota
+            AND UPPER(nfs.especie_docto) LIKE 'NF%'
+            AND nfs.data_emissao >= cte.data_emissao - 60
+            AND nfs.data_emissao <= cte.data_emissao + 180
+           LEFT JOIN supr_010 cli
+             ON cli.fornecedor9 = COALESCE(nfe.cgc_cli_for_9, nfc.cgc_cli_for_9, nfs.cgc_cli_for_9)
+            AND cli.fornecedor4 = COALESCE(nfe.cgc_cli_for_4, nfc.cgc_cli_for_4, nfs.cgc_cli_for_4)
+            AND cli.fornecedor2 = COALESCE(nfe.cgc_cli_for_2, nfc.cgc_cli_for_2, nfs.cgc_cli_for_2)
+           LEFT JOIN supr_010 transp
+             ON transp.fornecedor9 = cte.transpa_forne9
+            AND transp.fornecedor4 = cte.transpa_forne4
+            AND transp.fornecedor2 = cte.transpa_forne2
+           LEFT JOIN supr_010 tomador
+             ON tomador.fornecedor9 = cte.cgc_cli_for_9
+            AND tomador.fornecedor4 = cte.cgc_cli_for_4
+            AND tomador.fornecedor2 = cte.cgc_cli_for_2
+           LEFT JOIN supr_010 forn
+             ON forn.fornecedor9 = nf.fornecedor9
+            AND forn.fornecedor4 = nf.fornecedor4
+            AND forn.fornecedor2 = nf.fornecedor2
+           LEFT JOIN (SELECT i.capa_ent_nrdoc              AS capa_ent_nrdoc,
+                             i.capa_ent_serie              AS capa_ent_serie,
+                             i.num_nf_saida                AS num_nf_saida,
+                             i.serie_nf_saida               AS serie_nf_saida,
+                              COUNT(*)                      AS item_qtd,
+                              SUM(i.quantidade)             AS item_qtd_total,
+                              MAX(i.unidade_medida)         AS item_unidade,
+                              LISTAGG(SUBSTR(i.descricao_item, 1, 40), ' | ')
+                                WITHIN GROUP (ORDER BY i.sequencia) AS item_descricoes,
+                              SUM(i.valor_total)            AS item_valor_total,
+                              SUM(i.valor_icms)             AS item_icms
+                         FROM obrf_015 i
+                        WHERE i.num_nf_saida IS NOT NULL
+                        GROUP BY i.capa_ent_nrdoc, i.capa_ent_serie, i.num_nf_saida, i.serie_nf_saida) it
+              ON it.capa_ent_nrdoc = cte.documento
+             AND it.capa_ent_serie = cte.serie
+             AND it.num_nf_saida   = nf.numero_nota
+              AND it.serie_nf_saida = nf.serie_nota
+             LEFT JOIN (SELECT TRIM(d.nf)                      AS nf_chave,
+                              MAX(d.pedido)                    AS pedido,
+                              MAX(d.data_movto)                AS data_movto,
+                              SUM(d.valor_saida)               AS valor_saida,
+                              SUM(d.qtde_saida)                AS qtde_saida,
+                              MAX(TRIM(d.faturamento_sim_nao)) AS faturamento,
+                              MAX(TRIM(d.cfop))                AS cfop,
+                              MAX(TRIM(d.natureza))            AS natureza,
+                              MAX(TRIM(w.nome_cliente))        AS nome_cliente,
+                              MAX(TRIM(w.fantasia))            AS fantasia,
+                              MAX(w.cid)                       AS cid,
+                              MAX(TRIM(w.cidade))              AS cidade,
+                              MAX(TRIM(w.nome_regiao))         AS nome_regiao,
+                              MAX(TRIM(w.nome_represenante))   AS nome_represenante,
+                              MAX(rol.romaneio)                AS romaneio,
+                              MAX(rol.qtde_rolos)              AS qtde_rolos,
+                              MAX(rol.peso_bruto)              AS peso_bruto,
+                              MAX(rol.peso_liquido)            AS peso_liquido
+                         FROM pmdvw_nfs d
+                         LEFT JOIN pmdvw_vendas w
+                           ON w.pedido = d.pedido
+                         LEFT JOIN (SELECT x.pedido,
+                                           MAX(x.romaneio) AS romaneio,
+                                           COUNT(DISTINCT CASE WHEN x.rn = 1 THEN x.codigo_rolo END) AS qtde_rolos,
+                                           SUM(CASE WHEN x.rn = 1 THEN x.peso_bruto END) AS peso_bruto,
+                                           SUM(CASE WHEN x.rn = 1 THEN x.peso_liquido END) AS peso_liquido
+                                      FROM (SELECT r.pedido,
+                                                   r.romaneio,
+                                                   r.codigo_rolo,
+                                                   r.peso_bruto,
+                                                   r.peso_liquido,
+                                                   DENSE_RANK() OVER (PARTITION BY r.pedido
+                                                                       ORDER BY r.romaneio DESC) AS rn
+                                               FROM pmdvw_rolos r
+                                              WHERE r.romaneio IS NOT NULL
+                                                AND r.situacao = 'Fora do estoque') x
+                                     GROUP BY x.pedido) rol
+                           ON rol.pedido = d.pedido
+                       WHERE TRIM(d.entrada_saida) = 'Saida'
+                         AND d.pedido > 0
+                       GROUP BY TRIM(d.nf)) dsp
+              ON dsp.nf_chave = TRIM(nf.numero_nota || '-' || nf.serie_nota)
+        ) b
+ WHERE COALESCE(b.nf_data, b.cte_data) >= ADD_MONTHS(TRUNC(SYSDATE), -2)
+   AND COALESCE(b.nf_data, b.cte_data) <  TRUNC(SYSDATE) + 1
+ ORDER BY b.cte_data DESC, b.cte_numero, b.cte_serie, b.nf_numero, b.nf_serie
+
+) WHERE ROWNUM <= 20
+/* <<< FIM RELATORIO GERADO <<< */

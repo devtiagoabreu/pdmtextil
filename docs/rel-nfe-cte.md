@@ -1258,6 +1258,185 @@ registrado e testado; falta o SQL do CT-e passar a consultá-lo.
    Nova flag `--origem-db=<nome>` para clonar credenciais de outro banco quando a origem
    local está quebrada (foi o caso do neon).
 
+---
+
+## 20. v3.1b publicada: ORA-06502 no console e o bloco `dsp` vazio (29/09/2026)
+
+Duas coisas separadas, e vale não misturar.
+
+### 20.1 ORA-06502 não é erro do SQL
+
+`ORA-06502: PL/SQL: character value buffer too small`, precedido de **"Ocorreu 1 erro"**,
+não é erro de sintaxe (seria `ORA-009xx`) nem coluna inexistente (`ORA-00904`): **a
+sentença chegou a executar**. O prefixo `PL/SQL:` e o "Ocorreu 1 erro" são do *runner*
+do console do ERP, que monta a linha num buffer fixo.
+
+Prova disso é a própria publicação: **o mesmo SELECT responde `200` no endpoint com 201
+linhas e 55 colunas.** Mesmo SQL, dois runners — o do endpoint aguenta, o do console não.
+
+A coluna mais larga da projeção é `NF_ITEM_DESCRICOES`: o `LISTAGG` de
+`SUBSTR(descricao_item, 1, 60)` **sem `ON OVERFLOW TRUNCATE`** chega a 4.000 bytes numa
+célula (§17.1 já registrava esse risco), e são mais ~40 colunas de texto na mesma linha.
+Se o buffer do runner for fixo, essa é a linha que estoura — e ela varia por CT-e, então
+o erro é "às vezes", não sempre.
+
+**Como separar em uma execução** — `docs/diag-ora-06502-dsp.sql`, item 6: o mesmo SQL
+com `COUNT(*)` no lugar da projeção.
+
+| Resultado | Conclusão | O que fazer |
+|---|---|---|
+| o `COUNT` roda | o SQL está certo, é o runner | `SUBSTR` nas colunas largas (descrições e nomes) |
+| o `COUNT` também falha | o erro é do SQL | seguir os itens 1–5 do diagnóstico |
+
+### 20.2 O problema sério: as 17 colunas `NF_OD_*` vieram vazias
+
+O payload publicado tem as 55 colunas, mas **`nf_od_pedido` preenchido em 0 de 201
+linhas** — as 17 colunas do despacho vieram nulas. O critério que a §3 do SQL definiu
+era: perto de 162 casamentos a chave funciona; zero significa join errado.
+
+O cruzamento foi refeito em JS a partir dos dois endpoints publicados
+(`scripts/diag-despacho-cruzamento.js`) e **descartou as três hipóteses fáceis**:
+
+| Verificação | Resultado |
+|---|---|
+| a chave `numero-serie` casa? | **sim — 162 das 201** (35832-1 → pedido 8198, romaneio 24597, 3.613,90, 18/09/2026) |
+| `entrada_saida = 'Saida'` | passa nas 162 — o valor é mesmo `Saida`, **sem acento** |
+| `pedido > 0` | passa nas 162 |
+| corte `data >= -3 meses` | derruba **1** (31933-1, o CT-e 351348 do rateio divergente) |
+
+Ou seja: **o bloco `dsp` deveria devolver 161 chaves e devolve 0.** O defeito está
+*dentro* do bloco, não nos dados.
+
+Suspeito nº 1: **o próprio corte de data.**
+`d.data_movto >= ADD_MONTHS(TRUNC(SYSDATE), -3)` só está correto se
+`PMDVW_NFS.DATA_MOVTO` for `DATE`. Se for `CHAR`/`VARCHAR2`, o Oracle compara **texto
+com texto** — o `DATE` da outra ponta vira string pelo `NLS_DATE_FORMAT` da sessão — e o
+resultado é lixo silencioso: nenhuma linha passa e nenhum erro aparece. `docs/diag-ora-06502-dsp.sql`
+mede o tipo com `DUMP` (item 1) e conta o bloco em três degraus (itens 5, 5b, 5c), que
+dividem a causa entre filtro de data e custo do join de rolos.
+
+### 20.3 — armadilha de método: o endpoint pagina
+
+`api_ordem_despacho` devolve `items` + `hasMore` + `limit` + `offset`, e **`count` é o da
+página, não o total**. A primeira página traz **100 registros de 2022-10 a 2022-12**.
+
+Cruzar só a primeira página dá **0 de 201** e parece concluir que a chave está errada
+— foi exatamente o que aconteceu na primeira medição. São **9 páginas, 8.035
+registros**, de 2022 a 2026-09-29. O cruzamento só dá certo depois de paginar até
+`hasMore = false`.
+
+> A tabela do §19 ("Uma linha por **pedido × NF**") continua valendo, mas o endpoint não
+> entrega o conjunto todo de uma vez: qualquer verificação que dependa de cobertura
+> histórica precisa paginar.
+
+## 21. v3.1c: o corte de data saiu e a linha ganhou teto (29/09/2026)
+
+Duas mudanças, uma por sintoma, para dar para atribuir o resultado de cada uma. O SELECT
+publicado em `docs/rel-nf-cte.sql` agora é a v3.1c.
+
+### 21.1 Saiu o `d.data_movto >= ADD_MONTHS(TRUNC(SYSDATE), -3)`
+
+É a única comparação do bloco `dsp` que depende do **tipo** de uma coluna que ninguém
+mediu. Se `PMDVW_NFS.DATA_MOVTO` for `CHAR`/`VARCHAR2`, o Oracle converte o `DATE` da outra
+ponta para texto pelo `NLS_DATE_FORMAT` da sessão e compara texto com texto — `'18/09/2026'`
+contra `'29/06/26'` — e o resultado é lixo silencioso: nenhuma linha passa, nenhum erro
+aparece. O sintoma medido é exatamente esse (0 de 161 chaves possíveis, sem erro).
+
+O corte era economia de custo, e a economia não existe: são ~47 mil NFs de saída, um
+`GROUP BY` de uma coluna. A janela do relatório já é imposta pelo `WHERE` de fora, sobre a
+data do CT-e. E o corte não protegia nada — a chave é `numero-serie`, que identifica a
+nota, então não há como um despacho antigo se grudar num CT-e novo.
+
+> Se o `DUMP` do item 1 de `docs/diag-ora-06502-dsp.sql` mostrar que `DATA_MOVTO` é mesmo
+> `DATE`, o corte **não** era a causa: o próximo suspeito é o join com `rol` (itens 5b ×
+> 5c), e o corte volta — só aí.
+
+### 21.2 Toda coluna de texto da projeção ganhou teto de tamanho
+
+`SUBSTR(TRIM(x), 1, n)` nas 17 colunas de nome, mais `NF_ITEM_DESCRICOES` com teto de 300.
+
+**Isto não resolveu o `ORA-06502`** — foi testado no console e o erro voltou idêntico. A
+largura da linha caiu bastante e o disparador continuou sendo o mesmo, então a largura está
+**descartada** como causa. A mudança fica, porque é boa prática e corta o risco de
+`ORA-01489` no `LISTAGG`, mas não se deve creditar a ela a correção do console.
+
+O que ela resolve de fato: o `TRIM` antes do `SUBSTR` mata o preenchimento com espaço das
+colunas `CHAR` — as de `PMDVW_NFS`/`PMDVW_VENDAS` são `CHAR`, foi por isso que o probe de
+`docs/probe-nf-ordem-despacho.sql` envolve as flags em `TRIM` — e o mesmo `TRIM` foi posto
+dentro do bloco `dsp`, nas 11 colunas de texto dele.
+
+O item do `LISTAGG` caiu de 60 para 40 caracteres, o que joga o estouro de 4.000 bytes de
+~63 para ~95 itens por par CT-e/NF. Com 2 itens no maior CT-e da janela, é folgado; e
+continua valendo o que a v3.0 já dizia: se a base for 12.2+, acrescente
+`ON OVERFLOW TRUNCATE '...' WITH COUNT` ao `LISTAGG` e o risco some de vez.
+
+### 21.2b O que sobrou do `ORA-06502`: as quatro hipóteses que caíram
+
+**Medido em 29/09/2026, no console.** Todas as sondas do `docs/diag-ora-06502-dsp.sql` passaram:
+
+| Hipótese | Como foi testada | Resultado |
+|---|---|---|
+| **Largura da linha** | a v3.1c pôs teto nas 18 colunas de texto | a largura caiu muito, o `ORA-06502` não mudou |
+| **Limite de colunas** | sondas 7, 8 e 9 — 38, 55 e 60 colunas sintéticas em `DUAL` | **as três passaram** |
+| **O bloco `dsp`** | sondas 10, 11 e 12 — núcleo, + vendas, + `rol` com `DENSE_RANK` | **as três passaram** |
+| **`DATA_MOVTO` ser `CHAR`** | a v3.1c removeu o corte de data | pendente de medir no endpoint |
+
+O `dsp` inteiro, com o `DENSE_RANK` que derrubou a v3.1a com `ORA-12705`, roda no console. O SQL
+está correto: a v3.1b roda no endpoint (201 linhas, 55 colunas, HTTP 200). Quem não aguenta é o
+runner do console, que embrulha a sentença em PL/SQL.
+
+#### A lacuna que sobrou — e ela é minha
+
+| Sonda | Colunas | Linhas | Resultado |
+|---|---|---|---|
+| 7/8/9 sintéticas | 38–60 | 1 | passou |
+| 10/11/12 `dsp` | 8–18 | 20 | passou |
+| **relatório v3.1c** | **55** | **201** | **ORA-06502** |
+
+**Todas** as sondas que passaram devolvem no máximo 20 linhas. Nenhuma testou **volume**, que é
+a única dimensão ainda não medida. Se o runner monta o resultado num buffer *acumulado*
+(`v_result := v_result || linha`, dentro de um laço), o que estoura é o produto **linhas ×
+largura** — e não a contagem nem a largura sozinhas.
+
+Isso explica a v3.0 rodando: não era só ter 38 colunas, era **38 colunas × menos linhas**.
+
+Se for isso, o relatório inteiro não roda no console e **não há conserto de SQL** que resolva: ou
+se reduz o volume por execução (período menor), ou a conferência desse relatório passa a ser pelo
+endpoint — que devolve 201 linhas e 55 colunas sem reclamar. As sondas 13 e 14 medem isso.
+
+> **Registro de uma sondagem minha que errou.** A primeira versão da sonda 10 died
+> `ORA-00904: "ROL"."PESO_LIQUIDO"`. Era erro da sonda, não do relatório: eu tinha encurtado o
+> subselect do `rol` para `pedido` e `romaneio` e o `SELECT` de fora continuava pedindo
+> `peso_bruto` e `peso_liquido`. O subselect do `rol` precisa projetar as cinco colunas, e a
+> sonda 12 já projeta.
+
+
+### 21.3 O que não mudou (de propósito)
+
+`nf_valor_total`, `nf_cab_origem`, `nf_valor_origem`, as duas window functions, o `WHERE`
+de fora e o `ORDER BY` estão idênticos aos da v3.1b. Continua valendo o item 4 da v3.1b: o
+`VALOR_SAIDA` do despacho **não** entra no valor da nota, então as 194 NFs previstas
+continuam sem valor e o relatório mostra os mesmos 7 de sempre. A **v3.2** é quem liga o
+valor — e só depois que o join casar.
+
+Uma mexida pequena e de arrumação: o `d.pedido > 0` estava no `ON` do join com `rol` e foi
+para o `WHERE` do `dsp`, que é onde um filtro da tabela preservada pertence. No relatório
+não muda nada — as 162 NFs que casam na chave já têm todas `pedido > 0` — e ainda evita de
+ir em `pmdvw_vendas` e `pmdvw_rolos` para um pedido que não existe.
+
+### 21.4 O que medir ao publicar
+
+O que **não** pode mudar: 201 linhas, 55 colunas, zero par CT-e/NF repetido, 194 linhas sem
+valor, soma dos percentuais = 100% por CT-e.
+
+O que **tem** de mudar: `NF_OD_PEDIDO` preenchido em **~161 das 201** linhas. 161 é o número
+medido: 162 casam na chave e o corte de data antigo derrubava a 31933-1 (o CT-e 351348 do
+rateio divergente).
+
+Se vier 0 de novo, o corte de data **não** era a causa: rode os itens 5b e 5c de
+`docs/diag-ora-06502-dsp.sql` e compare os dois números.
+
+
 
 
 
