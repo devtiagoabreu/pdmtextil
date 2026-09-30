@@ -1,6 +1,7 @@
 import { describe, it, expect } from "vitest"
 import {
   agruparPorCte,
+  calcularDerivadosPorCte,
   calcularResumo,
   descricoesItem,
   extrairItems,
@@ -420,6 +421,62 @@ describe("normalizarResposta", () => {
     const r = normalizarResposta({ items: [{ nf_numero: "35832", cte_data: "18/09/2026" }] })
     expect(r).toHaveLength(1)
     expect(r[0].nf_numero).toBe(35832)
+  })
+})
+
+describe("calcularDerivadosPorCte", () => {
+  it("preenche soma e percentuais da v3.2 (a SQL não calcula mais no banco)", () => {
+    const itens = calcularDerivadosPorCte([
+      linha({ cte_numero: 195476, cte_valor_total: 131.7, nf_numero: 35832, nf_valor_total: 20737.52 }),
+      linha({ cte_numero: 195476, cte_valor_total: 131.7, nf_numero: 35840, nf_valor_total: 41299.74 }),
+    ])
+    expect(itens[0].soma_nf_do_cte).toBeCloseTo(62037.26, 2)
+    expect(itens[0].pct_nf_no_total_cte).toBeCloseTo(33.43, 2)
+    expect(itens[0].pct_cte_sobre_total_nfs).toBeCloseTo(0.21, 2)
+    expect(itens[1].pct_nf_no_total_cte).toBeCloseTo(66.57, 2)
+  })
+
+  it("soma o rateio por CT-e quando a API não devolve", () => {
+    const itens = calcularDerivadosPorCte([
+      linha({ cte_numero: 1, cte_valor_total: 3038.14, nf_item_valor_total: 1340.47 }),
+      linha({ cte_numero: 1, cte_valor_total: 3038.14, nf_item_valor_total: 1697.67 }),
+      linha({ cte_numero: 2, cte_valor_total: 79.32, nf_item_valor_total: 79.32 }),
+    ])
+    expect(itens[0].soma_rateio_do_cte).toBeCloseTo(3038.14, 2)
+    expect(itens[1].soma_rateio_do_cte).toBeCloseTo(3038.14, 2)
+    expect(itens[2].soma_rateio_do_cte).toBeCloseTo(79.32, 2)
+    expect(itens[0].nf_pct_rateio_no_cte).toBeCloseTo(44.12, 2)
+    expect(itens[1].nf_pct_rateio_no_cte).toBeCloseTo(55.88, 2)
+    expect(itens[2].nf_pct_rateio_no_cte).toBeCloseTo(100, 2)
+  })
+
+  it("não sobrescreve valores que a API já devolveu", () => {
+    const itens = calcularDerivadosPorCte([
+      linha({
+        cte_numero: 195476,
+        cte_valor_total: 131.7,
+        nf_numero: 35832,
+        nf_valor_total: 20737.52,
+        soma_nf_do_cte: 25000,
+        pct_nf_no_total_cte: 42.5,
+        soma_rateio_do_cte: 120,
+        nf_pct_rateio_no_cte: 90,
+      }),
+    ])
+    expect(itens[0].soma_nf_do_cte).toBe(25000)
+    expect(itens[0].pct_nf_no_total_cte).toBe(42.5)
+    expect(itens[0].soma_rateio_do_cte).toBe(120)
+    expect(itens[0].nf_pct_rateio_no_cte).toBe(90)
+    expect(itens[0].pct_cte_sobre_total_nfs).toBeCloseTo(0.64, 2)
+  })
+
+  it("não inventa percentual sem NF-e com valor", () => {
+    const itens = calcularDerivadosPorCte([
+      linha({ cte_numero: 1, cte_valor_total: 100, nf_numero: 1, nf_valor_total: null }),
+    ])
+    expect(itens[0].soma_nf_do_cte).toBeNull()
+    expect(itens[0].pct_nf_no_total_cte).toBeNull()
+    expect(itens[0].pct_cte_sobre_total_nfs).toBeNull()
   })
 })
 

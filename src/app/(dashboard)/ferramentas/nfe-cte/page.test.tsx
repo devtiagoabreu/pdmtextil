@@ -306,15 +306,15 @@ describe("NfeCtePage", () => {
     expect(screen.getByText("2 NF-e")).toBeInTheDocument()
   })
 
-  it("soma as NF-e do CT-e quando a API não devolve soma", async () => {
+  it("calcula no cliente a soma das NF-e e o percentual quando a API não devolve", async () => {
     const fetchMock = createFetchMock(handler())
     vi.stubGlobal("fetch", fetchMock.fn)
     await consultar(fetchMock)
 
     const card = (await screen.findByText("CT-e 195476/1")).closest("div.rounded-xl")!
     expect(card).toHaveTextContent("soma das NFs")
-    expect(card).toHaveTextContent("(calculada)")
-    expect(card).toHaveTextContent("% das NFs (calculado)")
+    expect(card).toHaveTextContent("R$ 62.037,26")
+    expect(card).toHaveTextContent("0,21% das NFs")
   })
 
   it("aplica o filtro de período no cliente, ignorando o que está fora", async () => {

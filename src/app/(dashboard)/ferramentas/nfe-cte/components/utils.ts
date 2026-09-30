@@ -102,8 +102,69 @@ export function extrairItems(body: unknown): Record<string, unknown>[] {
   return []
 }
 
+function arredondar2(valor: number): number {
+  return Math.round(valor * 100) / 100
+}
+
+/**
+ * A v3.2 do endpoint (docs/rel-nf-cte.sql) tirou do SQL as janelas de soma e
+ * percentual (`soma_nf_do_cte`, `soma_rateio_do_cte`, `pct_cte_sobre_total_nfs`,
+ * `pct_nf_no_total_cte`, `nf_pct_rateio_no_cte`) e o LISTAGG das descrições —
+ * os cálculos passaram para o PDM. Esta função recalcula no cliente exatamente
+ * as mesmas fórmulas (ROUND 2, mesmo agrupamento por cte_numero + cte_serie) e
+ * só preenche quando a API não devolveu o campo (não sobrescreve valores).
+ */
+export function calcularDerivadosPorCte(itens: LinhaCte[]): LinhaCte[] {
+  const porCte = new Map<string, LinhaCte[]>()
+  for (const linha of itens) {
+    const chave = chaveCte(linha)
+    const grupo = porCte.get(chave)
+    if (grupo) grupo.push(linha)
+    else porCte.set(chave, [linha])
+  }
+  for (const linhas of porCte.values()) {
+    const temValorNf = linhas.some((l) => l.nf_valor_total != null)
+    const temRateio = linhas.some((l) => l.nf_item_valor_total != null)
+    let somaNf = 0
+    let somaRateio = 0
+    for (const l of linhas) {
+      if (l.nf_valor_total != null) somaNf += l.nf_valor_total
+      if (l.nf_item_valor_total != null) somaRateio += l.nf_item_valor_total
+    }
+    for (const l of linhas) {
+      if (l.soma_nf_do_cte == null && temValorNf) l.soma_nf_do_cte = somaNf
+      if (l.soma_rateio_do_cte == null && temRateio) l.soma_rateio_do_cte = somaRateio
+      if (
+        l.pct_nf_no_total_cte == null &&
+        temValorNf &&
+        somaNf > 0 &&
+        l.nf_valor_total != null
+      ) {
+        l.pct_nf_no_total_cte = arredondar2((l.nf_valor_total / somaNf) * 100)
+      }
+      if (
+        l.pct_cte_sobre_total_nfs == null &&
+        temValorNf &&
+        somaNf > 0 &&
+        l.cte_valor_total != null
+      ) {
+        l.pct_cte_sobre_total_nfs = arredondar2((l.cte_valor_total / somaNf) * 100)
+      }
+      if (
+        l.nf_pct_rateio_no_cte == null &&
+        l.cte_valor_total != null &&
+        l.cte_valor_total > 0 &&
+        l.nf_item_valor_total != null
+      ) {
+        l.nf_pct_rateio_no_cte = arredondar2((l.nf_item_valor_total / l.cte_valor_total) * 100)
+      }
+    }
+  }
+  return itens
+}
+
 export function normalizarResposta(body: unknown): LinhaCte[] {
-  return extrairItems(body).map(normalizarLinha)
+  return calcularDerivadosPorCte(extrairItems(body).map(normalizarLinha))
 }
 
 export function paraIso(d: Date): string {

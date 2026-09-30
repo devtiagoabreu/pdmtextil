@@ -705,6 +705,16 @@ Por isso a tela **recalcula** a soma das NFs e o percentual do CT-e no cliente
 (`agruparPorCte`) e rotula como `(calculada)` / `(calculado)` tudo o que não veio da API —
 assim não se confunde valor do ERP com valor derivado.
 
+> **v3.2 (2026-09-30):** o endpoint parou de calcular os campos derivados no banco. A v3.2
+> simplificada (SELECT em `docs/rel-nf-cte.sql`) **removeu do SQL** as janelas `soma_nf_do_cte`,
+> `soma_rateio_do_cte`, `pct_cte_sobre_total_nfs`, `pct_nf_no_total_cte`, `nf_pct_rateio_no_cte`
+> e o `LISTAGG` das descrições (motivo: o console do Oracle estourava `ORA-06502` com volume —
+> ver a diagnose em §21.2b) para isolar o culpado. A correção definitiva no PDM é o
+> `calcularDerivadosPorCte` (em `components/utils.ts`), que recalcula NO CLIENTE exatamente as
+> mesmas fórmulas do SQL (mesmo agrupamento por `cte_numero` + `cte_serie`, arredondamento de 2
+> casas), só quando a API não devolveu o campo. Assim o valor exibido na tela e no CSV é o
+> mesmo de antes — e `agruparPorCte` fica como rede de segurança para falha de normalização.
+
 > Essas 9 linhas são um problema **do SQL do endpoint**, não da tela. A correção é a v2
 > (§13). Depois que o endpoint for republicado, `agruparPorCte` deve continuar como rede de
 > segurança, mas o valor exibido passa a ser o do ERP.
@@ -1435,6 +1445,56 @@ rateio divergente).
 
 Se vier 0 de novo, o corte de data **não** era a causa: rode os itens 5b e 5c de
 `docs/diag-ora-06502-dsp.sql` e compare os dois números.
+
+
+## 22. v3.2: o SQL simplificado e os cálculos no cliente (30/09/2026)
+
+A causa exata do `ORA-06502` do console ainda está sendo isolada (a hipótese que resta é
+volume — ver §21.2b), mas o match das sondas mostrou que o **runner do console** é quem não
+aguenta o relatório completo embutido em PL/SQL: a v3.1b roda no endpoint com 201 linhas × 55
+colunas (HTTP 200), e a v3.1c não roda no console mesmo com teto de texto em todas as colunas.
+
+### 22.1 O SELECT que roda no endpoint (e a prova no console)
+
+Para o teste no console, o usuário reescreveu a sentença na forma **simplificada** (o `docs/
+rel-nf-cte.sql` a documenta):
+
+- `nf_item_descricoes` deixou de vir de `LISTAGG` e virou `CAST(NULL AS VARCHAR2(1))` — as
+  descrições dos itens **não vêm mais** do endpoint;
+- as **cinco janelas de cálculo** saíram: `soma_nf_do_cte`, `soma_rateio_do_cte`,
+  `pct_cte_sobre_total_nfs`, `pct_nf_no_total_cte`, `nf_pct_rateio_no_cte`;
+- o bloco `dsp` (ordem de despacho) e o `DENSE_RANK` interno do `rol` ficaram intactos;
+- para o console, um `ROWNUM <= 20` no final; no endpoint o SELECT é publicado **sem** o teto.
+
+### 22.2 A resolução no PDM: `calcularDerivadosPorCte`
+
+O PDM agora recalcula **no cliente** exatamente os campos que a v3.2 tirou do banco, em
+`src/app/(dashboard)/ferramentas/nfe-cte/components/utils.ts`:
+
+1. `normalizarResposta` roda a resposta e, em seguida, `calcularDerivadosPorCte`;
+2. a função agrupa as linhas por `cte_numero + cte_serie` (mesmo critério das `PARTITION BY`
+   do SQL) e, para cada CT-e, soma `nf_valor_total` e `nf_item_valor_total`;
+3. recalcula `pct_nf_no_total_cte`, `pct_cte_sobre_total_nfs` e `nf_pct_rateio_no_cte` com
+   as **mesmas fórmulas do SQL** e arredondamento de 2 casas (`ROUND(x,2)`);
+4. **só preenche quando o campo vem `null`** — se a API (ou uma versão futura) devolver o
+   valor, o do ERP prevalece;
+5. `nf_item_descricoes` fica `null` (como a v3.2 manda): a tela mostra "N item(ns) sem
+   descrição" (fallback já existente em `tabela.tsx`).
+
+Tabela e CSV leem os mesmos campos por linha, então os valores calculados aparecem nos dois
+lugares. `agruparPorCte` segue como rede de segurança: se por algum motivo a normalização não
+passar pelos cálculos, ele ainda soma e percentualiza no grupo.
+
+### 22.3 O que medir assim que a v3.2 for publicada
+
+- mesma contagem: 201 linhas, 55 colunas, zero par CT-e/NF repetido, 194 linhas sem valor;
+- `soma_nf_do_cte`, `soma_rateio_do_cte`, `pct_*` e `nf_pct_rateio_no_cte` **nulos** na
+  resposta (era o teste do console);
+- no PDM: as mesmas somas/percentuais de antes da mudança, porque agora o cliente recalcula —
+  conferir CT-es com mais de uma NF (soma = soma das NFs) e o CT-e 351348 (rateio divergente,
+  continua marcado);
+- `nf_item_descricoes` nulo → linha de item com "N item(ns) sem descrição" e CSV com a coluna
+  "Itens (descricoes)" vazia.
 
 
 
