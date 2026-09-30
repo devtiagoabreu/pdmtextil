@@ -1467,10 +1467,11 @@ rel-nf-cte.sql` a documenta):
 
 > **Paginação (30/09/2026):** o SQL publicado **não tem** `ROWNUM`. A ferramenta Apex aplica o
 > teto internamente via `limit`/`offset` na query string, ex.: `?limit=20&offset=20` devolve
-> as linhas 21–40. **Sem `limit` o endpoint devolve o relatório inteiro** (os 202 CT-es / 208
-> linhas medidos antes vieram assim). O PDM **não** envia paginação de propósito: `calcularDerivadosPorCte`
-> precisa do conjunto completo por execução porque soma e percentual são calculados **por CT-e**
-> no cliente — paginar cortaria CT-es no meio e os valores sairiam errados.
+> as linhas 21–40. Sem `limit`, o endpoint **não traz o relatório inteiro** — o PDM então pagina:
+> `buscarTodasPaginas` busca até **5 páginas de 20** (`limit=20`, `offset=0|20|40|60|80`),
+> acumulando os itens **brutos** de todas e só normalizando no fim — assim `calcularDerivadosPorCte`
+> vê o conjunto completo e os cálculos por CT-e saem certos mesmo que um CT-e seja cortado entre
+> páginas. Para quando uma página volta com menos de 20 linhas.
 
 ### 22.2 A resolução no PDM: `calcularDerivadosPorCte`
 

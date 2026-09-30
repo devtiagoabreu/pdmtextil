@@ -1,6 +1,10 @@
 import { describe, it, expect } from "vitest"
 import {
   agruparPorCte,
+  ApiRelatorioError,
+  LIMITE_PAGINA,
+  MAX_PAGINAS,
+  buscarTodasPaginas,
   calcularDerivadosPorCte,
   calcularResumo,
   descricoesItem,
@@ -14,6 +18,7 @@ import {
   nfTemDespacho,
   nfTemRateio,
   nomeClienteNf,
+  nomeTranspDistinct,
   normalizarLinha,
   normalizarResposta,
   paraIso,
@@ -770,5 +775,84 @@ describe("formatadores", () => {
     expect(formatarMoeda(undefined)).toBe("—")
     expect(formatarPercentual(null)).toBe("—")
     expect(formatarNumero(null)).toBe("—")
+  })
+})
+
+describe("buscarTodasPaginas", () => {
+  function paginaDe(items: Record<string, unknown>[]) {
+    return async (offset: number) => ({ items: items.slice(offset, offset + LIMITE_PAGINA) })
+  }
+
+  it("acumula todas as páginas antes de normalizar", async () => {
+    const total = LIMITE_PAGINA + 3
+    const todas = Array.from({ length: total }, (_, i) => ({
+      ...cteBase,
+      cte_numero: 1000 + i,
+      nf_numero: 5000 + i,
+      cte_data: "18/09/2026",
+      nf_data: "18/09/2026",
+    }))
+    const linhas = await buscarTodasPaginas(paginaDe(todas))
+    expect(linhas).toHaveLength(total)
+  })
+
+  it("usa o offset correto em cada página", async () => {
+    const offsets: number[] = []
+    await buscarTodasPaginas(async (offset) => {
+      offsets.push(offset)
+      return { items: new Array(LIMITE_PAGINA).fill({ ...cteBase }) }
+    })
+    expect(offsets).toEqual([0, LIMITE_PAGINA, LIMITE_PAGINA * 2, LIMITE_PAGINA * 3, LIMITE_PAGINA * 4])
+  })
+
+  it("para quando uma página volta com menos linhas que o limite", async () => {
+    const chamadas: number[] = []
+    await buscarTodasPaginas(async (offset) => {
+      chamadas.push(offset)
+      return { items: new Array(offset === 0 ? LIMITE_PAGINA : 5).fill({ ...cteBase }) }
+    })
+    expect(chamadas).toEqual([0, LIMITE_PAGINA])
+  })
+
+  it("limita a MAX_PAGINAS mesmo que o endpoint sempre devolva página cheia", async () => {
+    const chamadas: number[] = []
+    await buscarTodasPaginas(async (offset) => {
+      chamadas.push(offset)
+      return { items: new Array(LIMITE_PAGINA).fill({ ...cteBase }) }
+    })
+    expect(chamadas).toHaveLength(MAX_PAGINAS)
+  })
+
+  it("calcula soma por CT-e sobre o conjunto completo, mesmo com CT-e entre páginas", async () => {
+    const ctePartido = [
+      { ...cteBase, cte_numero: 42, nf_numero: 1, nf_valor_total: 100, nf_data: "18/09/2026" },
+    ]
+    const ctePartido2 = [
+      { ...cteBase, cte_numero: 42, nf_numero: 2, nf_valor_total: 300, nf_data: "18/09/2026" },
+    ]
+    const linhas = await buscarTodasPaginas(async (offset) => ({
+      items: offset === 0 ? [...ctePartido, ...new Array(LIMITE_PAGINA - 1).fill({ ...cteBase, cte_numero: 9 })] : ctePartido2,
+    }))
+    const linhaCte42 = linhas.find((l) => l.cte_numero === 42)!
+    expect(linhaCte42.soma_nf_do_cte).toBe(400)
+    expect(linhaCte42.pct_nf_no_total_cte).toBe(25)
+    expect(linhaCte42.pct_cte_sobre_total_nfs).toBe(32.92)
+  })
+
+  it("lança ApiRelatorioError com o status devolvido pelo proxy", async () => {
+    await expect(
+      buscarTodasPaginas(async () => {
+        throw new ApiRelatorioError(500)
+      })
+    ).rejects.toThrow("API retornou erro: 500")
+  })
+
+  it("normaliza a soma mesmo quando a API não devolve os campos", async () => {
+    const linhas = await buscarTodasPaginas(async () => ({
+      items: [{ ...cteBase, cte_numero: 7, nf_numero: 1, nf_valor_total: 50, nf_data: "18/09/2026" }],
+    }))
+    expect(linhas).toHaveLength(1)
+    expect(linhas[0].soma_nf_do_cte).toBe(50)
+    expect(linhas[0].pct_nf_no_total_cte).toBe(100)
   })
 })

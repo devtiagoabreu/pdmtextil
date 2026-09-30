@@ -1102,9 +1102,10 @@ SELECT b.cte_numero,
  *      /systextil-intg-plm/rel-nf-cte?limit=20&offset=20  20 linhas (21-40)
  *      /systextil-intg-plm/rel-nf-cte?limit=20&offset=40  20 linhas (41-60)
  *
- *  Sem `limit` o endpoint devolve o relatorio inteiro (os 202 CT-es / 208 linhas
- *  medidos antes vieram assim). O PDM nao envia paginacao: precisa do conjunto
- *  completo por execucao porque calcula soma/percentual POR CT-E no cliente.
+ *  Sem `limit` o endpoint nao traz o relatorio inteiro: o PDM pagina em
+ *  buscarTodasPaginas (components/utils.ts), 5 paginas de 20 = ate 100 linhas,
+ *  acumulando os BRUTOS antes de normalizar (os calculos sao por CT-e e nao
+ *  podem quebrar se o CT-e cair na divisao entre duas paginas).
  *
  *  O PDM recalcula os campos derivados no cliente (calcularDerivadosPorCte em
  *  src/app/(dashboard)/ferramentas/nfe-cte/components/utils.ts) usando exatamente

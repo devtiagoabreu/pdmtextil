@@ -232,7 +232,7 @@ function handler(
     if (method === "GET" && url === "/api/integracao/listar?tela=nfe-cte") {
       return { json: integracoes }
     }
-    if (method === "GET" && url === "/api/integracao/7/executar") {
+    if (method === "GET" && url.startsWith("/api/integracao/7/executar?limit=")) {
       return { json: { success: true, responseBody: { items } } }
     }
     return { status: 404, json: { error: "Rota não mockada" } }
@@ -292,7 +292,7 @@ describe("NfeCtePage", () => {
     await consultar(fetchMock)
 
     await screen.findByText(/CT-e 195476/)
-    expect(findCall(fetchMock.calls, "/api/integracao/7/executar")).toBeDefined()
+    expect(findCall(fetchMock.calls, "/api/integracao/7/executar?limit=20&offset=0")).toBeDefined()
   })
 
   it("agrupa as NF-e do mesmo CT-e em um único card", async () => {
@@ -518,7 +518,7 @@ describe("NfeCtePage", () => {
       if (method === "GET" && url === "/api/integracao/listar?tela=nfe-cte") {
         return { json: integracoes }
       }
-      if (method === "GET" && url === "/api/integracao/7/executar") {
+      if (method === "GET" && url.startsWith("/api/integracao/7/executar")) {
         return { json: { success: false, status: 500 } }
       }
       return { status: 404, json: { error: "Rota não mockada" } }

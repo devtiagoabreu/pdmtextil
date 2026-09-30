@@ -9,14 +9,16 @@ import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import type { Integracao, LinhaCte, Periodo } from "./components/types"
 import {
+  ApiRelatorioError,
+  LIMITE_PAGINA,
   agruparPorCte,
+  buscarTodasPaginas,
   calcularResumo,
   filtrarPorPeriodo,
   formatarMoeda,
   formatarNumero,
   nomeClienteNf,
   nomeTranspDistinct,
-  normalizarResposta,
   periodoMesCorrente,
   periodoPadrao,
 } from "./components/utils"
@@ -129,13 +131,16 @@ export default function NfeCtePage() {
     setItens([])
     setCarregado(false)
     try {
-      const res = await fetch(`/api/integracao/${selectedId}/executar`)
-      const data = await res.json()
-      if (!data.success) {
-        toast.error(`API retornou erro: ${data.status ?? res.status}`)
-        return
-      }
-      const linhas = normalizarResposta(data.responseBody)
+      const linhas = await buscarTodasPaginas(async (offset) => {
+        const res = await fetch(
+          `/api/integracao/${selectedId}/executar?limit=${LIMITE_PAGINA}&offset=${offset}`
+        )
+        const data = await res.json()
+        if (!data.success) {
+          throw new ApiRelatorioError(data.status ?? res.status)
+        }
+        return data.responseBody
+      })
       if (linhas.length === 0) {
         toast.error("Nenhuma NF-e encontrada no período")
         setCarregado(true)
@@ -144,8 +149,12 @@ export default function NfeCtePage() {
       setItens(linhas)
       setCarregado(true)
       toast.success(`${linhas.length} NF-e carregada(s)`)
-    } catch {
-      toast.error("Erro ao consultar o relatório")
+    } catch (erro) {
+      if (erro instanceof ApiRelatorioError) {
+        toast.error(erro.message)
+      } else {
+        toast.error("Erro ao consultar o relatório")
+      }
     } finally {
       setLoading(false)
     }

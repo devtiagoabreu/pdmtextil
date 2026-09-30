@@ -167,6 +167,41 @@ export function normalizarResposta(body: unknown): LinhaCte[] {
   return calcularDerivadosPorCte(extrairItems(body).map(normalizarLinha))
 }
 
+export const LIMITE_PAGINA = 20
+export const MAX_PAGINAS = 5
+
+export class ApiRelatorioError extends Error {
+  status: number
+  constructor(status: number) {
+    super(`API retornou erro: ${status}`)
+    this.name = "ApiRelatorioError"
+    this.status = status
+  }
+}
+
+/**
+ * O endpoint nao devolve o relatorio inteiro de uma vez: pagina por
+ * limit/offset (a ferramenta Apex aplica o ROWNUM internamente). Este helper
+ * busca ate MAX_PAGINAS paginas de LIMITE_PAGINA linhas, acumula os itens
+ * BRUTOS de todas e so normaliza no final — assim os calculos por CT-e
+ * (calcularDerivadosPorCte) veem o conjunto completo, mesmo que um CT-e seja
+ * cortado entre duas paginas. Para quando uma pagina volta com menos linhas
+ * que o limite (ultima pagina).
+ */
+export async function buscarTodasPaginas(
+  buscar: (offset: number) => Promise<unknown>
+): Promise<LinhaCte[]> {
+  const brutos: Record<string, unknown>[] = []
+  for (let pagina = 0; pagina < MAX_PAGINAS; pagina++) {
+    const offset = pagina * LIMITE_PAGINA
+    const body = await buscar(offset)
+    const itens = extrairItems(body)
+    brutos.push(...itens)
+    if (itens.length < LIMITE_PAGINA) break
+  }
+  return normalizarResposta(brutos)
+}
+
 export function paraIso(d: Date): string {
   const mes = String(d.getMonth() + 1).padStart(2, "0")
   const dia = String(d.getDate()).padStart(2, "0")
