@@ -1093,7 +1093,18 @@ SELECT b.cte_numero,
  *    - sem soma_nf_do_cte, sem soma_rateio_do_cte, sem pct_cte_sobre_total_nfs,
  *      sem pct_nf_no_total_cte, sem nf_pct_rateio_no_cte
  *    - bloco `dsp` intacto (inclusive o DENSE_RANK do `rol`)
- *    - ROWNUM <= 20 SO no teste de console; o endpoint publica sem teto
+ *
+ *  A PAGINACAO (30/09/2026): a ferramenta Apex aplica o ROWNUM internamente via
+ *  `limit`/`offset` na query string — o SQL publicado NAO tem teto:
+ *
+ *      /systextil-intg-plm/rel-nf-cte?limit=20        20 linhas (linhas 1-20)
+ *      /systextil-intg-plm/rel-nf-cte?limit=20&offset=0   20 linhas (1-20)
+ *      /systextil-intg-plm/rel-nf-cte?limit=20&offset=20  20 linhas (21-40)
+ *      /systextil-intg-plm/rel-nf-cte?limit=20&offset=40  20 linhas (41-60)
+ *
+ *  Sem `limit` o endpoint devolve o relatorio inteiro (os 202 CT-es / 208 linhas
+ *  medidos antes vieram assim). O PDM nao envia paginacao: precisa do conjunto
+ *  completo por execucao porque calcula soma/percentual POR CT-E no cliente.
  *
  *  O PDM recalcula os campos derivados no cliente (calcularDerivadosPorCte em
  *  src/app/(dashboard)/ferramentas/nfe-cte/components/utils.ts) usando exatamente
@@ -1304,5 +1315,6 @@ SELECT b.cte_numero,
         ) b
  WHERE COALESCE(b.nf_data, b.cte_data) >= ADD_MONTHS(TRUNC(SYSDATE), -2)
    AND COALESCE(b.nf_data, b.cte_data) <  TRUNC(SYSDATE) + 1
-   AND ROWNUM <= 20
+   -- Solido com o relatorio inteiro. Para rodar so no console (e nao estourar o
+   -- buffer do runner), acrescente: AND ROWNUM <= 20 antes do ORDER BY.
  ORDER BY b.cte_data DESC, b.cte_numero, b.cte_serie, b.nf_numero, b.nf_serie

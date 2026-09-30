@@ -1463,8 +1463,14 @@ rel-nf-cte.sql` a documenta):
   descrições dos itens **não vêm mais** do endpoint;
 - as **cinco janelas de cálculo** saíram: `soma_nf_do_cte`, `soma_rateio_do_cte`,
   `pct_cte_sobre_total_nfs`, `pct_nf_no_total_cte`, `nf_pct_rateio_no_cte`;
-- o bloco `dsp` (ordem de despacho) e o `DENSE_RANK` interno do `rol` ficaram intactos;
-- para o console, um `ROWNUM <= 20` no final; no endpoint o SELECT é publicado **sem** o teto.
+- o bloco `dsp` (ordem de despacho) e o `DENSE_RANK` interno do `rol` ficaram intactos.
+
+> **Paginação (30/09/2026):** o SQL publicado **não tem** `ROWNUM`. A ferramenta Apex aplica o
+> teto internamente via `limit`/`offset` na query string, ex.: `?limit=20&offset=20` devolve
+> as linhas 21–40. **Sem `limit` o endpoint devolve o relatório inteiro** (os 202 CT-es / 208
+> linhas medidos antes vieram assim). O PDM **não** envia paginação de propósito: `calcularDerivadosPorCte`
+> precisa do conjunto completo por execução porque soma e percentual são calculados **por CT-e**
+> no cliente — paginar cortaria CT-es no meio e os valores sairiam errados.
 
 ### 22.2 A resolução no PDM: `calcularDerivadosPorCte`
 
