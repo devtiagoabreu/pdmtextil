@@ -292,7 +292,7 @@ describe("NfeCtePage", () => {
     await consultar(fetchMock)
 
     await screen.findByText(/CT-e 195476/)
-    expect(findCall(fetchMock.calls, "/api/integracao/7/executar?limit=20&offset=0")).toBeDefined()
+    expect(findCall(fetchMock.calls, "/api/integracao/7/executar?limit=100&offset=0")).toBeDefined()
   })
 
   it("agrupa as NF-e do mesmo CT-e em um único card", async () => {

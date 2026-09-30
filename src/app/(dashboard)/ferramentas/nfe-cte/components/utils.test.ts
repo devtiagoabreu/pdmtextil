@@ -802,7 +802,10 @@ describe("buscarTodasPaginas", () => {
       offsets.push(offset)
       return { items: new Array(LIMITE_PAGINA).fill({ ...cteBase }) }
     })
-    expect(offsets).toEqual([0, LIMITE_PAGINA, LIMITE_PAGINA * 2, LIMITE_PAGINA * 3, LIMITE_PAGINA * 4])
+    expect(offsets).toHaveLength(MAX_PAGINAS)
+    offsets.forEach((offset, i) => {
+      expect(offset).toBe(i * LIMITE_PAGINA)
+    })
   })
 
   it("para quando uma página volta com menos linhas que o limite", async () => {

@@ -167,8 +167,8 @@ export function normalizarResposta(body: unknown): LinhaCte[] {
   return calcularDerivadosPorCte(extrairItems(body).map(normalizarLinha))
 }
 
-export const LIMITE_PAGINA = 20
-export const MAX_PAGINAS = 5
+export const LIMITE_PAGINA = 100
+export const MAX_PAGINAS = 20
 
 export class ApiRelatorioError extends Error {
   status: number
@@ -180,13 +180,16 @@ export class ApiRelatorioError extends Error {
 }
 
 /**
- * O endpoint nao devolve o relatorio inteiro de uma vez: pagina por
- * limit/offset (a ferramenta Apex aplica o ROWNUM internamente). Este helper
- * busca ate MAX_PAGINAS paginas de LIMITE_PAGINA linhas, acumula os itens
- * BRUTOS de todas e so normaliza no final — assim os calculos por CT-e
- * (calcularDerivadosPorCte) veem o conjunto completo, mesmo que um CT-e seja
- * cortado entre duas paginas. Para quando uma pagina volta com menos linhas
- * que o limite (ultima pagina).
+ * O endpoint pagina por limit/offset (a ferramenta Apex aplica o ROWNUM
+ * internamente). Medido no endpoint real em 30/09/2026: sem `limit` volta o
+ * relatório inteiro (198 linhas), e `limit=100` em duas páginas reproduz
+ * exatamente o mesmo conjunto, na mesma ordem e sem sobreposição.
+ *
+ * Este helper busca até MAX_PAGINAS páginas de LIMITE_PAGINA linhas, acumula
+ * os itens BRUTOS de todas e só normaliza no final — assim os cálculos por
+ * CT-e (calcularDerivadosPorCte) veem o conjunto completo, mesmo que um CT-e
+ * seja cortado entre duas páginas. Para quando uma página volta com menos
+ * linhas que o limite (última página).
  */
 export async function buscarTodasPaginas(
   buscar: (offset: number) => Promise<unknown>

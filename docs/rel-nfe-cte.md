@@ -1465,13 +1465,22 @@ rel-nf-cte.sql` a documenta):
   `pct_cte_sobre_total_nfs`, `pct_nf_no_total_cte`, `nf_pct_rateio_no_cte`;
 - o bloco `dsp` (ordem de despacho) e o `DENSE_RANK` interno do `rol` ficaram intactos.
 
-> **Paginação (30/09/2026):** o SQL publicado **não tem** `ROWNUM`. A ferramenta Apex aplica o
-> teto internamente via `limit`/`offset` na query string, ex.: `?limit=20&offset=20` devolve
-> as linhas 21–40. Sem `limit`, o endpoint **não traz o relatório inteiro** — o PDM então pagina:
-> `buscarTodasPaginas` busca até **5 páginas de 20** (`limit=20`, `offset=0|20|40|60|80`),
-> acumulando os itens **brutos** de todas e só normalizando no fim — assim `calcularDerivadosPorCte`
-> vê o conjunto completo e os cálculos por CT-e saem certos mesmo que um CT-e seja cortado entre
-> páginas. Para quando uma página volta com menos de 20 linhas.
+> **Paginação (30/09/2026, medido no endpoint real):** o SQL publicado **não tem** `ROWNUM` — a
+> ferramenta Apex aplica o teto via `limit`/`offset` na query string. Comportamento medido em
+> `api_rel_nfe_cte_periodo`:
+>
+> | Parâmetro | Linhas devolvidas |
+> |---|---|
+> | sem `limit` | **198** (o relatório inteiro) |
+> | `?limit=20` | 20 |
+> | `?limit=200` | 198 (tudo) |
+>
+> `limit=100` em duas páginas reproduz **exatamente** o mesmo conjunto do sem-`limit` (198 linhas,
+> mesma ordem, zero sobreposição). O PDM pagina por precaution — `buscarTodasPaginas` busca páginas
+> de **100 linhas** (`LIMITE_PAGINA=100`) até `MAX_PAGINAS`, acumulando os itens **brutos** de todas
+> e só normalizando no fim — assim `calcularDerivadosPorCte` vê o conjunto completo e os cálculos por
+> CT-e saem certos mesmo que um CT-e seja cortado entre páginas. Para quando uma página volta com
+> menos de `LIMITE_PAGINA` linhas.
 
 ### 22.2 A resolução no PDM: `calcularDerivadosPorCte`
 
