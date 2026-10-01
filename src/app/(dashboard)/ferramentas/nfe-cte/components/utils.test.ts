@@ -6,6 +6,7 @@ import {
   MAX_PAGINAS,
   buscarTodasPaginas,
   calcularDerivadosPorCte,
+  deduplicarPorCteNf,
   calcularResumo,
   descricoesItem,
   extrairItems,
@@ -426,6 +427,58 @@ describe("normalizarResposta", () => {
     const r = normalizarResposta({ items: [{ nf_numero: "35832", cte_data: "18/09/2026" }] })
     expect(r).toHaveLength(1)
     expect(r[0].nf_numero).toBe(35832)
+  })
+
+  it("remove NF duplicada dentro do mesmo CT-e (obrf_016 repetido)", () => {
+    const r = normalizarResposta({
+      items: [
+        { cte_numero: "351348", cte_serie: "1", nf_numero: "35653", nf_serie: "1", nf_valor_total: 4655.2, cte_valor_total: 199.99 },
+        { cte_numero: "351348", cte_serie: "1", nf_numero: "35653", nf_serie: "1", nf_valor_total: 4655.2, cte_valor_total: 199.99 },
+      ],
+    })
+    expect(r).toHaveLength(1)
+    expect(r[0].pct_nf_no_total_cte).toBeCloseTo(100, 2)
+  })
+
+  it("mantém a mesma NF em CT-es diferentes", () => {
+    const r = normalizarResposta({
+      items: [
+        { cte_numero: "1", cte_serie: "1", nf_numero: "35653", nf_serie: "1", nf_valor_total: 10 },
+        { cte_numero: "2", cte_serie: "1", nf_numero: "35653", nf_serie: "1", nf_valor_total: 10 },
+      ],
+    })
+    expect(r).toHaveLength(2)
+  })
+
+  it("mantém NFs diferentes com o mesmo número no mesmo CT-e (séries distintas)", () => {
+    const r = normalizarResposta({
+      items: [
+        { cte_numero: "1", cte_serie: "1", nf_numero: "35653", nf_serie: "1", nf_valor_total: 10 },
+        { cte_numero: "1", cte_serie: "1", nf_numero: "35653", nf_serie: "2", nf_valor_total: 10 },
+      ],
+    })
+    expect(r).toHaveLength(2)
+  })
+})
+
+describe("deduplicarPorCteNf", () => {
+  it("mantém a primeira ocorrência e devolve o resto intacto", () => {
+    const r = deduplicarPorCteNf([
+      linha({ cte_numero: 1, cte_serie: "1", nf_numero: 10, nf_serie: "1", nf_cliente_razao: "primeira" }),
+      linha({ cte_numero: 1, cte_serie: "1", nf_numero: 10, nf_serie: "1", nf_cliente_razao: "duplicata" }),
+      linha({ cte_numero: 1, cte_serie: "1", nf_numero: 11, nf_serie: "1" }),
+    ])
+    expect(r).toHaveLength(2)
+    expect(r[0].nf_cliente_razao).toBe("primeira")
+    expect(r[1].nf_numero).toBe(11)
+  })
+
+  it("não remove NF com número ou série nulos diferentes", () => {
+    const r = deduplicarPorCteNf([
+      linha({ cte_numero: 1, cte_serie: "1", nf_numero: null, nf_serie: null }),
+      linha({ cte_numero: 1, cte_serie: "1", nf_numero: null, nf_serie: null }),
+    ])
+    expect(r).toHaveLength(1)
   })
 })
 

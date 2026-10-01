@@ -163,8 +163,46 @@ export function calcularDerivadosPorCte(itens: LinhaCte[]): LinhaCte[] {
   return itens
 }
 
+/**
+ * Chave de uma linha do relatório: o par CT-e + NF-e. O endpoint agrega os
+ * itens por esse par (o subselect `it` da SQL agrupa por conhecimento +
+ * número-série da NF), então duas linhas com a mesma chave são a MESMA NF do
+ * MESMO CT-e — nunca duas NFs distintas.
+ */
+function chaveCteNf(linha: LinhaCte): string {
+  return `${chaveCte(linha)}|${linha.nf_numero ?? "?"}-${linha.nf_serie ?? "?"}`
+}
+
+/**
+ * Remove linhas repetidas de NF-e dentro do mesmo CT-e.
+ *
+ * Medido no endpoint real em 01/10/2026: o CT-e 351348-1 volta com a NF
+ * 35653-1 DUAS vezes, byte a byte igual (rateio 199,99, valor 4.655,20). A
+ * duplicata vem do `obrf_016` ter dois vínculos iguais para o mesmo
+ * conhecimento — não do `dsp`, que é agregado por NF e não repete linha. Como
+ * a SQL já agrega por CT-e+NF, a segunda linha é ruído.
+ *
+ * Sem isso a tela mostra a mesma NF duas vezes e o `pct_nf_no_total_cte` vira
+ * 50%/50% num caso que deveria ter uma linha só.
+ *
+ * Mantém a PRIMEIRA ocorrência de cada chave e devolve os demais campos intactos
+ * (inclusive os derivados, que ainda nem foram calculados neste ponto).
+ */
+export function deduplicarPorCteNf(itens: LinhaCte[]): LinhaCte[] {
+  const vistas = new Set<string>()
+  const saida: LinhaCte[] = []
+  for (const linha of itens) {
+    const chave = chaveCteNf(linha)
+    if (vistas.has(chave)) continue
+    vistas.add(chave)
+    saida.push(linha)
+  }
+  return saida
+}
+
 export function normalizarResposta(body: unknown): LinhaCte[] {
-  return calcularDerivadosPorCte(extrairItems(body).map(normalizarLinha))
+  const linhas = extrairItems(body).map(normalizarLinha)
+  return calcularDerivadosPorCte(deduplicarPorCteNf(linhas))
 }
 
 export const LIMITE_PAGINA = 100

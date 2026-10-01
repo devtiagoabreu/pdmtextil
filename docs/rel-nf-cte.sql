@@ -1336,8 +1336,14 @@ SELECT b.cte_numero,
                      GROUP BY TRIM(d.nf)) dsp
             ON dsp.nf_chave = TRIM(nf.numero_nota || '-' || nf.serie_nota)
         ) b
- WHERE COALESCE(b.nf_data, b.cte_data) >= ADD_MONTHS(TRUNC(SYSDATE), -2)
-   AND COALESCE(b.nf_data, b.cte_data) <  TRUNC(SYSDATE) + 1
+ WHERE COALESCE(b.nf_data, b.cte_data) >= ADD_MONTHS(TRUNC(SYSDATE), -1)
+   AND COALESCE(b.nf_data, b.cte_data) <  ADD_MONTHS(TRUNC(SYSDATE), 1)
+   -- PERIODO (01/10/2026): mes ATUAL completo + mes ANTERIOR completo. A janela
+   -- e [1o dia do mes anterior, 1o dia do proximo mes) -- ou seja, dois meses
+   -- fechados, e nao uma janela movel. O `+ 1` fecha o mes corrente (que ainda
+   -- pode estar no meio), e o `- 1` descarta o mes mais antigo.
+   -- Medido: a janela antiga (-2) trazia um mes a mais e cortava CT-es de
+   -- agosto que o usuario esperava ver.
    -- Solido com o relatorio inteiro. Para rodar so no console (e nao estourar o
    -- buffer do runner), acrescente: AND ROWNUM <= 20 antes do ORDER BY.
  ORDER BY b.cte_data DESC, b.cte_numero, b.cte_serie, b.nf_numero, b.nf_serie

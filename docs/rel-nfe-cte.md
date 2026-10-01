@@ -2446,6 +2446,26 @@ aqui temos o atual código do endpoint da cte e que precisa se alterado para tra
 > Sem join novo: o `dsp` já existia, e agrupar por `TRIM(d.nf)` (e não por `PEDIDO, NF` como o
 > SQL de faturamento original) é o que dá o total da **NF** inteira, que é o denominador correto
 > dos percentuais por CT-e.
+>
+> **Período (01/10/2026):** a janela deixou de ser móvel. Agora são **mês atual completo + mês
+> anterior completo**, isto é `[1º dia do mês anterior, 1º dia do próximo mês)`:
+>
+> ```sql
+> WHERE COALESCE(b.nf_data, b.cte_data) >= ADD_MONTHS(TRUNC(SYSDATE), -1)
+>   AND COALESCE(b.nf_data, b.cte_data) <  ADD_MONTHS(TRUNC(SYSDATE), 1)
+> ```
+>
+> Antes era `-2` até `TRUNC(SYSDATE) + 1`, o que trazia **três** meses (o mais antigo, o anterior e o
+> corrente). Medido: com a janela antiga entravam CT-es de agosto que não deveriam estar, e o
+> relatório devolvia 198 linhas. Com a janela de dois meses fechados, o conjunto é o dos dois
+> meses que o usuário está olhando.
+>
+> **NF duplicada (01/10/2026):** o endpoint devolve a mesma NF-e duas vezes dentro do mesmo CT-e
+> (medido: CT-e 351348-1 com a NF 35653-1 repetida byte a byte). É o `obrf_016` com dois vínculos
+> iguais para o mesmo conhecimento — a SQL já agrega por CT-e+NF, então a segunda linha é ruído.
+> O PDM resolve em `deduplicarPorCteNf` (`components/utils.ts`), dentro de `normalizarResposta`:
+> mantém a primeira ocorrência da chave `CT-e|NF`. Sem isso o `pct_nf_no_total_cte` virava
+> 50%/50% num caso que deveria ter uma linha só.
 
 SELECT
     b.cte_numero,
@@ -2675,8 +2695,8 @@ FROM (
     ) dsp
       ON dsp.nf_chave = TRIM(nf.numero_nota || '-' || nf.serie_nota)
 ) b
-WHERE COALESCE(b.nf_data, b.cte_data) >= ADD_MONTHS(TRUNC(SYSDATE), -2)
-  AND COALESCE(b.nf_data, b.cte_data) < TRUNC(SYSDATE) + 1
+WHERE COALESCE(b.nf_data, b.cte_data) >= ADD_MONTHS(TRUNC(SYSDATE), -1)
+  AND COALESCE(b.nf_data, b.cte_data) < ADD_MONTHS(TRUNC(SYSDATE), 1)
 ORDER BY
     b.cte_data DESC,
     b.cte_numero,
