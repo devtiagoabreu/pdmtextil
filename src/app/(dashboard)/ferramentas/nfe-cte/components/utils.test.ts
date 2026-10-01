@@ -8,12 +8,15 @@ import {
   calcularDerivadosPorCte,
   deduplicarPorCteNf,
   calcularResumo,
+  classificarFaixaFrete,
+  contarFaixas,
   descricoesItem,
   extrairItems,
   filtrarPorPeriodo,
   formatarMoeda,
   formatarNumero,
   formatarPercentual,
+  freteSobreMercadoria,
   isoParaData,
   nfSemCabecalho,
   nfTemDespacho,
@@ -27,6 +30,8 @@ import {
   periodoMesCorrente,
   periodoPadrao,
   rateioFechaComCte,
+  resumirFretePorRegiao,
+  resumirFretePorTransportadora,
   somarMeses,
 } from "./utils"
 import type { LinhaCte } from "./types"
@@ -910,5 +915,184 @@ describe("buscarTodasPaginas", () => {
     expect(linhas).toHaveLength(1)
     expect(linhas[0].soma_nf_do_cte).toBe(50)
     expect(linhas[0].pct_nf_no_total_cte).toBe(100)
+  })
+})
+
+describe("freteSobreMercadoria", () => {
+  it("divide o total do CT-e pela soma das NF-e", () => {
+    // 79,32 / 9.932,00 = 0,798...% → 0,8% (o caso real do CT-e 195483-1)
+    expect(freteSobreMercadoria(79.32, 9932)).toBe(0.8)
+  })
+
+  it("devolve null quando falta o frete ou a mercadoria", () => {
+    expect(freteSobreMercadoria(null, 1000)).toBeNull()
+    expect(freteSobreMercadoria(10, null)).toBeNull()
+    expect(freteSobreMercadoria(null, null)).toBeNull()
+  })
+
+  it("devolve null quando a soma das NF-e é zero ou negativa", () => {
+    expect(freteSobreMercadoria(10, 0)).toBeNull()
+    expect(freteSobreMercadoria(10, -5)).toBeNull()
+  })
+
+  it("distingue frete zero de frete ausente", () => {
+    expect(freteSobreMercadoria(0, 1000)).toBe(0)
+  })
+})
+
+describe("classificarFaixaFrete", () => {
+  it("trata 1,5% exato como abaixo (verde)", () => {
+    expect(classificarFaixaFrete(1.5)).toBe("abaixo")
+  })
+
+  it("trata 2,0% exato como dentro da faixa (laranja)", () => {
+    expect(classificarFaixaFrete(2)).toBe("na_faixa")
+  })
+
+  it("classifica os intervalos da regra 1,5% a 2,0%", () => {
+    expect(classificarFaixaFrete(0)).toBe("abaixo")
+    expect(classificarFaixaFrete(1.49)).toBe("abaixo")
+    expect(classificarFaixaFrete(1.51)).toBe("na_faixa")
+    expect(classificarFaixaFrete(1.99)).toBe("na_faixa")
+    expect(classificarFaixaFrete(2.01)).toBe("acima")
+    expect(classificarFaixaFrete(267.27)).toBe("acima")
+  })
+
+  it("devolve indefinido quando não há percentual", () => {
+    expect(classificarFaixaFrete(null)).toBe("indefinido")
+    expect(classificarFaixaFrete(undefined)).toBe("indefinido")
+    expect(classificarFaixaFrete(Number.NaN)).toBe("indefinido")
+  })
+})
+
+describe("contarFaixas", () => {
+  it("conta os CT-es por faixa e separa os que não dá para avaliar", () => {
+    const grupos = agruparPorCte([
+      linha({ cte_numero: 1, cte_valor_total: 10, nf_valor_total: 1000 }),
+      linha({ cte_numero: 2, cte_valor_total: 15, nf_valor_total: 1000 }),
+      linha({ cte_numero: 3, cte_valor_total: 20, nf_valor_total: 1000 }),
+      linha({ cte_numero: 4, cte_valor_total: 25, nf_valor_total: 1000 }),
+      linha({ cte_numero: 5, cte_valor_total: null, nf_valor_total: 1000 }),
+    ])
+    // 1,0% e 1,5% abaixo | 2,0% na faixa | 2,5% acima | sem frete não é avaliável
+    expect(contarFaixas(grupos)).toEqual({
+      avaliados: 4,
+      abaixo: 2,
+      naFaixa: 1,
+      acima: 1,
+      indefinido: 1,
+    })
+  })
+
+  it("devolve zero para lista vazia", () => {
+    expect(contarFaixas([])).toEqual({
+      avaliados: 0,
+      abaixo: 0,
+      naFaixa: 0,
+      acima: 0,
+      indefinido: 0,
+    })
+  })
+})
+
+describe("resumirFretePor", () => {
+  it("agrupa por transportadora e ordena por volume de CT-es", () => {
+    const grupos = agruparPorCte([
+      linha({ cte_numero: 1, cte_transportadora_fantasia: "SORRISO", cte_valor_total: 10, nf_valor_total: 1000 }),
+      linha({ cte_numero: 2, cte_transportadora_fantasia: "SORRISO", cte_valor_total: 20, nf_valor_total: 1000 }),
+      linha({ cte_numero: 3, cte_transportadora_fantasia: "JADLOG", cte_valor_total: 30, nf_valor_total: 1000 }),
+    ])
+    const r = resumirFretePorTransportadora(grupos)
+    expect(r.map((x) => x.chave)).toEqual(["SORRISO", "JADLOG"])
+    expect(r[0].ctes).toBe(2)
+    expect(r[0].abaixo).toBe(1)
+    expect(r[0].naFaixa).toBe(1)
+    expect(r[0].acima).toBe(0)
+    expect(r[0].freteTotal).toBe(30)
+    expect(r[0].mercadoriaTotal).toBe(2000)
+    expect(r[1].acima).toBe(1)
+  })
+
+  it("usa a média do frete % por CT-e, não o ratio agregado", () => {
+    // Reproduz o caso real da SORRISO: uma NF-e de R$ 100 mil com frete baixo
+    // (0,1%) faz o ratio agregado cair para 0,3% e esconder o CT-e de 20%.
+    const grupos = agruparPorCte([
+      linha({ cte_numero: 1, cte_transportadora_fantasia: "SORRISO", cte_valor_total: 100, nf_valor_total: 100000 }),
+      linha({ cte_numero: 2, cte_transportadora_fantasia: "SORRISO", cte_valor_total: 200, nf_valor_total: 1000 }),
+    ])
+    const s = resumirFretePorTransportadora(grupos)[0]
+    // média por CT-e: (0,1 + 20) / 2
+    expect(s.mediaPct).toBe(10.05)
+    // ratio agregado: 300 / 101.000 — verde, e completamente enganoso
+    expect((s.freteTotal / s.mercadoriaTotal) * 100).toBeCloseTo(0.3, 2)
+    expect(s.abaixo).toBe(1)
+    expect(s.acima).toBe(1)
+  })
+
+  it("não divide por zero quando a transportadora tem um CT-e só sem mercadoria", () => {
+    const grupos = agruparPorCte([
+      linha({ cte_numero: 1, cte_transportadora_fantasia: "TROCA", cte_valor_total: null, nf_valor_total: null }),
+    ])
+    const r = resumirFretePorTransportadora(grupos)
+    expect(r[0].mediaPct).toBeNull()
+    expect(r[0].avaliados).toBe(0)
+    expect(r[0].indefinido).toBe(1)
+  })
+
+  it("agrupa pela região do cliente e mantém as CT-es sem região", () => {
+    const grupos = agruparPorCte([
+      linha({ cte_numero: 1, nf_od_regiao: "SÃO PAULO", cte_valor_total: 20, nf_valor_total: 1000 }),
+      linha({ cte_numero: 2, nf_od_regiao: "SÃO PAULO", cte_valor_total: 18, nf_valor_total: 1000 }),
+      linha({ cte_numero: 3, nf_od_regiao: "PERNAMBUCO", cte_valor_total: 10, nf_valor_total: 1000 }),
+      linha({ cte_numero: 4, nf_od_regiao: null, cte_valor_total: 30, nf_valor_total: 1000 }),
+    ])
+    const r = resumirFretePorRegiao(grupos)
+    expect(r).toHaveLength(3)
+    expect(r.map((x) => x.chave)).toEqual(
+      expect.arrayContaining(["SÃO PAULO", "PERNAMBUCO", "Sem região"])
+    )
+    // 2 CT-es na faixa de SÃO PAULO, 1 abaixo em Pernambuco e 1 acima sem região
+    expect(r.find((x) => x.chave === "SÃO PAULO")!.naFaixa).toBe(2)
+    expect(r.find((x) => x.chave === "PERNAMBUCO")!.abaixo).toBe(1)
+    expect(r.find((x) => x.chave === "Sem região")!.acima).toBe(1)
+  })
+})
+
+describe("agruparPorCte com região", () => {
+  it("pega a primeira região preenchida das NF-e do CT-e", () => {
+    const g = agruparPorCte([
+      linha({ cte_numero: 7, nf_numero: 1, nf_od_regiao: null }),
+      linha({ cte_numero: 7, nf_numero: 2, nf_od_regiao: "SERGIPE" }),
+      linha({ cte_numero: 7, nf_numero: 3, nf_od_regiao: "BAHIA" }),
+    ])
+    expect(g).toHaveLength(1)
+    expect(g[0].regiao).toBe("SERGIPE")
+  })
+
+  it("usa Sem região quando nenhuma NF-e do CT-e tem região", () => {
+    const g = agruparPorCte([linha({ cte_numero: 8, nf_od_regiao: null })])
+    expect(g[0].regiao).toBe("Sem região")
+  })
+})
+
+describe("calcularResumo com CT-e de várias NF-e", () => {
+  it("soma o frete do CT-e uma vez, e não uma vez por NF-e", () => {
+    // CT-e 1 tem 2 NF-e com frete 150: somar por linha daria 300.
+    const itens = [
+      linha({ cte_numero: 1, cte_serie: "1", cte_valor_total: 150, nf_numero: 10 }),
+      linha({ cte_numero: 1, cte_serie: "1", cte_valor_total: 150, nf_numero: 11 }),
+      linha({ cte_numero: 2, cte_serie: "1", cte_valor_total: 200, nf_numero: 20 }),
+    ]
+    const r = calcularResumo(itens)
+    expect(r.ctes).toBe(2)
+    expect(r.totalFrete).toBe(350)
+  })
+
+  it("mantém a soma do rateio por NF-e, que é a unidade correta", () => {
+    const itens = [
+      linha({ cte_numero: 1, cte_valor_total: 150, nf_numero: 10, nf_item_valor_total: 40 }),
+      linha({ cte_numero: 1, cte_valor_total: 150, nf_numero: 11, nf_item_valor_total: 110 }),
+    ]
+    expect(calcularResumo(itens).totalRateio).toBe(150)
   })
 })

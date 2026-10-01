@@ -61,6 +61,22 @@ export const ferramentasContent: Record<string, InfoContent> = {
       { name: "CT-e", desc: "Número, série, emissão, frete, transportadora e tomador" },
       { name: "NF-e", desc: "Número, série, emissão, valor, frete rateado e fornecedor" },
       { name: "% NF-e no CT-e", desc: "Peso da nota no total do CT-e" },
+      { name: "Frete sobre a mercadoria", desc: "Total do CT-e ÷ soma das NF-e do CT-e" },
+      { name: "Frete médio", desc: "Média do frete % por CT-e do grupo" },
+    ],
+    examples: [
+      {
+        title: "Regra de faixa de frete",
+        desc: "O frete deve ficar entre 1,5% e 2,0% da mercadoria. Até 1,5% fica verde, entre 1,5% e 2,0% fica laranja (é a faixa esperada) e acima de 2,0% fica vermelho.",
+      },
+      {
+        title: "Por que a média e não o ratio total",
+        desc: "O frete médio é a média do percentual CT-e a CT-e. Somar todo o frete e dividir por toda a mercadoria distorce, porque uma única NF-e muito grande puxa o resultado para baixo e mascara CT-es fora da faixa.",
+      },
+      {
+        title: "Região do cliente",
+        desc: "O agrupamento por região usa a região do cliente da ordem de despacho (nf_od_regiao), não a origem ou o destino do CT-e. CT-es sem essa informação aparecem como “Sem região”.",
+      },
     ],
   },
 }

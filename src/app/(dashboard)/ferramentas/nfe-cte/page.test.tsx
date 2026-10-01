@@ -314,7 +314,9 @@ describe("NfeCtePage", () => {
     const card = (await screen.findByText("CT-e 195476/1")).closest("div.rounded-xl")!
     expect(card).toHaveTextContent("soma das NFs")
     expect(card).toHaveTextContent("R$ 62.037,26")
-    expect(card).toHaveTextContent("0,21% das NFs")
+    // selo de frete sobre a mercadoria no cabeçalho do CT-e
+    expect(card).toHaveTextContent("0,21%")
+    expect(card).toHaveTextContent("até 1,5%")
   })
 
   it("aplica o filtro de período no cliente, ignorando o que está fora", async () => {
@@ -388,9 +390,11 @@ describe("NfeCtePage", () => {
     await consultar(fetchMock)
 
     await screen.findByText("CT-e 195476/1")
-    expect(screen.getByText("NF-e com valor de nota")).toBeInTheDocument()
-    expect(screen.getByText("Total dos CT-es")).toBeInTheDocument()
+    expect(screen.getByText("NF-e com valor")).toBeInTheDocument()
+    expect(screen.getByText("Frete total")).toBeInTheDocument()
     expect(screen.getByText("Rateio dos itens")).toBeInTheDocument()
+    expect(screen.getByText("Mercadoria")).toBeInTheDocument()
+    expect(screen.getByText("Rateio divergente")).toBeInTheDocument()
   })
 
   it("oferece os atalhos de último período e mês corrente", async () => {
@@ -471,6 +475,44 @@ describe("NfeCtePage", () => {
     expect(within(linha).queryByText("prevista")).not.toBeInTheDocument()
     expect(screen.queryByText(/NF-e não localizadas no fiscal/)).not.toBeInTheDocument()
     expect(screen.queryByText(/nota prevista/)).not.toBeInTheDocument()
+  })
+
+  it("exporta o frete % sobre a mercadoria e a faixa no CSV", async () => {
+    const blobs: Blob[] = []
+    const criarUrl = vi.fn((b: Blob) => {
+      blobs.push(b)
+      return "blob:mock"
+    })
+    const revogar = vi.fn()
+    const createObjectURLOriginal = URL.createObjectURL
+    const revokeObjectURLOriginal = URL.revokeObjectURL
+    Object.defineProperty(URL, "createObjectURL", { value: criarUrl, configurable: true })
+    Object.defineProperty(URL, "revokeObjectURL", { value: revogar, configurable: true })
+
+    try {
+      const fetchMock = createFetchMock(handler([dentroDoPeriodo]))
+      vi.stubGlobal("fetch", fetchMock.fn)
+      await consultar(fetchMock)
+
+      await screen.findByText("CT-e 195476/1")
+      fireEvent.click(screen.getByRole("button", { name: /Exportar CSV/ }))
+
+      expect(criarUrl).toHaveBeenCalledTimes(1)
+      const csv = await blobs[0].text()
+      expect(csv).toContain("Frete % sobre mercadoria")
+      expect(csv).toContain("Faixa de frete")
+      // CT-e 195476: 131,70 de frete sobre 62.037,26 de mercadoria = 0,21%
+      expect(csv).toContain("até 1,5%")
+    } finally {
+      Object.defineProperty(URL, "createObjectURL", {
+        value: createObjectURLOriginal,
+        configurable: true,
+      })
+      Object.defineProperty(URL, "revokeObjectURL", {
+        value: revokeObjectURLOriginal,
+        configurable: true,
+      })
+    }
   })
 
   it("exporta cliente, razão social, emissor e origem do cabeçalho no CSV", async () => {
@@ -602,10 +644,10 @@ describe("NfeCtePage", () => {
     vi.stubGlobal("fetch", fetchMock.fn)
     await consultar(fetchMock)
 
-    await screen.findByText("NF-e em ordem de despacho")
-    const card = screen.getByText("NF-e em ordem de despacho").closest("div")!
-    expect(card).toHaveTextContent("2")
-    expect(card).toHaveTextContent("/ 2")
+    await screen.findByText(/NF-e em ordem de despacho/)
+    expect(screen.getByText(/NF-e em ordem de despacho/)).toHaveTextContent(
+      "2 NF-e em ordem de despacho"
+    )
   })
 
   it("sinaliza o CT-es cujo rateio não fecha com o total", async () => {

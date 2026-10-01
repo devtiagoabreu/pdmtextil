@@ -2708,3 +2708,138 @@ ORDER BY
 
 
 
+
+---
+
+## 23. Dashboard de frete sobre a mercadoria (01/10/2026)
+
+### 23.1 A regra de negócio
+
+O frete deve ficar **entre 1,5% e 2,0%** do valor da mercadoria transportada. A tela passou a
+classificar cada CT-e nessa regra:
+
+| Faixa | Regra | Cor |
+| --- | --- | --- |
+| até 1,5% | `pct <= 1.5` | verde |
+| **na faixa (1,5% a 2,0%)** | `1.5 < pct <= 2.0` | laranja |
+| acima de 2,0% | `pct > 2.0` | vermelho |
+| sem dado | falta frete ou mercadoria | cinza |
+
+Os limites são **inclusivos no topo de cada faixa**: 1,5% exato ainda é "até 1,5%" e 2,0% exato
+ainda está "na faixa", porque a regra é "passou de 1,5" e "passou de 2". Os limites vivem em
+`FRETE_PCT_MINIMO` / `FRETE_PCT_MAXIMO` (`components/utils.ts`), não como números soltos no JSX.
+
+### 23.2 De onde vem o percentual
+
+```
+frete % = cte_valor_total / soma_nf_do_cte * 100
+```
+
+- **Numerador é `cte_valor_total`**, e não `cte_valor_frete`: o campo de frete do cabeçalho
+  (`cte_vl_frete`) chega em `0`/`null` no endpoint, enquanto o total do CT-e está preenchido em
+  185/185 linhas e já é o valor rotulado "Frete" na tela e no CSV.
+- **Denominador é a soma das NF-e do CT-e**, não o rateio dos itens.
+- Arredondamento em 2 casas (`arredondar2`), igual ao `ROUND` que a SQL usava antes.
+
+Esse número já existia na tela como `pct_cte_sobre_total_nfs`, exibido como "0,80% das NFs" - sem cor
+e com um rótulo que não dizia que era frete. Agora virou selo colorido no cabeçalho de cada CT-e
+(`BadgeFaixaFrete`, com `aria-label` descritivo) e em card próprio do dashboard.
+
+> Os "100,00%" que aparecem na tabela **não são esse número**: são `pct_nf_no_total_cte` /
+> `nf_pct_rateio_no_cte`, o peso da NF-e dentro do CT-e. Com uma única NF-e por CT-e dá 100% por
+> construção, e é por isso que o número "100%" aparecia na tela sem dizer nada sobre frete.
+
+### 23.3 Por que a média e não o ratio agregado
+
+Nos breakdowns por transportadora e por região, a métrica é a **média do frete % CT-e a CT-e**,
+não `Σ frete ÷ Σ mercadoria`. As duas medidas discordam bastante:
+
+| Transportadora | CT-es | Σ frete ÷ Σ NF-e | média por CT-e |
+| --- | --- | --- | --- |
+| SORRISO TRANSPORTES | 152 | 0,29% | 1,47% |
+| EXPRESSO SAO MIGUEL | 9 | 2,32% | 10,44% |
+| JADLOG | 7 | 17,71% | 52,86% |
+| TROCA TRANSPORTES | 1 | 267,27% | 267,27% |
+
+A SORRISO é o caso que prova o ponto: o ratio agregado diz 0,29% (verde, "ótimo") porque uma única
+NF-e de valor muito grande puxa a soma para baixo, enquanto a média por CT-e diz 1,47% - e ainda
+existem 25 CT-es acima de 2% dentro dela. Como a regra é avaliada CT-e a CT-e, a média é a medida
+comparável entre grupos.
+
+Por isso as tabelas mostram **quantos CT-es caem em cada faixa** (a contagem é a informação
+acionável) ao lado da média, e não um único número.
+
+### 23.4 Distribuição real medida
+
+Com 183 CT-es na janela de dois meses (medição de 01/10/2026 no endpoint publicado):
+
+| Faixa | CT-es |
+| --- | --- |
+| até 1,5% | 92 |
+| na faixa (1,5% a 2,0%) | 39 |
+| acima de 2,0% | 52 |
+
+**Só 21% dos CT-es estão no intervalo esperado.** Os outliers (TROCA 267%, JADLOG 52%) são erro de
+cadastro no ERP, não frete real - a tela os deixa visíveis em vez de escondê-los, porque é
+justamente o que a regra precisa mostrar.
+
+### 23.5 Região: é a do cliente, não a do CT-e
+
+O agrupamento por região usa **`nf_od_regiao`**, que é a região do cliente/atendente da ordem de
+despaio (`pmdvw_vendas.nome_regiao`). São 20 regiões distintas, preenchidas em 179/185 linhas; as
+CT-es sem a informação aparecem na linha **"Sem região"** em vez de sumir.
+
+A origem e o destino do CT-e **não são opção**: `cte_cod_cidade_origem` e `cte_cod_cidade_destino`
+chegam como código de cidade (185/185), e não existe no PDM um mapa de código -> região. Trazer a
+região do CT-e exigiria mudar a SQL.
+
+Quando um CT-e tem NFs de clientes de regiões diferentes, o grupo fica com a **primeira região
+preenchida** - mesmo tratamento já usado para transportadora e tomador.
+
+### 23.6 BUG CORRIGIDO: "Total dos CT-es" somava o frete por NF-e
+
+O card somava `cte_valor_total` **dentro do laço por linha de NF-e**:
+
+```ts
+// ERRADO - contava o frete do CT-e uma vez por NF-e
+totalFrete += linha.cte_valor_total || 0
+```
+
+`cte_valor_total` é o total **do CT-e**, não da NF-e. Num CT-e com duas NF-e, o mesmo frete era
+somado duas vezes. Medido em 01/10/2026 com 183 CT-es / 184 NF-e:
+
+| | Valor |
+| --- | --- |
+| Card antes | R$ 48.086,99 |
+| Correto (1x por CT-e) | **R$ 45.048,85** |
+| Infla | R$ 3.038,14 (**6,7%**) |
+
+O valor bruto R$ 48.286,98 (citado no estudo inicial) era a soma sobre as 185 linhas **antes** da
+deduplicação da seção 22; com a NF duplicada removida sobram R$ 3.038,14 de duplicação, do CT-e
+11757-1 (R$ 3.038,14 de frete em duas NF-e).
+
+**Correção** (`calcularResumo`): guardar o frete uma vez por chave de CT-e e somar depois do laço.
+
+```ts
+if (!fretePorCte.has(chave)) fretePorCte.set(chave, linha.cte_valor_total || 0)
+// ...
+for (const frete of fretePorCte.values()) totalFrete += frete
+```
+
+O card **"Rateio dos itens" NÃO foi alterado**: `nf_item_valor_total` é o rateio **da NF-e**, e
+somar por linha é o comportamento correto. Há teste de regressão para as duas coisas em
+`utils.test.ts` ("soma o frete do CT-e uma vez" e "mantém a soma do rateio por NF-e").
+
+### 23.7 O que entrou na tela
+
+`components/dashboard.tsx` substituiu os 6 cards antigos:
+
+- **Resumo do período** (7 cards): NF-e, CT-es, Mercadoria, Frete total, Rateio dos itens,
+  NF-e com valor, Rateio divergente.
+- **Faixa de frete** (4 cards): até 1,5% / na faixa / acima de 2,0% / sem dado, com a contagem de
+  CT-es e uma legenda embaixo dizendo quantos estão na faixa esperada.
+- **Breakdowns** em abas (`Transportadora` | `Região do cliente`): CT-es, frete médio, % na faixa e
+  uma barra empilhada com a proporção em cada faixa (`title` com os números exatos).
+
+A contagem de "NF-e em ordem de despacho", que estava num card, desceu para a linha de resumo em
+texto logo abaixo do dashboard, para não perder a informação sem virar um 8o card.

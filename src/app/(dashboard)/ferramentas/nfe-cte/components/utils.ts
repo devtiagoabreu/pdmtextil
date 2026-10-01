@@ -1,4 +1,12 @@
-import type { GrupoCte, LinhaCte, Periodo, Resumo } from "./types"
+import type {
+  ContagemFaixas,
+  FaixaFrete,
+  GrupoCte,
+  LinhaCte,
+  Periodo,
+  Resumo,
+  ResumoFrete,
+} from "./types"
 
 const CAMPOS_NUMERICOS = [
   "cte_numero",
@@ -397,6 +405,7 @@ export function agruparPorCte(itens: LinhaCte[]): GrupoCte[] {
         transportadora:
           linha.cte_transportadora_fantasia || linha.cte_transportadora_razao || "—",
         tomador: linha.cte_tomador_fantasia || linha.cte_tomador_razao || "—",
+        regiao: "—",
         somaNf: linha.soma_nf_do_cte,
         somaRateio: linha.soma_rateio_do_cte,
         pctSobreNf: linha.pct_cte_sobre_total_nfs,
@@ -426,6 +435,10 @@ export function agruparPorCte(itens: LinhaCte[]): GrupoCte[] {
     const base = g.somaNf ?? g.somaNfCalculada
     g.pctCalculado = base && g.valorTotal != null ? (g.valorTotal / base) * 100 : null
     g.rateioDivergente = g.nfs.some((n) => !rateioFechaComCte(n))
+    // A região é do cliente/atendente da ordem de despacho, então vem da NF-e
+    // e não do CT-e. Um CT-e pode ter NFs de clientes diferentes: fica com a
+    // primeira região preenchida, mesmo tratamento de transportadora/tomador.
+    g.regiao = g.nfs.find((n) => n.nf_od_regiao)?.nf_od_regiao || "Sem região"
   }
 
   return grupos.sort((a, b) => {
@@ -447,19 +460,27 @@ export function calcularResumo(itens: LinhaCte[]): Resumo {
   const ctes = new Set<string>()
   const nfs = new Set<string>()
   const ctesDivergentes = new Set<string>()
+  const fretePorCte = new Map<string, number>()
 
   for (const linha of itens) {
-    ctes.add(chaveCte(linha))
+    const chave = chaveCte(linha)
+    ctes.add(chave)
     nfs.add(`${linha.nf_numero ?? "?"}-${linha.nf_serie ?? "?"}-${nomeClienteNf(linha) ?? ""}`)
     if (!dataReferencia(linha)) semData++
     if (linha.nf_valor_total != null) comValorNf++
     if (nfSemCabecalho(linha)) semCabecalho++
     if (nfTemDespacho(linha)) comDespacho++
-    totalFrete += linha.cte_valor_total || 0
+    // `cte_valor_total` é o total DO CT-e, não da NF-e: somar por linha
+    // contaria o mesmo frete uma vez por NF-e do CT-e. Medido em 01/10/2026 com
+    // 183 CT-es / 184 NFs: a soma por linha dava R$ 48.086,99 contra R$
+    // 45.048,85 correto — 6,7% inflado. Guardar só a primeira ocorrência por
+    // CT-e resolve. Já o rateio abaixo é por NF-e, e a soma segue correta.
+    if (!fretePorCte.has(chave)) fretePorCte.set(chave, linha.cte_valor_total || 0)
     totalNf += linha.nf_valor_total || 0
     totalRateio += linha.nf_item_valor_total || 0
-    if (!rateioFechaComCte(linha)) ctesDivergentes.add(chaveCte(linha))
+    if (!rateioFechaComCte(linha)) ctesDivergentes.add(chave)
   }
+  for (const frete of fretePorCte.values()) totalFrete += frete
 
   return {
     linhas: itens.length,
@@ -493,4 +514,132 @@ export function formatarNumero(valor: number | null | undefined): string {
 
 export function nomeTranspDistinct(grupos: GrupoCte[]): string[] {
   return [...new Set(grupos.map((g) => g.transportadora))].sort((a, b) => a.localeCompare(b, "pt-BR"))
+}
+
+// ---------------------------------------------------------------------------
+// Frete sobre a mercadoria (regra 1,5% a 2,0%)
+// ---------------------------------------------------------------------------
+
+/** Limite inferior da faixa esperada de frete sobre a mercadoria. */
+export const FRETE_PCT_MINIMO = 1.5
+/** Limite superior da faixa esperada de frete sobre a mercadoria. */
+export const FRETE_PCT_MAXIMO = 2
+
+/**
+ * Frete (total do CT-e) sobre a mercadoria (soma das NF-e do CT-e), em %.
+ *
+ * O numerador é `cte_valor_total` e não `cte_valor_frete`: o campo de frete do
+ * cabeçalho (`cte_vl_frete`) chega em 0/null no endpoint, enquanto o total do
+ * CT-e está preenchido em todas as linhas e já é o valor exibido como "Frete"
+ * na tela e no CSV.
+ *
+ * Devolve `null` quando falta qualquer um dos dois — assim o chamador consegue
+ * distinguir "zero" de "sem dado" e cair na faixa `indefinido`.
+ */
+export function freteSobreMercadoria(
+  frete: number | null | undefined,
+  mercadoria: number | null | undefined
+): number | null {
+  if (frete == null || !Number.isFinite(frete)) return null
+  if (mercadoria == null || !Number.isFinite(mercadoria) || mercadoria <= 0) return null
+  return arredondar2((frete / mercadoria) * 100)
+}
+
+/**
+ * Classifica o frete % na regra do negócio:
+ *
+ * - até 1,5% → `abaixo` (verde)
+ * - acima de 1,5% até 2,0% → `na_faixa` (laranja) — é o intervalo esperado
+ * - acima de 2,0% → `acima` (vermelho)
+ * - sem valor calculável → `indefinido` (cinza)
+ *
+ * Os limites são INCLUSIVOS no lado de cima: 1,5% exato é `abaixo` e 2,0%
+ * exato ainda é `na_faixa`, porque a regra é "passou de 1,5" e "passou de 2".
+ */
+export function classificarFaixaFrete(pct: number | null | undefined): FaixaFrete {
+  if (pct == null || !Number.isFinite(pct)) return "indefinido"
+  if (pct <= FRETE_PCT_MINIMO) return "abaixo"
+  if (pct <= FRETE_PCT_MAXIMO) return "na_faixa"
+  return "acima"
+}
+
+/**
+ * Contagem de faixas dos CT-es informados.
+ */
+export function contarFaixas(grupos: GrupoCte[]): ContagemFaixas {
+  const contagem: ContagemFaixas = { avaliados: 0, abaixo: 0, naFaixa: 0, acima: 0, indefinido: 0 }
+  const destino: Record<Exclude<FaixaFrete, "indefinido">, "abaixo" | "naFaixa" | "acima"> = {
+    abaixo: "abaixo",
+    na_faixa: "naFaixa",
+    acima: "acima",
+  }
+  for (const g of grupos) {
+    const faixa = classificarFaixaFrete(g.pctCalculado)
+    if (faixa === "indefinido") contagem.indefinido++
+    else {
+      contagem.avaliados++
+      contagem[destino[faixa]]++
+    }
+  }
+  return contagem
+}
+
+/**
+ * Agrupa os CT-es por uma chave (transportadora, região) e calcula o resumo de
+ * frete de cada grupo.
+ *
+ * `mediaPct` é a média do frete % POR CT-e, não `Σfrete ÷ Σmercadoria`. As duas
+ * medidas discordam bastante: medido em 01/10/2026, a SORRISO dava 0,29% pelo
+ * ratio agregado e 1,47% pela média por CT-e, porque uma única NF-e de R$ 2
+ * milhões puxa o ratio para baixo e mascara 25 CT-es acima de 2%. Como a regra
+ * é avaliada CT-e a CT-e, a média é a medida comparável.
+ *
+ * Ordena por volume de CT-es (maior primeiro) e devolve o total geral no fim.
+ */
+export function resumirFretePor(
+  grupos: GrupoCte[],
+  chaveDe: (g: GrupoCte) => string
+): ResumoFrete[] {
+  const mapa = new Map<string, GrupoCte[]>()
+  for (const g of grupos) {
+    const chave = chaveDe(g)
+    const atual = mapa.get(chave)
+    if (atual) atual.push(g)
+    else mapa.set(chave, [g])
+  }
+
+  const saida: ResumoFrete[] = []
+  for (const [chave, ctes] of mapa) {
+    const contagem = contarFaixas(ctes)
+    const avaliados = ctes.filter((g) => classificarFaixaFrete(g.pctCalculado) !== "indefinido")
+    const somaPct = avaliados.reduce((t, g) => t + (g.pctCalculado ?? 0), 0)
+    saida.push({
+      chave,
+      ctes: ctes.length,
+      ...contagem,
+      mediaPct: avaliados.length ? arredondar2(somaPct / avaliados.length) : null,
+      freteTotal: ctes.reduce((t, g) => t + (g.valorTotal || 0), 0),
+      mercadoriaTotal: ctes.reduce((t, g) => t + (g.somaNf ?? g.somaNfCalculada), 0),
+    })
+  }
+
+  return saida.sort((a, b) => b.ctes - a.ctes || a.chave.localeCompare(b.chave, "pt-BR"))
+}
+
+/** Resumo de frete por transportadora do CT-e. */
+export function resumirFretePorTransportadora(grupos: GrupoCte[]): ResumoFrete[] {
+  return resumirFretePor(grupos, (g) => g.transportadora)
+}
+
+/** Resumo de frete por região do cliente da ordem de despacho (`nf_od_regiao`). */
+export function resumirFretePorRegiao(grupos: GrupoCte[]): ResumoFrete[] {
+  return resumirFretePor(grupos, (g) => g.regiao)
+}
+
+/**
+ * Faixa "atual" de um CT-e, já combinando o cálculo e a classificação.
+ * Devolve `indefinido` quando não dá para calcular o percentual.
+ */
+export function faixaFreteDoCte(g: GrupoCte): FaixaFrete {
+  return classificarFaixaFrete(g.pctCalculado)
 }

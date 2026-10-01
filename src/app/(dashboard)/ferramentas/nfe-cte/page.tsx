@@ -7,13 +7,14 @@ import { ArrowLeft, Download, FileText, Globe, Loader2, Truck } from "lucide-rea
 import { toast } from "sonner"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import type { Integracao, LinhaCte, Periodo } from "./components/types"
+import type { FaixaFrete, Integracao, LinhaCte, Periodo } from "./components/types"
 import {
   ApiRelatorioError,
   LIMITE_PAGINA,
   agruparPorCte,
   buscarTodasPaginas,
   calcularResumo,
+  classificarFaixaFrete,
   filtrarPorPeriodo,
   formatarMoeda,
   formatarNumero,
@@ -24,8 +25,17 @@ import {
 } from "./components/utils"
 import { TabelaCte } from "./components/tabela"
 import { Toolbar } from "./components/toolbar"
+import { Dashboard } from "./components/dashboard"
 
 const TELA = "nfe-cte"
+
+/** Rótulos textuais da faixa de frete, para o CSV. */
+const ROTULO_FAIXA_CSV: Record<FaixaFrete, string> = {
+  abaixo: "até 1,5%",
+  na_faixa: "na faixa (1,5% a 2,0%)",
+  acima: "acima de 2,0%",
+  indefinido: "sem dado",
+}
 
 function csvCell(valor: unknown): string {
   if (valor === null || valor === undefined) return '""'
@@ -45,7 +55,8 @@ function baixarCsv(itens: LinhaCte[], nome: string) {
     ["Cidade destino", (l) => l.cte_cod_cidade_destino],
     ["Valor CT-e", (l) => l.cte_valor_total],
     ["Soma NFs do CT-e", (l) => l.soma_nf_do_cte],
-    ["% CT-e sobre NFs", (l) => l.pct_cte_sobre_total_nfs],
+    ["Frete % sobre mercadoria", (l) => l.pct_cte_sobre_total_nfs],
+    ["Faixa de frete", (l) => ROTULO_FAIXA_CSV[classificarFaixaFrete(l.pct_cte_sobre_total_nfs)]],
     ["Soma rateio do CT-e", (l) => l.soma_rateio_do_cte],
     ["Transportadora", (l) => l.cte_transportadora_fantasia || l.cte_transportadora_razao],
     ["Tomador", (l) => l.cte_tomador_fantasia || l.cte_tomador_razao],
@@ -298,64 +309,12 @@ export default function NfeCtePage() {
             </div>
           ) : grupos.length > 0 ? (
             <div className="space-y-4">
-              <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-5">
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">NF-e</p>
-                  <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                    {formatarNumero(resumo.nfs)}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">CT-es</p>
-                  <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                    {formatarNumero(resumo.ctes)}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Total dos CT-es
-                  </p>
-                  <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                    {formatarMoeda(resumo.totalFrete)}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    Rateio dos itens
-                  </p>
-                  <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                    {formatarMoeda(resumo.totalRateio)}
-                  </p>
-                </div>
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    NF-e em ordem de despacho
-                  </p>
-                  <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                    {formatarNumero(resumo.comDespacho)}
-                    <span className="text-sm font-normal text-slate-400">
-                      {" "}
-                      / {resumo.linhas}
-                    </span>
-                  </p>
-                </div>
-                <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-4">
-                  <p className="text-xs text-slate-500 dark:text-slate-400">
-                    NF-e com valor de nota
-                  </p>
-                  <p className="text-lg font-semibold text-slate-900 dark:text-slate-50">
-                    {formatarNumero(resumo.comValorNf)}
-                    <span className="text-sm font-normal text-slate-400">
-                      {" "}
-                      / {resumo.linhas}
-                    </span>
-                  </p>
-                </div>
-              </div>
+              <Dashboard grupos={grupos} resumo={resumo} />
 
               <div className="flex items-center justify-between gap-4">
                 <p className="text-xs text-slate-500 dark:text-slate-400">
                   {grupos.length} CT-es · {resumo.linhas} NF-e
+                  {` · ${resumo.comDespacho} NF-e em ordem de despacho`}
                   {resumo.semData > 0
                     ? ` · ${resumo.semData} sem data de referência (mantidas)`
                     : ""}

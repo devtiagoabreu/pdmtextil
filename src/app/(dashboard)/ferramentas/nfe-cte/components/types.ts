@@ -80,6 +80,8 @@ export interface GrupoCte {
   situacao: number | null
   transportadora: string
   tomador: string
+  /** Região do cliente/atendente da ordem de despacho (`nf_od_regiao`). */
+  regiao: string
   somaNf: number | null
   somaRateio: number | null
   pctSobreNf: number | null
@@ -108,4 +110,37 @@ export interface Resumo {
   totalNf: number
   totalRateio: number
   ctesRateioDivergente: number
+}
+
+/**
+ * Faixa do frete sobre a mercadoria, pela regra do negócio (frete esperado
+ * entre 1,5% e 2,0% do valor da nota):
+ *
+ * - `abaixo`: até 1,5% → verde
+ * - `na_faixa`: acima de 1,5% e até 2,0% → laranja
+ * - `acima`: acima de 2,0% → vermelho
+ * - `indefinido`: falta o valor do frete ou o da mercadoria → cinza
+ */
+export type FaixaFrete = "abaixo" | "na_faixa" | "acima" | "indefinido"
+
+/**
+ * Contagem de CT-es por faixa. Usado no topo (total geral) e nos breakdowns
+ * por transportadora / região.
+ */
+export interface ContagemFaixas {
+  avaliados: number
+  abaixo: number
+  naFaixa: number
+  acima: number
+  indefinido: number
+}
+
+/** Uma linha dos breakdowns por transportadora / região. */
+export interface ResumoFrete extends ContagemFaixas {
+  chave: string
+  ctes: number
+  /** Média do frete % POR CT-e (não Σfrete ÷ Σmercadoria, que distorce). */
+  mediaPct: number | null
+  freteTotal: number
+  mercadoriaTotal: number
 }

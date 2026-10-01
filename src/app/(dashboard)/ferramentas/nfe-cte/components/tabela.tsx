@@ -1,7 +1,9 @@
 import { ChevronDown, ChevronRight, Package } from "lucide-react"
+import { BadgeFaixaFrete } from "./dashboard"
 import type { GrupoCte, LinhaCte } from "./types"
 import {
   descricoesItem,
+  faixaFreteDoCte,
   formatarMoeda,
   formatarNumero,
   formatarPercentual,
@@ -147,11 +149,14 @@ export function TabelaCte({
                     : grupo.somaNfCalculada > 0
                       ? ` · soma das NFs ${formatarMoeda(grupo.somaNfCalculada)} (calculada)`
                       : ""}
-                  {grupo.pctSobreNf != null
-                    ? ` · ${formatarPercentual(grupo.pctSobreNf)} das NFs`
-                    : grupo.pctCalculado !== null
-                      ? ` · ${formatarPercentual(grupo.pctCalculado)} das NFs (calculado)`
-                      : ""}
+                  {grupo.pctSobreNf != null || grupo.pctCalculado !== null ? (
+                    <span className="ml-1.5 inline-block align-middle">
+                      <BadgeFaixaFrete
+                        faixa={faixaFreteDoCte(grupo)}
+                        pct={grupo.pctSobreNf ?? grupo.pctCalculado}
+                      />
+                    </span>
+                  ) : null}
                 </span>
                 {grupo.rateioDivergente && (
                   <span className="mt-1 block text-xs text-rose-600 dark:text-rose-400">
