@@ -1342,8 +1342,16 @@ SELECT b.cte_numero,
    -- e [1o dia do mes anterior, 1o dia do proximo mes) -- ou seja, dois meses
    -- fechados, e nao uma janela movel. O `+ 1` fecha o mes corrente (que ainda
    -- pode estar no meio), e o `- 1` descarta o mes mais antigo.
-   -- Medido: a janela antiga (-2) trazia um mes a mais e cortava CT-es de
-   -- agosto que o usuario esperava ver.
-   -- Solido com o relatorio inteiro. Para rodar so no console (e nao estourar o
-   -- buffer do runner), acrescente: AND ROWNUM <= 20 antes do ORDER BY.
+-- Medido: a janela antiga (-2) trazia um mes a mais e cortava CT-es de
+    -- agosto que o usuario esperava ver.
+    -- PUBLICADO E MEDIDO NO ENDPOINT (01/10/2026): janela real
+    -- [2026-09-01, 2026-11-01) com 70 CT-es / 70 linhas, todas de setembro
+    -- (outubro ainda nao tinha CT-e), ZERO linha fora da janela e ZERO
+    -- duplicata CT-e|NF-e. Confirma tambem o numerador do dashboard:
+    -- cte_valor_total > 0 em 70/70 e cte_valor_frete > 0 em 0/70. Notavel:
+    -- nenhum CT-e com 2+ NF-e nesta janela, entao a soma de frete por linha
+    -- e por CT-e coincidem (R$ 13.688,92) -- o bug do card "Total dos CT-es"
+    -- (docs/rel-nfe-cte.md, secao 23.6) so aparece com NF-e dupla.
+    -- Solido com o relatorio inteiro. Para rodar so no console (e nao estourar o
+    -- buffer do runner), acrescente: AND ROWNUM <= 20 antes do ORDER BY.
  ORDER BY b.cte_data DESC, b.cte_numero, b.cte_serie, b.nf_numero, b.nf_serie

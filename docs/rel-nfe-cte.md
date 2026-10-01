@@ -2735,9 +2735,10 @@ ainda está "na faixa", porque a regra é "passou de 1,5" e "passou de 2". Os li
 frete % = cte_valor_total / soma_nf_do_cte * 100
 ```
 
-- **Numerador é `cte_valor_total`**, e não `cte_valor_frete`: o campo de frete do cabeçalho
-  (`cte_vl_frete`) chega em `0`/`null` no endpoint, enquanto o total do CT-e está preenchido em
-  185/185 linhas e já é o valor rotulado "Frete" na tela e no CSV.
+- **Numerador é `cte_valor_total`**, e não `cte_valor_frete`: o campo de frete do cabeçalho chega
+  zerado no endpoint, enquanto o total do CT-e está preenchido em 100% das linhas e já é o valor
+  rotulado "Frete" na tela e no CSV. Remedido nas duas janelas: `cte_valor_frete > 0` em **0/70**
+  linhas e `cte_valor_total > 0` em **70/70** (na janela de 60 dias eram 0/185 e 185/185).
 - **Denominador é a soma das NF-e do CT-e**, não o rateio dos itens.
 - Arredondamento em 2 casas (`arredondar2`), igual ao `ROUND` que a SQL usava antes.
 
@@ -2752,46 +2753,49 @@ e com um rótulo que não dizia que era frete. Agora virou selo colorido no cabe
 ### 23.3 Por que a média e não o ratio agregado
 
 Nos breakdowns por transportadora e por região, a métrica é a **média do frete % CT-e a CT-e**,
-não `Σ frete ÷ Σ mercadoria`. As duas medidas discordam bastante:
+não `Σ frete ÷ Σ mercadoria`. As duas medidas discordam bastante (janela publicada, 70 CT-es):
 
-| Transportadora | CT-es | Σ frete ÷ Σ NF-e | média por CT-e |
-| --- | --- | --- | --- |
-| SORRISO TRANSPORTES | 152 | 0,29% | 1,47% |
-| EXPRESSO SAO MIGUEL | 9 | 2,32% | 10,44% |
-| JADLOG | 7 | 17,71% | 52,86% |
-| TROCA TRANSPORTES | 1 | 267,27% | 267,27% |
+| Transportadora | CT-es | Σ frete ÷ Σ NF-e | média por CT-e | ≤1,5% | 1,5–2,0% | >2,0% |
+| --- | --- | --- | --- | --- | --- | --- |
+| SORRISO TRANSPORTES | 64 | 0,29% | 1,34% | 32 | 23 | 9 |
+| TRANSPORTES OURO NEGRO LTDA | 2 | 1,64% | 1,97% | 1 | 0 | 1 |
+| EXPRESSO SAO MIGUEL S/A | 2 | 4,99% | 35,47% | 0 | 0 | 2 |
+| ANESI TRANSPORTES | 1 | 6,31% | 6,31% | 0 | 0 | 1 |
+| RODOVIARIO CAMILO DOS SANTOS | 1 | 4,49% | 4,49% | 0 | 0 | 1 |
 
 A SORRISO é o caso que prova o ponto: o ratio agregado diz 0,29% (verde, "ótimo") porque uma única
-NF-e de valor muito grande puxa a soma para baixo, enquanto a média por CT-e diz 1,47% - e ainda
-existem 25 CT-es acima de 2% dentro dela. Como a regra é avaliada CT-e a CT-e, a média é a medida
-comparável entre grupos.
+NF-e de valor muito grande puxa a soma para baixo, enquanto a média por CT-e diz 1,34% — e há **9
+CT-es acima de 2%** dentro dela. O ratio também subestima a EXPRESSO por 7x (4,99% contra 35,47%).
+Como a regra é avaliada CT-e a CT-e, a média é a medida comparável entre grupos.
 
 Por isso as tabelas mostram **quantos CT-es caem em cada faixa** (a contagem é a informação
 acionável) ao lado da média, e não um único número.
 
 ### 23.4 Distribuição real medida
 
-Com 183 CT-es na janela de dois meses (medição de 01/10/2026 no endpoint publicado):
+Na janela publicada (dois meses fechados, `[2026-09-01, 2026-11-01)`) são 70 CT-es, todos de
+setembro — outubro ainda não tinha CT-e no dia da medição:
 
-| Faixa | CT-es |
-| --- | --- |
-| até 1,5% | 92 |
-| na faixa (1,5% a 2,0%) | 39 |
-| acima de 2,0% | 52 |
+| Faixa | CT-es | % |
+| --- | --- | --- |
+| até 1,5% | 33 | 47% |
+| na faixa (1,5% a 2,0%) | 23 | 33% |
+| acima de 2,0% | 14 | 20% |
 
-**Só 21% dos CT-es estão no intervalo esperado.** Os outliers (TROCA 267%, JADLOG 52%) são erro de
-cadastro no ERP, não frete real - a tela os deixa visíveis em vez de escondê-los, porque é
-justamente o que a regra precisa mostrar.
+**Só 33% dos CT-es estão no intervalo esperado** — um em cada três. Os outliers são erro de cadastro
+no ERP, não frete real (EXPRESSO SAO MIGUEL com média de 35,47% em 2 CT-es): a tela os deixa visíveis
+em vez de escondê-los, porque é justamente o que a regra precisa mostrar.
 
 ### 23.5 Região: é a do cliente, não a do CT-e
 
 O agrupamento por região usa **`nf_od_regiao`**, que é a região do cliente/atendente da ordem de
-despaio (`pmdvw_vendas.nome_regiao`). São 20 regiões distintas, preenchidas em 179/185 linhas; as
-CT-es sem a informação aparecem na linha **"Sem região"** em vez de sumir.
+despacho (`pmdvw_vendas.nome_regiao`). Na janela publicada são 16 regiões distintas mais a linha
+**"Sem região"**, preenchidas em 69/70 linhas; o único CT-e sem a informação aparece em "Sem região"
+em vez de sumir. São Paulo concentra 39 dos 70 CT-es.
 
 A origem e o destino do CT-e **não são opção**: `cte_cod_cidade_origem` e `cte_cod_cidade_destino`
-chegam como código de cidade (185/185), e não existe no PDM um mapa de código -> região. Trazer a
-região do CT-e exigiria mudar a SQL.
+chegam como código de cidade (100% preenchido), e não existe no PDM um mapa de código -> região.
+Trazer a região do CT-e exigiria mudar a SQL.
 
 Quando um CT-e tem NFs de clientes de regiões diferentes, o grupo fica com a **primeira região
 preenchida** - mesmo tratamento já usado para transportadora e tomador.
@@ -2806,7 +2810,8 @@ totalFrete += linha.cte_valor_total || 0
 ```
 
 `cte_valor_total` é o total **do CT-e**, não da NF-e. Num CT-e com duas NF-e, o mesmo frete era
-somado duas vezes. Medido em 01/10/2026 com 183 CT-es / 184 NF-e:
+somado duas vezes. Medido em 01/10/2026 na janela anterior (60 dias), que tinha 183 CT-es / 184
+NF-e:
 
 | | Valor |
 | --- | --- |
@@ -2817,6 +2822,12 @@ somado duas vezes. Medido em 01/10/2026 com 183 CT-es / 184 NF-e:
 O valor bruto R$ 48.286,98 (citado no estudo inicial) era a soma sobre as 185 linhas **antes** da
 deduplicação da seção 22; com a NF duplicada removida sobram R$ 3.038,14 de duplicação, do CT-e
 11757-1 (R$ 3.038,14 de frete em duas NF-e).
+
+> **O bug é latente: não aparece todo dia.** Na janela de 2 meses publicada **não existe nenhum CT-e
+> com 2+ NF-e** (70 CT-es / 70 NF-e), então a soma por linha e a soma por CT-e dão o mesmo
+> R$ 13.688,92 e a diferença é R$ 0,00. Ele só aparece quando um CT-e transporta mais de uma NF-e —
+> que foi o caso do CT-e 11757-1. Por isso a correção fica mesmo sem "problema visível" na tela: o
+> número de hoje estaria certo por acidente, e voltaria a errar na primeira NF-e dupla.
 
 **Correção** (`calcularResumo`): guardar o frete uma vez por chave de CT-e e somar depois do laço.
 
@@ -2843,3 +2854,15 @@ somar por linha é o comportamento correto. Há teste de regressão para as duas
 
 A contagem de "NF-e em ordem de despacho", que estava num card, desceu para a linha de resumo em
 texto logo abaixo do dashboard, para não perder a informação sem virar um 8o card.
+
+### 23.8 Como remedir depois de mexer no SQL
+
+`node scripts/verificar-rel-nf-cte.js` (read-only) lê a integração `api_rel_nfe_cte_periodo`, pede
+o token, pagina o relatório e refaz **no console os mesmos cálculos do dashboard**: volume e
+duplicatas, janela de dois meses contra `[1o dia do mês anterior, 1o dia do mês seguinte)`,
+cobertura de `cte_valor_total`/`cte_valor_frete`/`nf_valor_total`, soma do frete por linha × por CT-e,
+distribuição das faixas, regiões e a tabela de transportadora com ratio agregado × média.
+
+Sai com código 1 se alguma linha cair fora da janela ou se o endpoint responder erro. Foi ele que
+mediu os números das seções 23.2 a 23.6 depois da publicação de 01/10/2026. Aceita `--db=` para
+trocar de banco (`pdm_textil`, `pdm_pro_textil`, `pdm_ibirapuera`, `neon`).
