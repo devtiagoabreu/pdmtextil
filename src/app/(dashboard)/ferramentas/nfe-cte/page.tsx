@@ -11,14 +11,18 @@ import type { FaixaFrete, Integracao, LinhaCte, Periodo } from "./components/typ
 import {
   ApiRelatorioError,
   LIMITE_PAGINA,
+  alcanceCarregado,
   agruparPorCte,
   buscarTodasPaginas,
   calcularResumo,
   classificarFaixaFrete,
   filtrarPorPeriodo,
+  filtrarPorRegiao,
+  formatarDataBr,
   formatarMoeda,
   formatarNumero,
   nomeClienteNf,
+  nomeRegiaoDistinct,
   nomeTranspDistinct,
   periodoMesCorrente,
   periodoPadrao,
@@ -108,6 +112,7 @@ export default function NfeCtePage() {
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [periodo, setPeriodo] = useState<Periodo>(() => periodoPadrao())
   const [transporteFiltro, setTransporteFiltro] = useState("")
+  const [regiaoFiltro, setRegiaoFiltro] = useState("")
   const [termo, setTermo] = useState("")
   const [itens, setItens] = useState<LinhaCte[]>([])
   const [carregado, setCarregado] = useState(false)
@@ -175,6 +180,7 @@ export default function NfeCtePage() {
     setItens([])
     setCarregado(false)
     setTransporteFiltro("")
+    setRegiaoFiltro("")
     setTermo("")
     setPeriodo(periodoPadrao())
     setExpandido(new Set())
@@ -190,6 +196,7 @@ export default function NfeCtePage() {
         return nome === alvo
       })
     }
+    resultado = filtrarPorRegiao(resultado, regiaoFiltro)
     const busca = termo.trim().toLowerCase()
     if (busca) {
       resultado = resultado.filter(
@@ -201,11 +208,20 @@ export default function NfeCtePage() {
       )
     }
     return resultado
-  }, [itens, periodo, transporteFiltro, termo])
+  }, [itens, periodo, transporteFiltro, regiaoFiltro, termo])
 
   const grupos = useMemo(() => agruparPorCte(filtrados), [filtrados])
-  const transportes = useMemo(() => nomeTranspDistinct(agruparPorCte(itens)), [itens])
+  // As opções dos filtros saem de TODOS os itens carregados, e não dos já
+  // filtrados, para o select não sumir a opção que está selecionada.
+  const gruposCarregados = useMemo(() => agruparPorCte(itens), [itens])
+  const transportes = useMemo(() => nomeTranspDistinct(gruposCarregados), [gruposCarregados])
+  const regioes = useMemo(() => nomeRegiaoDistinct(gruposCarregados), [gruposCarregados])
   const resumo = useMemo(() => calcularResumo(filtrados), [filtrados])
+  // Só para a mensagem de "nada encontrado": distingue "o período não bate" de
+  // "os filtros não batem", que antes mostravam a mesma frase.
+  const filtrosAtivos =
+    transporteFiltro !== "" || regiaoFiltro !== "" || termo.trim() !== ""
+  const alcance = useMemo(() => alcanceCarregado(itens), [itens])
 
   function toggle(chave: string) {
     setExpandido((prev) => {
@@ -281,6 +297,9 @@ export default function NfeCtePage() {
             transporteFiltro={transporteFiltro}
             onTransporteFiltroChange={setTransporteFiltro}
             transportes={transportes}
+            regiaoFiltro={regiaoFiltro}
+            onRegiaoFiltroChange={setRegiaoFiltro}
+            regioes={regioes}
             termo={termo}
             onTermoChange={setTermo}
           >
@@ -347,11 +366,26 @@ export default function NfeCtePage() {
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center">
               <Truck size={44} className="mx-auto text-slate-300 mb-3" />
               <p className="text-sm font-medium text-slate-500 dark:text-slate-400">
-                Nenhuma NF-e no período selecionado
+                {filtrosAtivos
+                  ? "Nenhuma NF-e para os filtros selecionados"
+                  : "Nenhuma NF-e no período selecionado"}
               </p>
-              <p className="text-xs text-slate-400 mt-1">
-                Ajuste as datas ou clique em &quot;Limpar&quot; para voltar ao padrão
-              </p>
+              {filtrosAtivos ? (
+                <p className="text-xs text-slate-400 mt-1">
+                  Ajuste a transportadora, a região ou a busca
+                </p>
+              ) : (
+                <p className="text-xs text-slate-400 mt-1">
+                  Ajuste as datas ou clique em &quot;Limpar&quot; para voltar ao padrão
+                </p>
+              )}
+              {alcance.de && (
+                <p className="text-xs text-slate-400 mt-2">
+                  O relatório carregado cobre {formatarDataBr(alcance.de)} a{" "}
+                  {formatarDataBr(alcance.ate)} — o filtro de período reduz essa janela, mas
+                  não amplia
+                </p>
+              )}
             </div>
           ) : (
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center">

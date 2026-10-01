@@ -60,7 +60,8 @@ export const ferramentasContent: Record<string, InfoContent> = {
       { name: "Período", desc: "Intervalo de datas (padrão: últimos 2 meses)" },
       { name: "CT-e", desc: "Número, série, emissão, frete, transportadora e tomador" },
       { name: "NF-e", desc: "Número, série, emissão, valor, frete rateado e fornecedor" },
-      { name: "% NF-e no CT-e", desc: "Peso da nota no total do CT-e" },
+      { name: "% do CT-e", desc: "Peso da nota no total do CT-e" },
+      { name: "% CT-e sobre a nota", desc: "Frete sobre a mercadoria, com a faixa colorida" },
       { name: "Frete sobre a mercadoria", desc: "Total do CT-e ÷ soma das NF-e do CT-e" },
       { name: "Frete médio", desc: "Média do frete % por CT-e do grupo" },
     ],
@@ -79,4 +80,38 @@ export const ferramentasContent: Record<string, InfoContent> = {
       },
     ],
   },
+}
+
+/**
+ * Ajuda do "X% do CT-e" que aparece embaixo do valor de rateio na grade de NF-e.
+ * Não é uma tela, é um campo: fica fora do mapa de pathnames e é importado
+ * direto pelo componente. Texto em linguagem de leigo, porque quem lê esse
+ * número não é da área fiscal.
+ */
+export const rateioCteInfoContent: InfoContent = {
+  title: "O que é o “% do CT-e” embaixo do rateio",
+  description:
+    "O rateio é a parte do conhecimento que foi vinculada a cada nota. O número embaixo do valor diz quanto do CT-e inteiro aquela nota representa. Ele vem do próprio CT-e, e não da nota — por isso, quando o CT-e tem uma nota só, o número é 100,00%: não é erro, é a nota carregando o conhecimento inteiro.",
+  rules: [
+    "100,00% nesta linha significa que a nota levou todo o rateio do CT-e. É o caso normal de CT-e com uma nota só.",
+    "Se o CT-e tiver duas ou mais notas, os percentuais das linhas somam 100%: cada nota leva a sua cota.",
+    "Abaixo de 100% significa que a soma dos itens rateados não bate com o total do CT-e no cadastro do ERP. A tela marca esses CT-es com “rateio não fecha” para facilitar a conferência.",
+    "Este número NÃO é o frete. O frete sobre a mercadoria é a coluna “% CT-e sobre a nota” e o selo colorido no cabeçalho do CT-e.",
+    "A coluna “% do CT-e” conta a mesma divisão pelo outro lado: o peso do VALOR DA NOTA dentro do CT-e.",
+  ],
+  fields: [
+    { name: "Rateio", desc: "Valor que o CT-e separou para esta nota (soma dos itens rateados)" },
+    { name: "% do CT-e", desc: "Esse rateio dividido pelo total do CT-e" },
+    { name: "% CT-e sobre a nota", desc: "Total do CT-e (frete) dividido pelo valor da nota (mercadoria)" },
+  ],
+  examples: [
+    {
+      title: "CT-e com uma nota só",
+      desc: "O rateio mostra 100,00% do CT-e e a coluna “% do CT-e” mostra 100,00%. É o mesmo CT-e visto pelas duas colunas, e é o esperado.",
+    },
+    {
+      title: "CT-e com duas notas",
+      desc: "Se a nota A leva 60% da mercadoria e a nota B leva 40%, a coluna “% do CT-e” mostra 60,00% e 40,00%. No rateio, os percentuais também somam 100%, mas os números podem ser diferentes se os itens rateados não estiverem na mesma proporção das notas.",
+    },
+  ],
 }

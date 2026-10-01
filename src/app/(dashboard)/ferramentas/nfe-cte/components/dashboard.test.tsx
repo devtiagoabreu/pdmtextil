@@ -76,8 +76,9 @@ function montar(itens: LinhaCte[]) {
 
 /** Card do bloco de resumo, localizado pelo rótulo dentro da seção. */
 function cardResumo(rotulo: string): HTMLElement {
-  return within(screen.getByRole("region", { name: "Resumo do período" })).getByText(rotulo)
-    .closest("div")!
+  const el = within(screen.getByRole("region", { name: "Resumo do período" })).getByText(rotulo)
+  // Com drill-down o card virou <button>; sem drill-down continua <div>.
+  return (el.closest("button") ?? el.closest("div"))!
 }
 
 /** Card de faixa de frete: sobe do rótulo até a div do card (p -> linha -> card). */
@@ -105,6 +106,8 @@ describe("Dashboard", () => {
     expect(cardResumo("Mercadoria")).toHaveTextContent("R$ 2.000,00")
     // frete 20 + 30, somado uma vez por CT-e
     expect(cardResumo("Frete total")).toHaveTextContent("R$ 50,00")
+    // frete 50 ÷ mercadoria 2.000 = 2,50%
+    expect(cardResumo("Percentual total")).toHaveTextContent("2,50%")
     expect(cardResumo("Rateio dos itens")).toBeInTheDocument()
     expect(cardResumo("NF-e com valor")).toBeInTheDocument()
     expect(cardResumo("Rateio divergente")).toBeInTheDocument()

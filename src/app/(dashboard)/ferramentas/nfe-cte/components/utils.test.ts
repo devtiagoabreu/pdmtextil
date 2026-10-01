@@ -1,5 +1,6 @@
 import { describe, it, expect } from "vitest"
 import {
+  alcanceCarregado,
   agruparPorCte,
   ApiRelatorioError,
   LIMITE_PAGINA,
@@ -13,6 +14,8 @@ import {
   descricoesItem,
   extrairItems,
   filtrarPorPeriodo,
+  filtrarPorRegiao,
+  formatarDataBr,
   formatarMoeda,
   formatarNumero,
   formatarPercentual,
@@ -22,6 +25,7 @@ import {
   nfTemDespacho,
   nfTemRateio,
   nomeClienteNf,
+  nomeRegiaoDistinct,
   nomeTranspDistinct,
   normalizarLinha,
   normalizarResposta,
@@ -1072,6 +1076,78 @@ describe("agruparPorCte com região", () => {
   it("usa Sem região quando nenhuma NF-e do CT-e tem região", () => {
     const g = agruparPorCte([linha({ cte_numero: 8, nf_od_regiao: null })])
     expect(g[0].regiao).toBe("Sem região")
+  })
+})
+
+describe("nomeRegiaoDistinct", () => {
+  it("lista as regiões dos CT-es sem repetir, em ordem alfabética", () => {
+    const g = agruparPorCte([
+      linha({ cte_numero: 1, nf_od_regiao: "SERGIPE" }),
+      linha({ cte_numero: 2, nf_od_regiao: "BAHIA" }),
+      linha({ cte_numero: 3, nf_od_regiao: "SERGIPE" }),
+      linha({ cte_numero: 4, nf_od_regiao: null }),
+    ])
+    // ordem do localeCompare pt-BR: "Sem" < "SERGIPE" (m antes de r)
+    expect(nomeRegiaoDistinct(g)).toEqual(["BAHIA", "Sem região", "SERGIPE"])
+  })
+})
+
+describe("filtrarPorRegiao", () => {
+  it("mantém todas as NF-e do CT-e quando o CT-e cai na região", () => {
+    const itens = [
+      linha({ cte_numero: 1, nf_numero: 10, nf_od_regiao: "SERGIPE" }),
+      linha({ cte_numero: 1, nf_numero: 11, nf_od_regiao: "BAHIA" }),
+      linha({ cte_numero: 2, nf_numero: 20, nf_od_regiao: "BAHIA" }),
+    ]
+    // CT-e 1 é SERGIPE (primeira região preenchida): as duas NF-e ficam.
+    expect(filtrarPorRegiao(itens, "SERGIPE").map((x) => x.nf_numero)).toEqual([10, 11])
+    expect(filtrarPorRegiao(itens, "BAHIA").map((x) => x.nf_numero)).toEqual([20])
+  })
+
+  it("devolve tudo quando a região está vazia", () => {
+    const itens = [linha({ cte_numero: 1, nf_od_regiao: "SERGIPE" })]
+    expect(filtrarPorRegiao(itens, "")).toBe(itens)
+  })
+
+  it("separa CT-es sem região dos que têm", () => {
+    const itens = [
+      linha({ cte_numero: 1, nf_od_regiao: null }),
+      linha({ cte_numero: 2, nf_od_regiao: "SERGIPE" }),
+    ]
+    expect(filtrarPorRegiao(itens, "Sem região").map((x) => x.cte_numero)).toEqual([1])
+  })
+})
+
+describe("alcanceCarregado", () => {
+  it("devolve a menor e a maior data de referência", () => {
+    const itens = [
+      linha({ cte_numero: 1, nf_data: "15/09/2026", cte_data: "15/09/2026" }),
+      linha({ cte_numero: 2, nf_data: "01/08/2026", cte_data: "01/08/2026" }),
+      linha({ cte_numero: 3, nf_data: "20/09/2026", cte_data: "20/09/2026" }),
+    ]
+    expect(alcanceCarregado(itens)).toEqual({ de: "2026-08-01", ate: "2026-09-20" })
+  })
+
+  it("cai no cte_data quando a NF-e não tem data", () => {
+    const itens = [linha({ cte_numero: 1, nf_data: null, cte_data: "10/09/2026" })]
+    expect(alcanceCarregado(itens)).toEqual({ de: "2026-09-10", ate: "2026-09-10" })
+  })
+
+  it("devolve nulos quando nenhuma linha tem data", () => {
+    expect(alcanceCarregado([linha({ nf_data: null, cte_data: null })])).toEqual({
+      de: null,
+      ate: null,
+    })
+  })
+})
+
+describe("formatarDataBr", () => {
+  it("converte ISO em dd/mm/aaaa sem deslocar o dia por fuso", () => {
+    expect(formatarDataBr("2026-09-01")).toBe("01/09/2026")
+  })
+
+  it("devolve o traço quando não há data", () => {
+    expect(formatarDataBr(null)).toBe("—")
   })
 })
 

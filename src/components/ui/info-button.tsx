@@ -7,16 +7,22 @@ import { Dialog as DialogPrimitive } from "@base-ui/react/dialog"
 
 interface InfoButtonProps {
   content: InfoContent
+  /**
+   * Texto do botão (aria-label e title). Precisa ser específico quando o botão
+   * explica um campo da tela e não a tela inteira — "Informações da tela" não
+   * ajuda quem está tentando entender um percentual.
+   */
+  label?: string
 }
 
-export function InfoButton({ content }: InfoButtonProps) {
+export function InfoButton({ content, label = "Informações da tela" }: InfoButtonProps) {
   const [open, setOpen] = useState(false)
 
   return (
     <DialogPrimitive.Root open={open} onOpenChange={setOpen}>
       <DialogPrimitive.Trigger
-        aria-label="Informações da tela"
-        title="Informações da tela"
+        aria-label={label}
+        title={label}
         className="inline-flex items-center justify-center w-5 h-5 rounded-full border border-blue-400 text-blue-500 hover:bg-blue-50 dark:border-blue-500 dark:text-blue-400 dark:hover:bg-blue-950/50 transition-colors ml-2"
       >
         <Info size={12} />

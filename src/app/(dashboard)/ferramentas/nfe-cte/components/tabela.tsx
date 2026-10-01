@@ -1,7 +1,10 @@
 import { ChevronDown, ChevronRight, Package } from "lucide-react"
+import { InfoButton } from "@/components/ui/info-button"
+import { rateioCteInfoContent } from "@/lib/info-content/ferramentas"
 import { BadgeFaixaFrete } from "./dashboard"
 import type { GrupoCte, LinhaCte } from "./types"
 import {
+  classificarFaixaFrete,
   descricoesItem,
   faixaFreteDoCte,
   formatarMoeda,
@@ -28,6 +31,13 @@ function rotuloNf(linha: LinhaCte): string {
 
 function chaveItem(grupo: GrupoCte, linha: LinhaCte, idx: number): string {
   return `${grupo.chave}|${linha.nf_numero ?? idx}-${linha.nf_serie ?? ""}`
+}
+
+/** Soma dos "% do CT-e" das NF-e do grupo. Deve fechar em 100%. */
+function somaPctNf(grupo: GrupoCte): number | null {
+  const valores = grupo.nfs.map((n) => n.pct_nf_no_total_cte)
+  if (valores.some((v) => v == null)) return null
+  return valores.reduce<number>((soma, v) => soma + (v ?? 0), 0)
 }
 
 function TabelaItens({ linha }: { linha: LinhaCte }) {
@@ -191,7 +201,10 @@ export function TabelaCte({
                         Rateio
                       </th>
                       <th className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-400">
-                        % no CT-e
+                        % do CT-e
+                      </th>
+                      <th className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-400">
+                        % CT-e sobre a nota
                       </th>
                     </tr>
                   </thead>
@@ -261,21 +274,34 @@ export function TabelaCte({
                             {linha.nf_pct_rateio_no_cte != null && (
                               <span className="block text-[10px] text-slate-400">
                                 {formatarPercentual(linha.nf_pct_rateio_no_cte)} do CT-e
+                                <InfoButton
+                                  content={rateioCteInfoContent}
+                                  label="O que é esse percentual do rateio?"
+                                />
                               </span>
                             )}
                           </td>
                           <td className="px-4 py-2 text-right font-mono text-slate-600 dark:text-slate-300">
                             {formatarPercentual(linha.pct_nf_no_total_cte)}
                           </td>
+                          <td className="px-4 py-2 text-right">
+                            <BadgeFaixaFrete
+                              faixa={classificarFaixaFrete(linha.pct_cte_sobre_total_nfs)}
+                              pct={linha.pct_cte_sobre_total_nfs}
+                              compacto
+                            />
+                          </td>
                         </tr>
                       )
                     })}
                     <tr>
                       <td className="px-4 py-2 text-xs uppercase text-slate-400" colSpan={4}>
-                        Total do CT-e
+                        Total do CT-e ({formatarNumero(grupo.nfs.length)} NF-e)
                       </td>
-                      <td className="px-4 py-2 text-right font-mono font-semibold text-slate-900 dark:text-slate-100">
-                        {formatarNumero(grupo.nfs.length)} NF-e
+                      <td className="px-4 py-2 text-right font-mono text-slate-700 dark:text-slate-300">
+                        {grupo.somaNf != null
+                          ? formatarMoeda(grupo.somaNf)
+                          : formatarMoeda(grupo.somaNfCalculada || null)}
                       </td>
                       <td className="px-4 py-2 text-right font-mono text-slate-700 dark:text-slate-300">
                         {grupo.somaRateio != null
@@ -283,9 +309,18 @@ export function TabelaCte({
                           : formatarMoeda(grupo.somaRateioCalculada || null)}
                       </td>
                       <td className="px-4 py-2 text-right text-xs text-slate-500 dark:text-slate-400">
-                        {grupo.somaNf != null
-                          ? formatarMoeda(grupo.somaNf)
-                          : formatarMoeda(grupo.somaNfCalculada || null)}
+                        {formatarPercentual(somaPctNf(grupo))}
+                      </td>
+                      <td className="px-4 py-2 text-right">
+                        {grupo.pctSobreNf != null || grupo.pctCalculado !== null ? (
+                          <BadgeFaixaFrete
+                            faixa={faixaFreteDoCte(grupo)}
+                            pct={grupo.pctSobreNf ?? grupo.pctCalculado}
+                            compacto
+                          />
+                        ) : (
+                          "—"
+                        )}
                       </td>
                     </tr>
                   </tbody>

@@ -512,8 +512,50 @@ export function formatarNumero(valor: number | null | undefined): string {
   return valor.toLocaleString("pt-BR")
 }
 
+/** `2026-09-01` → `01/09/2026`. Evita `new Date()` para não deslocar o dia por fuso. */
+export function formatarDataBr(iso: string | null | undefined): string {
+  if (!iso) return "—"
+  const partes = iso.slice(0, 10).split("-")
+  if (partes.length !== 3) return iso
+  return `${partes[2]}/${partes[1]}/${partes[0]}`
+}
+
 export function nomeTranspDistinct(grupos: GrupoCte[]): string[] {
   return [...new Set(grupos.map((g) => g.transportadora))].sort((a, b) => a.localeCompare(b, "pt-BR"))
+}
+
+/** Regiões presentes nos CT-es, para o filtro da toolbar. */
+export function nomeRegiaoDistinct(grupos: GrupoCte[]): string[] {
+  return [...new Set(grupos.map((g) => g.regiao))].sort((a, b) => a.localeCompare(b, "pt-BR"))
+}
+
+/**
+ * Intervalo de datas realmente coberto pelo relatório que foi carregado.
+ *
+ * O endpoint do Systêxtil tem a janela **fixa no SQL** (dois meses fechados), e
+ * o PDM filtra em cima do que veio. Isso significa que o filtro "De/Até" só
+ * consegue reduzir o período — nunca ampliá-lo. Sem mostrar esse alcance, um
+ * período fora da janela devolve "nenhuma NF-e" sem explicar por quê.
+ */
+export function alcanceCarregado(itens: LinhaCte[]): { de: string | null; ate: string | null } {
+  const datas = itens.map(dataReferencia).filter((d): d is string => d != null).sort()
+  return { de: datas[0] ?? null, ate: datas[datas.length - 1] ?? null }
+}
+
+/**
+ * Filtro por região do cliente (`nf_od_regiao`), usando a MESMA regra da
+ * grade e do dashboard: a primeira região preenchida entre as NF-e do CT-e.
+ * O filtro é por CT-e, não por linha — se o CT-e caiu na região, todas as suas
+ * NF-e ficam, senão o card do CT-e apareceria pela metade.
+ */
+export function filtrarPorRegiao(itens: LinhaCte[], regiao: string): LinhaCte[] {
+  if (!regiao) return itens
+  const chaves = new Set(
+    agruparPorCte(itens)
+      .filter((g) => g.regiao === regiao)
+      .map((g) => g.chave)
+  )
+  return itens.filter((l) => chaves.has(chaveCte(l)))
 }
 
 // ---------------------------------------------------------------------------

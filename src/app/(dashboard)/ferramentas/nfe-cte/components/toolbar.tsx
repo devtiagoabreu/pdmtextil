@@ -1,4 +1,4 @@
-import { CalendarDays, Loader2, RefreshCw, Truck } from "lucide-react"
+import { CalendarDays, Loader2, MapPin, RefreshCw, Truck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import type { Integracao, Periodo } from "./types"
@@ -15,6 +15,9 @@ interface ToolbarProps {
   transporteFiltro: string
   onTransporteFiltroChange: (valor: string) => void
   transportes: string[]
+  regiaoFiltro: string
+  onRegiaoFiltroChange: (valor: string) => void
+  regioes: string[]
   termo: string
   onTermoChange: (valor: string) => void
   children?: React.ReactNode
@@ -32,6 +35,9 @@ export function Toolbar({
   transporteFiltro,
   onTransporteFiltroChange,
   transportes,
+  regiaoFiltro,
+  onRegiaoFiltroChange,
+  regioes,
   termo,
   onTermoChange,
   children,
@@ -122,6 +128,24 @@ export function Toolbar({
           </select>
         </div>
         <div>
+          <label htmlFor="cte-regiao" className="text-xs font-medium text-slate-500 mb-1 block">
+            Região do cliente
+          </label>
+          <select
+            id="cte-regiao"
+            value={regiaoFiltro}
+            onChange={(e) => onRegiaoFiltroChange(e.target.value)}
+            className="h-8 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 text-sm text-slate-700 dark:text-slate-200"
+          >
+            <option value="">Todas</option>
+            {regioes.map((r) => (
+              <option key={r} value={r}>
+                {r}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
           <label htmlFor="cte-termo" className="text-xs font-medium text-slate-500 mb-1 block">
             NF-e ou CT-e
           </label>
@@ -137,6 +161,10 @@ export function Toolbar({
           <span className="inline-flex items-center gap-1 text-xs text-slate-500">
             <Truck size={14} />
             Uma linha por NF-e
+          </span>
+          <span className="inline-flex items-center gap-1 text-xs text-slate-500">
+            <MapPin size={14} />
+            Filtros e período valem para a tela inteira
           </span>
         </div>
         {children}

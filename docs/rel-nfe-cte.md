@@ -2866,3 +2866,87 @@ distribuição das faixas, regiões e a tabela de transportadora com ratio agreg
 Sai com código 1 se alguma linha cair fora da janela ou se o endpoint responder erro. Foi ele que
 mediu os números das seções 23.2 a 23.6 depois da publicação de 01/10/2026. Aceita `--db=` para
 trocar de banco (`pdm_textil`, `pdm_pro_textil`, `pdm_ibirapuera`, `neon`).
+
+## 24. Leiga na tela: rateio, % do CT-e, filtro de regiao, drill-down e PDF (01/10/2026)
+
+Cinco pedidos do dono da tela, todos na mesma entrega. O ponto em comum: os numeros ja existiam,
+o que faltava era explicacao e caminho para chegar no CT-e.
+
+### 24.1 O "100,00% do CT-e" embaixo do valor da nota
+
+O texto embaixo do valor da nota nao e o frete: e `nf_pct_rateio_no_cte`, a fatia do **rateio dos
+itens** daquela nota dentro do CT-e. `100,00%` significa "esta nota levou tudo o que foi rateado
+no CT-e". Como o leigo lia isso como "o frete desta nota", virou um `InfoButton` ao lado com o
+conteudo `rateioCteInfoContent` (`src/lib/info-content/ferramentas.ts`), que explica em uma frase o
+que e rateio e da 3 exemplos.
+
+O `% NO CT-e` da coluna passou a se chamar **`% do CT-e`** (e a coluna `pct_nf_no_total_cte`, a fatia
+da NOTA dentro do CT-e). As duas somam 100% dentro de um CT-e, por isso os nomes precisam ficar
+distintos.
+
+`InfoButton` ganhou `label?: string` (default `"Informacoes da tela"`) para o botao poder ter nome
+proprio em vez de repetir o texto generico.
+
+### 24.2 Nova coluna `% CT-e sobre a nota`
+
+`pct_cte_sobre_total_nfs` (total do CT-e / soma das NF-e do CT-e), com `BadgeFaixaFrete` na mesma
+faixa da regra: ate 1,5% verde, 1,5% a 2,0% laranja, acima de 2,0% vermelho. O valor e do CT-e, nao
+da nota, entao repete nas NF-e do mesmo CT-e.
+
+A coluna ja existia como texto no cabecalho do card do CT-e e no CSV; agora ela esta **linha a linha**,
+que era o que faltava para achar o CT-e problematico sem abrir o card.
+
+O rodape do CT-e mudou junto: `somaNf` (a soma das notas) estava embaixo de `% do CT-e`, que e
+percentual. Agora a soma das notas fica sob `Valor da nota`, o rateio sob `Rateio`, a soma das fatias
+(`somaPctNf`, que fecha em 100%) sob `% do CT-e` e o selo sob a coluna nova.
+
+### 24.3 Card `Percentual total`
+
+`resumo.totalFrete / mercadoriaTotal * 100` no card novo, com o sufixo `frete / mercadoria`.
+
+Atencao ao contraste com a secao 23.3: nos breakdowns por transportadora e regiao a metrica continua
+sendo a **media por CT-e**, porque ali o ratio agregado distorce. No total do periodo o ratio e a
+leitura natural, e e o numero que o dono reconhece. O comentario no codigo registra isso para ninguem
+"consertar" depois.
+
+### 24.4 Filtro de regiao e o alcance do filtro de data
+
+- **`Regiao do cliente`** (select novo na toolbar, junto de `Transportadora`): `filtrarPorRegiao`
+  resolve a regiao do CT-e pela **primeira `nf_od_regiao` preenchida** -- a mesma regra de
+  `agruparPorCte` -- e mantem **todas** as NF-e do CT-es escolhido. Filtrar por linha deixaria o card
+  do CT-e pela metade. As opcoes saem de `nomeRegiaoDistinct(agruparPorCte(itens))`, sobre os itens
+  carregados e nao sobre os ja filtrados, para o select nao sumir a opcao selecionada.
+- **O filtro De/Ate ja mudava a tela inteira** (dashboard, grade e resumo saem de `filtrados`), mas
+  ele so **reduz** a janela de dois meses que o endpoint traz -- a janela esta fixa no SQL do
+  Systextil (secao 21.1). Um periodo fora dela devolvia "Nenhuma NF-e" sem explicar o porque. Agora
+  `alcanceCarregado(itens)` mostra `O relatorio carregado cobre DD/MM/AAAA a DD/MM/AAAA` na tela
+  vazia. Para **ampliar** o periodo seria preciso parametro de data no endpoint -- nao foi feito.
+- A tela vazia tambem passou a distinguir "periodo sem resultado" de "filtro sem resultado"
+  (`filtrosAtivos`).
+
+### 24.5 Drill-down e PDF dos CT-es selecionados
+
+Clicar num card abre `ModalCtes` (`components/modal-ctes.tsx`) com a listagem dos CT-es do recorte:
+numero, emissao, transportadora, n de NF-e, mercadoria, frete e o selo de faixa. O recorte vem de:
+
+- cards de **resumo** (`onDetalhe`): NF-e, CT-es, Mercadoria, Frete total, Percentual total e Rateio
+  dos itens abrem todos os CT-es; `NF-e com valor` e `Rateio divergente` abrem so os CT-es que tem
+  valor / os divergentes;
+- cards de **faixa** de frete sobre a mercadoria;
+- linhas dos **breakdowns** de transportadora e de regiao.
+
+No modal, checkbox por CT-e (+ "selecionar todos"), orientacao retrato/paisagem e `Gerar PDF (N)`.
+
+`components/cte-pdf.ts` segue o padrao do romaneio: `jspdf` + `jspdf-autotable` com import
+dinamico, `carregarEmpresa()` em `/api/admin/config/empresa`, logo com fallback no
+`/api/proxy-image`, header azul, box de identificacao, grade das NF-e rateadas e rodape por pagina.
+`gerarPdfCte` (um CT-e) e `gerarPdfCtes` (consolidado, uma pagina por CT-e) seguem a mesma convencao
+de nome do romaneio: `cte-195476.pdf` e `ctes-<lista ou faixa>.pdf`.
+
+Diferencas em relacao ao romaneio: sem `any` (o modulo Comercial ja tinha resolvido isso com
+`DocPdfComAutoTable`/`EmpresaConfig`/`LinhaTabela`, e o padrao foi copiado), e a tabela mostra o
+rateio e os dois percentuais por NF-e em vez de rolos/mettragem.
+
+Os cards viraram `<button>` com `aria-label` proprio (`Ver os CT-es de Frete total`) -- o nome
+acessivel antes era so o rotulo, que deixava "NF-e" e "NF-e com valor" indistinguiveis para leitor de
+tela. Sem `aria-label` explicito, o nome vem do conteudo e o `title` nao conta.

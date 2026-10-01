@@ -1,8 +1,16 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest"
-import { screen, fireEvent, within } from "@testing-library/react"
+import { screen, fireEvent, waitFor, within } from "@testing-library/react"
 import NfeCtePage from "./page"
 import { createFetchMock, findCall, navMock, renderPage, toastMock } from "@/test/harness"
+
+// O jsPDF real é pesado e não roda no jsdom; o teste só verifica que a seleção
+// chega no gerador com os CT-es certos.
+const gerarPdfCtes = vi.fn(async () => {})
+vi.mock("./components/cte-pdf", () => ({
+  gerarPdfCtes: (...args: unknown[]) => gerarPdfCtes(...(args as [])),
+  gerarPdfCte: vi.fn(async () => {}),
+}))
 
 const integracoes = [
   {
@@ -225,6 +233,57 @@ const rateioDivergenteB = {
   nf_pct_rateio_no_cte: 100,
 }
 
+// CT-e com frete de 3,5% da mercadoria — acima de 2,0%, faixa vermelha.
+const comFaixaAlta = {
+  cte_numero: 195479,
+  cte_serie: "1",
+  cte_data: br(dentroDoPeriodoPadrao),
+  cte_valor_total: 200,
+  cte_valor_frete: 700,
+  cte_transportadora_fantasia: "JADLOG",
+  cte_tomador_fantasia: "JADLOG",
+  soma_nf_do_cte: 20000,
+  soma_rateio_do_cte: 700,
+  pct_cte_sobre_total_nfs: 3.5,
+  nf_numero: 35850,
+  nf_serie: "1",
+  nf_data: br(dentroDoPeriodoPadrao),
+  nf_valor_total: 20000,
+  pct_nf_no_total_cte: 100,
+  nf_frete_rateado: 700,
+  nf_item_valor_total: 20000,
+  nf_pct_rateio_no_cte: 100,
+  nf_cliente_fantasia: "CLIENTE SUL",
+}
+
+const comRegiaoSudeste = {
+  cte_numero: 195481,
+  cte_serie: "1",
+  cte_data: br(dentroDoPeriodoPadrao),
+  cte_valor_total: 100,
+  cte_valor_frete: 20,
+  cte_transportadora_fantasia: "JADLOG",
+  cte_tomador_fantasia: "JADLOG",
+  soma_nf_do_cte: 1000,
+  soma_rateio_do_cte: 20,
+  pct_cte_sobre_total_nfs: 2,
+  nf_numero: 35860,
+  nf_serie: "1",
+  nf_data: br(dentroDoPeriodoPadrao),
+  nf_valor_total: 1000,
+  pct_nf_no_total_cte: 100,
+  nf_item_valor_total: 1000,
+  nf_pct_rateio_no_cte: 100,
+  nf_od_regiao: "Sudeste",
+}
+
+const comRegiaoNorte = {
+  ...comRegiaoSudeste,
+  cte_numero: 195482,
+  nf_numero: 35861,
+  nf_od_regiao: "Norte",
+}
+
 function handler(
   items: Record<string, unknown>[] = [dentroDoPeriodo, segundaNfDoMesmoCte, foraDoPeriodo, semValores]
 ) {
@@ -250,6 +309,7 @@ describe("NfeCtePage", () => {
   beforeEach(() => {
     navMock.reset()
     navMock.setPathname("/ferramentas/nfe-cte")
+    gerarPdfCtes.mockClear()
   })
 
   it("renderiza o heading e a integração configurada", async () => {
@@ -372,16 +432,18 @@ describe("NfeCtePage", () => {
 
     fireEvent.click(await screen.findByRole("button", { name: /CT-e 195477/ }))
 
-    // colunas: Nota | Despacho | Emissão | Cliente | Valor da nota | Rateio | % no CT-e
+    // colunas: Nota | Despacho | Emissão | Cliente | Valor da nota | Rateio
+    //          | % do CT-e | % CT-e sobre a nota
     const linha = screen.getByText("NF 35835/1").closest("tr")!
     const celulas = within(linha).getAllByRole("cell")
-    expect(celulas).toHaveLength(7)
+    expect(celulas).toHaveLength(8)
     expect(celulas[1]).toHaveTextContent("—")
     expect(celulas[2]).toHaveTextContent("—")
     expect(celulas[3]).toHaveTextContent("—")
     expect(celulas[4]).toHaveTextContent("—")
     expect(celulas[5]).toHaveTextContent("—")
     expect(celulas[6]).toHaveTextContent("—")
+    expect(celulas[7]).toHaveTextContent("—")
   })
 
   it("resume CT-es, NF-e com valor e rateio", async () => {
@@ -716,5 +778,158 @@ describe("NfeCtePage", () => {
         configurable: true,
       })
     }
+  })
+
+  // -------------------------------------------------------------------------
+  // Coluna "% CT-e sobre a nota", ajuda do rateio, filtro de região e modal
+  // -------------------------------------------------------------------------
+
+  it("mostra a coluna % CT-e sobre a nota com a faixa de frete colorida", async () => {
+    const fetchMock = createFetchMock(handler([comFaixaAlta]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    expect(await screen.findByText("CT-e 195479/1")).toBeInTheDocument()
+    fireEvent.click(screen.getByRole("button", { name: /CT-e 195479/ }))
+
+    // Os cabeçalhos só existem com o CT-e aberto.
+    expect(screen.getByText("% do CT-e")).toBeInTheDocument()
+    expect(screen.getByText("% CT-e sobre a nota")).toBeInTheDocument()
+
+    const linha = screen.getByText("NF 35850/1").closest("tr")!
+    const celula = within(linha).getAllByRole("cell")[7]
+    expect(celula).toHaveTextContent("3,50%")
+    // selo compacto: a faixa vem no aria-label, não no texto
+    expect(
+      within(celula).getByLabelText("Frete sobre a mercadoria: 3,50% — acima de 2,0%")
+    ).toBeInTheDocument()
+  })
+
+  it("oferece ajuda do percentual de rateio ao lado do valor na nota", async () => {
+    const fetchMock = createFetchMock(handler([comRateio]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    fireEvent.click(await screen.findByRole("button", { name: /CT-e 195477/ }))
+
+    expect(screen.getByText("100,00% do CT-e")).toBeInTheDocument()
+    expect(
+      screen.getByRole("button", { name: "O que é esse percentual do rateio?" })
+    ).toBeInTheDocument()
+  })
+
+  it("filtra por região do cliente via select", async () => {
+    const fetchMock = createFetchMock(handler([comRegiaoSudeste, comRegiaoNorte]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    await screen.findByText("CT-e 195481/1")
+    expect(screen.getByText("CT-e 195482/1")).toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText("Região do cliente"), {
+      target: { value: "Norte" },
+    })
+
+    expect(screen.getByText("CT-e 195482/1")).toBeInTheDocument()
+    expect(screen.queryByText("CT-e 195481/1")).not.toBeInTheDocument()
+  })
+
+  it("avisa o alcance do relatório quando o período não devolve nada", async () => {
+    const fetchMock = createFetchMock(handler([dentroDoPeriodo]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    fireEvent.change(screen.getByLabelText("De"), { target: { value: "2019-01-01" } })
+    fireEvent.change(screen.getByLabelText("Até"), { target: { value: "2019-01-31" } })
+
+    expect(
+      await screen.findByText("Nenhuma NF-e no período selecionado")
+    ).toBeInTheDocument()
+    expect(screen.getByText(/O relatório carregado cobre/)).toHaveTextContent(
+      `O relatório carregado cobre ${br(dentroDoPeriodoPadrao)} a ${br(dentroDoPeriodoPadrao)}`
+    )
+  })
+
+  it("distingue período vazio de filtro sem resultado", async () => {
+    const fetchMock = createFetchMock(handler([comRegiaoSudeste, comRegiaoNorte]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    await screen.findByText("CT-e 195481/1")
+    fireEvent.change(screen.getByLabelText("NF-e ou CT-e"), { target: { value: "999999" } })
+
+    expect(
+      await screen.findByText("Nenhuma NF-e para os filtros selecionados")
+    ).toBeInTheDocument()
+    expect(screen.getByText(/Ajuste a transportadora, a região ou a busca/)).toBeInTheDocument()
+  })
+
+  it("abre o modal com os CT-es do recorte e gera o PDF dos selecionados", async () => {
+    const fetchMock = createFetchMock(handler([comRegiaoSudeste, comRegiaoNorte]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    await screen.findByText("CT-e 195481/1")
+    fireEvent.click(screen.getByRole("tab", { name: "Por região do cliente" }))
+    fireEvent.click(screen.getByRole("button", { name: /Ver os 1 CT-e de Sudeste/ }))
+
+    const dialogo = await screen.findByRole("dialog")
+    expect(within(dialogo).getByRole("heading", { name: "Região: Sudeste" })).toBeInTheDocument()
+    expect(within(dialogo).getByText(/1 CT-e no recorte/)).toBeInTheDocument()
+    expect(
+      within(dialogo).getByRole("checkbox", { name: "Selecionar CT-e 195481" })
+    ).toBeInTheDocument()
+    expect(
+      within(dialogo).queryByRole("checkbox", { name: "Selecionar CT-e 195482" })
+    ).not.toBeInTheDocument()
+
+    // PDF fica desligado até escolher algo.
+    const semSelecao = within(dialogo).getByRole("button", { name: /Gerar PDF/ })
+    expect(semSelecao).toBeDisabled()
+
+    fireEvent.click(within(dialogo).getByRole("checkbox", { name: "Selecionar CT-e 195481" }))
+    fireEvent.click(within(dialogo).getByRole("button", { name: /Gerar PDF \(1\)/ }))
+
+    await waitFor(() => expect(gerarPdfCtes).toHaveBeenCalledTimes(1))
+    expect(gerarPdfCtes).toHaveBeenCalledWith(
+      [expect.objectContaining({ chave: "195481-1" })],
+      "portrait"
+    )
+    expect(toastMock.success).toHaveBeenCalledWith("PDF com 1 CT-e gerado!")
+  })
+
+  it("seleciona e deseleciona todos os CT-es pelo checkbox do cabeçalho", async () => {
+    const fetchMock = createFetchMock(handler([comRegiaoSudeste, comRegiaoNorte]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    await screen.findByText("CT-e 195481/1")
+    fireEvent.click(screen.getByRole("button", { name: "Ver os CT-es de NF-e" }))
+
+    const dialogo = await screen.findByRole("dialog")
+    fireEvent.click(within(dialogo).getByRole("checkbox", { name: "Selecionar todos os CT-es" }))
+
+    expect(within(dialogo).getByRole("button", { name: /Gerar PDF \(2\)/ })).toBeEnabled()
+
+    fireEvent.click(within(dialogo).getByRole("checkbox", { name: "Selecionar todos os CT-es" }))
+    expect(within(dialogo).getByRole("button", { name: /Gerar PDF \(0\)/ })).toBeDisabled()
+  })
+
+  it("fecha o modal de CT-es pelo botão e pelo Escape", async () => {
+    const fetchMock = createFetchMock(handler([comRegiaoSudeste]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    await screen.findByText("CT-e 195481/1")
+    fireEvent.click(screen.getByRole("button", { name: /Ver os CT-es de Frete total/ }))
+    await screen.findByRole("dialog")
+
+    fireEvent.click(screen.getByRole("button", { name: "Fechar lista de CT-es" }))
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+
+    fireEvent.click(screen.getByRole("button", { name: /Ver os CT-es de Frete total/ }))
+    await screen.findByRole("dialog")
+    fireEvent.keyDown(document, { key: "Escape" })
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
   })
 })
