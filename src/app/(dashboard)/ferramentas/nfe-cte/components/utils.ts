@@ -588,6 +588,22 @@ export function freteSobreMercadoria(
 }
 
 /**
+ * Frete do CT-e, na única fonte que a tela inteira usa.
+ *
+ * `cte_valor_frete` **não vem preenchido** do endpoint: medido em 01/10/2026 na
+ * janela publicada, 0 de 70 linhas com valor maior que zero. O frete deste
+ * relatório é o total do conhecimento (`cte_valor_total`) — é o que
+ * `calcularResumo` soma uma vez por CT-e e o que `pct_cte_sobre_total_nfs`
+ * usa no numerador.
+ *
+ * Ler `GrupoCte.valorFrete` direto mostra R$ 0,00 em todos os CT-es; por isso
+ * tela, PDF e testes passam por aqui.
+ */
+export function freteCte(grupo: GrupoCte): number | null {
+  return grupo.valorTotal
+}
+
+/**
  * Classifica o frete % na regra do negócio:
  *
  * - até 1,5% → `abaixo` (verde)

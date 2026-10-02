@@ -302,6 +302,7 @@ export default function NfeCtePage() {
             regioes={regioes}
             termo={termo}
             onTermoChange={setTermo}
+            alcance={alcance}
           >
             <div className="flex items-end gap-2 pb-1">
               <button

@@ -5,7 +5,7 @@ import { Download, Loader2, X } from "lucide-react"
 import { toast } from "sonner"
 import { BadgeFaixaFrete } from "./dashboard"
 import { gerarPdfCtes, type OrientacaoCtePdf } from "./cte-pdf"
-import { classificarFaixaFrete, formatarMoeda, formatarPercentual } from "./utils"
+import { classificarFaixaFrete, formatarMoeda, formatarPercentual, freteCte } from "./utils"
 import type { GrupoCte } from "./types"
 
 interface ModalCtesProps {
@@ -198,7 +198,7 @@ export function ModalCtes({ titulo, grupos, onClose }: ModalCtesProps) {
                         {formatarMoeda(g.somaNf ?? g.somaNfCalculada)}
                       </td>
                       <td className="px-3 py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">
-                        {formatarMoeda(g.valorFrete)}
+                        {formatarMoeda(freteCte(g))}
                       </td>
                       <td className="px-3 py-2 text-right">
                         <BadgeFaixaFrete
@@ -261,6 +261,6 @@ function percentualDosSelecionados(
     0
   )
   if (mercadoria <= 0) return null
-  const frete = escolhidos.reduce((t, g) => t + (g.valorFrete ?? 0), 0)
+  const frete = escolhidos.reduce((t, g) => t + (freteCte(g) ?? 0), 0)
   return (frete / mercadoria) * 100
 }

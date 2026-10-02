@@ -2950,3 +2950,20 @@ rateio e os dois percentuais por NF-e em vez de rolos/mettragem.
 Os cards viraram `<button>` com `aria-label` proprio (`Ver os CT-es de Frete total`) -- o nome
 acessivel antes era so o rotulo, que deixava "NF-e" e "NF-e com valor" indistinguiveis para leitor de
 tela. Sem `aria-label` explicito, o nome vem do conteudo e o `title` nao conta.
+
+### 24.6 BUG: frete R$ 0,00 nos modais e no PDF
+
+O modal de CT-es e o PDF mostravam `R$ 0,00` na coluna Frete. Causa: os dois liam
+`GrupoCte.valorFrete`, que vem de `cte_valor_frete` -- e esse campo **nao vem preenchido**
+(medido em 01/10/2026 na janela publicada: 0 de 70 linhas com valor > 0). O frete deste relatorio
+e `cte_valor_total`, que ja era o que o card da grade usava ("Frete"), o que `calcularResumo` soma
+uma vez por CT-e e o que `pct_cte_sobre_total_nfs` usa no numerador -- por isso as faixas e o card
+"Frete total" apareciam certos enquanto o modal aparecia errado.
+
+Corrigido com `freteCte(grupo)` em `utils.ts`, que fixa a fonte em um lugar so (documentado com o
+numero da medicao). Tela e PDF passam por ele, e ha trava em `utils.test.ts` ("ignora
+`cte_valor_frete` mesmo quando ele vem preenchido") mais uma no `page.test.tsx` que usa o
+`cte_valor_frete: 0` real do endpoint.
+
+Regra: **nunca ler `GrupoCte.valorFrete` para exibir frete.** Ele existe no tipo porque o endpoint
+projeta a coluna; o valor confiavel e `freteCte()`.

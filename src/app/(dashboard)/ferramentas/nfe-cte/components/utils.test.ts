@@ -19,6 +19,7 @@ import {
   formatarMoeda,
   formatarNumero,
   formatarPercentual,
+  freteCte,
   freteSobreMercadoria,
   isoParaData,
   nfSemCabecalho,
@@ -1138,6 +1139,33 @@ describe("alcanceCarregado", () => {
       de: null,
       ate: null,
     })
+  })
+})
+
+describe("freteCte", () => {
+  it("usa cte_valor_total, porque cte_valor_frete vem vazio do endpoint", () => {
+    const [g] = agruparPorCte([
+      linha({ cte_numero: 1, cte_valor_total: 131.7, cte_valor_frete: 0 }),
+    ])
+    expect(freteCte(g)).toBe(131.7)
+  })
+
+  it("ignora cte_valor_frete mesmo quando ele vem preenchido", () => {
+    // A regra do relatório é o total do conhecimento; misturar as duas fontes
+    // fazia o card de frete bater com a faixa e o modal não.
+    const [g] = agruparPorCte([
+      linha({ cte_numero: 1, cte_valor_total: 100, cte_valor_frete: 20 }),
+    ])
+    expect(freteCte(g)).toBe(100)
+  })
+
+  it("bate com o frete que o resumo soma para o mesmo CT-e", () => {
+    const itens = [
+      linha({ cte_numero: 1, cte_valor_total: 150, cte_valor_frete: 0, nf_numero: 10 }),
+      linha({ cte_numero: 1, cte_valor_total: 150, cte_valor_frete: 0, nf_numero: 11 }),
+    ]
+    const [g] = agruparPorCte(itens)
+    expect(freteCte(g)).toBe(calcularResumo(itens).totalFrete)
   })
 })
 

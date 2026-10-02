@@ -1,6 +1,7 @@
 import { CalendarDays, Loader2, MapPin, RefreshCw, Truck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
+import { formatarDataBr } from "./utils"
 import type { Integracao, Periodo } from "./types"
 
 interface ToolbarProps {
@@ -20,6 +21,8 @@ interface ToolbarProps {
   regioes: string[]
   termo: string
   onTermoChange: (valor: string) => void
+  /** Janela realmente coberta pelo relatório carregado (ver `alcanceCarregado`). */
+  alcance?: { de: string | null; ate: string | null }
   children?: React.ReactNode
 }
 
@@ -40,6 +43,7 @@ export function Toolbar({
   regioes,
   termo,
   onTermoChange,
+  alcance,
   children,
 }: ToolbarProps) {
   return (
@@ -166,6 +170,12 @@ export function Toolbar({
             <MapPin size={14} />
             Filtros e período valem para a tela inteira
           </span>
+          {alcance?.de ? (
+            <span className="text-xs text-slate-400">
+              · Carregado: {formatarDataBr(alcance.de)} a {formatarDataBr(alcance.ate)} — a data
+              só <strong className="font-medium text-slate-500">reduz</strong> essa janela
+            </span>
+          ) : null}
         </div>
         {children}
       </div>

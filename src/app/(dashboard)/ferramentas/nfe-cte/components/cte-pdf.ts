@@ -4,6 +4,7 @@ import {
   classificarFaixaFrete,
   formatarMoeda,
   formatarPercentual,
+  freteCte,
   nomeClienteNf,
 } from "./utils"
 
@@ -202,7 +203,7 @@ export async function renderCtePage(
   const pct = grupo.pctSobreNf ?? grupo.pctCalculado
   doc.text(`${grupo.nfs.length} NF-e`, colDireita, y + 10)
   doc.text(`Mercadoria: ${formatarMoeda(grupo.somaNf ?? grupo.somaNfCalculada)}`, colDireita, y + 14.5)
-  doc.text(`Frete: ${formatarMoeda(grupo.valorFrete)}`, colDireita, y + 19)
+  doc.text(`Frete: ${formatarMoeda(freteCte(grupo))}`, colDireita, y + 19)
   doc.text(`Rateio: ${formatarMoeda(grupo.somaRateio ?? grupo.somaRateioCalculada)}`, colDireita, y + 23.5)
   doc.text(`% CT-e: ${formatarPercentual(pct)} (${rotuloFaixa(pct)})`, colDireita, y + 28)
 
@@ -252,7 +253,7 @@ export async function renderCtePage(
     doc.setFont("helvetica", "bold").setFontSize(7.5)
     doc.text(
       `Total: ${grupo.nfs.length} NF-e · mercadoria ${formatarMoeda(grupo.somaNf ?? grupo.somaNfCalculada)}` +
-        ` · frete ${formatarMoeda(grupo.valorFrete)}`,
+        ` · frete ${formatarMoeda(freteCte(grupo))}`,
       margin,
       fim + 5
     )

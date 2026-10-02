@@ -256,12 +256,14 @@ const comFaixaAlta = {
   nf_cliente_fantasia: "CLIENTE SUL",
 }
 
+// `cte_valor_frete` vem 0 do endpoint (medido em 01/10/2026): o frete da tela é
+// o total do CT-e. Serve de trava contra voltar a ler `cte_valor_frete`.
 const comRegiaoSudeste = {
   cte_numero: 195481,
   cte_serie: "1",
   cte_data: br(dentroDoPeriodoPadrao),
   cte_valor_total: 100,
-  cte_valor_frete: 20,
+  cte_valor_frete: 0,
   cte_transportadora_fantasia: "JADLOG",
   cte_tomador_fantasia: "JADLOG",
   soma_nf_do_cte: 1000,
@@ -303,6 +305,12 @@ async function consultar(fetchMock: ReturnType<typeof createFetchMock>) {
   await screen.findByRole("button", { name: "api_rel_nfe_cte_periodo" })
   fireEvent.click(screen.getByRole("button", { name: /Consultar/ }))
   return fetchMock
+}
+
+/** Card do bloco de resumo do dashboard, localizado pelo rótulo. */
+function cardResumo(rotulo: string): HTMLElement {
+  const el = within(screen.getByRole("region", { name: "Resumo do período" })).getByText(rotulo)
+  return (el.closest("button") ?? el.closest("div"))!
 }
 
 describe("NfeCtePage", () => {
@@ -850,6 +858,46 @@ describe("NfeCtePage", () => {
     )
   })
 
+  it("refiltra CT-es, notas e cards ao mudar a data, como com transportadora", async () => {
+    const dSetembro = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 15, 12)
+    const dAgosto = new Date(hoje.getFullYear(), hoje.getMonth() - 2, 15, 12)
+    const cteSetembro = {
+      ...comRegiaoSudeste,
+      cte_numero: 195481,
+      cte_data: br(dSetembro),
+      nf_data: br(dSetembro),
+    }
+    const cteAgosto = {
+      ...comRegiaoSudeste,
+      cte_numero: 195482,
+      cte_data: br(dAgosto),
+      nf_data: br(dAgosto),
+    }
+
+    const fetchMock = createFetchMock(handler([cteSetembro, cteAgosto]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    // Janela larga: os dois CT-es, nos cards e na grade.
+    await screen.findByText("CT-e 195481/1")
+    expect(screen.getByText("CT-e 195482/1")).toBeInTheDocument()
+    expect(screen.getByText(/2 CT-es . 2 NF-e/)).toBeInTheDocument()
+
+    // Só agosto: o CT-e de setembro some da grade E dos cards.
+    fireEvent.change(screen.getByLabelText("De"), { target: { value: iso(dAgosto) } })
+    fireEvent.change(screen.getByLabelText("Até"), {
+      target: { value: iso(new Date(dAgosto.getFullYear(), dAgosto.getMonth() + 1, 0, 12)) },
+    })
+
+    expect(await screen.findByText("CT-e 195482/1")).toBeInTheDocument()
+    expect(screen.queryByText("CT-e 195481/1")).not.toBeInTheDocument()
+    expect(screen.getByText(/1 CT-es . 1 NF-e/)).toBeInTheDocument()
+    // cards batem com o recorte de agosto: 1 CT-e, R$ 100,00 de frete
+    expect(cardResumo("CT-es")).toHaveTextContent("1")
+    expect(cardResumo("Frete total")).toHaveTextContent("R$ 100,00")
+    expect(cardResumo("Percentual total")).toHaveTextContent("10,00%")
+  })
+
   it("distingue período vazio de filtro sem resultado", async () => {
     const fetchMock = createFetchMock(handler([comRegiaoSudeste, comRegiaoNorte]))
     vi.stubGlobal("fetch", fetchMock.fn)
@@ -876,6 +924,12 @@ describe("NfeCtePage", () => {
     const dialogo = await screen.findByRole("dialog")
     expect(within(dialogo).getByRole("heading", { name: "Região: Sudeste" })).toBeInTheDocument()
     expect(within(dialogo).getByText(/1 CT-e no recorte/)).toBeInTheDocument()
+    // frete vem de cte_valor_total (100), nunca de cte_valor_frete (0)
+    const linhaCte = within(dialogo)
+      .getByRole("checkbox", { name: "Selecionar CT-e 195481" })
+      .closest("tr")!
+    expect(within(linhaCte).getByText("R$ 100,00")).toBeInTheDocument()
+    expect(within(linhaCte).queryByText("R$ 0,00")).not.toBeInTheDocument()
     expect(
       within(dialogo).getByRole("checkbox", { name: "Selecionar CT-e 195481" })
     ).toBeInTheDocument()
