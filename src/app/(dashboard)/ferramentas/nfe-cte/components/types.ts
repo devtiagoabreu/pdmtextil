@@ -99,8 +99,16 @@ export interface Periodo {
 }
 
 /**
- * Uma NF-e despachada, na visão da ordem de despacho: as peças que o pedido
- * mandou para ela, não as que o rateio do CT-e separou.
+ * Uma NF-e dentro de uma ordem de despacho.
+ *
+ * `metros` e `valor` são **da nota** (`nf_od_qtde` = `qtde_saida` e
+ * `nf_od_valor`, agrupados por NF-e no SQL), então somam direto.
+ *
+ * `volumes` **não é da nota**: `nf_od_qtde_rolos` é o
+ * `COUNT(DISTINCT codigo_rolo)` do romaneio do *pedido*, repetido em todas as
+ * NF-e desse pedido. Por isso o campo só vem preenchido na primeira NF-e do
+ * pedido dentro da ordem (`repetido` = false) e as demais vêm com `null` +
+ * `repetido` = true, para o total da ordem não contar o mesmo rolo N vezes.
  */
 export interface NotaDespacho {
   chave: string
@@ -111,39 +119,52 @@ export interface NotaDespacho {
   cteNumero: number | null
   cteSerie: string | null
   transportadora: string
-  /** Peças da ordem de despacho (`nf_od_qtde`), não o rateio do CT-e. */
-  pecas: number | null
+  pedido: number | null
+  romaneio: number | null
+  cliente: string
+  cidade: string
+  regiao: string
+  /** Metragem faturada/despachada nesta nota (`nf_od_qtde`), em metros. */
+  metros: number | null
+  /** Volumes (rolos) do romaneio do pedido; só na 1ª NF-e do pedido. */
+  volumes: number | null
+  /** A NF-e repete volumes/peso que já entraram na 1ª NF-e do mesmo pedido. */
+  repetido: boolean
   valor: number | null
   rateio: number | null
 }
 
 /**
- * A ordem de despacho propriamente dita: o documento que vai para a
- * transportadora, com as notas de um pedido dentro de um romaneio.
+ * Ordem de despacho: as NF-e que saíram **no mesmo dia pela mesma
+ * transportadora** — a carga de um caminhão, que pode levar várias notas,
+ * de vários pedidos e para vários destinos.
  *
- * A chave é `pedido + romaneio` porque é isso que o romaneio identifica: um
- * pedido pode ter mais de um romaneio (expedição fatiada) e um romaneio pode
- * repetir pedido quando as NFs do mesmo despacho saem em pedidos diferentes.
+ * A chave é `transportadora + data de despacho`. Não é pedido/romaneio: o
+ * pedido é a fase anterior da nota (romaneado e depois faturado), e as NF-e de
+ * um mesmo pedido saem em datas diferentes. Medido em 03/10/2026 (907 NF-e
+ * despachadas na janela): por transportadora+data são 300 ordens (125 com uma
+ * NF-e, até 12 NF-e e até 12 destinos); por pedido+romaneio seriam 884 ordens,
+ * quase todas de uma nota só — que é o grupo errado para quem opera o despacho.
+ *
+ * Uma carga costuma reunir mais de um pedido, então `pedido`/`romaneio` não
+ * vivem aqui: ficam na nota.
  */
 export interface OrdemDespacho {
   chave: string
-  pedido: number | null
-  romaneio: number | null
   data: string | null
   dataIso: string | null
   transportadora: string
-  cliente: string
-  cidade: string
-  regiao: string
-  representante: string
-  faturamento: string | null
-  natureza: string | null
-  cfop: string | null
   notas: NotaDespacho[]
-  /** Peças somadas das notas (`nf_od_qtde`). */
-  pecas: number
+  /** Romaneios distintos que entraram nesta carga. */
+  romaneios: number[]
+  /** Cidades de destino da carga; pode ter várias (entrega multi-destino). */
+  destinos: string[]
+  regioes: string[]
+  /** Volume (rolos) somado dos romaneios da carga, contando cada um uma vez. */
+  volumes: number | null
+  /** Metragem somada das notas — é exato, cada NF-e tem a sua. */
+  metros: number
   valor: number
-  rolos: number | null
   pesoBruto: number | null
   pesoLiquido: number | null
 }
@@ -151,11 +172,11 @@ export interface OrdemDespacho {
 export interface ResumoDespacho {
   notas: number
   ordens: number
-  pedidos: number
   romaneios: number
-  pecas: number
+  /** Volumes (rolos) somados dos romaneios, sem repetir o mesmo rolo. */
+  volumes: number | null
+  metros: number
   valor: number
-  rolos: number | null
   semDespacho: number
   transportadoras: number
 }

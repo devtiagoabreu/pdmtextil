@@ -3030,44 +3030,85 @@ usado**. Ele devolve ~8-9 mil registros com chave minuscula (`NF_OD_PEDIDO`,
 para filtrar e ordenar no navegador.
 
 A aba usa o payload que a tela **ja carrega**: cada linha CT-e x NF-e vem acompanhada dos
-`nf_od_*`. Custo zero de rede. Medicao real no recorte de 12 meses (500 linhas): 483 com
-`NF_OD_PEDIDO > 0`, 470 ordens (chave `pedido|romaneio`), 463 com 1 NF-e, 5 com 2 e 2 com 5.
+`nf_od_*`. Custo zero de rede. Medicao real no recorte de 12 meses (03/10/2026): 930 linhas
+apos dedupe, **907 com `NF_OD_PEDIDO > 0`**, virando 300 cargas.
 
 Consequencia a ter em mente: a aba so mostra NF-e que **tambem tem CT-e** dentro da janela
 carregada. NF-e despachada sem CT-e nao aparece (e nao da para dizer "total de despacho do
 periodo" sem o endpoint dedicado).
 
-### Regra de agrupamento
+### O que cada campo significa (aqui errou a primeira vez)
 
-- Chave da ordem: `chaveOrdemDespacho = pedido + "|" + romaneio` - `pedido` sozinho junta
-  remessas diferentes.
-- Entra na aba so linha com `nf_od_pedido > 0` (`nfTemDespacho`). `PEDIDO = 0` e' o
-  placeholder da base para NF-e que nao entrou em ordem nenhuma, e os demais `nf_od_*`
-  dessas linhas nao descrevem documento nenhum.
-- Cabecalho (transportadora, cliente, cidade, regiao, representante): primeira linha que
-  trouxer o campo preenchido - as linhas do mesmo pedido costumam repetir o mesmo destino.
-- `pecas` soma `nf_od_qtde` (peças despachadas, campo 24) por NF-e; `rolos` e os pesos sao
-  da primeira linha, porque vemem do cabecalho da ordem, nao da nota.
-- Transportadora vem dos campos `cte_*` da linha (`cte_transportadora_fantasia` com
-  fallback para `_razao`) via `nomeTransportadora` - reusado do cabecalho do CT-e.
-- Ordenacao: `data` da ordem (BR `dd/mm/aaaa`, via `parseDataBr`) decrescente; empates
-  caem no maior valor, depois no menor pedido.
+Os nomes do endpointpem `QTDE`/`QTDE_ROLOS` e induzem a leitura errada. O que o SQL entrega
+(ver o CTE `dsp` do relatorio):
+
+| Campo da tela | Origem no SQL | Granularidade | O que e' |
+| --- | --- | --- | --- |
+| `nf_od_qtde` | `dsp.qtde_saida` = `SUM(qtde_saida)` do `pmdvw_nfs` | **por NF-e** (`GROUP BY nf`) | **metros** faturados/despachados da nota |
+| `nf_od_valor` | `dsp.valor_saida` | por NF-e | valor da nota |
+| `nf_od_data` | `dsp.data_movto` | por NF-e | data do despacho |
+| `nf_od_qtde_rolos` | `rol.qtde_rolos` = `COUNT(DISTINCT codigo_rolo)` do `pmdvw_rolos` | **por pedido** | **volumes (rolos)** do romaneio |
+| `nf_od_peso_*` | `rol.peso_*` do `pmdvw_rolos` | por pedido | peso do romaneio |
+
+Confirmado nos dados: `QTDE_ROLOS` 7, 8, 49, 81 (inteiros pequenos) e `QUANTIDADE`/`qtde_saida`
+1410, 4064, 3906 (metros). Mediana de **200 m por volume** (p10 88, p90 700).
+
+A metragem despachada **nao esta no pedido**: o pedido e' a fase anterior da nota (e'
+romaneado e depois faturado) e nao e' atendido com a metragem exata dele. Por isso os metros
+saem da **nota** (`nf_od_qtde`), nunca do pedido. Volumes e peso, ao contrario, sao do
+romaneio do pedido - e por isso nao podem ser somados nota a nota.
+
+### Regra de agrupamento: transportadora + dia
+
+Ordem de despacho e' a **carga**: as NF-e que sairam no mesmo dia pela mesma transportadora.
+Medido nas 907 NF-e despachadas:
+
+| Chave | Grupos | Distribuicao |
+| --- | --- | --- |
+| **transportadora + data** | **300** | 125 com 1 NF-e; a maior com 12 NF-e, 12 pedidos e 12 cidades |
+| pedido + romaneio (versao errada) | 884 | 870 com uma unica NF-e |
+
+Por pedido+romaneio a tela virava uma lista de notas - que nao e' o documento de quem opera
+o despacho. `chaveOrdemDespacho = transportadora + "|" + nf_od_data`.
+
+Detalhes da carga:
+
+- Entra so linha com `nf_od_pedido > 0` (`nfTemDespacho`): `PEDIDO = 0` e' o placeholder da
+  base para NF-e que nao entrou em ordem nenhuma.
+- **Uma carga pode ter varias notas, varios pedidos e varios destinos** (138 das 300 cargas
+  tem 1 cidade; a maior tem 12). O cabecalho mostra os destinos, com `+N` quando sao muitos.
+- `pedido` e `romaneio` ficam **na nota**, nao na ordem.
+- Transportadora vem dos campos `cte_*` da linha via `nomeTransportadora` (mesma funcao do
+  cabecalho do CT-e).
+- Ordenacao: data da carga (BR `dd/mm/aaaa`, via `parseDataBr`) decrescente.
+
+### Volumes e pesos contam uma vez por romaneio
+
+`qtde_rolos`/`peso_*` sao **do pedido**, e o endpoint repete o mesmo valor em todas as NF-e
+desse pedido (13 de 14 pedidos com 2+ NF-e medidos). Pior: 12 desses 14 pedidos tem NF-e em
+**dias diferentes** - sem trava, os mesmos 13 volumes do pedido apareceriam em duas cargas.
+
+Solucao: `agruparOrdensDespacho` ordena as linhas por data (mais antiga primeiro) e mantem um
+`Set` de romaneios ja contabilizados. O romaneio e' somado **so na carga da NF-e mais
+antiga**; as outras notas do mesmo romaneio entram com `repetido: true` e `volumes: null`, e a
+tela mostra um travessao com `title` explicando. Metros e valor, por serem por NF-e, somam
+normalmente em todas as notas.
 
 ### Totais e "sem despacho"
 
-`resumoOrdensDespacho` devolve 4 cards - Ordens, NF-e despachadas, Peças despachadas e
-Valor despachado - mais `semDespacho`: quantas NF-e do recorte **nao** entraram em ordem
-(`semDespacho = linhas - comDespacho`). Aparece abaixo dos cards e explica o texto "pedido
-0 na base", que e' assim que a base representa NF-e sem despacho. Sem esse numero o
-usuario via cards e pensava que o total estava errado.
+4 cards: Ordens de despacho, Notas despachadas, Volumes (rolos) e Metros; o valor total vai
+no texto de apoio ("Total despachado R$ ..."). Mais `semDespacho`: quantas NF-e do recorte
+**nao** entraram em ordem (`semDespacho = linhas - comDespacho`) - explica o "pedido 0 na
+base", que e' assim que a base representa NF-e sem despacho.
 
 Vazio: "Nenhuma ordem de despacho no recorte" + a contagem de NF-e sem despacho.
 
-### Detalhe da ordem
+### Detalhe da carga
 
-Cartao expansivel (um `<details>` por ordem): cabecalho com pedido/romaneio/data/
-transportadora/cliente; resumo de pecas, rolos, peso e valor; e a lista das NF-e da ordem
-(numero, data, pecas, valor), com o total conferindo com o cabecalho.
+Cartao expansivel: cabecalho com data, transportadora, destinos e o resumo (volumes, metros,
+pesos, valor); e a lista das notas (numero, pedido, romaneio, destino, volumes, metros,
+valor). Via `title` no travessao e nota de rodape, a tela diz que volumes/peso sao totais do
+pedido/romaneio e por isso aparecem uma vez so.
 
 ### Arquivos
 
@@ -3082,3 +3123,9 @@ transportadora/cliente; resumo de pecas, rolos, peso e valor; e a lista das NF-e
 Os fixtures de `page.test.tsx` nao podem repetir `cte_numero` + `nf_numero`: `deduplicarPorCteNf`
 mantem a **primeira** linha da chave, entao a segunda versao do mesmo CT-e x NF-e e'
 descartada - foi assim que `comDespacho` sumia por ter o mesmo par de `semValores`.
+
+### Medicao: `scripts/tmp-diag-od-ordem.js` (temporario, nao commitado)
+
+Mesma autenticacao de `scripts/verificar-rel-nf-cte.js` (token OAuth2 + `limit`/`offset` na
+integracao `api_rel_nfe_cte_periodo`). Foi ele que mediu as duas tabelas acima e mostrou que
+os rolos/pesos repetem por NF-e do pedido.

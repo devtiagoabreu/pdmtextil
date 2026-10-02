@@ -1287,10 +1287,12 @@ describe("calcularResumo com CT-e de várias NF-e", () => {
   })
 })
 
+
 describe("agruparOrdensDespacho", () => {
-  // Medido no endpoint em 02/10/2026: 483 das 500 linhas da janela de 12 meses
-  // tinham `nf_od_pedido > 0`, formando 470 grupos pedido+romaneio (463 com uma
-  // NF, 5 com duas, 2 com cinco).
+  // Medido no endpoint em 03/10/2026 (janela de 12 meses, 907 NF-e com
+  // nf_od_pedido > 0): por transportadora + data saem 300 cargas (125 com uma
+  // NF-e, a maior com 12 NF-e/12 pedidos/12 cidades); por pedido + romaneio
+  // seriam 884 grupos, 870 deles com uma nota só.
   const nfDespacho = (over: Partial<LinhaCte>) =>
     linha({
       cte_transportadora_fantasia: "SORRISO TRANSPORTES",
@@ -1311,28 +1313,48 @@ describe("agruparOrdensDespacho", () => {
       ...over,
     })
 
-  it("agrupa por pedido + romaneio e soma as peças das notas", () => {
+  it("agrupa por transportadora + dia e soma os metros das notas", () => {
     const ordens = agruparOrdensDespacho([
       nfDespacho({ nf_numero: 35832, nf_serie: "1", nf_od_qtde: 710, nf_od_valor: 7227.8 }),
       nfDespacho({ nf_numero: 35833, nf_serie: "1", nf_od_qtde: 300, nf_od_valor: 3000 }),
     ])
 
     expect(ordens).toHaveLength(1)
-    expect(ordens[0].chave).toBe("8198|24597")
-    expect(ordens[0].pedido).toBe(8198)
-    expect(ordens[0].romaneio).toBe(24597)
-    expect(ordens[0].pecas).toBe(1010)
+    expect(ordens[0].chave).toBe("SORRISO TRANSPORTES|18/09/2026")
+    expect(ordens[0].dataIso).toBe("2026-09-18")
+    // Uma carga pode juntar pedidos diferentes: os dois caem na mesma ordem.
+    expect(ordens[0].romaneios).toEqual([24597])
+    expect(ordens[0].metros).toBe(1010)
     expect(ordens[0].valor).toBeCloseTo(10227.8, 2)
     expect(ordens[0].notas.map((n) => n.nfNumero)).toEqual([35832, 35833])
   })
 
-  it("separa pedidos diferentes e expedições diferentes do mesmo pedido", () => {
-    const ordens = agruparOrdensDespacho([
-      nfDespacho({ nf_numero: 1 }),
-      nfDespacho({ nf_numero: 2, nf_od_pedido: 8305 }),
-      nfDespacho({ nf_numero: 3, nf_od_romaneio: 24598 }),
+  it("junta na mesma carga notas de pedidos diferentes do mesmo dia", () => {
+    const [ordem] = agruparOrdensDespacho([
+      nfDespacho({ nf_numero: 1, nf_od_pedido: 8198, nf_od_romaneio: 24597 }),
+      nfDespacho({ nf_numero: 2, nf_od_pedido: 8305, nf_od_romaneio: 24600 }),
+      nfDespacho({ nf_numero: 3, nf_od_pedido: 8306, nf_od_romaneio: 24601 }),
     ])
-    expect(ordens.map((o) => o.chave).sort()).toEqual(["8198|24597", "8198|24598", "8305|24597"])
+    expect(ordem.notas).toHaveLength(3)
+    expect(ordem.romaneios).toEqual([24597, 24600, 24601])
+    expect(ordem.volumes).toBe(12)
+  })
+
+  it("separa dias diferentes e transportadoras diferentes", () => {
+    const ordens = agruparOrdensDespacho([
+      nfDespacho({ nf_numero: 1, nf_od_data: "18/09/2026" }),
+      nfDespacho({ nf_numero: 2, nf_od_data: "17/09/2026" }),
+      nfDespacho({
+        nf_numero: 3,
+        nf_od_data: "18/09/2026",
+        cte_transportadora_fantasia: "EXPRESSO SAO MIGUEL",
+      }),
+    ])
+    expect(ordens.map((o) => o.chave).sort()).toEqual([
+      "EXPRESSO SAO MIGUEL|18/09/2026",
+      "SORRISO TRANSPORTES|17/09/2026",
+      "SORRISO TRANSPORTES|18/09/2026",
+    ])
   })
 
   it("ignora NF-e sem ordem de despacho (pedido 0 ou nulo)", () => {
@@ -1356,24 +1378,33 @@ describe("agruparOrdensDespacho", () => {
     expect(ordem.transportadora).toBe("TRANSPORTE CAMILLO")
   })
 
-it("preenche o cabeçalho pela primeira linha que trouxer o campo", () => {
+  it("lista os destinos da carga, sem repetir", () => {
     const [ordem] = agruparOrdensDespacho([
-      // fantasia e cidade vazias na primeira linha: o razão social assume o nome
-      nfDespacho({ nf_numero: 1, nf_od_cliente_fantasia: null, nf_od_cidade: null }),
-      nfDespacho({ nf_numero: 2 }),
+      nfDespacho({ nf_numero: 1, nf_od_cidade: "RECIFE" }),
+      nfDespacho({ nf_numero: 2, nf_od_cidade: "RECIFE", nf_od_pedido: 8305 }),
+      nfDespacho({ nf_numero: 3, nf_od_cidade: "SAO PAULO", nf_od_pedido: 8306 }),
     ])
-    expect(ordem.cliente).toBe("ALFA DO BRASIL LTDA")
-    expect(ordem.cidade).toBe("SAO PAULO")
-    expect(ordem.notas).toHaveLength(2)
+    expect(ordem.destinos).toEqual(["RECIFE", "SAO PAULO"])
+  })
+
+  it("guarda cliente, cidade e pedido em cada nota", () => {
+    const [ordem] = agruparOrdensDespacho([
+      nfDespacho({ nf_numero: 1, nf_od_cliente_fantasia: null, nf_od_cidade: "RECIFE" }),
+      nfDespacho({ nf_numero: 2, nf_od_pedido: 8305 }),
+    ])
+    expect(ordem.notas[0].cliente).toBe("ALFA DO BRASIL LTDA")
+    expect(ordem.notas[0].cidade).toBe("RECIFE")
+    expect(ordem.notas[0].pedido).toBe(8198)
+    expect(ordem.notas[1].pedido).toBe(8305)
   })
 
   it("ordena da mais recente para a mais antiga", () => {
     const ordens = agruparOrdensDespacho([
-      nfDespacho({ nf_od_pedido: 1, nf_od_data: "01/08/2026" }),
-      nfDespacho({ nf_od_pedido: 2, nf_od_data: "25/09/2026" }),
-      nfDespacho({ nf_od_pedido: 3, nf_od_data: "10/09/2026" }),
+      nfDespacho({ nf_od_data: "01/08/2026" }),
+      nfDespacho({ nf_od_data: "25/09/2026" }),
+      nfDespacho({ nf_od_data: "10/09/2026" }),
     ])
-    expect(ordens.map((o) => o.pedido)).toEqual([2, 3, 1])
+    expect(ordens.map((o) => o.data)).toEqual(["25/09/2026", "10/09/2026", "01/08/2026"])
     expect(ordens[0].dataIso).toBe("2026-09-25")
   })
 
@@ -1385,45 +1416,86 @@ it("preenche o cabeçalho pela primeira linha que trouxer o campo", () => {
     ])
     expect(ordem.notas.map((n) => n.nfNumero)).toEqual([10, 20, 30])
   })
+
+  // Volumes/pesos vêm de pmdvw_rolos agrupado por PEDIDO, então o endpoint
+  // repete qtde_rolos em todas as NF-e do pedido (13 de 14 casos medidos).
+  it("conta volumes e pesos uma vez por romaneio, mesmo com várias notas", () => {
+    const [ordem] = agruparOrdensDespacho([
+      nfDespacho({ nf_numero: 1, nf_od_pedido: 8028, nf_od_romaneio: 24218, nf_od_qtde_rolos: 13 }),
+      nfDespacho({ nf_numero: 2, nf_od_pedido: 8028, nf_od_romaneio: 24218, nf_od_qtde_rolos: 13 }),
+      nfDespacho({ nf_numero: 3, nf_od_pedido: 8028, nf_od_romaneio: 24218, nf_od_qtde_rolos: 13 }),
+    ])
+expect(ordem.volumes).toBe(13)
+    expect(ordem.pesoBruto).toBeCloseTo(17.804, 3)
+    expect(ordem.romaneios).toEqual([24218])
+  })
+
+  it("marca como repetida a 2ª nota do mesmo romaneio", () => {
+    const [ordem] = agruparOrdensDespacho([
+      nfDespacho({ nf_numero: 1 }),
+      nfDespacho({ nf_numero: 2 }),
+    ])
+    expect(ordem.notas[0].repetido).toBe(false)
+    expect(ordem.notas[0].volumes).toBe(4)
+    expect(ordem.notas[1].repetido).toBe(true)
+    expect(ordem.notas[1].volumes).toBeNull()
+  })
+
+  // 12 dos 14 pedidos com 2+ NF-e têm NF-e em dias diferentes: sem esta
+  // trava os mesmos 13 volumes do pedido apareceriam em duas cargas.
+  it("lança o volume do pedido só na carga da NF-e mais antiga", () => {
+    const ordens = agruparOrdensDespacho([
+      nfDespacho({ nf_numero: 1, nf_od_data: "04/09/2026", nf_od_pedido: 8028 }),
+      nfDespacho({ nf_numero: 2, nf_od_data: "02/09/2026", nf_od_pedido: 8028 }),
+      nfDespacho({ nf_numero: 3, nf_od_data: "21/08/2026", nf_od_pedido: 8028 }),
+    ])
+expect(ordens.map((o) => o.data)).toEqual(["04/09/2026", "02/09/2026", "21/08/2026"])
+    // A carga mais recente não repete os 13 volumes do pedido: eles já foram
+    // lançados em 21/08, quando a primeira NF-e do pedido saiu.
+    expect(ordens.map((o) => o.volumes)).toEqual([null, null, 4])
+  })
+
+  it("soma os metros de todas as notas, mesmo entre dias do mesmo pedido", () => {
+    const ordens = agruparOrdensDespacho([
+      nfDespacho({ nf_numero: 1, nf_od_data: "04/09/2026", nf_od_qtde: 3900, nf_od_valor: 41106 }),
+      nfDespacho({ nf_numero: 2, nf_od_data: "02/09/2026", nf_od_qtde: 2700, nf_od_valor: 28458 }),
+    ])
+    expect(ordens.map((o) => o.metros)).toEqual([3900, 2700])
+    expect(ordens[0].valor).toBe(41106)
+    expect(ordens[1].valor).toBe(28458)
+  })
 })
 
 describe("resumoOrdensDespacho", () => {
   const ordem = (over: Partial<OrdemDespacho>) =>
     ({
-      chave: "1|1",
-      pedido: 1,
-      romaneio: 1,
+      chave: "SORRISO|18/09/2026",
       data: "18/09/2026",
       dataIso: "2026-09-18",
       transportadora: "SORRISO",
-      cliente: "ALFA",
-      cidade: "SAO PAULO",
-      regiao: "SÃO PAULO",
-      representante: "REP",
-      faturamento: "Sim",
-      natureza: "99-SP",
-      cfop: "5.124",
       notas: [],
-      pecas: 0,
+      romaneios: [],
+      destinos: [],
+      regioes: [],
+      volumes: null,
+      metros: 0,
       valor: 0,
-      rolos: null,
       pesoBruto: null,
       pesoLiquido: null,
       ...over,
     }) as OrdemDespacho
 
-  it("soma peças, valor e rolos, e conta pedidos e romaneios distintos", () => {
+  it("soma metros, valor e volumes, e conta romaneios e transportadoras", () => {
     const resumo = resumoOrdensDespacho(
       [
-        ordem({ chave: "8198|24597", pedido: 8198, romaneio: 24597, pecas: 710, valor: 100, rolos: 4 }),
-        ordem({ chave: "8198|24598", pedido: 8198, romaneio: 24598, pecas: 300, valor: 200, rolos: 2 }),
+        ordem({ chave: "a", romaneios: [24597], metros: 710, valor: 100, volumes: 4 }),
+        ordem({ chave: "b", romaneios: [24598], metros: 300, valor: 200, volumes: 2 }),
         ordem({
-          chave: "8305|24599",
-          pedido: 8305,
-          romaneio: 24599,
-          pecas: 90,
+          chave: "c",
+          romaneios: [24599],
+          metros: 90,
           valor: 50,
-          rolos: null,
+          volumes: null,
           transportadora: "EXPRESSO",
         }),
       ],
@@ -1432,18 +1504,17 @@ describe("resumoOrdensDespacho", () => {
     expect(resumo).toEqual({
       notas: 0,
       ordens: 3,
-      pedidos: 2,
       romaneios: 3,
-      pecas: 1100,
+      volumes: 6,
+      metros: 1100,
       valor: 350,
-      rolos: 6,
       semDespacho: 7,
       transportadoras: 2,
     })
   })
 
-  it("devolve rolos null quando nenhuma ordem tem rolo informado", () => {
-    const resumo = resumoOrdensDespacho([ordem({ pecas: 10, rolos: null })], 0)
-    expect(resumo.rolos).toBeNull()
+  it("devolve volumes null quando nenhuma carga tem volume informado", () => {
+    const resumo = resumoOrdensDespacho([ordem({ metros: 10, volumes: null })], 0)
+    expect(resumo.volumes).toBeNull()
   })
 })

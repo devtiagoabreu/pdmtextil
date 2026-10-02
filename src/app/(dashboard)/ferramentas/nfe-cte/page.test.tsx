@@ -312,6 +312,11 @@ function cardResumo(rotulo: string): HTMLElement {
   return (el.closest("button") ?? el.closest("div"))!
 }
 
+/** Card da aba de despacho (div com o rótulo e o valor). */
+function cardDespacho(rotulo: string): HTMLElement {
+  return screen.getByText(rotulo, { selector: "p" }).parentElement!
+}
+
 describe("NfeCtePage", () => {
   beforeEach(() => {
     navMock.reset()
@@ -488,11 +493,51 @@ describe("NfeCtePage", () => {
     expect(screen.queryByRole("region", { name: "Resumo do período" })).not.toBeInTheDocument()
     expect(screen.queryByText("CT-e 195476/1")).not.toBeInTheDocument()
 
-    // A ordem do despacho comDespacho: pedido 8305, romaneio 24795
-    expect(screen.getByText("Pedido 8305")).toBeInTheDocument()
-    expect(screen.getByText(/Romaneio 24795/)).toBeInTheDocument()
+    // Cards: volumes (rolos) e metros, não "peças"
     expect(screen.getByText("Ordens de despacho", { selector: "p" })).toBeInTheDocument()
-    expect(screen.getByText("Peças despachadas")).toBeInTheDocument()
+    expect(screen.getByText("Volumes (rolos)")).toBeInTheDocument()
+    expect(screen.getByText("Metros")).toBeInTheDocument()
+    expect(screen.queryByText(/Peças/)).not.toBeInTheDocument()
+
+    // A carga é a data + a transportadora do dia
+    const carga = screen.getByRole("button", { expanded: false, name: /SORRISO/ })
+    expect(within(carga).getByText(br(dentroDoPeriodoPadrao))).toBeInTheDocument()
+    expect(within(carga).getByText("SORRISO TRANSPORTES")).toBeInTheDocument()
+    expect(within(carga).getByText("1 nota")).toBeInTheDocument()
+
+    // Detalhe: pedido e romaneio são de cada nota
+    fireEvent.click(carga)
+    expect(screen.getByText("8305")).toBeInTheDocument()
+    expect(screen.getByText("24795")).toBeInTheDocument()
+    expect(screen.getByText("PH TECNICA · SAO PAULO")).toBeInTheDocument()
+  })
+
+  it("agrupa as notas do mesmo dia e transportadora em uma só carga", async () => {
+    const mesmaCarga = {
+      ...comDespacho,
+      cte_numero: 195498,
+      nf_numero: 35900,
+      nf_od_pedido: 8306,
+      nf_od_romaneio: 24796,
+      nf_od_cliente_fantasia: "OUTRO CLIENTE",
+      nf_od_cidade: "RECIFE",
+    }
+    const fetchMock = createFetchMock(handler([comDespacho, mesmaCarga]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    fireEvent.click(await screen.findByRole("tab", { name: "Ordens de despacho" }))
+
+    // 2 notas, mesmo dia e transportadora -> 1 carga
+    expect(within(cardDespacho("Ordens de despacho")).getByText("1")).toBeInTheDocument()
+    const carga = screen.getByRole("button", { expanded: false, name: /SORRISO/ })
+    expect(within(carga).getByText("2 notas")).toBeInTheDocument()
+    // carga com dois destinos
+    expect(within(carga).getByText(/RECIFE, SAO PAULO/)).toBeInTheDocument()
+
+    fireEvent.click(carga)
+    expect(screen.getByText("8305")).toBeInTheDocument()
+    expect(screen.getByText("8306")).toBeInTheDocument()
   })
 
   it("aplica o filtro de transportadora também na aba de despacho", async () => {
@@ -509,15 +554,19 @@ describe("NfeCtePage", () => {
     await consultar(fetchMock)
 
     fireEvent.click(await screen.findByRole("tab", { name: "Ordens de despacho" }))
-    expect(screen.getByText("Pedido 8305")).toBeInTheDocument()
-    expect(screen.getByText("Pedido 9999")).toBeInTheDocument()
+    // Mesmo dia, duas transportadoras -> duas cargas
+    expect(within(cardDespacho("Ordens de despacho")).getByText("2")).toBeInTheDocument()
 
     fireEvent.change(screen.getByLabelText("Transportadora"), {
       target: { value: "SORRISO TRANSPORTES" },
     })
 
-    expect(screen.getByText("Pedido 8305")).toBeInTheDocument()
-    expect(screen.queryByText("Pedido 9999")).not.toBeInTheDocument()
+    expect(within(cardDespacho("Ordens de despacho")).getByText("1")).toBeInTheDocument()
+    expect(
+      within(screen.getByRole("button", { expanded: false, name: /SORRISO/ })).getByText(
+        "SORRISO TRANSPORTES"
+      )
+    ).toBeInTheDocument()
   })
 
   it("diz quantas NF-e do recorte não têm ordem de despacho", async () => {

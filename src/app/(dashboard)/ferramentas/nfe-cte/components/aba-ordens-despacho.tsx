@@ -25,9 +25,23 @@ function peso(valor: number | null): string {
   return `${formatarNumero(Math.round(valor * 1000) / 1000)} kg`
 }
 
+/** "RECIFE, SAO PAULO" ou "RECIFE +2" quando a carga tem muitos destinos. */
+function destinos(ordem: OrdemDespacho): string {
+  if (ordem.destinos.length === 0) return "destino não informado"
+  if (ordem.destinos.length === 1) return ordem.destinos[0]
+  if (ordem.destinos.length <= 3) return ordem.destinos.join(", ")
+  return `${ordem.destinos.slice(0, 2).join(", ")} +${ordem.destinos.length - 2}`
+}
+
+/** Uma carga costuma ter várias notas; 1 NF-e é caso raro, não erro. */
+function notas(ordem: OrdemDespacho): string {
+  return `${ordem.notas.length} ${ordem.notas.length === 1 ? "nota" : "notas"}`
+}
+
 /**
- * Aba "Ordens de despacho": o documento que vai para a transportadora, com as
- * notas de um pedido dentro de um romaneio.
+ * Aba "Ordens de despacho": a **carga** de cada dia, ou seja, as NF-e que
+ * saíram no mesmo dia pela mesma transportadora. Uma ordem tem várias notas,
+ * de vários pedidos e pode ter entrega em mais de um destino.
  *
  * Os dados vêm dos campos `nf_od_*` que o relatório de CT-e já traz por NF-e —
  * nenhuma requisição extra. Consequência: só aparecem ordens cujas notas também
@@ -64,24 +78,38 @@ export function AbaOrdensDespacho({ ordens, resumo }: AbaProps) {
   return (
     <div className="space-y-4">
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        {card("Ordens de despacho", formatarNumero(resumo.ordens), `${resumo.pedidos} pedido(s)`)}
-        {card("Notas despachadas", formatarNumero(resumo.notas), `${resumo.romaneios} romaneio(s)`)}
         {card(
-          "Peças despachadas",
-          formatarNumero(resumo.pecas),
-          resumo.rolos != null ? `${formatarNumero(resumo.rolos)} rolo(s)` : undefined
+          "Ordens de despacho",
+          formatarNumero(resumo.ordens),
+          `${resumo.romaneios} romaneio(s)`
         )}
         {card(
-          "Valor despachado",
-          formatarMoeda(resumo.valor),
+          "Notas despachadas",
+          formatarNumero(resumo.notas),
+          `${resumo.transportadoras} transportadora(s)`
+        )}
+        {card(
+          "Volumes (rolos)",
+          resumo.volumes != null ? formatarNumero(resumo.volumes) : "-",
+          "1 volume = 1 rolo"
+        )}
+        {card(
+          "Metros",
+          formatarNumero(resumo.metros),
           resumo.semDespacho > 0 ? `${resumo.semDespacho} NF-e sem despacho` : undefined
         )}
       </div>
 
-      <p className="text-xs text-slate-500 dark:text-slate-400">
-        Uma ordem por pedido + romaneio, da mais recente para a mais antiga. As peças são as da
-        ordem de despacho ({`nf_od_qtde`}), não as do rateio do CT-e.
-      </p>
+      <div className="flex flex-wrap items-baseline justify-between gap-2">
+        <p className="text-xs text-slate-500 dark:text-slate-400">
+          Uma ordem por <strong>transportadora + dia</strong>: as notas que saíram juntas, da mais
+          recente para a mais antiga. Total despachado{" "}
+          <strong className="text-slate-700 dark:text-slate-200">
+            {formatarMoeda(resumo.valor)}
+          </strong>
+          .
+        </p>
+      </div>
 
       <div className="space-y-2">
         {ordens.map((ordem) => {
@@ -103,31 +131,32 @@ export function AbaOrdensDespacho({ ordens, resumo }: AbaProps) {
                 <span className="flex-1 min-w-0">
                   <span className="flex flex-wrap items-baseline gap-x-3 gap-y-1">
                     <span className="font-semibold text-slate-900 dark:text-slate-100">
-                      Pedido {ordem.pedido ?? "—"}
-                    </span>
-                    <span className="text-sm text-slate-500 dark:text-slate-400">
-                      Romaneio {ordem.romaneio ?? "—"}
-                    </span>
-                    <span className="text-sm text-slate-500 dark:text-slate-400">
                       {ordem.data ?? "sem data"}
                     </span>
                     <span className="text-sm text-slate-500 dark:text-slate-400">
-                      {ordem.notas.length} NF-e
+                      {notas(ordem)}
                     </span>
+                    {ordem.romaneios.length > 0 && (
+                      <span className="text-xs text-slate-400">
+                        {ordem.romaneios.length === 1
+                          ? `Romaneio ${ordem.romaneios[0]}`
+                          : `${ordem.romaneios.length} romaneios`}
+                      </span>
+                    )}
                   </span>
-                  <span className="mt-1 block text-xs text-slate-500 dark:text-slate-400">
+                  <span className="mt-1 flex flex-wrap items-center gap-x-2 gap-y-0.5 text-xs text-slate-500 dark:text-slate-400">
                     <span className="inline-flex items-center gap-1">
                       <Truck size={12} />
                       {ordem.transportadora || "sem transportadora"}
                     </span>
-                    {ordem.cliente ? ` · ${ordem.cliente}` : ""}
-                    {ordem.cidade ? ` · ${ordem.cidade}` : ""}
-                    {ordem.regiao ? ` (${ordem.regiao})` : ""}
-                    {ordem.representante ? ` · ${ordem.representante}` : ""}
+                    <span>{`· ${destinos(ordem)}`}</span>
+                    {ordem.regioes.length === 1 && <span>({ordem.regioes[0]})</span>}
                   </span>
                   <span className="mt-1.5 block text-xs text-slate-600 dark:text-slate-300">
-                    {formatarNumero(ordem.pecas)} peças
-                    {ordem.rolos != null ? ` · ${formatarNumero(ordem.rolos)} rolo(s)` : ""}
+                    {ordem.volumes != null
+                      ? `${formatarNumero(ordem.volumes)} volume(s)`
+                      : "volume(s) não informado(s)"}
+                    {` · ${formatarNumero(ordem.metros)} m`}
                     {ordem.pesoBruto != null ? ` · ${peso(ordem.pesoBruto)} bruto` : ""}
                     {ordem.pesoLiquido != null ? ` · ${peso(ordem.pesoLiquido)} líquido` : ""}
                     {` · ${formatarMoeda(ordem.valor)}`}
@@ -144,19 +173,22 @@ export function AbaOrdensDespacho({ ordens, resumo }: AbaProps) {
                           Nota
                         </th>
                         <th className="px-4 py-2 text-[10px] font-medium uppercase text-slate-400">
-                          Emissão
+                          Pedido
                         </th>
                         <th className="px-4 py-2 text-[10px] font-medium uppercase text-slate-400">
-                          CT-e
+                          Romaneio
+                        </th>
+                        <th className="px-4 py-2 text-[10px] font-medium uppercase text-slate-400">
+                          Destino
                         </th>
                         <th className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-400">
-                          Peças
+                          Volumes
+                        </th>
+                        <th className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-400">
+                          Metros
                         </th>
                         <th className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-400">
                           Valor
-                        </th>
-                        <th className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-400">
-                          Rateio no CT-e
                         </th>
                       </tr>
                     </thead>
@@ -171,25 +203,41 @@ export function AbaOrdensDespacho({ ordens, resumo }: AbaProps) {
                             {nota.nfSerie ? `/${nota.nfSerie}` : ""}
                           </td>
                           <td className="px-4 py-2 text-slate-500 dark:text-slate-400">
-                            {nota.nfData ?? "—"}
+                            {nota.pedido ?? "—"}
                           </td>
                           <td className="px-4 py-2 text-slate-500 dark:text-slate-400">
-                            {nota.cteNumero ?? "—"}
-                            {nota.cteSerie ? `/${nota.cteSerie}` : ""}
+                            {nota.romaneio ?? "—"}
+                          </td>
+                          <td className="px-4 py-2 text-slate-500 dark:text-slate-400">
+                            {nota.cliente ? `${nota.cliente} · ${nota.cidade}` : nota.cidade || "—"}
                           </td>
                           <td className="px-4 py-2 text-right tabular-nums text-slate-700 dark:text-slate-200">
-                            {formatarNumero(nota.pecas)}
+                            {nota.repetido ? (
+                              <span
+                                className="text-slate-300 dark:text-slate-600"
+                                title="Volumes e peso são do pedido/romaneio e já entraram na 1ª nota deste romaneio — contam uma vez só"
+                              >
+                                —
+                              </span>
+                            ) : (
+                              formatarNumero(nota.volumes)
+                            )}
+                          </td>
+                          <td className="px-4 py-2 text-right tabular-nums text-slate-700 dark:text-slate-200">
+                            {formatarNumero(nota.metros)}
                           </td>
                           <td className="px-4 py-2 text-right tabular-nums text-slate-700 dark:text-slate-200">
                             {formatarMoeda(nota.valor)}
-                          </td>
-                          <td className="px-4 py-2 text-right tabular-nums text-slate-500 dark:text-slate-400">
-                            {formatarMoeda(nota.rateio)}
                           </td>
                         </tr>
                       ))}
                     </tbody>
                   </table>
+                  <p className="px-4 py-2 text-[11px] text-slate-400">
+                    Metros e valor são de cada nota. Volumes (rolos) e peso são totais do
+                    pedido/romaneio e aparecem uma vez só, na 1ª nota — por isso o travessão nas
+                    demais do mesmo romaneio.
+                  </p>
                 </div>
               )}
             </div>

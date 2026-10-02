@@ -643,80 +643,109 @@ function nomeTransportadora(linha: LinhaCte): string {
 }
 
 /**
- * Chave da ordem de despacho: pedido + romaneio.
+ * Chave da ordem de despacho: transportadora + data do despacho.
  *
- * Medido no endpoint em 02/10/2026 (500 linhas da janela de 12 meses): 483 com
- * `nf_od_pedido > 0` formavam 470 grupos, sendo 463 com uma única NF, 5 com duas
- * e 2 com cinco. Ou seja, pedido+romaneio é a granularidade que o romaneio
- * realmente tem — agrupar só por pedido misturaria expedições diferentes.
+ * Ordem de despacho é a **carga** — as NF-e que saíram no mesmo dia pela
+ * mesma transportadora. Não é pedido/romaneio: o pedido é a fase anterior da
+ * nota (é romaneado e depois faturado) e as NF-e de um mesmo pedido saem em
+ * datas diferentes. Medido em 03/10/2026 na janela de 12 meses, com as 907
+ * NF-e que têm `nf_od_pedido > 0`:
+ *
+ * - transportadora + data -> **300 ordens**: 125 com uma NF-e, 175 com 2 a 7,
+ *   a maior com 12 NF-e, 12 pedidos e 12 cidades (carga multi-destino);
+ * - pedido + romaneio -> 884 "ordens", 870 delas com uma única NF-e.
+ *
+ * Por pedido+romaneio a tela vira uma lista de notas, que não é o documento
+ * que o despachante precisa: a carga do dia.
  */
 export function chaveOrdemDespacho(linha: LinhaCte): string {
-  return `${linha.nf_od_pedido ?? "?"}|${linha.nf_od_romaneio ?? "?"}`
+  return `${nomeTransportadora(linha)}|${linha.nf_od_data ?? "?"}`
+}
+
+/** Identifica o romaneio que originou a nota; volumes e pesos são desse grupo. */
+function chaveRomaneio(linha: LinhaCte): string {
+  if (linha.nf_od_romaneio != null) return `rom:${linha.nf_od_romaneio}`
+  return `ped:${linha.nf_od_pedido ?? "?"}`
 }
 
 /**
- * Agrupa as NF-e em ordens de despacho.
+ * Agrupa as NF-e em ordens de despacho (transportadora + data).
  *
  * Só entram as linhas com `nf_od_pedido > 0` (ver `nfTemDespacho`): `PEDIDO = 0`
  * é o placeholder da base para NF-e que não entrou em ordem nenhuma, e os dados
  * de despacho dessas linhas não descrevem documento nenhum.
  *
- * Os campos do cabeçalho da ordem (cliente, cidade, região, representante,
- * rolos, pesos) vêm da primeira linha preenchida, porque o endpoint repete os
- * mesmos valores em todas as NFs do mesmo pedido — e nem sempre em todas.
- * Peças e valor são **somados** por nota: `nf_od_qtde` é a quantidade da ordem
- * para aquela NF-e, não do pedido inteiro.
+ * **Metragem e valor somam por NF-e** — `nf_od_qtde` e `nf_od_valor` vêm do
+ * `pmdvw_nfs` agrupado por NF, e é neles que está a metragem realmente
+ * despachada: o pedido é a fase anterior (romaneado e depois faturado) e não
+ * é atendido com a metragem exata dele.
+ *
+ * **Volumes e pesos contam uma vez por romaneio.** No SQL eles saem de
+ * `pmdvw_rolos` agrupado por *pedido*, então o mesmo `qtde_rolos` aparece
+ * repetido em todas as NF-e do pedido — somar linha a linha contaria o mesmo
+ * rolo várias vezes. Pior: um pedido pode ter NF-e em dias diferentes (12 de
+ * 14 casos medidos), o que colocaria os mesmos volumes em duas cargas. Por
+ * isso o romaneio é contabilizado só na **primeira** carga em que aparece
+ * (a NF-e mais antiga), e as outras notas do mesmo romaneio entram com
+ * `repetido` para a tela explicar o travessão em vez de repetir o número.
  */
 export function agruparOrdensDespacho(itens: LinhaCte[]): OrdemDespacho[] {
+  const comDespacho = itens.filter(nfTemDespacho)
+  // Mais antiga primeiro: garante que o romaneio entre na carga da 1ª NF-e.
+  const ordenadas = [...comDespacho].sort((a, b) => {
+    const da = a.nf_od_data ? parseDataBr(a.nf_od_data) : null
+    const db = b.nf_od_data ? parseDataBr(b.nf_od_data) : null
+    if (da !== db) return (da ?? "9999").localeCompare(db ?? "9999")
+    return (a.nf_numero ?? 0) - (b.nf_numero ?? 0)
+  })
+
   const mapa = new Map<string, OrdemDespacho>()
-  for (const linha of itens) {
-    if (!nfTemDespacho(linha)) continue
+  const romaneiosContados = new Set<string>()
+  for (const linha of ordenadas) {
     const chave = chaveOrdemDespacho(linha)
     let ordem = mapa.get(chave)
     if (!ordem) {
       ordem = {
         chave,
-        pedido: linha.nf_od_pedido,
-        romaneio: linha.nf_od_romaneio,
         data: linha.nf_od_data,
         dataIso: linha.nf_od_data ? parseDataBr(linha.nf_od_data) : null,
-        transportadora: "",
-        cliente: "",
-        cidade: "",
-        regiao: "",
-        representante: "",
-        faturamento: linha.nf_od_faturamento,
-        natureza: linha.nf_od_natureza,
-        cfop: linha.nf_od_cfop,
+        transportadora: nomeTransportadora(linha),
         notas: [],
-        pecas: 0,
+        romaneios: [],
+        destinos: [],
+        regioes: [],
+        volumes: null,
+        metros: 0,
         valor: 0,
-        rolos: linha.nf_od_qtde_rolos,
-        pesoBruto: linha.nf_od_peso_bruto,
-        pesoLiquido: linha.nf_od_peso_liquido,
+        pesoBruto: null,
+        pesoLiquido: null,
       }
       mapa.set(chave, ordem)
     }
-    // Cabeçalho: primeira linha que traga o campo preenchido.
     if (!ordem.transportadora) ordem.transportadora = nomeTransportadora(linha)
-    if (!ordem.cliente) {
-      ordem.cliente = linha.nf_od_cliente_fantasia || linha.nf_od_cliente_razao || ""
-    }
-    if (!ordem.cidade) ordem.cidade = linha.nf_od_cidade || ""
-    if (!ordem.regiao) ordem.regiao = linha.nf_od_regiao || ""
-    if (!ordem.representante) ordem.representante = linha.nf_od_representante || ""
-    if (ordem.rolos == null && linha.nf_od_qtde_rolos != null) ordem.rolos = linha.nf_od_qtde_rolos
-    if (ordem.pesoBruto == null && linha.nf_od_peso_bruto != null) ordem.pesoBruto = linha.nf_od_peso_bruto
-    if (ordem.pesoLiquido == null && linha.nf_od_peso_liquido != null) {
-      ordem.pesoLiquido = linha.nf_od_peso_liquido
-    }
     if (!ordem.data && linha.nf_od_data) {
       ordem.data = linha.nf_od_data
       ordem.dataIso = parseDataBr(linha.nf_od_data)
     }
 
-    const pecas = linha.nf_od_qtde ?? 0
-    ordem.pecas += pecas
+    const romaneio = chaveRomaneio(linha)
+    const repetido = romaneiosContados.has(romaneio)
+    if (!repetido) {
+      romaneiosContados.add(romaneio)
+      if (linha.nf_od_romaneio != null) ordem.romaneios.push(linha.nf_od_romaneio)
+      ordem.volumes = (ordem.volumes ?? 0) + (linha.nf_od_qtde_rolos ?? 0)
+      ordem.pesoBruto = (ordem.pesoBruto ?? 0) + (linha.nf_od_peso_bruto ?? 0)
+      ordem.pesoLiquido = (ordem.pesoLiquido ?? 0) + (linha.nf_od_peso_liquido ?? 0)
+    }
+
+    const cliente = linha.nf_od_cliente_fantasia || linha.nf_od_cliente_razao || ""
+    const cidade = linha.nf_od_cidade || ""
+    const regiao = linha.nf_od_regiao || ""
+    if (cidade && !ordem.destinos.includes(cidade)) ordem.destinos.push(cidade)
+    if (regiao && !ordem.regioes.includes(regiao)) ordem.regioes.push(regiao)
+
+    const metros = linha.nf_od_qtde ?? 0
+    ordem.metros += metros
     ordem.valor += linha.nf_od_valor ?? 0
     ordem.notas.push({
       chave: chaveCteNf(linha),
@@ -726,7 +755,14 @@ export function agruparOrdensDespacho(itens: LinhaCte[]): OrdemDespacho[] {
       cteNumero: linha.cte_numero,
       cteSerie: linha.cte_serie,
       transportadora: nomeTransportadora(linha),
-      pecas,
+      pedido: linha.nf_od_pedido,
+      romaneio: linha.nf_od_romaneio,
+      cliente,
+      cidade,
+      regiao,
+      metros,
+      volumes: repetido ? null : linha.nf_od_qtde_rolos,
+      repetido,
       valor: linha.nf_od_valor,
       rateio: linha.nf_item_valor_total,
     })
@@ -734,6 +770,8 @@ export function agruparOrdensDespacho(itens: LinhaCte[]): OrdemDespacho[] {
   const lista = [...mapa.values()]
   for (const ordem of lista) {
     ordem.notas.sort(compararNotaDespacho)
+    ordem.destinos.sort((a, b) => a.localeCompare(b, "pt-BR"))
+    ordem.regioes.sort((a, b) => a.localeCompare(b, "pt-BR"))
     if (!ordem.transportadora) ordem.transportadora = ordem.notas[0]?.transportadora || ""
   }
   // Mais recentes primeiro; sem data, no fim.
@@ -744,7 +782,8 @@ export function agruparOrdensDespacho(itens: LinhaCte[]): OrdemDespacho[] {
 function compararNotaDespacho(a: NotaDespacho, b: NotaDespacho): number {
   const na = a.nfNumero ?? 0
   const nb = b.nfNumero ?? 0
-  return na - nb
+  if (na !== nb) return na - nb
+  return (a.nfSerie ?? "").localeCompare(b.nfSerie ?? "")
 }
 
 /** Contagens e somas da aba de ordens de despacho. */
@@ -752,34 +791,31 @@ export function resumoOrdensDespacho(
   ordens: OrdemDespacho[],
   semDespacho: number
 ): ResumoDespacho {
-  let pecas = 0
+  let metros = 0
   let valor = 0
   let notas = 0
-  let rolos = 0
-  let algumaOrdemComRolos = false
-  const pedidos = new Set<number>()
+  let volumes = 0
+  let algumaOrdemComVolumes = false
   const romaneios = new Set<number>()
   const transportadoras = new Set<string>()
   for (const ordem of ordens) {
-    pecas += ordem.pecas
+    metros += ordem.metros
     valor += ordem.valor
     notas += ordem.notas.length
-    if (ordem.pedido != null) pedidos.add(ordem.pedido)
-    if (ordem.romaneio != null) romaneios.add(ordem.romaneio)
+    for (const romaneio of ordem.romaneios) romaneios.add(romaneio)
     if (ordem.transportadora) transportadoras.add(ordem.transportadora)
-    if (ordem.rolos != null) {
-      rolos += ordem.rolos
-      algumaOrdemComRolos = true
+    if (ordem.volumes != null) {
+      volumes += ordem.volumes
+      algumaOrdemComVolumes = true
     }
   }
   return {
     notas,
     ordens: ordens.length,
-    pedidos: pedidos.size,
     romaneios: romaneios.size,
-    pecas,
+    volumes: algumaOrdemComVolumes ? volumes : null,
+    metros,
     valor,
-    rolos: algumaOrdemComRolos ? rolos : null,
     semDespacho,
     transportadoras: transportadoras.size,
   }
