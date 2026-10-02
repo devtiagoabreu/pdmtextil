@@ -33,7 +33,10 @@ import {
   paraIso,
   parseDataBr,
   periodoMesCorrente,
+  periodoDePreset,
   periodoPadrao,
+  PRESETAS_PERIODO,
+  presetQueCombinaCom,
   rateioFechaComCte,
   resumirFretePorRegiao,
   resumirFretePorTransportadora,
@@ -582,16 +585,73 @@ describe("datas", () => {
     expect(paraIso(somarMeses(d, -2))).toBe("2025-11-15")
   })
 
-  it("periodoPadrao cobre os últimos 2 meses", () => {
-    const p = periodoPadrao(new Date(2026, 8, 28, 12))
-    expect(p.de).toBe("2026-07-28")
-    expect(p.ate).toBe("2026-09-28")
+  it("periodoPadrao cobre os últimos 12 meses, casando com a janela do SQL", () => {
+    const p = periodoPadrao(new Date(2026, 9, 2, 12))
+    // ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -12) → 1º/10/2025
+    expect(p.de).toBe("2025-10-01")
+    expect(p.ate).toBe("2026-10-02")
   })
 
   it("periodoMesCorrente começa no dia 1 do mês", () => {
     const p = periodoMesCorrente(new Date(2026, 8, 28, 12))
     expect(p.de).toBe("2026-09-01")
     expect(p.ate).toBe("2026-09-28")
+  })
+})
+
+describe("periodoDePreset", () => {
+  const hoje = new Date(2026, 9, 2, 12) // 02/10/2026
+
+  it.each([
+    ["hoje", "2026-10-02", "2026-10-02"],
+    ["ontem", "2026-10-01", "2026-10-01"],
+    ["7d", "2026-09-26", "2026-10-02"],
+    ["mes", "2026-10-01", "2026-10-02"],
+    ["mes_anterior", "2026-09-01", "2026-09-30"],
+    ["3m", "2026-08-01", "2026-10-02"],
+    ["6m", "2026-05-01", "2026-10-02"],
+    ["ano", "2026-01-01", "2026-10-02"],
+    ["12m", "2025-10-01", "2026-10-02"],
+  ] as const)("%s → %s a %s", (chave, de, ate) => {
+    expect(periodoDePreset(chave, hoje)).toEqual({ de, ate })
+  })
+
+  it("não tem intervalo para 'personalizado'", () => {
+    expect(periodoDePreset("personalizado", hoje)).toBeNull()
+  })
+
+  it("nenhum preset entrega de maior que ate", () => {
+    for (const { chave } of PRESETAS_PERIODO) {
+      const p = periodoDePreset(chave, hoje)
+      if (p) expect(p.de <= p.ate).toBe(true)
+    }
+  })
+
+  it("cobreViradaDeAno sem virar dia 31 de mês curto", () => {
+    // 31/12 → subtrair 12 meses não pode gerar "2025-12-31" com 13 meses
+    expect(periodoDePreset("12m", new Date(2026, 0, 31, 12))).toEqual({
+      de: "2025-01-01",
+      ate: "2026-01-31",
+    })
+    expect(periodoDePreset("mes_anterior", new Date(2026, 2, 31, 12))).toEqual({
+      de: "2026-02-01",
+      ate: "2026-02-28",
+    })
+  })
+})
+
+describe("presetQueCombinaCom", () => {
+  const hoje = new Date(2026, 9, 2, 12)
+
+  it("reconhece o atalho que gera exatamente aquele período", () => {
+    expect(presetQueCombinaCom({ de: "2026-01-01", ate: "2026-10-02" }, hoje)).toBe("ano")
+    expect(presetQueCombinaCom({ de: "2026-10-01", ate: "2026-10-02" }, hoje)).toBe("mes")
+    expect(presetQueCombinaCom({ de: "2025-10-01", ate: "2026-10-02" }, hoje)).toBe("12m")
+  })
+
+  it("devolve null para período montado à mão", () => {
+    expect(presetQueCombinaCom({ de: "2026-01-05", ate: "2026-10-02" }, hoje)).toBeNull()
+    expect(presetQueCombinaCom({ de: "2026-01-01", ate: "2026-10-01" }, hoje)).toBeNull()
   })
 })
 
@@ -920,6 +980,30 @@ describe("buscarTodasPaginas", () => {
     expect(linhas).toHaveLength(1)
     expect(linhas[0].soma_nf_do_cte).toBe(50)
     expect(linhas[0].pct_nf_no_total_cte).toBe(100)
+  })
+
+  it("avisa quando o teto de paginação trunca o resultado", async () => {
+    const trunca: number[] = []
+    // Página sempre cheia: só o fim do laço interrompe.
+    await buscarTodasPaginas(
+      async () => ({ items: new Array(LIMITE_PAGINA).fill({ ...cteBase, cte_numero: 5 }) }),
+      (n) => trunca.push(n)
+    )
+    expect(trunca).toEqual([MAX_PAGINAS * LIMITE_PAGINA])
+  })
+
+  it("não avisa truncamento quando a última página vem curta", async () => {
+    const trunca: number[] = []
+    await buscarTodasPaginas(
+      async (offset) => ({
+        items:
+          offset === 0
+            ? new Array(LIMITE_PAGINA).fill({ ...cteBase, cte_numero: 5 })
+            : [{ ...cteBase, cte_numero: 6 }],
+      }),
+      (n) => trunca.push(n)
+    )
+    expect(trunca).toEqual([])
   })
 })
 

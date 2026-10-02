@@ -214,7 +214,12 @@ export function normalizarResposta(body: unknown): LinhaCte[] {
 }
 
 export const LIMITE_PAGINA = 100
-export const MAX_PAGINAS = 20
+/**
+ * 100 páginas × 100 linhas = 10.000 linhas. A janela padrão são 12 meses
+ * (~1.100 NF-e), então o teto só seria tocado em um ano atípico — e, mesmo
+ * assim, é preferível truncar avisando do que truncar calado.
+ */
+export const MAX_PAGINAS = 100
 
 export class ApiRelatorioError extends Error {
   status: number
@@ -236,9 +241,13 @@ export class ApiRelatorioError extends Error {
  * CT-e (calcularDerivadosPorCte) veem o conjunto completo, mesmo que um CT-e
  * seja cortado entre duas páginas. Para quando uma página volta com menos
  * linhas que o limite (última página).
+ *
+ * Se o teto for atingido sem página curta, `aoTruncar` é chamado: sem isso a
+ * tela mostraria totais de um recorte parcial sem nenhum aviso.
  */
 export async function buscarTodasPaginas(
-  buscar: (offset: number) => Promise<unknown>
+  buscar: (offset: number) => Promise<unknown>,
+  aoTruncar?: (linhas: number) => void
 ): Promise<LinhaCte[]> {
   const brutos: Record<string, unknown>[] = []
   for (let pagina = 0; pagina < MAX_PAGINAS; pagina++) {
@@ -246,8 +255,9 @@ export async function buscarTodasPaginas(
     const body = await buscar(offset)
     const itens = extrairItems(body)
     brutos.push(...itens)
-    if (itens.length < LIMITE_PAGINA) break
+    if (itens.length < LIMITE_PAGINA) return normalizarResposta(brutos)
   }
+  aoTruncar?.(MAX_PAGINAS * LIMITE_PAGINA)
   return normalizarResposta(brutos)
 }
 
@@ -277,12 +287,116 @@ export function somarMeses(base: Date, meses: number): Date {
   )
 }
 
+export type ChavePeriodo =
+  | "12m"
+  | "6m"
+  | "3m"
+  | "ano"
+  | "mes"
+  | "mes_anterior"
+  | "7d"
+  | "ontem"
+  | "hoje"
+  | "personalizado"
+
+export interface PresetPeriodo {
+  chave: ChavePeriodo
+  rotulo: string
+}
+
+/**
+ * Atalhos do filtro de período, na ordem em que aparecem no select.
+ *
+ * `personalizado` não é um atalho: é o estado que a tela entra quando alguém
+ * digita as datas na mão, para o select não mentir mostrando "Últimos 12 meses"
+ * com um período que o usuário montou.
+ */
+export const PRESETAS_PERIODO: PresetPeriodo[] = [
+  { chave: "12m", rotulo: "Últimos 12 meses" },
+  { chave: "6m", rotulo: "Últimos 6 meses" },
+  { chave: "3m", rotulo: "Último trimestre" },
+  { chave: "ano", rotulo: "Ano atual" },
+  { chave: "mes", rotulo: "Mês atual" },
+  { chave: "mes_anterior", rotulo: "Mês anterior" },
+  { chave: "7d", rotulo: "Últimos 7 dias" },
+  { chave: "ontem", rotulo: "Ontem" },
+  { chave: "hoje", rotulo: "Hoje" },
+  { chave: "personalizado", rotulo: "Personalizado" },
+]
+
+function ultimoDiaDoMes(base: Date): Date {
+  return new Date(base.getFullYear(), base.getMonth() + 1, 0, 12)
+}
+
+/**
+ * Converte um atalho em intervalo de datas.
+ *
+ * `de` sempre começa no dia 1 do mês inicial e `ate` vai até hoje (ou o fim do
+ * mês, nos atalhos de mês fechado). Isso casa com a janela do relatório, que é
+ * `ADD_MONTHS(TRUNC(SYSDATE,'MM'), -12)` até o fim do mês corrente.
+ */
+export function periodoDePreset(chave: ChavePeriodo, hoje: Date = new Date()): Periodo | null {
+  switch (chave) {
+    case "hoje":
+      return { de: paraIso(hoje), ate: paraIso(hoje) }
+    case "ontem": {
+      const ontem = somarDias(hoje, -1)
+      return { de: paraIso(ontem), ate: paraIso(ontem) }
+    }
+    case "7d":
+      return { de: paraIso(somarDias(hoje, -6)), ate: paraIso(hoje) }
+    case "mes":
+      return periodoMesCorrente(hoje)
+    case "mes_anterior": {
+      const primeiro = new Date(hoje.getFullYear(), hoje.getMonth() - 1, 1, 12)
+      return { de: paraIso(primeiro), ate: paraIso(ultimoDiaDoMes(primeiro)) }
+    }
+    case "3m":
+      return { de: paraIso(primeiroDoMes(somarMeses(hoje, -2))), ate: paraIso(hoje) }
+    case "6m":
+      return { de: paraIso(primeiroDoMes(somarMeses(hoje, -5))), ate: paraIso(hoje) }
+    case "ano":
+      return { de: paraIso(new Date(hoje.getFullYear(), 0, 1, 12)), ate: paraIso(hoje) }
+    case "12m":
+      return periodoPadrao(hoje)
+    default:
+      return null
+  }
+}
+
+/** Atalho cujo intervalo bate com o período informado, ou `null` se for digitado à mão. */
+export function presetQueCombinaCom(
+  periodo: Periodo,
+  hoje: Date = new Date()
+): ChavePeriodo | null {
+  for (const { chave } of PRESETAS_PERIODO) {
+    if (chave === "personalizado") continue
+    const esperado = periodoDePreset(chave, hoje)
+    if (esperado && esperado.de === periodo.de && esperado.ate === periodo.ate) return chave
+  }
+  return null
+}
+
+/**
+ * Período padrão da tela: os últimos 12 meses.
+ *
+ * É a janela que o endpoint entrega, então é a única que não deixa linha de
+ * fora na primeira consulta. Antes eram 2 meses (`somarMeses(hoje, -2)`).
+ */
 export function periodoPadrao(hoje: Date = new Date()): Periodo {
-  return { de: paraIso(somarMeses(hoje, -2)), ate: paraIso(hoje) }
+  return { de: paraIso(primeiroDoMes(somarMeses(hoje, -12))), ate: paraIso(hoje) }
 }
 
 export function periodoMesCorrente(hoje: Date = new Date()): Periodo {
   return { de: paraIso(new Date(hoje.getFullYear(), hoje.getMonth(), 1, 12)), ate: paraIso(hoje) }
+}
+
+function primeiroDoMes(base: Date): Date {
+  return new Date(base.getFullYear(), base.getMonth(), 1, 12)
+}
+
+export function somarDias(base: Date, dias: number): Date {
+  return new Date(base.getFullYear(), base.getMonth(), base.getDate() + dias, 12)
 }
 
 export function parseDataBr(valor: string | null | undefined): string | null {

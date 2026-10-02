@@ -8,6 +8,7 @@ import { toast } from "sonner"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
 import type { FaixaFrete, Integracao, LinhaCte, Periodo } from "./components/types"
+import type { ChavePeriodo } from "./components/utils"
 import {
   ApiRelatorioError,
   LIMITE_PAGINA,
@@ -24,8 +25,9 @@ import {
   nomeClienteNf,
   nomeRegiaoDistinct,
   nomeTranspDistinct,
-  periodoMesCorrente,
+  periodoDePreset,
   periodoPadrao,
+  presetQueCombinaCom,
 } from "./components/utils"
 import { TabelaCte } from "./components/tabela"
 import { Toolbar } from "./components/toolbar"
@@ -111,6 +113,7 @@ export default function NfeCtePage() {
   const [loadingInt, setLoadingInt] = useState(true)
   const [selectedId, setSelectedId] = useState<number | null>(null)
   const [periodo, setPeriodo] = useState<Periodo>(() => periodoPadrao())
+  const [presetPeriodo, setPresetPeriodo] = useState<ChavePeriodo>("12m")
   const [transporteFiltro, setTransporteFiltro] = useState("")
   const [regiaoFiltro, setRegiaoFiltro] = useState("")
   const [termo, setTermo] = useState("")
@@ -119,6 +122,8 @@ export default function NfeCtePage() {
   const [loading, setLoading] = useState(false)
   const [expandido, setExpandido] = useState<Set<string>>(new Set())
   const [itensAbertos, setItensAbertos] = useState<Set<string>>(new Set())
+  // Teto de paginação do endpoint: se bater, os totais são de um recorte parcial.
+  const [truncadoEm, setTruncadoEm] = useState<number | null>(null)
 
   useEffect(() => {
     let ativo = true
@@ -146,6 +151,7 @@ export default function NfeCtePage() {
     setLoading(true)
     setItens([])
     setCarregado(false)
+    setTruncadoEm(null)
     try {
       const linhas = await buscarTodasPaginas(async (offset) => {
         const res = await fetch(
@@ -156,7 +162,7 @@ export default function NfeCtePage() {
           throw new ApiRelatorioError(data.status ?? res.status)
         }
         return data.responseBody
-      })
+      }, setTruncadoEm)
       if (linhas.length === 0) {
         toast.error("Nenhuma NF-e encontrada no período")
         setCarregado(true)
@@ -176,6 +182,21 @@ export default function NfeCtePage() {
     }
   }, [selectedId])
 
+  /**
+   * Digitar as datas na mão tira o atalho: o select passa a mostrar
+   * "Personalizado" em vez de mentir com "Últimos 12 meses".
+   */
+  const mudarPeriodo = useCallback((novo: Periodo) => {
+    setPeriodo(novo)
+    setPresetPeriodo(presetQueCombinaCom(novo) ?? "personalizado")
+  }, [])
+
+  const aplicarPresetPeriodo = useCallback((chave: ChavePeriodo) => {
+    const alvo = periodoDePreset(chave)
+    setPresetPeriodo(chave)
+    if (alvo) setPeriodo(alvo)
+  }, [])
+
   const limpar = useCallback(() => {
     setItens([])
     setCarregado(false)
@@ -183,6 +204,8 @@ export default function NfeCtePage() {
     setRegiaoFiltro("")
     setTermo("")
     setPeriodo(periodoPadrao())
+    setPresetPeriodo("12m")
+    setTruncadoEm(null)
     setExpandido(new Set())
     setItensAbertos(new Set())
   }, [])
@@ -290,7 +313,9 @@ export default function NfeCtePage() {
             selectedId={selectedId}
             onSelectIntegracao={setSelectedId}
             periodo={periodo}
-            onPeriodoChange={setPeriodo}
+            onPeriodoChange={mudarPeriodo}
+            presetPeriodo={presetPeriodo}
+            onPresetPeriodoChange={aplicarPresetPeriodo}
             onAplicar={consultar}
             onLimpar={limpar}
             loading={loading}
@@ -303,25 +328,7 @@ export default function NfeCtePage() {
             termo={termo}
             onTermoChange={setTermo}
             alcance={alcance}
-          >
-            <div className="flex items-end gap-2 pb-1">
-              <button
-                type="button"
-                onClick={() => setPeriodo(periodoPadrao())}
-                className="text-xs text-blue-600 hover:underline dark:text-blue-400"
-              >
-                Últimos 2 meses
-              </button>
-              <span className="text-xs text-slate-300">·</span>
-              <button
-                type="button"
-                onClick={() => setPeriodo(periodoMesCorrente())}
-                className="text-xs text-blue-600 hover:underline dark:text-blue-400"
-              >
-                Mês corrente
-              </button>
-            </div>
-          </Toolbar>
+          />
 
           {loading ? (
             <div className="flex justify-center p-12">
@@ -345,6 +352,12 @@ export default function NfeCtePage() {
                     ? ` · ${resumo.ctesRateioDivergente} CT-es com rateio divergente do total`
                     : ""}
                 </p>
+                {truncadoEm !== null && (
+                  <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                    Resultado truncado em {truncadoEm.toLocaleString("pt-BR")} linhas — reduza o
+                    período para ver os totais completos
+                  </p>
+                )}
                 <button
                   type="button"
                   onClick={exportar}

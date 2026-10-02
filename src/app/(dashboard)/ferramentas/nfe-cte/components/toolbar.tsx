@@ -1,7 +1,8 @@
 import { CalendarDays, Loader2, MapPin, RefreshCw, Truck } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { formatarDataBr } from "./utils"
+import { formatarDataBr, PRESETAS_PERIODO } from "./utils"
+import type { ChavePeriodo } from "./utils"
 import type { Integracao, Periodo } from "./types"
 
 interface ToolbarProps {
@@ -10,6 +11,9 @@ interface ToolbarProps {
   onSelectIntegracao: (id: number) => void
   periodo: Periodo
   onPeriodoChange: (periodo: Periodo) => void
+  /** Atalho de período selecionado; `personalizado` quando as datas foram digitadas. */
+  presetPeriodo: ChavePeriodo
+  onPresetPeriodoChange: (chave: ChavePeriodo) => void
   onAplicar: () => void
   onLimpar: () => void
   loading: boolean
@@ -32,6 +36,8 @@ export function Toolbar({
   onSelectIntegracao,
   periodo,
   onPeriodoChange,
+  presetPeriodo,
+  onPresetPeriodoChange,
   onAplicar,
   onLimpar,
   loading,
@@ -71,6 +77,23 @@ export function Toolbar({
           </div>
 
           <div className="flex gap-2 items-end">
+            <div>
+              <label htmlFor="cte-periodo-preset" className="text-xs font-medium text-slate-500 mb-1 block">
+                Período
+              </label>
+              <select
+                id="cte-periodo-preset"
+                value={presetPeriodo}
+                onChange={(e) => onPresetPeriodoChange(e.target.value as ChavePeriodo)}
+                className="h-8 w-40 rounded-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-900 px-2.5 text-sm text-slate-700 dark:text-slate-200"
+              >
+                {PRESETAS_PERIODO.map((p) => (
+                  <option key={p.chave} value={p.chave}>
+                    {p.rotulo}
+                  </option>
+                ))}
+              </select>
+            </div>
             <div>
               <label htmlFor="cte-periodo-de" className="text-xs font-medium text-slate-500 mb-1 block">
                 De

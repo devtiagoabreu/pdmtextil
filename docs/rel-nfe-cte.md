@@ -2967,3 +2967,50 @@ numero da medicao). Tela e PDF passam por ele, e ha trava em `utils.test.ts` ("i
 
 Regra: **nunca ler `GrupoCte.valorFrete` para exibir frete.** Ele existe no tipo porque o endpoint
 projeta a coluna; o valor confiavel e `freteCte()`.
+
+## 25. Atalhos de periodo (select "Periodo") + janela de 12 meses
+
+O SQL publicado em 02/10/2026 trocou a janela fixa de 2 meses por 12 meses rolantes:
+
+```sql
+COALESCE(b.nf_data, b.cte_data) >= ADD_MONTHS(TRUNC(SYSDATE, 'MM'), -12)
+AND COALESCE(b.nf_data, b.cte_data) <  ADD_MONTHS(TRUNC(SYSDATE, 'MM'), 1)
+```
+
+Ou seja: do dia 1 do mes ha 12 meses ate o fim do mes corrente. O endpoint **sempre**
+devolve essa janela, independente do periodo enviado - o filtro de data da tela segue
+reduzindo no cliente, nunca ampliando (a barra mostra "Carregado: ... a ...").
+
+### Atalhos
+
+Select "Periodo" antes dos campos De/Ate. Escolher um atalho preenche as duas datas:
+
+| Atalho | De | Ate |
+|---|---|---|
+| Ultimos 12 meses (padrao) | dia 1 do mes ha 12 meses | hoje |
+| Ultimos 6 meses | dia 1 do mes ha 6 meses | hoje |
+| Ultimo trimestre | dia 1 do mes ha 3 meses | hoje |
+| Ano atual | 1o de janeiro | hoje |
+| Mes atual | dia 1 do mes | hoje |
+| Mes anterior | dia 1 do mes anterior | ultimo dia do mes anterior |
+| Ultimos 7 dias | hoje - 6 | hoje |
+| Ontem | ontem | ontem |
+| Hoje | hoje | hoje |
+| Personalizado | - | - |
+
+- `periodoPadrao()` virou "ultimos 12 meses" (era 2 meses) para casar com a janela do
+  endpoint e nao deixar linha de fora na primeira consulta.
+- "Personalizado" nao e atalho: `presetQueCombinaCom()` devolve `null` quando o periodo
+  nao bate com nenhum atalho, e a tela entra nele quando alguem digita a data na mao. Se
+  a data digitada bater com um atalho, ele volta a aparecer marcado - select que mente
+  sobre o periodo vigente e pior do que select sem atalho.
+- Os dois botoes "Ultimos 2 meses" / "Mes corrente" foram removidos: o select cobre os
+  dois casos e os dois presets.
+
+### Paginao: teto elevado e aviso de truncamento
+
+`MAX_PAGINAS` foi de 20 para 100 (2.000 -> 10.000 linhas). Com 12 meses o esperado sao
+~1.100 NF-e, mas o teto agora e' alto o bastante para o ano inteiro; e se mesmo assim
+bater, `buscarTodasPaginas` avisa por `aoTruncar` e a tela mostra "Resultado truncado em
+N linhas - reduza o periodo para ver os totais completos". Antes o corte era calado, o que
+daria total errado sem nenhum aviso.

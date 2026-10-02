@@ -29,10 +29,9 @@ const iso = (d: Date) =>
 const br = (d: Date) =>
   `${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`
 
-function menosDoisMeses(d: Date): Date {
-  const alvo = new Date(d.getFullYear(), d.getMonth() - 2, 1, 12)
-  const ultimoDia = new Date(alvo.getFullYear(), alvo.getMonth() + 1, 0, 12).getDate()
-  return new Date(alvo.getFullYear(), alvo.getMonth(), Math.min(d.getDate(), ultimoDia), 12)
+/** Primeiro dia do mês 12 meses atrás — a janela padrão do relatório. */
+function dozeMesesAtras(d: Date): Date {
+  return new Date(d.getFullYear(), d.getMonth() - 12, 1, 12)
 }
 
 const dentroDoPeriodo = {
@@ -330,14 +329,17 @@ describe("NfeCtePage", () => {
     expect(screen.getByRole("button", { name: /Consultar/ })).toBeEnabled()
   })
 
-  it("monta o período padrão com os últimos 2 meses", async () => {
+  it("monta o período padrão com os últimos 12 meses", async () => {
     const fetchMock = createFetchMock(handler())
     vi.stubGlobal("fetch", fetchMock.fn)
     renderPage(<NfeCtePage />)
 
     await screen.findByRole("button", { name: "api_rel_nfe_cte_periodo" })
 
-    expect(screen.getByLabelText("De")).toHaveValue(iso(menosDoisMeses(hoje)))
+    expect(screen.getByLabelText("Período")).toHaveValue("12m")
+    expect(screen.getByLabelText("De")).toHaveValue(
+      `${dozeMesesAtras(hoje).getFullYear()}-${String(dozeMesesAtras(hoje).getMonth() + 1).padStart(2, "0")}-01`
+    )
     expect(screen.getByLabelText("Até")).toHaveValue(iso(hoje))
   })
 
@@ -467,19 +469,50 @@ describe("NfeCtePage", () => {
     expect(screen.getByText("Rateio divergente")).toBeInTheDocument()
   })
 
-  it("oferece os atalhos de último período e mês corrente", async () => {
+  it("oferece os atalhos de período e preenche as datas", async () => {
     const fetchMock = createFetchMock(handler())
     vi.stubGlobal("fetch", fetchMock.fn)
     await consultar(fetchMock)
 
-    fireEvent.click(screen.getByRole("button", { name: "Mês corrente" }))
+    const select = screen.getByLabelText("Período")
+    expect(select).toHaveValue("12m")
+
+    fireEvent.change(select, { target: { value: "mes" } })
     expect(screen.getByLabelText("De")).toHaveValue(
       `${hoje.getFullYear()}-${String(hoje.getMonth() + 1).padStart(2, "0")}-01`
     )
+    expect(screen.getByLabelText("Até")).toHaveValue(iso(hoje))
 
-    fireEvent.click(screen.getByRole("button", { name: "Últimos 2 meses" }))
+    fireEvent.change(select, { target: { value: "hoje" } })
+    expect(screen.getByLabelText("De")).toHaveValue(iso(hoje))
     expect(screen.getByLabelText("Até")).toHaveValue(iso(hoje))
   })
+
+  it("vira 'Personalizado' quando a data é digitada na mão", async () => {
+    const fetchMock = createFetchMock(handler())
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    expect(screen.getByLabelText("Período")).toHaveValue("12m")
+    fireEvent.change(screen.getByLabelText("De"), { target: { value: "2026-01-05" } })
+
+    expect(screen.getByLabelText("Período")).toHaveValue("personalizado")
+    expect(screen.getByLabelText("De")).toHaveValue("2026-01-05")
+  })
+
+  it("volta a marcar o atalho quando a data digitada bate com ele", async () => {
+    const fetchMock = createFetchMock(handler())
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    fireEvent.change(selectPeriodo(), { target: { value: "ano" } })
+    fireEvent.change(screen.getByLabelText("De"), { target: { value: "2026-01-01" } })
+    expect(selectPeriodo()).toHaveValue("ano")
+  })
+
+  function selectPeriodo() {
+    return screen.getByLabelText("Período")
+  }
 
   it("limpar volta ao estado inicial e remove os resultados", async () => {
     const fetchMock = createFetchMock(handler())
