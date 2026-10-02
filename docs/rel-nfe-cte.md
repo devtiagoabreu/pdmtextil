@@ -3014,3 +3014,71 @@ Select "Periodo" antes dos campos De/Ate. Escolher um atalho preenche as duas da
 bater, `buscarTodasPaginas` avisa por `aoTruncar` e a tela mostra "Resultado truncado em
 N linhas - reduza o periodo para ver os totais completos". Antes o corte era calado, o que
 daria total errado sem nenhum aviso.
+
+## 26. Aba "Ordens de despacho" (03/10/2026)
+
+Segunda aba da tela `/ferramentas/nfe-cte`. **A aba de CT-e nao foi mexida**: ela continua
+sendo a aba inicial, com dashboard, grade, resumo, exportacao e PDF exatamente como antes.
+A aba nova reaproveita os mesmos filtros (periodo, transportadora, regiao, busca).
+
+### Fonte dos dados: os campos `nf_od_*` do proprio CT-e
+
+O endpoint dedicado `api_ordem_despacho` (integracao 8, tela `ordem-despacho`) **nao foi
+usado**. Ele devolve ~8-9 mil registros com chave minuscula (`NF_OD_PEDIDO`,
+`NF_OD_ROMANEI`, ...), aceita **somente** `limit`/`offset` (os filtros `NF_OD_DATA_INI`/
+`NF_OD_DATA_FIM` e `order by` sao ignorados) e cada pagina leva 8-12 s. Paginaria tudo
+para filtrar e ordenar no navegador.
+
+A aba usa o payload que a tela **ja carrega**: cada linha CT-e x NF-e vem acompanhada dos
+`nf_od_*`. Custo zero de rede. Medicao real no recorte de 12 meses (500 linhas): 483 com
+`NF_OD_PEDIDO > 0`, 470 ordens (chave `pedido|romaneio`), 463 com 1 NF-e, 5 com 2 e 2 com 5.
+
+Consequencia a ter em mente: a aba so mostra NF-e que **tambem tem CT-e** dentro da janela
+carregada. NF-e despachada sem CT-e nao aparece (e nao da para dizer "total de despacho do
+periodo" sem o endpoint dedicado).
+
+### Regra de agrupamento
+
+- Chave da ordem: `chaveOrdemDespacho = pedido + "|" + romaneio` - `pedido` sozinho junta
+  remessas diferentes.
+- Entra na aba so linha com `nf_od_pedido > 0` (`nfTemDespacho`). `PEDIDO = 0` e' o
+  placeholder da base para NF-e que nao entrou em ordem nenhuma, e os demais `nf_od_*`
+  dessas linhas nao descrevem documento nenhum.
+- Cabecalho (transportadora, cliente, cidade, regiao, representante): primeira linha que
+  trouxer o campo preenchido - as linhas do mesmo pedido costumam repetir o mesmo destino.
+- `pecas` soma `nf_od_qtde` (peças despachadas, campo 24) por NF-e; `rolos` e os pesos sao
+  da primeira linha, porque vemem do cabecalho da ordem, nao da nota.
+- Transportadora vem dos campos `cte_*` da linha (`cte_transportadora_fantasia` com
+  fallback para `_razao`) via `nomeTransportadora` - reusado do cabecalho do CT-e.
+- Ordenacao: `data` da ordem (BR `dd/mm/aaaa`, via `parseDataBr`) decrescente; empates
+  caem no maior valor, depois no menor pedido.
+
+### Totais e "sem despacho"
+
+`resumoOrdensDespacho` devolve 4 cards - Ordens, NF-e despachadas, Peças despachadas e
+Valor despachado - mais `semDespacho`: quantas NF-e do recorte **nao** entraram em ordem
+(`semDespacho = linhas - comDespacho`). Aparece abaixo dos cards e explica o texto "pedido
+0 na base", que e' assim que a base representa NF-e sem despacho. Sem esse numero o
+usuario via cards e pensava que o total estava errado.
+
+Vazio: "Nenhuma ordem de despacho no recorte" + a contagem de NF-e sem despacho.
+
+### Detalhe da ordem
+
+Cartao expansivel (um `<details>` por ordem): cabecalho com pedido/romaneio/data/
+transportadora/cliente; resumo de pecas, rolos, peso e valor; e a lista das NF-e da ordem
+(numero, data, pecas, valor), com o total conferindo com o cabecalho.
+
+### Arquivos
+
+- `components/types.ts` - `NotaDespacho`, `OrdemDespacho`, `ResumoDespacho`.
+- `components/utils.ts` - `chaveOrdemDespacho`, `agruparOrdensDespacho`,
+  `resumoOrdensDespacho`.
+- `components/aba-ordens-despacho.tsx` - a aba.
+- `page.tsx` - `ABAS`, `abaAtiva` e o render condicional.
+
+### Pegadinha de teste
+
+Os fixtures de `page.test.tsx` nao podem repetir `cte_numero` + `nf_numero`: `deduplicarPorCteNf`
+mantem a **primeira** linha da chave, entao a segunda versao do mesmo CT-e x NF-e e'
+descartada - foi assim que `comDespacho` sumia por ter o mesmo par de `semValores`.

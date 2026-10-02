@@ -3,8 +3,11 @@ import type {
   FaixaFrete,
   GrupoCte,
   LinhaCte,
+  NotaDespacho,
+  OrdemDespacho,
   Periodo,
   Resumo,
+  ResumoDespacho,
   ResumoFrete,
 } from "./types"
 
@@ -632,6 +635,154 @@ export function formatarDataBr(iso: string | null | undefined): string {
   const partes = iso.slice(0, 10).split("-")
   if (partes.length !== 3) return iso
   return `${partes[2]}/${partes[1]}/${partes[0]}`
+}
+
+/** Nome da transportadora do CT-e; a ordem de despacho herda a do conhecimento. */
+function nomeTransportadora(linha: LinhaCte): string {
+  return linha.cte_transportadora_fantasia || linha.cte_transportadora_razao || ""
+}
+
+/**
+ * Chave da ordem de despacho: pedido + romaneio.
+ *
+ * Medido no endpoint em 02/10/2026 (500 linhas da janela de 12 meses): 483 com
+ * `nf_od_pedido > 0` formavam 470 grupos, sendo 463 com uma única NF, 5 com duas
+ * e 2 com cinco. Ou seja, pedido+romaneio é a granularidade que o romaneio
+ * realmente tem — agrupar só por pedido misturaria expedições diferentes.
+ */
+export function chaveOrdemDespacho(linha: LinhaCte): string {
+  return `${linha.nf_od_pedido ?? "?"}|${linha.nf_od_romaneio ?? "?"}`
+}
+
+/**
+ * Agrupa as NF-e em ordens de despacho.
+ *
+ * Só entram as linhas com `nf_od_pedido > 0` (ver `nfTemDespacho`): `PEDIDO = 0`
+ * é o placeholder da base para NF-e que não entrou em ordem nenhuma, e os dados
+ * de despacho dessas linhas não descrevem documento nenhum.
+ *
+ * Os campos do cabeçalho da ordem (cliente, cidade, região, representante,
+ * rolos, pesos) vêm da primeira linha preenchida, porque o endpoint repete os
+ * mesmos valores em todas as NFs do mesmo pedido — e nem sempre em todas.
+ * Peças e valor são **somados** por nota: `nf_od_qtde` é a quantidade da ordem
+ * para aquela NF-e, não do pedido inteiro.
+ */
+export function agruparOrdensDespacho(itens: LinhaCte[]): OrdemDespacho[] {
+  const mapa = new Map<string, OrdemDespacho>()
+  for (const linha of itens) {
+    if (!nfTemDespacho(linha)) continue
+    const chave = chaveOrdemDespacho(linha)
+    let ordem = mapa.get(chave)
+    if (!ordem) {
+      ordem = {
+        chave,
+        pedido: linha.nf_od_pedido,
+        romaneio: linha.nf_od_romaneio,
+        data: linha.nf_od_data,
+        dataIso: linha.nf_od_data ? parseDataBr(linha.nf_od_data) : null,
+        transportadora: "",
+        cliente: "",
+        cidade: "",
+        regiao: "",
+        representante: "",
+        faturamento: linha.nf_od_faturamento,
+        natureza: linha.nf_od_natureza,
+        cfop: linha.nf_od_cfop,
+        notas: [],
+        pecas: 0,
+        valor: 0,
+        rolos: linha.nf_od_qtde_rolos,
+        pesoBruto: linha.nf_od_peso_bruto,
+        pesoLiquido: linha.nf_od_peso_liquido,
+      }
+      mapa.set(chave, ordem)
+    }
+    // Cabeçalho: primeira linha que traga o campo preenchido.
+    if (!ordem.transportadora) ordem.transportadora = nomeTransportadora(linha)
+    if (!ordem.cliente) {
+      ordem.cliente = linha.nf_od_cliente_fantasia || linha.nf_od_cliente_razao || ""
+    }
+    if (!ordem.cidade) ordem.cidade = linha.nf_od_cidade || ""
+    if (!ordem.regiao) ordem.regiao = linha.nf_od_regiao || ""
+    if (!ordem.representante) ordem.representante = linha.nf_od_representante || ""
+    if (ordem.rolos == null && linha.nf_od_qtde_rolos != null) ordem.rolos = linha.nf_od_qtde_rolos
+    if (ordem.pesoBruto == null && linha.nf_od_peso_bruto != null) ordem.pesoBruto = linha.nf_od_peso_bruto
+    if (ordem.pesoLiquido == null && linha.nf_od_peso_liquido != null) {
+      ordem.pesoLiquido = linha.nf_od_peso_liquido
+    }
+    if (!ordem.data && linha.nf_od_data) {
+      ordem.data = linha.nf_od_data
+      ordem.dataIso = parseDataBr(linha.nf_od_data)
+    }
+
+    const pecas = linha.nf_od_qtde ?? 0
+    ordem.pecas += pecas
+    ordem.valor += linha.nf_od_valor ?? 0
+    ordem.notas.push({
+      chave: chaveCteNf(linha),
+      nfNumero: linha.nf_numero,
+      nfSerie: linha.nf_serie,
+      nfData: linha.nf_data,
+      cteNumero: linha.cte_numero,
+      cteSerie: linha.cte_serie,
+      transportadora: nomeTransportadora(linha),
+      pecas,
+      valor: linha.nf_od_valor,
+      rateio: linha.nf_item_valor_total,
+    })
+  }
+  const lista = [...mapa.values()]
+  for (const ordem of lista) {
+    ordem.notas.sort(compararNotaDespacho)
+    if (!ordem.transportadora) ordem.transportadora = ordem.notas[0]?.transportadora || ""
+  }
+  // Mais recentes primeiro; sem data, no fim.
+  lista.sort((a, b) => (b.dataIso ?? "").localeCompare(a.dataIso ?? ""))
+  return lista
+}
+
+function compararNotaDespacho(a: NotaDespacho, b: NotaDespacho): number {
+  const na = a.nfNumero ?? 0
+  const nb = b.nfNumero ?? 0
+  return na - nb
+}
+
+/** Contagens e somas da aba de ordens de despacho. */
+export function resumoOrdensDespacho(
+  ordens: OrdemDespacho[],
+  semDespacho: number
+): ResumoDespacho {
+  let pecas = 0
+  let valor = 0
+  let notas = 0
+  let rolos = 0
+  let algumaOrdemComRolos = false
+  const pedidos = new Set<number>()
+  const romaneios = new Set<number>()
+  const transportadoras = new Set<string>()
+  for (const ordem of ordens) {
+    pecas += ordem.pecas
+    valor += ordem.valor
+    notas += ordem.notas.length
+    if (ordem.pedido != null) pedidos.add(ordem.pedido)
+    if (ordem.romaneio != null) romaneios.add(ordem.romaneio)
+    if (ordem.transportadora) transportadoras.add(ordem.transportadora)
+    if (ordem.rolos != null) {
+      rolos += ordem.rolos
+      algumaOrdemComRolos = true
+    }
+  }
+  return {
+    notas,
+    ordens: ordens.length,
+    pedidos: pedidos.size,
+    romaneios: romaneios.size,
+    pecas,
+    valor,
+    rolos: algumaOrdemComRolos ? rolos : null,
+    semDespacho,
+    transportadoras: transportadoras.size,
+  }
 }
 
 export function nomeTranspDistinct(grupos: GrupoCte[]): string[] {

@@ -469,6 +469,69 @@ describe("NfeCtePage", () => {
     expect(screen.getByText("Rateio divergente")).toBeInTheDocument()
   })
 
+  it("abre a aba de ordens de despacho sem mexer no CT-e", async () => {
+    const fetchMock = createFetchMock(handler([dentroDoPeriodo, comDespacho]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    // CT-e é a aba inicial: dashboard e grade como antes
+    await screen.findByText("CT-e 195476/1")
+    expect(screen.getByRole("tab", { name: "CT-e" })).toHaveAttribute("aria-selected", "true")
+    expect(screen.getByRole("region", { name: "Resumo do período" })).toBeInTheDocument()
+
+    fireEvent.click(screen.getByRole("tab", { name: "Ordens de despacho" }))
+
+    expect(screen.getByRole("tab", { name: "Ordens de despacho" })).toHaveAttribute(
+      "aria-selected",
+      "true"
+    )
+    expect(screen.queryByRole("region", { name: "Resumo do período" })).not.toBeInTheDocument()
+    expect(screen.queryByText("CT-e 195476/1")).not.toBeInTheDocument()
+
+    // A ordem do despacho comDespacho: pedido 8305, romaneio 24795
+    expect(screen.getByText("Pedido 8305")).toBeInTheDocument()
+    expect(screen.getByText(/Romaneio 24795/)).toBeInTheDocument()
+    expect(screen.getByText("Ordens de despacho", { selector: "p" })).toBeInTheDocument()
+    expect(screen.getByText("Peças despachadas")).toBeInTheDocument()
+  })
+
+  it("aplica o filtro de transportadora também na aba de despacho", async () => {
+    const outraTransportadora = {
+      ...comDespacho,
+      cte_numero: 195499,
+      nf_numero: 35899,
+      nf_od_pedido: 9999,
+      cte_transportadora_fantasia: "EXPRESSO SAO MIGUEL S/A",
+      cte_transportadora_razao: "EXPRESSO SAO MIGUEL S/A",
+    }
+    const fetchMock = createFetchMock(handler([comDespacho, outraTransportadora]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    fireEvent.click(await screen.findByRole("tab", { name: "Ordens de despacho" }))
+    expect(screen.getByText("Pedido 8305")).toBeInTheDocument()
+    expect(screen.getByText("Pedido 9999")).toBeInTheDocument()
+
+    fireEvent.change(screen.getByLabelText("Transportadora"), {
+      target: { value: "SORRISO TRANSPORTES" },
+    })
+
+    expect(screen.getByText("Pedido 8305")).toBeInTheDocument()
+    expect(screen.queryByText("Pedido 9999")).not.toBeInTheDocument()
+  })
+
+  it("diz quantas NF-e do recorte não têm ordem de despacho", async () => {
+    // NF-e sem nf_od_pedido > 0 (pedido 0 na base) fica de fora das ordens
+    const semDespacho = { ...dentroDoPeriodo, cte_numero: 195501, nf_numero: 35901 }
+    const fetchMock = createFetchMock(handler([semDespacho, comDespacho]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    fireEvent.click(await screen.findByRole("tab", { name: "Ordens de despacho" }))
+
+    expect(screen.getByText("1 NF-e sem despacho")).toBeInTheDocument()
+  })
+
   it("oferece os atalhos de período e preenche as datas", async () => {
     const fetchMock = createFetchMock(handler())
     vi.stubGlobal("fetch", fetchMock.fn)

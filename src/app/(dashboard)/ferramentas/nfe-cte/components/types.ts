@@ -98,6 +98,68 @@ export interface Periodo {
   ate: string
 }
 
+/**
+ * Uma NF-e despachada, na visão da ordem de despacho: as peças que o pedido
+ * mandou para ela, não as que o rateio do CT-e separou.
+ */
+export interface NotaDespacho {
+  chave: string
+  nfNumero: number | null
+  nfSerie: string | null
+  nfData: string | null
+  /** CT-e que transportou a nota — de onde vem a transportadora da ordem. */
+  cteNumero: number | null
+  cteSerie: string | null
+  transportadora: string
+  /** Peças da ordem de despacho (`nf_od_qtde`), não o rateio do CT-e. */
+  pecas: number | null
+  valor: number | null
+  rateio: number | null
+}
+
+/**
+ * A ordem de despacho propriamente dita: o documento que vai para a
+ * transportadora, com as notas de um pedido dentro de um romaneio.
+ *
+ * A chave é `pedido + romaneio` porque é isso que o romaneio identifica: um
+ * pedido pode ter mais de um romaneio (expedição fatiada) e um romaneio pode
+ * repetir pedido quando as NFs do mesmo despacho saem em pedidos diferentes.
+ */
+export interface OrdemDespacho {
+  chave: string
+  pedido: number | null
+  romaneio: number | null
+  data: string | null
+  dataIso: string | null
+  transportadora: string
+  cliente: string
+  cidade: string
+  regiao: string
+  representante: string
+  faturamento: string | null
+  natureza: string | null
+  cfop: string | null
+  notas: NotaDespacho[]
+  /** Peças somadas das notas (`nf_od_qtde`). */
+  pecas: number
+  valor: number
+  rolos: number | null
+  pesoBruto: number | null
+  pesoLiquido: number | null
+}
+
+export interface ResumoDespacho {
+  notas: number
+  ordens: number
+  pedidos: number
+  romaneios: number
+  pecas: number
+  valor: number
+  rolos: number | null
+  semDespacho: number
+  transportadoras: number
+}
+
 export interface Resumo {
   linhas: number
   ctes: number

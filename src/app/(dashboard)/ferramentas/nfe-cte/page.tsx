@@ -25,15 +25,23 @@ import {
   nomeClienteNf,
   nomeRegiaoDistinct,
   nomeTranspDistinct,
+  agruparOrdensDespacho,
   periodoDePreset,
   periodoPadrao,
   presetQueCombinaCom,
+  resumoOrdensDespacho,
 } from "./components/utils"
 import { TabelaCte } from "./components/tabela"
 import { Toolbar } from "./components/toolbar"
 import { Dashboard } from "./components/dashboard"
+import { AbaOrdensDespacho } from "./components/aba-ordens-despacho"
 
 const TELA = "nfe-cte"
+
+const ABAS = [
+  { chave: "cte" as const, rotulo: "CT-e" },
+  { chave: "despacho" as const, rotulo: "Ordens de despacho" },
+]
 
 /** Rótulos textuais da faixa de frete, para o CSV. */
 const ROTULO_FAIXA_CSV: Record<FaixaFrete, string> = {
@@ -124,6 +132,7 @@ export default function NfeCtePage() {
   const [itensAbertos, setItensAbertos] = useState<Set<string>>(new Set())
   // Teto de paginação do endpoint: se bater, os totais são de um recorte parcial.
   const [truncadoEm, setTruncadoEm] = useState<number | null>(null)
+  const [abaAtiva, setAbaAtiva] = useState<"cte" | "despacho">("cte")
 
   useEffect(() => {
     let ativo = true
@@ -240,6 +249,12 @@ export default function NfeCtePage() {
   const transportes = useMemo(() => nomeTranspDistinct(gruposCarregados), [gruposCarregados])
   const regioes = useMemo(() => nomeRegiaoDistinct(gruposCarregados), [gruposCarregados])
   const resumo = useMemo(() => calcularResumo(filtrados), [filtrados])
+  // Aba de ordens de despacho: mesmo recorte, outra leitura (pedido + romaneio).
+  const ordensDespacho = useMemo(() => agruparOrdensDespacho(filtrados), [filtrados])
+  const resumoDespacho = useMemo(
+    () => resumoOrdensDespacho(ordensDespacho, resumo.linhas - resumo.comDespacho),
+    [ordensDespacho, resumo]
+  )
   // Só para a mensagem de "nada encontrado": distingue "o período não bate" de
   // "os filtros não batem", que antes mostravam a mesma frase.
   const filtrosAtivos =
@@ -336,7 +351,30 @@ export default function NfeCtePage() {
             </div>
           ) : grupos.length > 0 ? (
             <div className="space-y-4">
-              <Dashboard grupos={grupos} resumo={resumo} />
+              <div role="tablist" aria-label="Relatórios" className="flex gap-1 border-b border-slate-200 dark:border-slate-800">
+                {ABAS.map((aba) => (
+                  <button
+                    key={aba.chave}
+                    role="tab"
+                    type="button"
+                    aria-selected={abaAtiva === aba.chave}
+                    onClick={() => setAbaAtiva(aba.chave)}
+                    className={`-mb-px border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
+                      abaAtiva === aba.chave
+                        ? "border-blue-500 text-blue-600 dark:text-blue-400"
+                        : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
+                    }`}
+                  >
+                    {aba.rotulo}
+                  </button>
+                ))}
+              </div>
+
+              {abaAtiva === "despacho" ? (
+                <AbaOrdensDespacho ordens={ordensDespacho} resumo={resumoDespacho} />
+              ) : (
+                <>
+                  <Dashboard grupos={grupos} resumo={resumo} />
 
               <div className="flex items-center justify-between gap-4">
                 <p className="text-xs text-slate-500 dark:text-slate-400">
@@ -375,6 +413,8 @@ export default function NfeCtePage() {
                 itensAbertos={itensAbertos}
                 onToggleItem={toggleItem}
               />
+                </>
+              )}
             </div>
           ) : carregado ? (
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center">
