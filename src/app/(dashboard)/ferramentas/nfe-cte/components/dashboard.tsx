@@ -1,6 +1,6 @@
 "use client"
 
-import { useCallback, useMemo, useState } from "react"
+import { memo, useCallback, useMemo, useState } from "react"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
@@ -289,7 +289,7 @@ function TabelaBreakdown({
   )
 }
 
-export function Dashboard({ grupos, resumo }: { grupos: GrupoCte[]; resumo: Resumo }) {
+export const Dashboard = memo(function Dashboard({ grupos, resumo }: { grupos: GrupoCte[]; resumo: Resumo }) {
   const [aba, setAba] = useState("transportadora")
   const [detalhe, setDetalhe] = useState<{ titulo: string; grupos: GrupoCte[] } | null>(null)
   const faixas = useMemo(() => contarFaixas(grupos), [grupos])
@@ -430,4 +430,4 @@ export function Dashboard({ grupos, resumo }: { grupos: GrupoCte[]; resumo: Resu
       )}
     </div>
   )
-}
+})

@@ -1,3 +1,4 @@
+import { memo, useEffect, useState } from "react"
 import { ChevronDown, ChevronRight, Package } from "lucide-react"
 import { InfoButton } from "@/components/ui/info-button"
 import { rateioCteInfoContent } from "@/lib/info-content/ferramentas"
@@ -23,6 +24,15 @@ interface TabelaProps {
   itensAbertos: Set<string>
   onToggleItem: (chave: string) => void
 }
+
+/**
+ * CT-es desenhados por vez. O período padrão de 12 meses chega a ~900 CT-es e
+ * cada cartão traz cabeçalho, badges e linha de totais: manter todos no DOM
+ * deixava o "expandir" custando ~53 ms de INP e o primeiro paint pesando
+ * (trace de produção, 03/10/2026). A lista de CT-es do recorte continua
+ * íntegra nos contadores acima da tabela — aqui é só o que está na tela.
+ */
+const CTES_POR_PAGINA = 50
 
 function rotuloNf(linha: LinhaCte): string {
   if (linha.nf_numero === null) return "NF sem número"
@@ -97,16 +107,25 @@ function TabelaItens({ linha }: { linha: LinhaCte }) {
   )
 }
 
-export function TabelaCte({
+export const TabelaCte = memo(function TabelaCte({
   grupos,
   expandido,
   onToggle,
   itensAbertos,
   onToggleItem,
 }: TabelaProps) {
+  const [visiveis, setVisiveis] = useState(CTES_POR_PAGINA)
+
+  // Recorte novo volta à 1ª página; os CT-e que estavam abertos podem nem estar
+  // nela, e `expandido` é do pai — quem decide o que fica aberto é a tela.
+  useEffect(() => setVisiveis(CTES_POR_PAGINA), [grupos])
+
+  const pagina = grupos.slice(0, visiveis)
+  const restantes = grupos.length - pagina.length
+
   return (
     <div className="space-y-2">
-      {grupos.map((grupo) => {
+      {pagina.map((grupo) => {
         const aberto = expandido.has(grupo.chave)
         const comNome = grupo.nfs.find((n) => nomeClienteNf(n))
         const todasSemCabecalho = grupo.nfs.length > 0 && grupo.nfs.every(nfSemCabecalho)
@@ -355,6 +374,19 @@ export function TabelaCte({
           </div>
         )
       })}
+
+      {restantes > 0 && (
+        <button
+          type="button"
+          onClick={() => setVisiveis((v) => v + CTES_POR_PAGINA)}
+          className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+        >
+          {`Mostrar mais ${restantes} CT-e(s)`}
+          <span className="ml-1 font-normal text-slate-400">
+            {`(mostrando ${pagina.length} de ${grupos.length})`}
+          </span>
+        </button>
+      )}
     </div>
   )
-}
+})

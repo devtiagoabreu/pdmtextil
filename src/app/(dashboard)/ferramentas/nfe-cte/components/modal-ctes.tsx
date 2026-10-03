@@ -16,6 +16,14 @@ interface ModalCtesProps {
 }
 
 /**
+ * CT-es na tela por vez. O drill-down "Todos os CT-es" do período de 12 meses
+ * são ~900 linhas: montar a tabela inteira custava 442 ms de INP (trace de
+ * produção, 03/10/2026). A seleção e o PDF continuam valendo sobre o recorte
+ * inteiro — a página é só o que está desenhado.
+ */
+const CTES_POR_PAGINA = 50
+
+/**
  * Drill-down do dashboard: a lista de CT-es de um recorte (transportadora,
  * região, faixa de frete ou o filtro inteiro), com seleção para gerar o PDF
  * consolidado. Mesma ideia do romaneio — marcar e gerar.
@@ -24,8 +32,12 @@ export function ModalCtes({ titulo, grupos, onClose }: ModalCtesProps) {
   const [selecionados, setSelecionados] = useState<Set<string>>(new Set())
   const [orient, setOrient] = useState<OrientacaoCtePdf>("portrait")
   const [gerando, setGerando] = useState(false)
+  const [visiveis, setVisiveis] = useState(CTES_POR_PAGINA)
   const painelRef = useRef<HTMLDivElement>(null)
   const botaoFecharRef = useRef<HTMLButtonElement>(null)
+
+  // Outro recorte abre de novo na primeira página.
+  useEffect(() => setVisiveis(CTES_POR_PAGINA), [grupos])
 
   const todosSelecionados = grupos.length > 0 && selecionados.size === grupos.length
 
@@ -73,6 +85,8 @@ export function ModalCtes({ titulo, grupos, onClose }: ModalCtesProps) {
   }
 
   const rotulo = `${grupos.length} CT-e`
+  const pagina = grupos.slice(0, visiveis)
+  const restantes = grupos.length - pagina.length
 
   return (
     <div
@@ -167,7 +181,7 @@ export function ModalCtes({ titulo, grupos, onClose }: ModalCtesProps) {
                 </tr>
               </thead>
               <tbody>
-                {grupos.map((g) => {
+                {pagina.map((g) => {
                   const pct = g.pctSobreNf ?? g.pctCalculado
                   return (
                     <tr
@@ -212,6 +226,19 @@ export function ModalCtes({ titulo, grupos, onClose }: ModalCtesProps) {
                 })}
               </tbody>
             </table>
+
+            {restantes > 0 && (
+              <button
+                type="button"
+                onClick={() => setVisiveis((v) => v + CTES_POR_PAGINA)}
+                className="mt-3 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+              >
+                {`Mostrar mais ${restantes} CT-e(s)`}
+                <span className="ml-1 font-normal text-slate-400">
+                  {`(mostrando ${pagina.length} de ${grupos.length})`}
+                </span>
+              </button>
+            )}
           </div>
         )}
 

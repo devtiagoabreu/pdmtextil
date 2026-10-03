@@ -581,6 +581,63 @@ describe("NfeCtePage", () => {
     expect(screen.getByText("1 NF-e sem despacho")).toBeInTheDocument()
   })
 
+  it("monta as cargas aos poucos em vez de desenhar as 300 de uma vez", async () => {
+    // 45 cargas = 45 dias de despacho da mesma transportadora. Com as 45 no DOM
+    // de uma vez a troca de aba custava 442 ms de INP na produção.
+    const muitas = Array.from({ length: 45 }, (_, i) => ({
+      ...comDespacho,
+      cte_numero: 196000 + i,
+      nf_numero: 36000 + i,
+      nf_od_pedido: 9000 + i,
+      nf_od_data: br(new Date(dentroDoPeriodoPadrao.getTime() - i * 86400000)),
+    }))
+    const fetchMock = createFetchMock(handler(muitas))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    fireEvent.click(await screen.findByRole("tab", { name: "Ordens de despacho" }))
+
+    // O card de resumo mostra o total inteiro; a lista vai em partes
+    expect(within(cardDespacho("Ordens de despacho")).getByText("45")).toBeInTheDocument()
+    expect(screen.getAllByRole("button", { expanded: false, name: /nota/ })).toHaveLength(40)
+
+    fireEvent.click(screen.getByRole("button", { name: /Mostrar mais 5 carga/ }))
+
+    expect(screen.getAllByRole("button", { expanded: false, name: /nota/ })).toHaveLength(45)
+    expect(screen.queryByRole("button", { name: /Mostrar mais/ })).not.toBeInTheDocument()
+  })
+
+  it("volta à primeira página das cargas quando o recorte muda", async () => {
+    const muitas = Array.from({ length: 45 }, (_, i) => ({
+      ...comDespacho,
+      cte_numero: 196000 + i,
+      nf_numero: 36000 + i,
+      nf_od_pedido: 9000 + i,
+      nf_od_data: br(new Date(dentroDoPeriodoPadrao.getTime() - i * 86400000)),
+    }))
+    const outra = {
+      ...comDespacho,
+      cte_numero: 197000,
+      nf_numero: 36999,
+      nf_od_pedido: 9999,
+      cte_transportadora_fantasia: "EXPRESSO SAO MIGUEL S/A",
+      cte_transportadora_razao: "EXPRESSO SAO MIGUEL S/A",
+    }
+    const fetchMock = createFetchMock(handler([...muitas, outra]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    fireEvent.click(await screen.findByRole("tab", { name: "Ordens de despacho" }))
+    fireEvent.click(screen.getByRole("button", { name: /Mostrar mais/ }))
+
+    fireEvent.change(screen.getByLabelText("Transportadora"), {
+      target: { value: "SORRISO TRANSPORTES" },
+    })
+
+    expect(screen.getByRole("button", { name: /Mostrar mais 5 carga/ })).toBeInTheDocument()
+    expect(screen.getAllByRole("button", { expanded: false, name: /nota/ })).toHaveLength(40)
+  })
+
   it("oferece os atalhos de período e preenche as datas", async () => {
     const fetchMock = createFetchMock(handler())
     vi.stubGlobal("fetch", fetchMock.fn)
@@ -1112,6 +1169,81 @@ describe("NfeCtePage", () => {
 
     fireEvent.click(within(dialogo).getByRole("checkbox", { name: "Selecionar todos os CT-es" }))
     expect(within(dialogo).getByRole("button", { name: /Gerar PDF \(0\)/ })).toBeDisabled()
+  })
+
+  it("desenha o modal do drill-down aos poucos, mas seleciona o recorte inteiro", async () => {
+    // 55 CT-es da mesma transportadora: com a tabela inteira no DOM o drill-down
+    // custava 442 ms de INP na produção.
+    const muitos = Array.from({ length: 55 }, (_, i) => ({
+      ...comRegiaoSudeste,
+      cte_numero: 198000 + i,
+      nf_numero: 37000 + i,
+    }))
+    const fetchMock = createFetchMock(handler(muitos))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    await screen.findByRole("button", { name: /Ver os 55 CT-e de JADLOG/ })
+    fireEvent.click(screen.getByRole("button", { name: /Ver os 55 CT-e de JADLOG/ }))
+
+    const dialogo = await screen.findByRole("dialog")
+    // 50 linhas + o checkbox do cabeçalho
+    expect(within(dialogo).getAllByRole("checkbox")).toHaveLength(51)
+
+    // "Selecionar todos" vale sobre as 55 do recorte, não só as 50 desenhadas
+    fireEvent.click(within(dialogo).getByRole("checkbox", { name: "Selecionar todos os CT-es" }))
+    expect(within(dialogo).getByRole("button", { name: /Gerar PDF \(55\)/ })).toBeEnabled()
+
+    fireEvent.click(within(dialogo).getByRole("button", { name: /Mostrar mais 5 CT-e/ }))
+
+    expect(within(dialogo).getAllByRole("checkbox")).toHaveLength(56)
+    expect(within(dialogo).queryByRole("button", { name: /Mostrar mais/ })).not.toBeInTheDocument()
+    // a seleção sobrevive à página nova
+    expect(within(dialogo).getByRole("button", { name: /Gerar PDF \(55\)/ })).toBeEnabled()
+  })
+
+  it("monta a grade de CT-e aos poucos e volta à 1ª página quando o recorte muda", async () => {
+    const muitos = Array.from({ length: 55 }, (_, i) => ({
+      ...comRegiaoSudeste,
+      cte_numero: 198000 + i,
+      nf_numero: 37000 + i,
+    }))
+    const sorri = {
+      ...dentroDoPeriodo,
+      cte_numero: 199000,
+      nf_numero: 38000,
+      cte_transportadora_fantasia: "SORRISO TRANSPORTES",
+      cte_transportadora_razao: "SORRISO TRANSPORTES",
+    }
+    const fetchMock = createFetchMock(handler([...muitos, sorri]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+// O contador acima da grade é do recorte inteiro; a lista é que entra em partes
+    expect(await screen.findByText(/56 CT-es . 56 NF-e/)).toBeInTheDocument()
+    expect(screen.getAllByRole("button", { expanded: false, name: /CT-e \d/ })).toHaveLength(50)
+
+    fireEvent.click(screen.getByText(/Mostrar mais 6 CT-e\(s\)/))
+
+    expect(screen.getAllByRole("button", { expanded: false, name: /CT-e \d/ })).toHaveLength(56)
+    expect(screen.queryByText(/Mostrar mais/)).not.toBeInTheDocument()
+
+    // Recorte menor: uma página só, e o botão some
+    fireEvent.change(screen.getByLabelText("Transportadora"), {
+      target: { value: "SORRISO TRANSPORTES" },
+    })
+
+    expect(screen.getAllByRole("button", { expanded: false, name: /CT-e \d/ })).toHaveLength(1)
+    expect(screen.queryByText(/Mostrar mais/)).not.toBeInTheDocument()
+
+    // E voltando ao recorte grande, recomeça da 1ª página em vez de manter as 56
+    fireEvent.change(screen.getByLabelText("Transportadora"), {
+      target: { value: "JADLOG" },
+    })
+
+    expect(screen.getAllByRole("button", { expanded: false, name: /CT-e \d/ })).toHaveLength(50)
+    // Recomeça da 1ª página: no recorte da JADLOG são 55 CT-e, então faltam 5
+    expect(screen.getByText(/Mostrar mais 5 CT-e\(s\)/)).toBeInTheDocument()
   })
 
   it("fecha o modal de CT-es pelo botão e pelo Escape", async () => {

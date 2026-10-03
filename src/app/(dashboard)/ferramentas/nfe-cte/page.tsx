@@ -261,23 +261,26 @@ export default function NfeCtePage() {
     transporteFiltro !== "" || regiaoFiltro !== "" || termo.trim() !== ""
   const alcance = useMemo(() => alcanceCarregado(itens), [itens])
 
-  function toggle(chave: string) {
+  // `useCallback` não é preciosismo: sem isso os dois `toggle` nascem novos a
+  // cada render da página e o `memo` do `TabelaCte` nunca segura — expandir um
+  // CT-e redesenharia a grade inteira.
+  const toggle = useCallback((chave: string) => {
     setExpandido((prev) => {
       const next = new Set(prev)
       if (next.has(chave)) next.delete(chave)
       else next.add(chave)
       return next
     })
-  }
+  }, [])
 
-  function toggleItem(chave: string) {
+  const toggleItem = useCallback((chave: string) => {
     setItensAbertos((prev) => {
       const next = new Set(prev)
       if (next.has(chave)) next.delete(chave)
       else next.add(chave)
       return next
     })
-  }
+  }, [])
 
   function exportar() {
     if (filtrados.length === 0) return

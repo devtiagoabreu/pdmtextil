@@ -3110,6 +3110,29 @@ pesos, valor); e a lista das notas (numero, pedido, romaneio, destino, volumes, 
 valor). Via `title` no travessao e nota de rodape, a tela diz que volumes/peso sao totais do
 pedido/romaneio e por isso aparecem uma vez so.
 
+### Desempenho: as listas entram em partes (03/10/2026)
+
+O trace de producao apontava **INP de 496 ms** na tela, com **duas interacoes de 442 ms**:
+trocar para a aba de ordens de despacho e abrir um drill-down do dashboard. As duas eram
+montagem de DOM, nao calculo:
+
+- a aba desenhava as **300 cargas** do recorte de 12 meses de uma vez (~4.500 nos);
+- o modal do drill-down desenhava **todos os CT-e do recorte** - no botao "Todos os CT-es"
+  sao ~900 linhas x 8 colunas.
+
+`AbaOrdensDespacho` monta 40 cargas por vez e `ModalCtes` 50 CT-es por vez, com botao
+"Mostrar mais N (mostrando X de Y)". Detalhes que importam:
+
+- **Os cards de resumo e os totais continuam sobre o recorte inteiro** - a pagina e so o que
+  esta desenhado.
+- No modal, **selecionar todos** e o PDF seguem valendo sobre `grupos` (o recorte todo), nao
+  sobre as linhas da pagina: marcar 50 de 55 e "Gerar PDF" produz 55 CT-es.
+- Recorte novo (periodo, transportadora, regiao, busca) volta para a 1a pagina da aba.
+
+Pendente, se o INP ainda incomodar: a grade de CT-e (`TabelaCte`) tambem desenha o periodo
+inteiro, e um `expandir` nela custa ~53 ms. A correcao certa ali e virtualizacao, que muda
+mais a tela do que paginacao.
+
 ### Arquivos
 
 - `components/types.ts` - `NotaDespacho`, `OrdemDespacho`, `ResumoDespacho`.

@@ -1,4 +1,4 @@
-import { useState } from "react"
+import { memo, useEffect, useState } from "react"
 import { ChevronDown, ChevronRight, Package, Truck } from "lucide-react"
 import type { OrdemDespacho, ResumoDespacho } from "./types"
 import { formatarMoeda, formatarNumero } from "./utils"
@@ -7,6 +7,14 @@ interface AbaProps {
   ordens: OrdemDespacho[]
   resumo: ResumoDespacho
 }
+
+/**
+ * Cargas montadas por vez. Medido no trace de produção (03/10/2026): trocar
+ * para esta aba levava 442 ms de INP, porque o recorte de 12 meses tem 300
+ * cargas e cada cartão traz cabeçalho, ícones e linha de totais — ~4.500 nós
+ * de uma vez. Os cards de resumo continuam mostrando o total inteiro.
+ */
+const ORDENS_POR_PAGINA = 40
 
 function card(rotulo: string, valor: string, detalhe?: string) {
   return (
@@ -47,8 +55,14 @@ function notas(ordem: OrdemDespacho): string {
  * nenhuma requisição extra. Consequência: só aparecem ordens cujas notas também
  * têm CT-e na janela carregada.
  */
-export function AbaOrdensDespacho({ ordens, resumo }: AbaProps) {
+export const AbaOrdensDespacho = memo(function AbaOrdensDespacho({ ordens, resumo }: AbaProps) {
   const [expandido, setExpandido] = useState<Set<string>>(new Set())
+  const [visiveis, setVisiveis] = useState(ORDENS_POR_PAGINA)
+
+  // Recorte novo (período, transportadora, região, busca) volta à 1ª página: a
+  // lista é a mais recente primeiro, então continuar de onde parou levaria o
+  // usuário ao fim da lista nova.
+  useEffect(() => setVisiveis(ORDENS_POR_PAGINA), [ordens])
 
   if (ordens.length === 0) {
     return (
@@ -74,6 +88,9 @@ export function AbaOrdensDespacho({ ordens, resumo }: AbaProps) {
       return next
     })
   }
+
+  const lista = ordens.slice(0, visiveis)
+  const restantes = ordens.length - lista.length
 
   return (
     <div className="space-y-4">
@@ -112,7 +129,7 @@ export function AbaOrdensDespacho({ ordens, resumo }: AbaProps) {
       </div>
 
       <div className="space-y-2">
-        {ordens.map((ordem) => {
+        {lista.map((ordem) => {
           const aberto = expandido.has(ordem.chave)
           return (
             <div
@@ -245,10 +262,23 @@ export function AbaOrdensDespacho({ ordens, resumo }: AbaProps) {
         })}
       </div>
 
+      {restantes > 0 && (
+        <button
+          type="button"
+          onClick={() => setVisiveis((v) => v + ORDENS_POR_PAGINA)}
+          className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
+        >
+          {`Mostrar mais ${restantes} carga(s)`}
+          <span className="ml-1 font-normal text-slate-400">
+            {`(mostrando ${lista.length} de ${ordens.length})`}
+          </span>
+        </button>
+      )}
+
       <p className="text-xs text-slate-400">
         Base: campos de despacho do relatório de CT-e (<code>nf_od_*</code>), ou seja apenas notas
         que também têm CT-e na janela carregada.
       </p>
     </div>
   )
-}
+})
