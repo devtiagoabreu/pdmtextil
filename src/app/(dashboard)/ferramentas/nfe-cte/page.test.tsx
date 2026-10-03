@@ -1,6 +1,7 @@
 // @vitest-environment jsdom
 import { describe, it, expect, vi, beforeEach } from "vitest"
 import { screen, fireEvent, waitFor, within } from "@testing-library/react"
+import userEvent from "@testing-library/user-event"
 import NfeCtePage from "./page"
 import { createFetchMock, findCall, navMock, renderPage, toastMock } from "@/test/harness"
 
@@ -474,6 +475,88 @@ describe("NfeCtePage", () => {
     expect(screen.getByText("Rateio divergente")).toBeInTheDocument()
   })
 
+  it("troca de aba com o teclado (padrão ARIA de abas)", async () => {
+    const user = userEvent.setup()
+    const fetchMock = createFetchMock(handler([dentroDoPeriodo, comDespacho]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    await screen.findByText("CT-e 195476/1")
+    const abaCte = screen.getByRole("tab", { name: "CT-e" })
+    const abaDespacho = screen.getByRole("tab", { name: "Ordens de despacho" })
+
+    // O painel da aba ativa existe e é anunciado; a aba inativa não está no DOM.
+    // O painel do nível da página (o dashboard tem abas próprias), localizado
+    // pelo id que a aba declara em aria-controls.
+    const painelCte = document.getElementById(abaCte.getAttribute("aria-controls") ?? "")
+    expect(painelCte).not.toBeNull()
+    expect(painelCte).toHaveAttribute("role", "tabpanel")
+    expect(painelCte).toHaveAttribute("aria-labelledby", abaCte.getAttribute("id"))
+
+    // A seta move o foco entre as abas (roving tabindex do Base UI).
+    // Base UI usa ativação manual (`activateOnFocus` = false): o painel só troca
+    // quando a aba focada é ativada com Enter/clique — é o padrão "manual" do APG.
+    abaCte.focus()
+    fireEvent.keyDown(abaCte, { key: "ArrowRight" })
+    await waitFor(() =>
+      expect(screen.getByRole("tab", { name: "Ordens de despacho" })).toHaveFocus()
+    )
+    expect(screen.getByRole("tab", { name: "Ordens de despacho" })).toHaveAttribute(
+      "aria-selected",
+      "false"
+    )
+    expect(screen.getByRole("tab", { name: "CT-e" })).toHaveAttribute("aria-selected", "true")
+
+    // Enter ativa a aba focada e troca o painel
+    await user.keyboard("{Enter}")
+    await waitFor(() =>
+      expect(screen.getByRole("tab", { name: "Ordens de despacho" })).toHaveAttribute(
+        "aria-selected",
+        "true"
+      )
+    )
+    const painelDespacho = document.getElementById(
+      abaDespacho.getAttribute("aria-controls") ?? ""
+    )
+    expect(painelDespacho).toHaveAttribute("aria-labelledby", abaDespacho.getAttribute("id"))
+    // Só o painel da aba visível do nível da página está montado
+    expect(screen.getByText("Volumes (rolos)")).toBeInTheDocument()
+    expect(screen.queryByText("CT-e 195476/1")).not.toBeInTheDocument()
+
+    // E a seta para a esquerda volta para a primeira aba
+    fireEvent.keyDown(abaDespacho, { key: "ArrowLeft" })
+    await waitFor(() => expect(screen.getByRole("tab", { name: "CT-e" })).toHaveFocus())
+    await user.keyboard("{Enter}")
+    await screen.findByText("CT-e 195476/1")
+    expect(screen.getByRole("tab", { name: "CT-e" })).toHaveAttribute("aria-selected", "true")
+  })
+
+  it("mantém o foco dentro do modal de CT-es e devolve ao botão que abriu", async () => {
+    const fetchMock = createFetchMock(handler([comRegiaoSudeste]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    await screen.findByText("CT-e 195481/1")
+    const disparador = screen.getByRole("button", { name: /Ver os CT-es de Frete total/ })
+    disparador.focus()
+    fireEvent.click(disparador)
+
+    const dialogo = await screen.findByRole("dialog")
+    // O nome acessível vem do título (aria-labelledby), não de um aria-label solto.
+    expect(dialogo).toHaveAccessibleName("Todos os CT-es")
+    await waitFor(() => expect(dialogo.contains(document.activeElement)).toBe(true))
+
+    // Tab a partir do último elemento focalizável não escapa para a página de trás
+    const checkbox = within(dialogo).getByRole("checkbox", { name: "Selecionar CT-e 195481" })
+    checkbox.focus()
+    fireEvent.keyDown(checkbox, { key: "Tab" })
+    expect(dialogo.contains(document.activeElement)).toBe(true)
+
+    fireEvent.click(within(dialogo).getByRole("button", { name: "Fechar lista de CT-es" }))
+    await waitFor(() => expect(screen.queryByRole("dialog")).not.toBeInTheDocument())
+    await waitFor(() => expect(disparador).toHaveFocus())
+  })
+
   it("abre a aba de ordens de despacho sem mexer no CT-e", async () => {
     const fetchMock = createFetchMock(handler([dentroDoPeriodo, comDespacho]))
     vi.stubGlobal("fetch", fetchMock.fn)
@@ -809,10 +892,10 @@ describe("NfeCtePage", () => {
 
       expect(criarUrl).toHaveBeenCalledTimes(1)
       const csv = await blobs[0].text()
-      expect(csv).toContain("Cliente,Cliente (razao social),Fornecedor (emissor)")
+      expect(csv).toContain('"Cliente","Cliente (razao social)","Fornecedor (emissor)"')
       expect(csv).toContain("Origem do cabecalho")
       expect(csv).toContain(
-        "PH TECNICA,PH TECNICA COMERCIO E REPRESENTACOES LTDA,PH TECNICA"
+        '"PH TECNICA","PH TECNICA COMERCIO E REPRESENTACOES LTDA","PH TECNICA"'
       )
       expect(csv).toContain("CNPJ_FORNECEDOR")
     } finally {
@@ -974,8 +1057,8 @@ describe("NfeCtePage", () => {
       fireEvent.click(screen.getByRole("button", { name: /Exportar CSV/ }))
 
       const csv = await blobs[0].text()
-      expect(csv).toContain("Origem do valor,Itens rateados,Quantidade total,Unidade")
-      expect(csv).toContain("Valor do rateio,ICMS do rateio,% rateio no CT-e")
+      expect(csv).toContain('"Origem do valor","Itens rateados","Quantidade total","Unidade"')
+      expect(csv).toContain('"Valor do rateio","ICMS do rateio","% rateio no CT-e"')
       expect(csv).toContain("RATEIO_CTE")
       expect(csv).toContain("SERVICOS FRETES COMPRAS")
     } finally {

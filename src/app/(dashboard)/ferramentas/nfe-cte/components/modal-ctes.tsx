@@ -1,8 +1,15 @@
 "use client"
 
-import { useEffect, useMemo, useRef, useState } from "react"
+import { useEffect, useState } from "react"
 import { Download, Loader2, X } from "lucide-react"
 import { toast } from "sonner"
+import {
+  Dialog,
+  DialogClose,
+  DialogContent,
+  DialogDescription,
+  DialogTitle,
+} from "@/components/ui/dialog"
 import { BadgeFaixaFrete } from "./dashboard"
 import { gerarPdfCtes, type OrientacaoCtePdf } from "./cte-pdf"
 import { classificarFaixaFrete, formatarMoeda, formatarPercentual, freteCte } from "./utils"
@@ -33,24 +40,11 @@ export function ModalCtes({ titulo, grupos, onClose }: ModalCtesProps) {
   const [orient, setOrient] = useState<OrientacaoCtePdf>("portrait")
   const [gerando, setGerando] = useState(false)
   const [visiveis, setVisiveis] = useState(CTES_POR_PAGINA)
-  const painelRef = useRef<HTMLDivElement>(null)
-  const botaoFecharRef = useRef<HTMLButtonElement>(null)
 
   // Outro recorte abre de novo na primeira página.
   useEffect(() => setVisiveis(CTES_POR_PAGINA), [grupos])
 
   const todosSelecionados = grupos.length > 0 && selecionados.size === grupos.length
-
-  // Escape fecha e o foco entra no modal — sem isso o teclado fica preso na
-  // página de trás enquanto o modal está aberto.
-  useEffect(() => {
-    botaoFecharRef.current?.focus()
-    function onKey(e: KeyboardEvent) {
-      if (e.key === "Escape") onClose()
-    }
-    document.addEventListener("keydown", onKey)
-    return () => document.removeEventListener("keydown", onKey)
-  }, [onClose])
 
   function alternar(chave: string) {
     setSelecionados((prev) => {
@@ -89,33 +83,31 @@ export function ModalCtes({ titulo, grupos, onClose }: ModalCtesProps) {
   const restantes = grupos.length - pagina.length
 
   return (
-    <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-slate-900/50 p-4"
-      onMouseDown={(e) => {
-        if (e.target === e.currentTarget) onClose()
+    <Dialog
+      open
+      onOpenChange={(aberto) => {
+        if (!aberto) onClose()
       }}
     >
-      <div
-        ref={painelRef}
-        role="dialog"
-        aria-modal="true"
-        aria-label={`CT-es — ${titulo}`}
-        className="flex max-h-[85vh] w-full max-w-5xl flex-col rounded-xl bg-white shadow-xl dark:bg-slate-900"
+      <DialogContent
+        showCloseButton={false}
+        className="flex max-h-[85vh] w-full max-w-5xl flex-col gap-0 overflow-hidden p-0 sm:max-w-5xl"
       >
         <div className="flex items-start justify-between gap-3 border-b border-slate-200 p-4 dark:border-slate-800">
           <div>
-            <h2 className="text-sm font-semibold text-slate-900 dark:text-slate-50">{titulo}</h2>
-            <p className="text-xs text-slate-500 dark:text-slate-400">{rotulo} no recorte</p>
+            <DialogTitle className="text-sm font-semibold text-slate-900 dark:text-slate-50">
+              {titulo}
+            </DialogTitle>
+            <DialogDescription className="text-xs text-slate-500 dark:text-slate-400">
+              {rotulo} no recorte
+            </DialogDescription>
           </div>
-          <button
-            ref={botaoFecharRef}
-            type="button"
-            onClick={onClose}
+          <DialogClose
             aria-label="Fechar lista de CT-es"
-            className="rounded-lg p-1 text-slate-400 hover:bg-slate-100 hover:text-slate-600 dark:hover:bg-slate-800"
+            className="rounded-lg p-1 text-slate-500 hover:bg-slate-100 hover:text-slate-700 focus-visible:ring-2 focus-visible:ring-blue-500 dark:text-slate-400 dark:hover:bg-slate-800"
           >
             <X size={16} />
-          </button>
+          </DialogClose>
         </div>
 
         {grupos.length === 0 ? (
@@ -234,7 +226,7 @@ export function ModalCtes({ titulo, grupos, onClose }: ModalCtesProps) {
                 className="mt-3 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
               >
                 {`Mostrar mais ${restantes} CT-e(s)`}
-                <span className="ml-1 font-normal text-slate-400">
+                <span className="ml-1 font-normal text-slate-500 dark:text-slate-400">
                   {`(mostrando ${pagina.length} de ${grupos.length})`}
                 </span>
               </button>
@@ -249,7 +241,7 @@ export function ModalCtes({ titulo, grupos, onClose }: ModalCtesProps) {
             mercadoria
           </p>
           <div className="flex items-center gap-2">
-            <label htmlFor="cte-pdf-orientacao" className="text-xs text-slate-500">
+            <label htmlFor="cte-pdf-orientacao" className="text-xs text-slate-500 dark:text-slate-400">
               Orientação
             </label>
             <select
@@ -272,8 +264,8 @@ export function ModalCtes({ titulo, grupos, onClose }: ModalCtesProps) {
             </button>
           </div>
         </div>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 

@@ -692,23 +692,26 @@ function chaveRomaneio(linha: LinhaCte): string {
 export function agruparOrdensDespacho(itens: LinhaCte[]): OrdemDespacho[] {
   const comDespacho = itens.filter(nfTemDespacho)
   // Mais antiga primeiro: garante que o romaneio entre na carga da 1ª NF-e.
-  const ordenadas = [...comDespacho].sort((a, b) => {
-    const da = a.nf_od_data ? parseDataBr(a.nf_od_data) : null
-    const db = b.nf_od_data ? parseDataBr(b.nf_od_data) : null
-    if (da !== db) return (da ?? "9999").localeCompare(db ?? "9999")
-    return (a.nf_numero ?? 0) - (b.nf_numero ?? 0)
-  })
+  const ordenadas = comDespacho
+    .map((linha) => ({
+      linha,
+      dataIso: linha.nf_od_data ? parseDataBr(linha.nf_od_data) : null,
+    }))
+    .sort((a, b) => {
+      if (a.dataIso !== b.dataIso) return (a.dataIso ?? "9999").localeCompare(b.dataIso ?? "9999")
+      return (a.linha.nf_numero ?? 0) - (b.linha.nf_numero ?? 0)
+    })
 
   const mapa = new Map<string, OrdemDespacho>()
   const romaneiosContados = new Set<string>()
-  for (const linha of ordenadas) {
+  for (const { linha, dataIso } of ordenadas) {
     const chave = chaveOrdemDespacho(linha)
     let ordem = mapa.get(chave)
     if (!ordem) {
       ordem = {
         chave,
         data: linha.nf_od_data,
-        dataIso: linha.nf_od_data ? parseDataBr(linha.nf_od_data) : null,
+        dataIso,
         transportadora: nomeTransportadora(linha),
         notas: [],
         romaneios: [],
@@ -725,7 +728,7 @@ export function agruparOrdensDespacho(itens: LinhaCte[]): OrdemDespacho[] {
     if (!ordem.transportadora) ordem.transportadora = nomeTransportadora(linha)
     if (!ordem.data && linha.nf_od_data) {
       ordem.data = linha.nf_od_data
-      ordem.dataIso = parseDataBr(linha.nf_od_data)
+      ordem.dataIso = dataIso
     }
 
     const romaneio = chaveRomaneio(linha)
@@ -1001,4 +1004,72 @@ export function resumirFretePorRegiao(grupos: GrupoCte[]): ResumoFrete[] {
  */
 export function faixaFreteDoCte(g: GrupoCte): FaixaFrete {
   return classificarFaixaFrete(g.pctCalculado)
+}
+
+/** Rótulos textuais da faixa de frete, para o CSV. */
+const ROTULO_FAIXA_CSV: Record<FaixaFrete, string> = {
+  abaixo: "até 1,5%",
+  na_faixa: "na faixa (1,5% a 2,0%)",
+  acima: "acima de 2,0%",
+  indefinido: "sem dado",
+}
+
+const INICIO_DE_FORMULA_CSV = /^\s*[=+\-@\t\r]/
+
+export function celulaCsv(valor: unknown): string {
+  if (valor === null || valor === undefined) return '""'
+  let texto = String(valor)
+  if (INICIO_DE_FORMULA_CSV.test(texto)) texto = `'${texto}`
+  return `"${texto.replace(/"/g, '""')}"`
+}
+
+export function nomeArquivoCsv(periodo: Periodo): string {
+  return `nfe-cte_${periodo.de || "inicio"}_a_${periodo.ate || "fim"}.csv`
+}
+
+const COLUNAS_CSV: [string, (l: LinhaCte) => unknown][] = [
+  ["CT-e", (l) => (l.cte_serie ? `${l.cte_numero}/${l.cte_serie}` : l.cte_numero)],
+  ["Data CT-e", (l) => l.cte_data],
+  ["Data transacao", (l) => l.cte_data_transacao],
+  ["Natureza", (l) => l.cte_natureza],
+  ["Tipo conhecimento", (l) => l.cte_tipo_conhecimento],
+  ["Cidade origem", (l) => l.cte_cod_cidade_origem],
+  ["Cidade destino", (l) => l.cte_cod_cidade_destino],
+  ["Valor CT-e", (l) => l.cte_valor_total],
+  ["Soma NFs do CT-e", (l) => l.soma_nf_do_cte],
+  ["Frete % sobre mercadoria", (l) => l.pct_cte_sobre_total_nfs],
+  ["Faixa de frete", (l) => ROTULO_FAIXA_CSV[classificarFaixaFrete(l.pct_cte_sobre_total_nfs)]],
+  ["Soma rateio do CT-e", (l) => l.soma_rateio_do_cte],
+  ["Transportadora", (l) => l.cte_transportadora_fantasia || l.cte_transportadora_razao],
+  ["Tomador", (l) => l.cte_tomador_fantasia || l.cte_tomador_razao],
+  ["NF-e", (l) => (l.nf_serie ? `${l.nf_numero}/${l.nf_serie}` : l.nf_numero)],
+  ["Data NF-e", (l) => l.nf_data],
+  ["Pedido de despacho", (l) => l.nf_od_pedido],
+  ["Romaneio", (l) => l.nf_od_romaneio],
+  ["Data de despacho", (l) => l.nf_od_data],
+  ["Cliente (despacho)", (l) => l.nf_od_cliente_fantasia || l.nf_od_cliente_razao],
+  ["Cidade (despacho)", (l) => l.nf_od_cidade],
+  ["Representante", (l) => l.nf_od_representante],
+  ["Valor NF-e", (l) => l.nf_valor_total],
+  ["% NF-e no CT-e", (l) => l.pct_nf_no_total_cte],
+  ["Origem do valor", (l) => l.nf_valor_origem],
+  ["Itens rateados", (l) => l.nf_item_qtd],
+  ["Quantidade total", (l) => l.nf_item_qtd_total],
+  ["Unidade", (l) => l.nf_item_unidade],
+  ["Itens (descricoes)", (l) => l.nf_item_descricoes],
+  ["Valor do rateio", (l) => l.nf_item_valor_total],
+  ["ICMS do rateio", (l) => l.nf_item_icms],
+  ["% rateio no CT-e", (l) => l.nf_pct_rateio_no_cte],
+  ["Frete rateado", (l) => l.nf_frete_rateado],
+  ["Cliente", (l) => nomeClienteNf(l)],
+  ["Cliente (razao social)", (l) => l.nf_cliente_razao],
+  ["Fornecedor (emissor)", (l) => l.nf_fornecedor_fantasia || l.nf_fornecedor_razao],
+  ["Situacao NF-e", (l) => l.nf_situacao],
+  ["Origem do cabecalho", (l) => l.nf_cab_origem],
+]
+
+export function montarCsvRelatorio(itens: LinhaCte[]): string {
+  const cabecalho = COLUNAS_CSV.map(([titulo]) => celulaCsv(titulo)).join(",")
+  const linhas = itens.map((l) => COLUNAS_CSV.map(([, get]) => celulaCsv(get(l))).join(","))
+  return "\uFEFF" + [cabecalho, ...linhas].join("\r\n")
 }

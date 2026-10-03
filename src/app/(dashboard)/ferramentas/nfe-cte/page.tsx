@@ -7,7 +7,7 @@ import { ArrowLeft, Download, FileText, Globe, Loader2, Truck } from "lucide-rea
 import { toast } from "sonner"
 import { InfoButton } from "@/components/ui/info-button"
 import { getInfoContent } from "@/lib/info-content"
-import type { FaixaFrete, Integracao, LinhaCte, Periodo } from "./components/types"
+import type { Integracao, LinhaCte, Periodo } from "./components/types"
 import type { ChavePeriodo } from "./components/utils"
 import {
   ApiRelatorioError,
@@ -22,6 +22,8 @@ import {
   formatarDataBr,
   formatarMoeda,
   formatarNumero,
+  montarCsvRelatorio,
+  nomeArquivoCsv,
   nomeClienteNf,
   nomeRegiaoDistinct,
   nomeTranspDistinct,
@@ -31,6 +33,7 @@ import {
   presetQueCombinaCom,
   resumoOrdensDespacho,
 } from "./components/utils"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { TabelaCte } from "./components/tabela"
 import { Toolbar } from "./components/toolbar"
 import { Dashboard } from "./components/dashboard"
@@ -43,65 +46,8 @@ const ABAS = [
   { chave: "despacho" as const, rotulo: "Ordens de despacho" },
 ]
 
-/** Rótulos textuais da faixa de frete, para o CSV. */
-const ROTULO_FAIXA_CSV: Record<FaixaFrete, string> = {
-  abaixo: "até 1,5%",
-  na_faixa: "na faixa (1,5% a 2,0%)",
-  acima: "acima de 2,0%",
-  indefinido: "sem dado",
-}
-
-function csvCell(valor: unknown): string {
-  if (valor === null || valor === undefined) return '""'
-  const s = String(valor)
-  const precisaAspas = /[";\n]/.test(s) || /^\s|\s$/.test(s)
-  return precisaAspas ? `"${s.replace(/"/g, '""')}"` : s
-}
-
 function baixarCsv(itens: LinhaCte[], nome: string) {
-  const colunas: [string, (l: LinhaCte) => unknown][] = [
-    ["CT-e", (l) => (l.cte_serie ? `${l.cte_numero}/${l.cte_serie}` : l.cte_numero)],
-    ["Data CT-e", (l) => l.cte_data],
-    ["Data transacao", (l) => l.cte_data_transacao],
-    ["Natureza", (l) => l.cte_natureza],
-    ["Tipo conhecimento", (l) => l.cte_tipo_conhecimento],
-    ["Cidade origem", (l) => l.cte_cod_cidade_origem],
-    ["Cidade destino", (l) => l.cte_cod_cidade_destino],
-    ["Valor CT-e", (l) => l.cte_valor_total],
-    ["Soma NFs do CT-e", (l) => l.soma_nf_do_cte],
-    ["Frete % sobre mercadoria", (l) => l.pct_cte_sobre_total_nfs],
-    ["Faixa de frete", (l) => ROTULO_FAIXA_CSV[classificarFaixaFrete(l.pct_cte_sobre_total_nfs)]],
-    ["Soma rateio do CT-e", (l) => l.soma_rateio_do_cte],
-    ["Transportadora", (l) => l.cte_transportadora_fantasia || l.cte_transportadora_razao],
-    ["Tomador", (l) => l.cte_tomador_fantasia || l.cte_tomador_razao],
-    ["NF-e", (l) => (l.nf_serie ? `${l.nf_numero}/${l.nf_serie}` : l.nf_numero)],
-    ["Data NF-e", (l) => l.nf_data],
-    ["Pedido de despacho", (l) => l.nf_od_pedido],
-    ["Romaneio", (l) => l.nf_od_romaneio],
-    ["Data de despacho", (l) => l.nf_od_data],
-    ["Cliente (despacho)", (l) => l.nf_od_cliente_fantasia || l.nf_od_cliente_razao],
-    ["Cidade (despacho)", (l) => l.nf_od_cidade],
-    ["Representante", (l) => l.nf_od_representante],
-    ["Valor NF-e", (l) => l.nf_valor_total],
-    ["% NF-e no CT-e", (l) => l.pct_nf_no_total_cte],
-    ["Origem do valor", (l) => l.nf_valor_origem],
-    ["Itens rateados", (l) => l.nf_item_qtd],
-    ["Quantidade total", (l) => l.nf_item_qtd_total],
-    ["Unidade", (l) => l.nf_item_unidade],
-    ["Itens (descricoes)", (l) => l.nf_item_descricoes],
-    ["Valor do rateio", (l) => l.nf_item_valor_total],
-    ["ICMS do rateio", (l) => l.nf_item_icms],
-    ["% rateio no CT-e", (l) => l.nf_pct_rateio_no_cte],
-    ["Frete rateado", (l) => l.nf_frete_rateado],
-    ["Cliente", (l) => nomeClienteNf(l)],
-    ["Cliente (razao social)", (l) => l.nf_cliente_razao],
-    ["Fornecedor (emissor)", (l) => l.nf_fornecedor_fantasia || l.nf_fornecedor_razao],
-    ["Situacao NF-e", (l) => l.nf_situacao],
-    ["Origem do cabecalho", (l) => l.nf_cab_origem],
-  ]
-  const cabecalho = colunas.map(([t]) => csvCell(t)).join(",")
-  const linhas = itens.map((l) => colunas.map(([, get]) => csvCell(get(l))).join(","))
-  const conteudo = "\uFEFF" + [cabecalho, ...linhas].join("\r\n")
+  const conteudo = montarCsvRelatorio(itens)
   const blob = new Blob([conteudo], { type: "text/csv;charset=utf-8;" })
   const url = URL.createObjectURL(blob)
   const a = document.createElement("a")
@@ -250,7 +196,10 @@ export default function NfeCtePage() {
   const regioes = useMemo(() => nomeRegiaoDistinct(gruposCarregados), [gruposCarregados])
   const resumo = useMemo(() => calcularResumo(filtrados), [filtrados])
   // Aba de ordens de despacho: mesmo recorte, outra leitura (pedido + romaneio).
-  const ordensDespacho = useMemo(() => agruparOrdensDespacho(filtrados), [filtrados])
+  const ordensDespacho = useMemo(
+    () => (abaAtiva === "despacho" ? agruparOrdensDespacho(filtrados) : []),
+    [filtrados, abaAtiva]
+  )
   const resumoDespacho = useMemo(
     () => resumoOrdensDespacho(ordensDespacho, resumo.linhas - resumo.comDespacho),
     [ordensDespacho, resumo]
@@ -284,7 +233,7 @@ export default function NfeCtePage() {
 
   function exportar() {
     if (filtrados.length === 0) return
-    baixarCsv(filtrados, `nfe-cte_${periodo.de || "inicio"}_a_${periodo.ate || "fim"}.csv`)
+    baixarCsv(filtrados, nomeArquivoCsv(periodo))
     toast.success("CSV exportado")
   }
 
@@ -354,70 +303,74 @@ export default function NfeCtePage() {
             </div>
           ) : grupos.length > 0 ? (
             <div className="space-y-4">
-              <div role="tablist" aria-label="Relatórios" className="flex gap-1 border-b border-slate-200 dark:border-slate-800">
-                {ABAS.map((aba) => (
-                  <button
-                    key={aba.chave}
-                    role="tab"
-                    type="button"
-                    aria-selected={abaAtiva === aba.chave}
-                    onClick={() => setAbaAtiva(aba.chave)}
-                    className={`-mb-px border-b-2 px-4 py-2 text-sm font-medium transition-colors ${
-                      abaAtiva === aba.chave
-                        ? "border-blue-500 text-blue-600 dark:text-blue-400"
-                        : "border-transparent text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200"
-                    }`}
-                  >
-                    {aba.rotulo}
-                  </button>
-                ))}
-              </div>
-
-              {abaAtiva === "despacho" ? (
-                <AbaOrdensDespacho ordens={ordensDespacho} resumo={resumoDespacho} />
-              ) : (
-                <>
-                  <Dashboard grupos={grupos} resumo={resumo} />
-
-              <div className="flex items-center justify-between gap-4">
-                <p className="text-xs text-slate-500 dark:text-slate-400">
-                  {grupos.length} CT-es · {resumo.linhas} NF-e
-                  {` · ${resumo.comDespacho} NF-e em ordem de despacho`}
-                  {resumo.semData > 0
-                    ? ` · ${resumo.semData} sem data de referência (mantidas)`
-                    : ""}
-                  {resumo.semCabecalho > 0
-                    ? ` · ${resumo.semCabecalho} NF-e não localizadas no fiscal (valor vem do rateio do CT-e)`
-                    : ""}
-                  {resumo.ctesRateioDivergente > 0
-                    ? ` · ${resumo.ctesRateioDivergente} CT-es com rateio divergente do total`
-                    : ""}
-                </p>
-                {truncadoEm !== null && (
-                  <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
-                    Resultado truncado em {truncadoEm.toLocaleString("pt-BR")} linhas — reduza o
-                    período para ver os totais completos
-                  </p>
-                )}
-                <button
-                  type="button"
-                  onClick={exportar}
-                  className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+              <Tabs
+                value={abaAtiva}
+                onValueChange={(v) => setAbaAtiva(v as (typeof ABAS)[number]["chave"])}
+              >
+                <TabsList
+                  variant="line"
+                  aria-label="Relatórios"
+                  className="group-data-horizontal/tabs:h-auto w-full justify-start gap-1 border-b border-slate-200 p-0 dark:border-slate-800"
                 >
-                  <Download size={14} />
-                  Exportar CSV
-                </button>
-              </div>
+                  {ABAS.map((aba) => (
+                    <TabsTrigger
+                      key={aba.chave}
+                      value={aba.chave}
+                      className="h-auto w-auto flex-none items-baseline border-b-2 border-transparent px-4 py-2 text-sm font-medium text-slate-500 transition-colors after:hidden hover:text-slate-700 data-active:border-blue-500 data-active:text-blue-600 dark:text-slate-400 dark:hover:text-slate-200 dark:data-active:border-blue-400 dark:data-active:text-blue-400"
+                    >
+                      {aba.rotulo}
+                    </TabsTrigger>
+                  ))}
+                </TabsList>
 
-              <TabelaCte
-                grupos={grupos}
-                expandido={expandido}
-                onToggle={toggle}
-                itensAbertos={itensAbertos}
-                onToggleItem={toggleItem}
-              />
-                </>
-              )}
+                <TabsContent value="despacho" className="m-0 border-0 p-0 shadow-none">
+                  <AbaOrdensDespacho ordens={ordensDespacho} resumo={resumoDespacho} />
+                </TabsContent>
+
+                <TabsContent value="cte" className="m-0 border-0 p-0 shadow-none">
+                  <div className="space-y-4">
+                    <Dashboard grupos={grupos} resumo={resumo} />
+
+                    <div className="flex items-center justify-between gap-4">
+                      <p className="text-xs text-slate-500 dark:text-slate-400">
+                        {grupos.length} CT-es · {resumo.linhas} NF-e
+                        {` · ${resumo.comDespacho} NF-e em ordem de despacho`}
+                        {resumo.semData > 0
+                          ? ` · ${resumo.semData} sem data de referência (mantidas)`
+                          : ""}
+                        {resumo.semCabecalho > 0
+                          ? ` · ${resumo.semCabecalho} NF-e não localizadas no fiscal (valor vem do rateio do CT-e)`
+                          : ""}
+                        {resumo.ctesRateioDivergente > 0
+                          ? ` · ${resumo.ctesRateioDivergente} CT-es com rateio divergente do total`
+                          : ""}
+                      </p>
+                      {truncadoEm !== null && (
+                        <p className="text-xs font-medium text-amber-600 dark:text-amber-400">
+                          Resultado truncado em {truncadoEm.toLocaleString("pt-BR")} linhas — reduza
+                          o período para ver os totais completos
+                        </p>
+                      )}
+                      <button
+                        type="button"
+                        onClick={exportar}
+                        className="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 dark:border-slate-700 px-3 py-1.5 text-xs font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800 transition-colors"
+                      >
+                        <Download size={14} />
+                        Exportar CSV
+                      </button>
+                    </div>
+
+                    <TabelaCte
+                      grupos={grupos}
+                      expandido={expandido}
+                      onToggle={toggle}
+                      itensAbertos={itensAbertos}
+                      onToggleItem={toggleItem}
+                    />
+                  </div>
+                </TabsContent>
+              </Tabs>
             </div>
           ) : carregado ? (
             <div className="rounded-xl border border-slate-200 dark:border-slate-800 bg-white dark:bg-slate-900 p-12 text-center">

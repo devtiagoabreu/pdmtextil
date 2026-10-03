@@ -56,11 +56,19 @@ function TabelaItens({ linha }: { linha: LinhaCte }) {
   return (
     <table className="w-full text-xs bg-slate-50 dark:bg-slate-800/40">
       <thead>
-        <tr className="text-left text-[10px] uppercase text-slate-400">
-          <th className="px-4 py-1.5 font-medium">Item do CT-e</th>
-          <th className="px-4 py-1.5 text-right font-medium">Qtd</th>
-          <th className="px-4 py-1.5 text-right font-medium">Rateio</th>
-          <th className="px-4 py-1.5 text-right font-medium">ICMS</th>
+        <tr className="text-left text-[10px] uppercase text-slate-500 dark:text-slate-400">
+          <th scope="col" className="px-4 py-1.5 font-medium">
+            Item do CT-e
+          </th>
+          <th scope="col" className="px-4 py-1.5 text-right font-medium">
+            Qtd
+          </th>
+          <th scope="col" className="px-4 py-1.5 text-right font-medium">
+            Rateio
+          </th>
+          <th scope="col" className="px-4 py-1.5 text-right font-medium">
+            ICMS
+          </th>
         </tr>
       </thead>
       <tbody>
@@ -201,28 +209,52 @@ export const TabelaCte = memo(function TabelaCte({
                 <table className="w-full text-sm">
                   <thead>
                     <tr className="border-b border-slate-100 dark:border-slate-800 text-left">
-                      <th className="px-4 py-2 text-[10px] font-medium uppercase text-slate-400">
+                      <th
+                        scope="col"
+                        className="px-4 py-2 text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
+                      >
                         Nota
                       </th>
-                      <th className="px-4 py-2 text-[10px] font-medium uppercase text-slate-400">
+                      <th
+                        scope="col"
+                        className="px-4 py-2 text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
+                      >
                         Emissão
                       </th>
-                      <th className="px-4 py-2 text-[10px] font-medium uppercase text-slate-400">
+                      <th
+                        scope="col"
+                        className="px-4 py-2 text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
+                      >
                         Despacho
                       </th>
-                      <th className="px-4 py-2 text-[10px] font-medium uppercase text-slate-400">
+                      <th
+                        scope="col"
+                        className="px-4 py-2 text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
+                      >
                         Cliente
                       </th>
-                      <th className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-400">
+                      <th
+                        scope="col"
+                        className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
+                      >
                         Valor da nota
                       </th>
-                      <th className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-400">
+                      <th
+                        scope="col"
+                        className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
+                      >
                         Rateio
                       </th>
-                      <th className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-400">
+                      <th
+                        scope="col"
+                        className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
+                      >
                         % do CT-e
                       </th>
-                      <th className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-400">
+                      <th
+                        scope="col"
+                        className="px-4 py-2 text-right text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
+                      >
                         % CT-e sobre a nota
                       </th>
                     </tr>
@@ -382,7 +414,7 @@ export const TabelaCte = memo(function TabelaCte({
           className="w-full rounded-xl border border-slate-200 px-4 py-2.5 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-800 dark:text-slate-300 dark:hover:bg-slate-800"
         >
           {`Mostrar mais ${restantes} CT-e(s)`}
-          <span className="ml-1 font-normal text-slate-400">
+          <span className="ml-1 font-normal text-slate-500 dark:text-slate-400">
             {`(mostrando ${pagina.length} de ${grupos.length})`}
           </span>
         </button>

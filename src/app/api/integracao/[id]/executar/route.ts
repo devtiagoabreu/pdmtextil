@@ -6,9 +6,31 @@ import { integracoes } from "@/lib/db/schema/integracoes"
 import { eq } from "drizzle-orm"
 export const dynamic = "force-dynamic"
 
+const MAX_PARAMETROS = 20
+const MAX_LEN_VALOR = 500
+const MAX_LIMIT = 5000
+
 function maskSensitive(value: string): string {
   if (value.length <= 6) return value.slice(0, 2) + "****"
   return value.slice(0, 4) + "****" + value.slice(-4)
+}
+
+function keyNameDaApiKey(authConfig: Record<string, unknown>): string | null {
+  const location = (authConfig.in as string) || "header"
+  if (location !== "query") return null
+  return (authConfig.key_name as string) || "api_key"
+}
+
+function paramSeguro(chave: string, valor: string): string | null {
+  if (!/^[A-Za-z0-9_.-]{1,40}$/.test(chave)) return null
+  const limpo = valor.replace(/[\u0000-\u001f\u007f]/g, "").slice(0, MAX_LEN_VALOR)
+  if (limpo === "") return null
+  if (chave === "limit" || chave === "offset") {
+    const n = Number(limpo)
+    if (!Number.isFinite(n) || n < 0) return null
+    return String(Math.min(Math.trunc(n), chave === "limit" ? MAX_LIMIT : Number.MAX_SAFE_INTEGER))
+  }
+  return limpo
 }
 
 export async function GET(req: NextRequest, { params }: { params: Promise<{ id: string }> }) {
@@ -22,12 +44,31 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
     const { id: idStr } = await params
     const id = Number(idStr)
     if (!id) {
-      return NextResponse.json({ error: "id inválido" }, { status: 400 })
+      return NextResponse.json({ error: "id inválido", success: false }, { status: 400 })
     }
 
     const [integracao] = await db.select().from(integracoes).where(eq(integracoes.id, id))
     if (!integracao) {
-      return NextResponse.json({ error: "Integração não encontrada" }, { status: 404 })
+      return NextResponse.json(
+        { error: "Integração não encontrada", success: false },
+        { status: 404 }
+      )
+    }
+
+    if (integracao.ativo === false) {
+      return NextResponse.json({ error: "Integração inativa", success: false }, { status: 403 })
+    }
+
+    const { searchParams: reqParams } = new URL(req.url)
+    const tela = reqParams.get("tela")
+
+    if (tela && Array.isArray(integracao.telas) && integracao.telas.length > 0) {
+      if (!integracao.telas.includes(tela)) {
+        return NextResponse.json(
+          { error: "Integração não serve esta tela", success: false },
+          { status: 403 }
+        )
+      }
     }
 
     const authConfig = (integracao.authConfig || {}) as Record<string, unknown>
@@ -36,18 +77,21 @@ export async function GET(req: NextRequest, { params }: { params: Promise<{ id: 
       Accept: "application/json",
     }
 
-    const { searchParams: reqParams } = new URL(req.url)
     let url: URL
     try {
       url = new URL(integracao.baseUrl)
     } catch {
-      return NextResponse.json({ error: "URL base inválida" }, { status: 400 })
+      return NextResponse.json({ error: "URL base inválida", success: false }, { status: 400 })
     }
-    reqParams.forEach((value: any, key: any) => {
-      if (key !== "tela") {
-        url.searchParams.set(key, value)
-      }
-    })
+    let repassados = 0
+    const chaveApiKey = keyNameDaApiKey(authConfig)
+    for (const [chave, valor] of reqParams) {
+      if (chave === "tela" || (chaveApiKey !== null && chave === chaveApiKey)) continue
+      const seguro = paramSeguro(chave, valor)
+      if (seguro === null) continue
+      url.searchParams.set(chave, seguro)
+      if (++repassados >= MAX_PARAMETROS) break
+    }
 
     switch (integracao.tipoAuth) {
       case "bearer": {
