@@ -211,7 +211,7 @@ export async function renderCtePage(
 
   // ── Grade das NF-e rateadas ──
   const head: LinhaTabela[] = [
-    ["NF-e", "Emissão", "Cliente", "Valor da nota", "Rateio", "% do CT-e", "% da nota", "Romaneio"]
+    ["NF-e", "Emissão", "CFOP", "Cliente", "Valor da nota", "Rateio", "% do CT-e", "% da nota", "Romaneio"]
   ]
   const body: LinhaTabela[] = grupo.nfs.map((n) => linhaNf(n))
 
@@ -229,11 +229,12 @@ export async function renderCtePage(
     columnStyles: {
       0: { cellWidth: 26, halign: "center" },
       1: { cellWidth: 18 },
-      3: { halign: "right" },
+      2: { cellWidth: 16, halign: "center" },
       4: { halign: "right" },
       5: { halign: "right" },
       6: { halign: "right" },
-      7: { halign: "center" },
+      7: { halign: "right" },
+      8: { halign: "center" },
     },
     didDrawPage: (data: { pageNumber: number }) => {
       doc.setFontSize(6.5).setFont("helvetica", "normal").setTextColor(0, 0, 0)
@@ -265,6 +266,7 @@ function linhaNf(n: LinhaCte): LinhaTabela {
   return [
     nf,
     n.nf_data ?? "—",
+    n.nf_od_cfop ?? "—",
     nomeClienteNf(n) ?? "—",
     formatarMoeda(n.nf_item_valor_total),
     formatarMoeda(n.nf_frete_rateado),

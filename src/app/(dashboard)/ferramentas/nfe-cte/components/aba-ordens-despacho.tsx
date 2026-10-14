@@ -196,6 +196,12 @@ export const AbaOrdensDespacho = memo(function AbaOrdensDespacho({ ordens, resum
                           scope="col"
                           className="px-4 py-2 text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
                         >
+                          CFOP
+                        </th>
+                        <th
+                          scope="col"
+                          className="px-4 py-2 text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
+                        >
                           Pedido
                         </th>
                         <th
@@ -239,6 +245,9 @@ export const AbaOrdensDespacho = memo(function AbaOrdensDespacho({ ordens, resum
                           <td className="px-4 py-2 font-medium text-slate-700 dark:text-slate-200">
                             {nota.nfNumero ?? "—"}
                             {nota.nfSerie ? `/${nota.nfSerie}` : ""}
+                          </td>
+                          <td className="px-4 py-2 font-mono text-slate-500 dark:text-slate-400">
+                            {nota.cfop || "—"}
                           </td>
                           <td className="px-4 py-2 text-slate-500 dark:text-slate-400">
                             {nota.pedido ?? "—"}

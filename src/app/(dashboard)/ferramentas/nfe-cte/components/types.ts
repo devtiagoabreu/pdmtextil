@@ -124,6 +124,8 @@ export interface NotaDespacho {
   cliente: string
   cidade: string
   regiao: string
+  /** CFOP da nota (`nf_od_cfop`), como veio do ERP; vazio quando não informado. */
+  cfop: string
   /** Metragem faturada/despachada nesta nota (`nf_od_qtde`), em metros. */
   metros: number | null
   /** Volumes (rolos) do romaneio do pedido; só na 1ª NF-e do pedido. */
@@ -226,4 +228,23 @@ export interface ResumoFrete extends ContagemFaixas {
   mediaPct: number | null
   freteTotal: number
   mercadoriaTotal: number
+}
+
+/**
+ * Uma linha do breakdown por CFOP.
+ *
+ * A unidade aqui é a **NF-e**, não o CT-e: o CFOP é do documento fiscal e um
+ * CT-e pode levar notas de CFOPs diferentes — então cada nota entra no CFOP
+ * dela, e um mesmo CT-e pode aparecer em mais de uma linha. A faixa de frete
+ * não é da nota (o frete é do CT-e): cada nota **herda a faixa do CT-e** que a
+ * transportou, que é o que permite ler "quais CFOPs andam em CT-e caro".
+ */
+export interface ResumoCfop extends ContagemFaixas {
+  cfop: string
+  /** Quantidade de NF-e com esse CFOP. */
+  notas: number
+  /** Mercadoria das notas do CFOP (`nf_valor_total`). */
+  mercadoria: number
+  /** Média do frete % do CT-e por nota. */
+  mediaPct: number | null
 }

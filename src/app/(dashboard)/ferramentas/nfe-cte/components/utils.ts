@@ -7,6 +7,7 @@ import type {
   OrdemDespacho,
   Periodo,
   Resumo,
+  ResumoCfop,
   ResumoDespacho,
   ResumoFrete,
 } from "./types"
@@ -763,6 +764,7 @@ export function agruparOrdensDespacho(itens: LinhaCte[]): OrdemDespacho[] {
       cliente,
       cidade,
       regiao,
+      cfop: (linha.nf_od_cfop ?? "").trim(),
       metros,
       volumes: repetido ? null : linha.nf_od_qtde_rolos,
       repetido,
@@ -998,6 +1000,82 @@ export function resumirFretePorRegiao(grupos: GrupoCte[]): ResumoFrete[] {
   return resumirFretePor(grupos, (g) => g.regiao)
 }
 
+/** CFOP da nota como texto; `"sem CFOP"` quando o campo não veio (nota sem despacho). */
+export function cfopDaNota(linha: LinhaCte): string {
+  const cfop = (linha.nf_od_cfop ?? "").trim()
+  return cfop || "sem CFOP"
+}
+
+/**
+ * Agrupa as **NF-e** por CFOP.
+ *
+ * Diferente dos breakdowns por transportadora/região (que agrupam CT-es): o
+ * CFOP é do documento fiscal e um CT-e pode levar notas de CFOPs diferentes,
+ * então a unidade é a nota e o mesmo CT-e pode aparecer em mais de um CFOP.
+ * Como o frete é do CT-e, cada nota **herda a faixa de frete do CT-e** que a
+ * transportou — é o que permite ler "quais CFOPs andam em CT-e caro".
+ *
+ * Ordena por quantidade de notas (maior primeiro).
+ */
+export function resumirPorCfop(grupos: GrupoCte[]): ResumoCfop[] {
+  type Acc = {
+    notas: number
+    mercadoria: number
+    avaliados: number
+    somaPct: number
+    abaixo: number
+    naFaixa: number
+    acima: number
+    indefinido: number
+  }
+  const mapa = new Map<string, Acc>()
+  for (const g of grupos) {
+    const faixa = classificarFaixaFrete(g.pctCalculado)
+    for (const nf of g.nfs) {
+      const cfop = cfopDaNota(nf)
+      let acc = mapa.get(cfop)
+      if (!acc) {
+        acc = {
+          notas: 0,
+          mercadoria: 0,
+          avaliados: 0,
+          somaPct: 0,
+          abaixo: 0,
+          naFaixa: 0,
+          acima: 0,
+          indefinido: 0,
+        }
+        mapa.set(cfop, acc)
+      }
+      acc.notas++
+      acc.mercadoria += nf.nf_valor_total ?? 0
+      if (faixa === "indefinido") acc.indefinido++
+      else {
+        acc.avaliados++
+        if (faixa === "abaixo") acc.abaixo++
+        else if (faixa === "na_faixa") acc.naFaixa++
+        else acc.acima++
+        acc.somaPct += g.pctCalculado ?? 0
+      }
+    }
+  }
+  const saida: ResumoCfop[] = []
+  for (const [cfop, acc] of mapa) {
+    saida.push({
+      cfop,
+      notas: acc.notas,
+      mercadoria: acc.mercadoria,
+      avaliados: acc.avaliados,
+      abaixo: acc.abaixo,
+      naFaixa: acc.naFaixa,
+      acima: acc.acima,
+      indefinido: acc.indefinido,
+      mediaPct: acc.avaliados ? arredondar2(acc.somaPct / acc.avaliados) : null,
+    })
+  }
+  return saida.sort((a, b) => b.notas - a.notas || a.cfop.localeCompare(b.cfop, "pt-BR"))
+}
+
 /**
  * Faixa "atual" de um CT-e, já combinando o cálculo e a classificação.
  * Devolve `indefinido` quando não dá para calcular o percentual.
@@ -1065,6 +1143,7 @@ const COLUNAS_CSV: [string, (l: LinhaCte) => unknown][] = [
   ["Cliente (razao social)", (l) => l.nf_cliente_razao],
   ["Fornecedor (emissor)", (l) => l.nf_fornecedor_fantasia || l.nf_fornecedor_razao],
   ["Situacao NF-e", (l) => l.nf_situacao],
+  ["CFOP", (l) => l.nf_od_cfop],
   ["Origem do cabecalho", (l) => l.nf_cab_origem],
 ]
 

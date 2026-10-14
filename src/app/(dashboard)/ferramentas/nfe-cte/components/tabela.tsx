@@ -219,6 +219,12 @@ export const TabelaCte = memo(function TabelaCte({
                         scope="col"
                         className="px-4 py-2 text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
                       >
+                        CFOP
+                      </th>
+                      <th
+                        scope="col"
+                        className="px-4 py-2 text-[10px] font-medium uppercase text-slate-500 dark:text-slate-400"
+                      >
                         Emissão
                       </th>
                       <th
@@ -295,6 +301,9 @@ export const TabelaCte = memo(function TabelaCte({
                               </span>
                             )}
                           </td>
+                          <td className="px-4 py-2 font-mono text-slate-600 dark:text-slate-300">
+                            {linha.nf_od_cfop ?? "—"}
+                          </td>
                           <td className="px-4 py-2 text-slate-600 dark:text-slate-300">
                             {nfTemDespacho(linha) ? (
                               <>
@@ -346,7 +355,7 @@ export const TabelaCte = memo(function TabelaCte({
                       )
                     })}
                     <tr>
-                      <td className="px-4 py-2 text-xs uppercase text-slate-400" colSpan={4}>
+                      <td className="px-4 py-2 text-xs uppercase text-slate-400" colSpan={5}>
                         Total do CT-e ({formatarNumero(grupo.nfs.length)} NF-e)
                       </td>
                       <td className="px-4 py-2 text-right font-mono text-slate-700 dark:text-slate-300">

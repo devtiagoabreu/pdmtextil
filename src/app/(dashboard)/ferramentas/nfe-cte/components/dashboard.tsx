@@ -8,6 +8,7 @@ import { ModalCtes } from "./modal-ctes"
 import {
   FRETE_PCT_MAXIMO,
   FRETE_PCT_MINIMO,
+  cfopDaNota,
   classificarFaixaFrete,
   contarFaixas,
   formatarMoeda,
@@ -15,8 +16,16 @@ import {
   formatarPercentual,
   resumirFretePorRegiao,
   resumirFretePorTransportadora,
+  resumirPorCfop,
 } from "./utils"
-import type { ContagemFaixas, FaixaFrete, GrupoCte, Resumo, ResumoFrete } from "./types"
+import type {
+  ContagemFaixas,
+  FaixaFrete,
+  GrupoCte,
+  Resumo,
+  ResumoCfop,
+  ResumoFrete,
+} from "./types"
 
 interface CardProps {
   rotulo: string
@@ -235,6 +244,12 @@ function TabelaBreakdown({
             >
               Na faixa
             </th>
+            <th
+              scope="col"
+              className="px-3 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400"
+            >
+              Até 2,0%
+            </th>
             <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
               Distribuição
             </th>
@@ -243,6 +258,8 @@ function TabelaBreakdown({
         <tbody>
           {linhas.map((l) => {
             const pctNaFaixa = l.avaliados ? (l.naFaixa / l.avaliados) * 100 : null
+            const ate2 = l.abaixo + l.naFaixa
+            const pctAte2 = l.avaliados ? (ate2 / l.avaliados) * 100 : null
             return (
               <tr
                 key={l.chave}
@@ -273,6 +290,115 @@ function TabelaBreakdown({
                     ({formatarPercentual(pctNaFaixa)})
                   </span>
                 </td>
+                <td className="px-3 py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">
+                  {ate2}
+                  <span className="text-xs text-slate-400">
+                    {" "}
+                    ({formatarPercentual(pctAte2)})
+                  </span>
+                </td>
+                <td className="px-3 py-2">
+                  <BarraDistribuicao contagem={l} />
+                  <p className="mt-1 text-xs tabular-nums text-slate-400">
+                    {l.abaixo} / {l.naFaixa} / {l.acima}
+                    {l.indefinido > 0 ? ` · ${l.indefinido} sem dado` : ""}
+                  </p>
+                </td>
+              </tr>
+            )
+          })}
+        </tbody>
+      </table>
+    </div>
+  )
+}
+
+/**
+ * Breakdown por CFOP. A unidade é a NF-e (o CFOP é do documento fiscal): a
+ * contagem é de notas e cada nota herda a faixa de frete do CT-e que a levou.
+ */
+function TabelaCfop({
+  linhas,
+  onDetalhe,
+}: {
+  linhas: ResumoCfop[]
+  onDetalhe: (cfop: string) => void
+}) {
+  if (!linhas.length) {
+    return (
+      <p className="px-1 py-4 text-sm text-slate-500 dark:text-slate-400">
+        Sem NF-e para agrupar por CFOP.
+      </p>
+    )
+  }
+  const thCls = "px-3 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400"
+  return (
+    <div className="overflow-x-auto">
+      <table className="w-full min-w-[760px] text-sm">
+        <thead>
+          <tr className="border-b border-slate-200 dark:border-slate-800">
+            <th
+              scope="col"
+              className="py-2 pr-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400"
+            >
+              CFOP
+            </th>
+            <th scope="col" className={thCls}>
+              NF-e
+            </th>
+            <th scope="col" className={thCls}>
+              Mercadoria
+            </th>
+            <th scope="col" className={thCls}>
+              Frete médio
+            </th>
+            <th scope="col" className={thCls}>
+              Na faixa
+            </th>
+            <th scope="col" className={thCls}>
+              Até 2,0%
+            </th>
+            <th scope="col" className="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400">
+              Distribuição
+            </th>
+          </tr>
+        </thead>
+        <tbody>
+          {linhas.map((l) => {
+            const pctNaFaixa = l.avaliados ? (l.naFaixa / l.avaliados) * 100 : null
+            const ate2 = l.abaixo + l.naFaixa
+            const pctAte2 = l.avaliados ? (ate2 / l.avaliados) * 100 : null
+            return (
+              <tr key={l.cfop} className="border-b border-slate-100 last:border-0 dark:border-slate-800/60">
+                <td className="max-w-[240px] py-2 pr-3 font-medium text-slate-700 dark:text-slate-200">
+                  <button
+                    type="button"
+                    onClick={() => onDetalhe(l.cfop)}
+                    aria-label={`Ver os CT-es com CFOP ${l.cfop}`}
+                    title={`Ver os CT-es com CFOP ${l.cfop}`}
+                    className="flex w-full items-center gap-1 truncate text-left hover:text-blue-700 hover:underline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-blue-600 dark:hover:text-blue-400"
+                  >
+                    {l.cfop}
+                    <span className="text-xs text-slate-400">({l.notas})</span>
+                  </button>
+                </td>
+                <td className="px-3 py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">
+                  {formatarNumero(l.notas)}
+                </td>
+                <td className="px-3 py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">
+                  {formatarMoeda(l.mercadoria)}
+                </td>
+                <td className="px-3 py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">
+                  {formatarPercentual(l.mediaPct)}
+                </td>
+                <td className="px-3 py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">
+                  {l.naFaixa}
+                  <span className="text-xs text-slate-400"> ({formatarPercentual(pctNaFaixa)})</span>
+                </td>
+                <td className="px-3 py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">
+                  {ate2}
+                  <span className="text-xs text-slate-400"> ({formatarPercentual(pctAte2)})</span>
+                </td>
                 <td className="px-3 py-2">
                   <BarraDistribuicao contagem={l} />
                   <p className="mt-1 text-xs tabular-nums text-slate-400">
@@ -295,6 +421,7 @@ export const Dashboard = memo(function Dashboard({ grupos, resumo }: { grupos: G
   const faixas = useMemo(() => contarFaixas(grupos), [grupos])
   const porTransportadora = useMemo(() => resumirFretePorTransportadora(grupos), [grupos])
   const porRegiao = useMemo(() => resumirFretePorRegiao(grupos), [grupos])
+  const porCfop = useMemo(() => resumirPorCfop(grupos), [grupos])
 
   const avaliadosComFaixa = faixas.avaliados
   const pctNaFaixa = avaliadosComFaixa ? (faixas.naFaixa / avaliadosComFaixa) * 100 : null
@@ -327,6 +454,15 @@ export const Dashboard = memo(function Dashboard({ grupos, resumo }: { grupos: G
         grupos: grupos.filter(
           (g) => classificarFaixaFrete(g.pctSobreNf ?? g.pctCalculado) === faixa
         ),
+      }),
+    [grupos]
+  )
+
+  const porCfopChave = useCallback(
+    (cfop: string) =>
+      setDetalhe({
+        titulo: `CFOP: ${cfop}`,
+        grupos: grupos.filter((g) => g.nfs.some((n) => cfopDaNota(n) === cfop)),
       }),
     [grupos]
   )
@@ -404,6 +540,7 @@ export const Dashboard = memo(function Dashboard({ grupos, resumo }: { grupos: G
         <TabsList variant="line" className="border-b">
           <TabsTrigger value="transportadora">Por transportadora</TabsTrigger>
           <TabsTrigger value="regiao">Por região do cliente</TabsTrigger>
+          <TabsTrigger value="cfop">Por CFOP</TabsTrigger>
         </TabsList>
         <TabsContent value="transportadora" className="m-0 border-0 p-0 shadow-none">
           <TabelaBreakdown
@@ -418,6 +555,9 @@ export const Dashboard = memo(function Dashboard({ grupos, resumo }: { grupos: G
             coluna="Região"
             onDetalhe={(chave, titulo) => porChave("regiao", chave, titulo)}
           />
+        </TabsContent>
+        <TabsContent value="cfop" className="m-0 border-0 p-0 shadow-none">
+          <TabelaCfop linhas={porCfop} onDetalhe={porCfopChave} />
         </TabsContent>
       </Tabs>
 

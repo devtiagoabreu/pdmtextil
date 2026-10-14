@@ -45,6 +45,7 @@ alcanceCarregado,
   rateioFechaComCte,
   resumirFretePorRegiao,
   resumirFretePorTransportadora,
+  resumirPorCfop,
   somarMeses,
 } from "./utils"
 import type { LinhaCte, OrdemDespacho } from "./types"
@@ -1152,6 +1153,47 @@ describe("resumirFretePor", () => {
   })
 })
 
+describe("resumirPorCfop", () => {
+  it("agrupa as NF-e por CFOP e ordena por quantidade de notas", () => {
+    const grupos = agruparPorCte([
+      linha({ cte_numero: 1, nf_numero: 1, cte_valor_total: 20, nf_od_cfop: "5101", nf_valor_total: 1000 }),
+      linha({ cte_numero: 1, nf_numero: 2, cte_valor_total: 20, nf_od_cfop: "5102", nf_valor_total: 1000 }),
+      linha({ cte_numero: 2, nf_numero: 3, cte_valor_total: 20, nf_od_cfop: "5101", nf_valor_total: 1000 }),
+    ])
+    const r = resumirPorCfop(grupos)
+    expect(r.map((x) => x.cfop)).toEqual(["5101", "5102"])
+    expect(r[0].notas).toBe(2)
+    expect(r[0].mercadoria).toBe(2000)
+    expect(r[1].notas).toBe(1)
+  })
+
+  it("um CT-e com CFOPs diferentes entra em cada linha e a nota herda a faixa do CT-e", () => {
+    // CT-e de 200 sobre 2.000 de mercadoria (10%, acima da faixa) levando uma
+    // 5101 e uma 6102 — as duas notas herdam o percentual do CT-e.
+    const grupos = agruparPorCte([
+      linha({ cte_numero: 1, nf_numero: 1, cte_valor_total: 200, nf_od_cfop: "5101", nf_valor_total: 1000 }),
+      linha({ cte_numero: 1, nf_numero: 2, cte_valor_total: 200, nf_od_cfop: "6102", nf_valor_total: 1000 }),
+    ])
+    const r = resumirPorCfop(grupos)
+    expect(r).toHaveLength(2)
+    expect(r.every((x) => x.acima === 1)).toBe(true)
+    expect(r.every((x) => x.mediaPct === 10)).toBe(true)
+  })
+
+  it("usa 'sem CFOP' quando a nota não tem despacho", () => {
+    const grupos = agruparPorCte([
+      linha({ cte_numero: 1, cte_valor_total: 20, nf_od_cfop: null, nf_valor_total: 1000 }),
+    ])
+    const r = resumirPorCfop(grupos)
+    expect(r[0].cfop).toBe("sem CFOP")
+    expect(r[0].notas).toBe(1)
+  })
+
+  it("devolve lista vazia sem notas", () => {
+    expect(resumirPorCfop([])).toEqual([])
+  })
+})
+
 describe("agruparPorCte com região", () => {
   it("pega a primeira região preenchida das NF-e do CT-e", () => {
     const g = agruparPorCte([
@@ -1396,6 +1438,17 @@ describe("montarCsvRelatorio", () => {
 
   it("leva a faixa de frete como rótulo, não como número", () => {
     expect(montarCsvRelatorio([comDescricao])).toContain('"na faixa (1,5% a 2,0%)"')
+  })
+
+  it("inclui a coluna CFOP com o valor da nota", () => {
+    const linhas = montarCsvRelatorio([linha({ nf_od_cfop: "5.101" })])
+      .replace("\uFEFF", "")
+      .split("\r\n")
+    const cabecalho = campos(linhas[0])
+    const dados = campos(linhas[1])
+    const coluna = cabecalho.indexOf("CFOP")
+    expect(coluna).toBeGreaterThan(-1)
+    expect(dados[coluna]).toBe("5.101")
   })
 
   it("protege o nome do cliente que vem do ERP", () => {

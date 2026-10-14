@@ -448,11 +448,11 @@ describe("NfeCtePage", () => {
 
     fireEvent.click(await screen.findByRole("button", { name: /CT-e 195477/ }))
 
-    // colunas: Nota | Despacho | Emissão | Cliente | Valor da nota | Rateio
-    //          | % do CT-e | % CT-e sobre a nota
+    // colunas: Nota | CFOP | Despacho | Emissão | Cliente | Valor da nota
+    //          | Rateio | % do CT-e | % CT-e sobre a nota
     const linha = screen.getByText("NF 35835/1").closest("tr")!
     const celulas = within(linha).getAllByRole("cell")
-    expect(celulas).toHaveLength(8)
+    expect(celulas).toHaveLength(9)
     expect(celulas[1]).toHaveTextContent("—")
     expect(celulas[2]).toHaveTextContent("—")
     expect(celulas[3]).toHaveTextContent("—")
@@ -460,6 +460,7 @@ describe("NfeCtePage", () => {
     expect(celulas[5]).toHaveTextContent("—")
     expect(celulas[6]).toHaveTextContent("—")
     expect(celulas[7]).toHaveTextContent("—")
+    expect(celulas[8]).toHaveTextContent("—")
   })
 
   it("resume CT-es, NF-e com valor e rateio", async () => {
@@ -986,13 +987,13 @@ describe("NfeCtePage", () => {
 
     fireEvent.click(await screen.findByRole("button", { name: /CT-e 195477/ }))
 
-    // colunas: Nota | Despacho | Emissão | Cliente | Valor da nota | Rateio | % no CT-e
+    // colunas: Nota | CFOP | Despacho | Emissão | Cliente | Valor da nota | Rateio | % no CT-e
     const linha = screen.getByRole("button", { name: /NF 35835/ }).closest("tr")!
-    const rateio = within(linha).getAllByRole("cell")[5]
+    const rateio = within(linha).getAllByRole("cell")[6]
     expect(rateio).toHaveTextContent("R$ 79,32")
     expect(rateio).toHaveTextContent("100,00% do CT-e")
     // o valor da nota continua vazio: o rateio não é o total da NF-e
-    expect(within(linha).getAllByRole("cell")[4]).toHaveTextContent("—")
+    expect(within(linha).getAllByRole("cell")[5]).toHaveTextContent("—")
   })
 
   it("mostra pedido e romaneio da ordem de despacho na linha da NF-e", async () => {
@@ -1002,11 +1003,22 @@ describe("NfeCtePage", () => {
 
     fireEvent.click(await screen.findByRole("button", { name: /CT-e 195477/ }))
 
-    // colunas: Nota | Despacho | Emissão | Cliente | Valor da nota | Rateio | % no CT-e
+    // colunas: Nota | CFOP | Despacho | Emissão | Cliente | Valor da nota | Rateio | % no CT-e
     const linha = screen.getByRole("button", { name: /NF 35835/ }).closest("tr")!
-    const despacho = within(linha).getAllByRole("cell")[1]
+    const despacho = within(linha).getAllByRole("cell")[2]
     expect(despacho).toHaveTextContent("pedido 8.305")
     expect(despacho).toHaveTextContent("romaneio 24.795")
+  })
+
+  it("mostra o CFOP da nota na linha da NF-e", async () => {
+    const fetchMock = createFetchMock(handler([{ ...comFaixaAlta, nf_od_cfop: "5.102" }]))
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    fireEvent.click(await screen.findByRole("button", { name: /CT-e 195479/ }))
+
+    const linha = screen.getByText("NF 35850/1").closest("tr")!
+    expect(within(linha).getAllByRole("cell")[1]).toHaveTextContent("5.102")
   })
 
   it("conta as NF-e em ordem de despacho no resumo", async () => {
@@ -1105,7 +1117,7 @@ describe("NfeCtePage", () => {
     expect(screen.getByText("% CT-e sobre a nota")).toBeInTheDocument()
 
     const linha = screen.getByText("NF 35850/1").closest("tr")!
-    const celula = within(linha).getAllByRole("cell")[7]
+    const celula = within(linha).getAllByRole("cell")[8]
     expect(celula).toHaveTextContent("3,50%")
     // selo compacto: a faixa vem no aria-label, não no texto
     expect(

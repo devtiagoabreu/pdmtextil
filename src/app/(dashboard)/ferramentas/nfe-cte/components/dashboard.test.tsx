@@ -180,6 +180,25 @@ describe("Dashboard", () => {
     expect(within(screen.getByRole("tabpanel")).getByText("Região")).toBeInTheDocument()
   })
 
+  it("mostra a coluna Até 2,0% no breakdown de transportadora", () => {
+    montar([linha({ cte_numero: 1, cte_valor_total: 18, nf_numero: 100, nf_valor_total: 1000 })])
+    expect(within(screen.getByRole("tabpanel")).getByText("Até 2,0%")).toBeInTheDocument()
+  })
+
+  it("troca para o breakdown por CFOP e conta as NF-e", () => {
+    montar([
+      linha({ cte_numero: 1, nf_numero: 100, nf_od_cfop: "5101", cte_valor_total: 18, nf_valor_total: 1000 }),
+      linha({ cte_numero: 1, nf_numero: 101, nf_od_cfop: "6102", cte_valor_total: 18, nf_valor_total: 1000 }),
+      linha({ cte_numero: 2, nf_numero: 200, nf_od_cfop: "5101", cte_valor_total: 18, nf_valor_total: 1000 }),
+    ])
+
+    fireEvent.click(screen.getByRole("tab", { name: /por cfop/i }))
+
+    const linha5101 = screen.getByText("5101").closest("tr")!
+    expect(linha5101).toHaveTextContent("2") // NF-e
+    expect(screen.getByText("6102")).toBeInTheDocument()
+  })
+
   it("avisa quando não há CT-es para agrupar", () => {
     montar([])
     expect(screen.getAllByText(/Sem CT-es para agrupar/).length).toBeGreaterThan(0)
