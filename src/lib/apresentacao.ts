@@ -41,164 +41,149 @@ export const MODULOS_APRESENTACAO: ModuloApresentacao[] = [
     icone: Layers,
     titulo: "Desenvolvimento de produtos",
     resumo:
-      "O coração do PDM. Gerencia a demanda do setor de desenvolvimento — solicitações, fichas técnicas, composição, receitas e versões — tudo isso antes de o pedido ser lançado.",
+      "O coração do PDM. Gerencia solicitações, fichas técnicas, composição, receitas e versões — antes do pedido.",
   },
   {
     icone: Plug,
     titulo: "Convergência de sistemas",
     resumo:
-      "O PDM é uma ferramenta de integração: conecta ferramentas legadas (ERP, planilhas e sistemas legados) às tecnologias atuais por APIs e integrações — sem jogar fora o que já funciona.",
+      "Liga o legado (ERP, planilhas) ao que há de mais novo, por APIs e integrações — sem descartar o que já funciona.",
   },
   {
     icone: LayoutDashboard,
     titulo: "Visualização com Kanban e painéis",
-    resumo:
-      "Acompanhe demandas, amostras e a produção em quadros Kanban, listas e painéis visuais — cada equipe enxerga o trabalho do jeito que preferir.",
+    resumo: "Kanban, listas e painéis: cada equipe enxerga o trabalho do jeito que preferir.",
   },
   {
     icone: Puzzle,
     titulo: "Módulos satélites",
-    resumo:
-      "Reúne módulos que complementam o ERP e cobrem necessidades que muitas vezes não existem nele — sem precisar trocar o que já está em uso.",
+    resumo: "Cobrem o que o seu ERP não tem — sem trocar o que já está em uso.",
   },
   {
     icone: ShoppingCart,
     titulo: "Comercial e CRM",
     resumo:
-      "A parte de vendas do PDM é o CRM: leads, propostas, visitas e relacionamento. Ele trabalha junto com o ERP comercial — não substitui.",
+      "Vendas, leads, propostas e visitas no CRM — junto com o ERP comercial, sem substituí-lo.",
   },
   {
     icone: Inbox,
     titulo: "Solicitações para o desenvolvimento",
-    resumo:
-      "Centraliza as solicitações que o setor comercial envia para o desenvolvimento e acompanha cada uma até a aprovação.",
+    resumo: "Centraliza o que o comercial pede ao desenvolvimento e acompanha até a aprovação.",
   },
   {
     icone: FlaskConical,
     titulo: "Amostras",
-    resumo:
-      "Peça, acompanhe e aprove amostras sem perder o histórico do que foi testado e aprovado.",
+    resumo: "Peça, acompanhe e aprove amostras sem perder o histórico.",
   },
   {
     icone: Factory,
     titulo: "Produção do produto em desenvolvimento",
     resumo:
-      "Acompanha a produção dos produtos em desenvolvimento — tecido cru, beneficiamento e pilotagem. A produção geral da fábrica continua no ERP, visível por integração.",
+      "Cru, beneficiamento e pilotagem. A produção geral segue no ERP, visível por integração.",
   },
   {
     icone: ClipboardCheck,
     titulo: "Máquinas e vistorias",
-    resumo:
-      "Controle equipamentos, mantenha a manutenção e as vistorias de segurança sempre em dia.",
+    resumo: "Equipamentos, manutenção e vistorias de segurança sempre em dia.",
   },
   {
     icone: Headphones,
     titulo: "Atendimento de chamados",
-    resumo:
-      "Abra chamados de TI e manutenção, defina prazos e acompanhe cada pedido até a solução.",
+    resumo: "Chamados de TI e manutenção com prazo e acompanhamento até a solução.",
   },
   {
     icone: GitBranch,
     titulo: "Processos",
-    resumo: "Documente como cada área trabalha, com fluxogramas claros e de fácil entendimento.",
+    resumo: "Documente o jeito de trabalhar de cada área, com fluxogramas claros.",
   },
   {
     icone: Calendar,
     titulo: "Reuniões",
-    resumo:
-      "Registre a pauta, a ata e o que ficou combinado, com responsável e prazo para cada tarefa.",
+    resumo: "Pauta, ata e o que ficou combinado — com responsável e prazo.",
   },
   {
     icone: Truck,
     titulo: "Documentos e logística",
-    resumo:
-      "Romaneios de carga, conferência de tecido cru e o relatório de frete das notas fiscais, apoiados nas integrações com o ERP.",
+    resumo: "Romaneios, conferência de tecido cru e frete das notas, apoiados pelo ERP.",
   },
   {
     icone: BarChart3,
     titulo: "Relatórios e indicadores",
-    resumo: "Painéis com números, curvas e previsões a partir das suas próprias planilhas.",
+    resumo: "Números, curvas e previsões a partir das suas próprias planilhas.",
   },
   {
     icone: Bot,
     titulo: "WhatsApp com inteligência artificial",
-    resumo:
-      "Atendimento automático no WhatsApp e apoio de inteligência artificial nas tarefas do dia a dia.",
+    resumo: "Atendimento automático no WhatsApp e apoio de IA no dia a dia.",
   },
   {
     icone: Wrench,
     titulo: "Ferramentas do dia a dia",
-    resumo: "Calculadora de regra de três, conversão de numeração de fios e consulta de CNPJ.",
+    resumo: "Regra de três, numeração de fios e consulta de CNPJ.",
   },
   {
     icone: ShieldCheck,
     titulo: "Segurança e administração",
-    resumo:
-      "Usuários, permissões, integrações com outros sistemas e histórico de tudo que é feito.",
+    resumo: "Usuários, permissões, integrações e histórico de tudo o que é feito.",
   },
 ]
 
 export const POSICIONAMENTO =
-  "O PDM não tenta ter tudo em um só lugar. Ele é uma ferramenta de integração: faz as ferramentas legadas convergirem com as tecnologias mais atuais, por APIs e integrações, e não substitui o ERP comercial. O foco é o desenvolvimento de produtos — que precisa ser gerenciado — e, com ele, módulos satélites que muitas vezes não existem no seu ERP."
+  "O PDM não tenta ter tudo. É uma ferramenta de integração: faz as ferramentas legadas (ERP, planilhas) convergirem com a tecnologia atual, por APIs. Não substitui o ERP comercial — o foco é o desenvolvimento de produtos e os módulos satélites que faltam no seu ERP."
 
 export const BENEFICIOS = [
   {
     titulo: "Convergência, não substituição",
-    resumo:
-      "Conecta ferramentas legadas às tecnologias atuais, sem jogar fora o que já funciona na empresa.",
+    resumo: "Liga o legado ao novo, sem descartar o que já funciona.",
   },
   {
     titulo: "Foco no desenvolvimento",
-    resumo:
-      "Cuida do que acontece antes do pedido: solicitações do comercial e a demanda do próprio setor.",
+    resumo: "Cuida de tudo o que acontece antes do pedido.",
   },
   {
     titulo: "Vendas no CRM, sem trocar o ERP",
-    resumo:
-      "O relacionamento e as propostas ficam no CRM do PDM — o ERP comercial continua sendo o seu.",
+    resumo: "Relacionamento e propostas no CRM; o ERP comercial continua sendo o seu.",
   },
   {
     titulo: "Menos retrabalho",
-    resumo: "Cada informação é preenchida uma vez e reaproveitada por todas as áreas.",
+    resumo: "Um dado preenchido uma vez, reaproveitado por todos.",
   },
   {
     titulo: "Acesso de qualquer lugar",
-    resumo: "Funciona no computador e no celular, do escritório ou de dentro da fábrica.",
+    resumo: "No computador e no celular, do escritório à fábrica.",
   },
   {
     titulo: "Seus dados protegidos",
-    resumo: "Acesso por perfil, histórico de ações e informações guardadas com segurança.",
+    resumo: "Acesso por perfil e histórico de cada ação.",
   },
 ]
 
 export const PASSOS = [
   {
     titulo: "Entre no sistema",
-    resumo: "Cada pessoa acessa com o seu próprio usuário e enxerga apenas o que tem permissão.",
+    resumo: "Cada um acessa com o próprio usuário e vê só o que pode.",
   },
   {
-    titulo: "Receba e organize as demandas",
-    resumo:
-      "As solicitações do comercial e a demanda do desenvolvimento ficam registradas e acompanhadas, integradas ao que a empresa já usa.",
+    titulo: "Receba as demandas",
+    resumo: "Solicitações do comercial e do desenvolvimento ficam registradas e integradas.",
   },
   {
     titulo: "Desenvolva e acompanhe",
-    resumo:
-      "Fichas técnicas, amostras e a produção do produto em desenvolvimento, sempre à mão em painéis simples de ler.",
+    resumo: "Fichas, amostras e a produção do produto em painéis simples de ler.",
   },
 ]
 
 export const NO_PDM = [
-  "Solicitações de desenvolvimento (comercial → desenvolvimento)",
-  "Demanda interna do setor de desenvolvimento",
+  "Solicitações do comercial para o desenvolvimento",
+  "Demanda interna do desenvolvimento",
   "Fichas técnicas, composição e receitas versionadas",
-  "Amostras e pilotagem do produto",
+  "Amostras e pilotagem",
   "Produção do produto em desenvolvimento",
   "CRM: relacionamento, propostas e visitas",
 ]
 
 export const NO_ERP = [
-  "ERP comercial: pedidos de venda e faturamento",
+  "ERP comercial: pedidos e faturamento",
   "Produção geral da fábrica",
   "Estoque, expedição e romaneios",
   "Financeiro e fiscal",

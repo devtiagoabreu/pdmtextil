@@ -14,14 +14,14 @@ import {
 export const metadata: Metadata = {
   title: "Sobre o PDM Pro Têxtil",
   description:
-    "O PDM Pro Têxtil é uma ferramenta de integração para a indústria têxtil: conecta ferramentas legadas às tecnologias atuais e foca no desenvolvimento de produtos, sem substituir o ERP comercial. Criado por Tiago de Abreu e Sérgio Costa.",
+    "O PDM Pro Têxtil integra as ferramentas legadas da indústria têxtil ao que há de mais atual e foca no desenvolvimento de produtos — sem substituir o ERP comercial. Criado por Tiago de Abreu e Sérgio Costa.",
 }
 
 const DORES = [
-  "Informações espalhadas em papéis, planilhas e conversas de WhatsApp",
-  "Retrabalho porque cada área preenche a mesma coisa de novo",
-  "Produtos, amostras e pedidos difíceis de encontrar quando preciso",
-  "Falta de controle sobre prazos, chamados e manutenção de máquinas",
+  "Informação espalhada em papéis, planilhas e WhatsApp",
+  "Retrabalho: cada área preenche o mesmo dado de novo",
+  "Produtos, amostras e pedidos difíceis de achar",
+  "Prazos, chamados e manutenção sem controle",
   "Números desatualizados na hora de decidir",
 ]
 
@@ -55,15 +55,13 @@ export default function SobrePage() {
               Sobre o PDM Pro Têxtil
             </p>
             <h1 className="mt-4 text-4xl font-bold leading-tight text-white md:text-6xl">
-              Integração entre o que você já tem e o que há de mais atual
+              O elo entre o seu legado e a tecnologia atual
             </h1>
             <p className="mx-auto mt-6 max-w-3xl text-lg font-light leading-relaxed text-slate-400">
-              O PDM Pro Têxtil é uma ferramenta de integração para a indústria têxtil. Ele faz as
-              ferramentas legadas da empresa — como o ERP e as planilhas — convergirem com as
+              O PDM integra o que a sua empresa já usa — ERP, planilhas, sistemas legados — com as
               tecnologias mais atuais, por APIs e integrações. O foco é o desenvolvimento de produtos,
-              que precisa ser gerenciado, e, com ele, vêm módulos satélites que muitas vezes não
-              existem no seu ERP. A parte de vendas é o CRM, que trabalha junto com o seu ERP
-              comercial sem substituí-lo.
+              com os módulos satélites que o seu ERP não tem. Vendas ficam no CRM, sem substituir o
+              ERP comercial.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
@@ -88,8 +86,7 @@ export default function SobrePage() {
             <div>
               <h2 className="text-3xl font-bold text-white">O problema que ele resolve</h2>
               <p className="mt-4 text-base leading-relaxed text-slate-400">
-                Quando a informação não está organizada, o dia a dia vira uma corrida atrás de dados.
-                O PDM existe para acabar com isso:
+                Informação espalhada vira uma corrida diária atrás de dados. O PDM acaba com isso:
               </p>
             </div>
             <ul className="space-y-3">
@@ -115,9 +112,7 @@ export default function SobrePage() {
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="rounded-xl border border-blue-900/60 bg-blue-950/20 p-6">
                 <h3 className="text-lg font-semibold text-white">No PDM</h3>
-                <p className="mt-1 text-sm text-slate-400">
-                  Tudo o que acontece antes do lançamento do pedido.
-                </p>
+                <p className="mt-1 text-sm text-slate-400">O que acontece antes do pedido.</p>
                 <ul className="mt-4 space-y-3">
                   {NO_PDM.map((item) => (
                     <li key={item} className="flex items-start gap-3 text-sm text-slate-300">
@@ -130,7 +125,7 @@ export default function SobrePage() {
               <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-6">
                 <h3 className="text-lg font-semibold text-white">No seu ERP (integrado)</h3>
                 <p className="mt-1 text-sm text-slate-400">
-                  O que continua no ERP e fica visível no PDM por integração.
+                  O que segue no ERP e aparece no PDM por integração.
                 </p>
                 <ul className="mt-4 space-y-3">
                   {NO_ERP.map((item) => (
@@ -150,8 +145,7 @@ export default function SobrePage() {
             <div className="mb-10 text-center">
               <h2 className="text-3xl font-bold text-white md:text-4xl">O que o PDM faz por você</h2>
               <p className="mx-auto mt-4 max-w-2xl text-base text-slate-400">
-                Tudo em linguagem simples. Cada recurso existe para facilitar um pedaço do seu
-                trabalho.
+                Simples e direto. Cada recurso resolve uma parte do seu dia.
               </p>
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -209,8 +203,7 @@ export default function SobrePage() {
           <div className="mx-auto max-w-4xl text-center">
             <h2 className="text-3xl font-bold text-white md:text-4xl">Quem criou o PDM</h2>
             <p className="mx-auto mt-4 max-w-2xl text-base text-slate-400">
-              O PDM Pro Têxtil foi idealizado e desenvolvido por quem entende, de perto, a rotina da
-              indústria têxtil.
+              Idealizado e desenvolvido por quem conhece, de perto, a rotina da indústria têxtil.
             </p>
             <div className="mt-10 grid grid-cols-1 gap-4 sm:grid-cols-2">
               {CRIADORES.map((criador) => (
@@ -233,10 +226,10 @@ export default function SobrePage() {
         <section className="px-6 py-20 md:px-8">
           <div className="mx-auto max-w-3xl text-center">
             <h2 className="text-3xl font-bold text-white md:text-4xl">
-              Pronto para organizar a sua fábrica?
+              Pronto para modernizar sem trocar o que já funciona?
             </h2>
             <p className="mx-auto mt-4 max-w-xl text-base text-slate-400">
-              Acesse o sistema com o seu usuário e veja o PDM trabalhando por você.
+              Entre com o seu usuário e veja o PDM integrar o seu dia a dia.
             </p>
             <Link
               href="/login"
