@@ -2,7 +2,17 @@
 
 import { useEffect, useRef, useState, useCallback } from "react"
 import Link from "next/link"
-import { ArrowRight, Factory, ShoppingCart, Settings, PenTool, Users, Wrench } from "lucide-react"
+import {
+  ArrowRight,
+  CheckCircle2,
+  Factory,
+  Settings,
+  PenTool,
+  ShoppingCart,
+  Users,
+  Wrench,
+} from "lucide-react"
+import { CRIADORES, MODULOS_APRESENTACAO } from "@/lib/apresentacao"
 
 const PDM_TOOLTIP =
   "PDM·PRO·TÊXTIL — Plataforma completa de gestão para a indústria têxtil. Integra Comercial, CRM, Desenvolvimento (Tecelagem e Beneficiamento), PCP e Admin em um único sistema. Gestão de clientes, leads, propostas, amostras, fichas técnicas, receitas, roteiros de produção, e-mail marketing, notificações inteligentes e exportação para ERP."
@@ -44,6 +54,12 @@ const DEPARTMENTS = [
     label: "Ferramentas",
     phrase: "Ferramentas personalizadas para cada tipo de negócio",
   },
+]
+
+const DESTAQUES = [
+  "Sistema completo para a indústria têxtil",
+  "Funciona no computador e no celular",
+  "Fácil de usar, sem complicação",
 ]
 
 export default function LandingPage() {
@@ -194,25 +210,33 @@ export default function LandingPage() {
   }, [showTooltip, checkPosition])
 
   return (
-    <div className="relative min-h-screen overflow-hidden">
-      <canvas ref={canvasRef} className="absolute inset-0 z-0" />
+    <div className="relative min-h-screen overflow-hidden bg-[#0a0a0f]">
+      <canvas ref={canvasRef} className="absolute inset-0 z-0 h-full w-full" aria-hidden="true" />
 
-      <div className="relative z-10 min-h-screen flex flex-col">
-        <header className="px-8 py-6 flex justify-between items-center">
-          <div className="text-xl font-bold text-white tracking-wide">PDM·PRO·TÊXTIL</div>
-          <Link
-            href="/login"
-            className="px-5 py-2 text-sm text-slate-300 hover:text-white transition-colors border border-slate-600 hover:border-slate-400 rounded"
-          >
-            Login
-          </Link>
+      <div className="relative z-10 flex min-h-screen flex-col">
+        <header className="flex items-center justify-between px-6 py-6 md:px-8">
+          <div className="text-xl font-bold tracking-wide text-white">PDM·PRO·TÊXTIL</div>
+          <nav className="flex items-center gap-3">
+            <Link
+              href="/sobre"
+              className="rounded border border-slate-600 px-5 py-2 text-sm text-slate-300 transition-colors hover:border-slate-400 hover:text-white"
+            >
+              Sobre
+            </Link>
+            <Link
+              href="/login"
+              className="rounded border border-slate-600 px-5 py-2 text-sm text-slate-300 transition-colors hover:border-slate-400 hover:text-white"
+            >
+              Login
+            </Link>
+          </nav>
         </header>
 
-        <main className="flex-1 flex items-center justify-center px-6">
-          <div className="text-center max-w-2xl">
-            <div className="relative inline-block mb-4">
+        <main className="flex flex-1 items-center justify-center px-6">
+          <div className="max-w-2xl text-center">
+            <div className="relative mb-4 inline-block">
               <h1
-                className="text-5xl md:text-7xl font-bold text-white tracking-tight cursor-default"
+                className="cursor-default text-5xl font-bold tracking-tight text-white md:text-7xl"
                 onMouseEnter={() => setShowTooltip(true)}
                 onMouseLeave={() => setShowTooltip(false)}
               >
@@ -221,7 +245,7 @@ export default function LandingPage() {
               {showTooltip && (
                 <div
                   ref={tooltipRef}
-                  className={`absolute left-1/2 -translate-x-1/2 px-4 py-3 bg-slate-900/90 border border-slate-700 text-white text-sm rounded-lg max-w-md whitespace-pre-wrap ${
+                  className={`absolute left-1/2 -translate-x-1/2 whitespace-pre-wrap rounded-lg border border-slate-700 bg-slate-900/90 px-4 py-3 text-sm text-white max-w-md ${
                     tooltipAbove ? "bottom-full mb-3" : "top-full mt-3"
                   }`}
                 >
@@ -229,28 +253,37 @@ export default function LandingPage() {
                 </div>
               )}
             </div>
-            <p className="text-xl text-slate-400 mb-12 font-light bg-slate-900/50 px-4 py-2 rounded-lg border border-slate-800 inline-block">
+            <p className="mb-8 inline-block rounded-lg border border-slate-800 bg-slate-900/50 px-4 py-2 text-xl font-light text-slate-400">
               Sistema de gestão de desenvolvimento de produtos têxteis
             </p>
 
-            <Link
-              href="/login"
-              className="inline-flex items-center gap-2 px-8 py-4 bg-white text-black font-medium rounded-lg hover:bg-slate-200 transition-colors"
-            >
-              Acessar Sistema
-              <ArrowRight size={18} />
-            </Link>
+            <div className="mb-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
+              <Link
+                href="/login"
+                className="inline-flex items-center gap-2 rounded-lg bg-white px-8 py-4 font-medium text-black transition-colors hover:bg-slate-200"
+              >
+                Acessar Sistema
+                <ArrowRight size={18} />
+              </Link>
+              <Link
+                href="/sobre"
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-600 px-8 py-4 font-medium text-white transition-colors hover:border-slate-400 hover:bg-slate-900/50"
+              >
+                Sobre o PDM
+                <ArrowRight size={18} />
+              </Link>
+            </div>
 
-            <div className="mt-16 grid grid-cols-2 md:grid-cols-6 gap-4 text-center">
+            <div className="grid grid-cols-2 gap-4 text-center md:grid-cols-6">
               {DEPARTMENTS.map((dept: any) => (
                 <div
                   key={dept.abbr}
-                  className="group relative p-4 rounded-lg bg-slate-900/50 border border-slate-800 hover:border-slate-600 transition-all duration-300 cursor-default"
+                  className="group relative cursor-default rounded-lg border border-slate-800 bg-slate-900/50 p-4 transition-all duration-300 hover:border-slate-600"
                 >
-                  <dept.icon className="w-8 h-8 mx-auto mb-2 text-slate-400 group-hover:text-white transition-colors" />
+                  <dept.icon className="mx-auto mb-2 h-8 w-8 text-slate-400 transition-colors group-hover:text-white" />
                   <div className="text-lg font-bold text-slate-200">{dept.abbr}</div>
-                  <div className="text-xs text-slate-500 mt-1">{dept.label}</div>
-                  <div className="absolute left-1/2 -translate-x-1/2 bottom-full mb-2 px-3 py-2 bg-slate-800 border border-slate-700 text-white text-xs rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-20 shadow-lg">
+                  <div className="mt-1 text-xs text-slate-500">{dept.label}</div>
+                  <div className="pointer-events-none absolute bottom-full left-1/2 z-20 mb-2 -translate-x-1/2 whitespace-nowrap rounded-lg border border-slate-700 bg-slate-800 px-3 py-2 text-xs text-white opacity-0 shadow-lg transition-opacity group-hover:opacity-100">
                     {dept.phrase}
                   </div>
                 </div>
@@ -259,7 +292,66 @@ export default function LandingPage() {
           </div>
         </main>
 
-        <footer className="px-8 py-4 text-center">
+        <section className="border-t border-slate-900 bg-[#0a0a0f]/95 px-6 py-16 md:px-8">
+          <div className="mx-auto max-w-5xl">
+            <div className="mb-10 text-center">
+              <p className="text-sm font-semibold uppercase tracking-widest text-blue-400">
+                Apresentação do app
+              </p>
+              <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">
+                O que é o PDM Pro Têxtil?
+              </h2>
+              <p className="mx-auto mt-4 max-w-3xl text-base font-light leading-relaxed text-slate-400">
+                É o sistema que organiza todo o trabalho da sua fábrica de tecidos em um só lugar.
+                Do pedido do cliente até o tecido pronto, cada etapa fica registrada, fácil de
+                encontrar e acompanhada por todas as áreas — sem depender de papel, planilhas
+                perdidas ou mensagens no WhatsApp.
+              </p>
+            </div>
+
+            <ul className="mb-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
+              {DESTAQUES.map((item) => (
+                <li key={item} className="flex items-center gap-2 text-sm text-slate-300">
+                  <CheckCircle2 className="h-4 w-4 text-emerald-400" />
+                  {item}
+                </li>
+              ))}
+            </ul>
+
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              {MODULOS_APRESENTACAO.slice(0, 6).map((modulo) => (
+                <div
+                  key={modulo.titulo}
+                  className="rounded-xl border border-slate-800 bg-slate-900/50 p-6"
+                >
+                  <modulo.icone className="mb-4 h-7 w-7 text-blue-400" />
+                  <h3 className="text-base font-semibold text-white">{modulo.titulo}</h3>
+                  <p className="mt-2 text-sm leading-relaxed text-slate-400">{modulo.resumo}</p>
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-10 text-center">
+              <Link
+                href="/sobre"
+                className="inline-flex items-center gap-2 rounded-lg border border-slate-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:border-slate-400 hover:bg-slate-900/50"
+              >
+                Ver tudo o que o PDM faz
+                <ArrowRight size={16} />
+              </Link>
+            </div>
+
+            <p className="mt-12 text-center text-sm text-slate-500">
+              Criado por{" "}
+              <span className="font-medium text-slate-300">
+                {CRIADORES.map((c) => c.nome).join(" e ")}
+              </span>
+              .
+            </p>
+          </div>
+        </section>
+
+        <footer className="border-t border-slate-900 px-6 py-6 text-center md:px-8">
           <p className="text-xs text-slate-600">
             © 2026 PDM·PRO·TÊXTIL | @devtiagoabreu · Todos os direitos reservados
           </p>
