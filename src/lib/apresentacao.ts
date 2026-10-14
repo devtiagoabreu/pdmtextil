@@ -30,7 +30,7 @@ export const CRIADORES = [
   },
   {
     nome: "Sérgio Costa",
-    papel: "Cofundador",
+    papel: "Cofundador e analista de requisitos",
   },
 ]
 
