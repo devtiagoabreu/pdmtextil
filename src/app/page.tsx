@@ -4,7 +4,6 @@ import { useEffect, useRef, useState, useCallback } from "react"
 import Link from "next/link"
 import {
   ArrowRight,
-  CheckCircle2,
   Factory,
   Settings,
   PenTool,
@@ -12,10 +11,9 @@ import {
   Users,
   Wrench,
 } from "lucide-react"
-import { CRIADORES, MODULOS_APRESENTACAO } from "@/lib/apresentacao"
 
 const PDM_TOOLTIP =
-  "PDM·PRO·TÊXTIL — Sistema de gestão do desenvolvimento de produtos têxteis. Cuida de tudo o que acontece ANTES do lançamento do pedido: as solicitações que o comercial envia para o desenvolvimento e a demanda interna do setor. Auxilia o ERP fabril por APIs e integrações, onde a produção geral da fábrica é acompanhada."
+  "PDM·PRO·TÊXTIL — Ferramenta de integração para a indústria têxtil. Conecta ferramentas legadas (ERP, planilhas e sistemas antigos) às tecnologias atuais por APIs e integrações, com foco no desenvolvimento de produtos antes do pedido. A parte de vendas é o CRM — o PDM não substitui o ERP comercial."
 
 const DEPARTMENTS = [
   {
@@ -54,12 +52,6 @@ const DEPARTMENTS = [
     label: "Ferramentas",
     phrase: "Ferramentas personalizadas para cada tipo de negócio",
   },
-]
-
-const DESTAQUES = [
-  "Foco no desenvolvimento do produto, antes do pedido",
-  "Auxilia o seu ERP fabril por integrações",
-  "Funciona no computador e no celular",
 ]
 
 export default function LandingPage() {
@@ -254,7 +246,7 @@ export default function LandingPage() {
               )}
             </div>
             <p className="mb-8 inline-block rounded-lg border border-slate-800 bg-slate-900/50 px-4 py-2 text-xl font-light text-slate-400">
-              Gestão do desenvolvimento de produtos têxteis, integrada ao seu ERP fabril
+              Integração entre as ferramentas que você já usa e as tecnologias atuais
             </p>
 
             <div className="mb-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -291,67 +283,6 @@ export default function LandingPage() {
             </div>
           </div>
         </main>
-
-        <section className="border-t border-slate-900 bg-[#0a0a0f]/95 px-6 py-16 md:px-8">
-          <div className="mx-auto max-w-5xl">
-            <div className="mb-10 text-center">
-              <p className="text-sm font-semibold uppercase tracking-widest text-blue-400">
-                Apresentação do app
-              </p>
-              <h2 className="mt-2 text-3xl font-bold text-white md:text-4xl">
-                O que é o PDM Pro Têxtil?
-              </h2>
-              <p className="mx-auto mt-4 max-w-3xl text-base font-light leading-relaxed text-slate-400">
-                É o sistema que organiza o desenvolvimento de produtos da sua fábrica de tecidos.
-                Ele centraliza as solicitações que o comercial envia para o desenvolvimento e a
-                demanda interna do setor — tudo o que acontece antes de o pedido ser lançado. O PDM
-                complementa o seu ERP fabril: os dois conversam por APIs e integrações, então a
-                produção da fábrica aparece aqui também — sem depender de papel, planilhas perdidas
-                ou mensagens no WhatsApp.
-              </p>
-            </div>
-
-            <ul className="mb-12 flex flex-wrap items-center justify-center gap-x-8 gap-y-3">
-              {DESTAQUES.map((item) => (
-                <li key={item} className="flex items-center gap-2 text-sm text-slate-300">
-                  <CheckCircle2 className="h-4 w-4 text-emerald-400" />
-                  {item}
-                </li>
-              ))}
-            </ul>
-
-            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-              {MODULOS_APRESENTACAO.slice(0, 6).map((modulo) => (
-                <div
-                  key={modulo.titulo}
-                  className="rounded-xl border border-slate-800 bg-slate-900/50 p-6"
-                >
-                  <modulo.icone className="mb-4 h-7 w-7 text-blue-400" />
-                  <h3 className="text-base font-semibold text-white">{modulo.titulo}</h3>
-                  <p className="mt-2 text-sm leading-relaxed text-slate-400">{modulo.resumo}</p>
-                </div>
-              ))}
-            </div>
-
-            <div className="mt-10 text-center">
-              <Link
-                href="/sobre"
-                className="inline-flex items-center gap-2 rounded-lg border border-slate-600 px-6 py-3 text-sm font-medium text-white transition-colors hover:border-slate-400 hover:bg-slate-900/50"
-              >
-                Ver tudo o que o PDM faz
-                <ArrowRight size={16} />
-              </Link>
-            </div>
-
-            <p className="mt-12 text-center text-sm text-slate-500">
-              Criado por{" "}
-              <span className="font-medium text-slate-300">
-                {CRIADORES.map((c) => c.nome).join(" e ")}
-              </span>
-              .
-            </p>
-          </div>
-        </section>
 
         <footer className="border-t border-slate-900 px-6 py-6 text-center md:px-8">
           <p className="text-xs text-slate-600">

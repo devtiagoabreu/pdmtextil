@@ -8,12 +8,13 @@ import {
   NO_ERP,
   NO_PDM,
   PASSOS,
+  POSICIONAMENTO,
 } from "@/lib/apresentacao"
 
 export const metadata: Metadata = {
   title: "Sobre o PDM Pro Têxtil",
   description:
-    "O PDM Pro Têxtil é o sistema de desenvolvimento de produtos da indústria têxtil, que auxilia o ERP fabril por APIs e integrações. Criado por Tiago de Abreu e Sérgio Costa.",
+    "O PDM Pro Têxtil é uma ferramenta de integração para a indústria têxtil: conecta ferramentas legadas às tecnologias atuais e foca no desenvolvimento de produtos, sem substituir o ERP comercial. Criado por Tiago de Abreu e Sérgio Costa.",
 }
 
 const DORES = [
@@ -54,13 +55,14 @@ export default function SobrePage() {
               Sobre o PDM Pro Têxtil
             </p>
             <h1 className="mt-4 text-4xl font-bold leading-tight text-white md:text-6xl">
-              O desenvolvimento dos seus produtos, antes do pedido
+              Integração entre o que você já tem e o que há de mais atual
             </h1>
             <p className="mx-auto mt-6 max-w-3xl text-lg font-light leading-relaxed text-slate-400">
-              O PDM Pro Têxtil é o sistema de desenvolvimento de produtos da indústria têxtil. Ele
-              organiza tudo o que acontece antes de o pedido ser lançado — as solicitações que o
-              comercial envia para o desenvolvimento e a demanda interna do próprio setor — e auxilia
-              o seu ERP fabril por APIs e integrações, onde a produção da fábrica é acompanhada.
+              O PDM Pro Têxtil é uma ferramenta de integração para a indústria têxtil. Ele faz as
+              ferramentas legadas da empresa — como o ERP e as planilhas — convergirem com as
+              tecnologias mais atuais, por APIs e integrações. O foco é o desenvolvimento de produtos,
+              antes do pedido; a parte de vendas é o CRM, que trabalha junto com o seu ERP comercial
+              sem substituí-lo.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
@@ -106,11 +108,8 @@ export default function SobrePage() {
         <section className="border-b border-slate-900 px-6 py-16 md:px-8">
           <div className="mx-auto max-w-5xl">
             <div className="mb-10 text-center">
-              <h2 className="text-3xl font-bold text-white md:text-4xl">O PDM e o seu ERP fabril</h2>
-              <p className="mx-auto mt-4 max-w-3xl text-base text-slate-400">
-                O PDM não substitui o seu ERP — ele o auxilia. Cada sistema cuida do que faz de
-                melhor, e os dois conversam por APIs e integrações.
-              </p>
+              <h2 className="text-3xl font-bold text-white md:text-4xl">O PDM e o seu ERP</h2>
+              <p className="mx-auto mt-4 max-w-3xl text-base text-slate-400">{POSICIONAMENTO}</p>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
               <div className="rounded-xl border border-blue-900/60 bg-blue-950/20 p-6">

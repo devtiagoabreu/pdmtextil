@@ -25,7 +25,7 @@ describe("SobrePage", () => {
   it("explica a relação com o ERP fabril", () => {
     render(<SobrePage />)
     expect(
-      screen.getByRole("heading", { name: /o pdm e o seu erp fabril/i })
+      screen.getByRole("heading", { name: /o pdm e o seu erp/i })
     ).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: /^no pdm$/i })).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: /no seu erp/i })).toBeInTheDocument()

@@ -17,18 +17,19 @@ describe("LandingPage", () => {
     expect(sobre.some((link) => link.getAttribute("href") === "/sobre")).toBe(true)
   })
 
-  it("apresenta o app em linguagem simples", () => {
+  it("mostra o título e a proposta de integração", () => {
     render(<LandingPage />)
+    expect(screen.getByRole("heading", { name: "PDM·PRO·TÊXTIL" })).toBeInTheDocument()
     expect(
-      screen.getByRole("heading", { name: /o que é o pdm pro têxtil/i })
-    ).toBeInTheDocument()
-    expect(
-      screen.getByText(/organiza o desenvolvimento de produtos da sua fábrica de tecidos/i)
+      screen.getByText(/integração entre as ferramentas que você já usa e as tecnologias atuais/i)
     ).toBeInTheDocument()
   })
 
-  it("cita os criadores do PDM", () => {
+  it("não traz o conteúdo da página Sobre", () => {
     render(<LandingPage />)
-    expect(screen.getByText(/tiago de abreu e sérgio costa/i)).toBeInTheDocument()
+    expect(
+      screen.queryByRole("heading", { name: /o que é o pdm pro têxtil/i })
+    ).not.toBeInTheDocument()
+    expect(screen.queryByText(/quem criou o pdm/i)).not.toBeInTheDocument()
   })
 })

@@ -7,6 +7,7 @@ import {
   FlaskConical,
   GitBranch,
   Headphones,
+  Inbox,
   Layers,
   Plug,
   ShieldCheck,
@@ -41,8 +42,20 @@ export const MODULOS_APRESENTACAO: ModuloApresentacao[] = [
       "O coração do PDM. Gerencia a demanda do setor de desenvolvimento — solicitações, fichas técnicas, composição, receitas e versões — tudo antes de o pedido ser lançado.",
   },
   {
+    icone: Plug,
+    titulo: "Convergência de sistemas",
+    resumo:
+      "O PDM é uma ferramenta de integração: conecta ferramentas legadas (ERP, planilhas e sistemas antigos) às tecnologias atuais por APIs e integrações — sem jogar fora o que já funciona.",
+  },
+  {
     icone: ShoppingCart,
-    titulo: "Solicitações do comercial",
+    titulo: "Comercial e CRM",
+    resumo:
+      "A parte de vendas do PDM é o CRM: leads, propostas, visitas e relacionamento. Ele trabalha junto com o ERP comercial — não substitui.",
+  },
+  {
+    icone: Inbox,
+    titulo: "Solicitações para o desenvolvimento",
     resumo:
       "Centraliza as solicitações que o setor comercial envia para o desenvolvimento e acompanha cada uma até a aprovação.",
   },
@@ -57,12 +70,6 @@ export const MODULOS_APRESENTACAO: ModuloApresentacao[] = [
     titulo: "Produção do produto em desenvolvimento",
     resumo:
       "Acompanha a produção dos produtos em desenvolvimento — tecido cru, beneficiamento e pilotagem. A produção geral da fábrica continua no ERP, visível por integração.",
-  },
-  {
-    icone: Plug,
-    titulo: "Conversa com o seu ERP",
-    resumo:
-      "Integra com o ERP fabril (Systêxtil, Bling e outros) por APIs e integrações, trazendo pedidos, romaneios e a produção da fábrica para dentro do PDM.",
   },
   {
     icone: ClipboardCheck,
@@ -117,24 +124,28 @@ export const MODULOS_APRESENTACAO: ModuloApresentacao[] = [
   },
 ]
 
+export const POSICIONAMENTO =
+  "O PDM não tenta ter tudo em um só lugar. Ele é uma ferramenta de integração: faz as ferramentas legadas convergirem com as tecnologias mais atuais, por APIs e integrações, e não substitui o ERP comercial."
+
 export const BENEFICIOS = [
   {
-    titulo: "Feito para o desenvolvimento",
+    titulo: "Convergência, não substituição",
     resumo:
-      "Tudo o que acontece antes do pedido: solicitações do comercial e a demanda do próprio setor.",
+      "Conecta ferramentas legadas às tecnologias atuais, sem jogar fora o que já funciona na empresa.",
   },
   {
-    titulo: "Auxilia o seu ERP, não substitui",
+    titulo: "Foco no desenvolvimento",
     resumo:
-      "O PDM complementa o ERP fabril por APIs — cada sistema cuida do que faz de melhor.",
+      "Cuida do que acontece antes do pedido: solicitações do comercial e a demanda do próprio setor.",
+  },
+  {
+    titulo: "Vendas no CRM, sem trocar o ERP",
+    resumo:
+      "O relacionamento e as propostas ficam no CRM do PDM — o ERP comercial continua sendo o seu.",
   },
   {
     titulo: "Menos retrabalho",
     resumo: "Cada informação é preenchida uma vez e reaproveitada por todas as áreas.",
-  },
-  {
-    titulo: "Decisões com dados",
-    resumo: "Painéis e relatórios mostram a situação real do desenvolvimento em segundos.",
   },
   {
     titulo: "Acesso de qualquer lugar",
@@ -154,7 +165,7 @@ export const PASSOS = [
   {
     titulo: "Receba e organize as demandas",
     resumo:
-      "As solicitações do comercial e a demanda do desenvolvimento ficam registradas e acompanhadas em um só lugar.",
+      "As solicitações do comercial e a demanda do desenvolvimento ficam registradas e acompanhadas, integradas ao que a empresa já usa.",
   },
   {
     titulo: "Desenvolva e acompanhe",
@@ -169,11 +180,11 @@ export const NO_PDM = [
   "Fichas técnicas, composição e receitas versionadas",
   "Amostras e pilotagem do produto",
   "Produção do produto em desenvolvimento",
-  "Relacionamento, visitas e chamados",
+  "CRM: relacionamento, propostas e visitas",
 ]
 
 export const NO_ERP = [
-  "Pedidos de venda e faturamento",
+  "ERP comercial: pedidos de venda e faturamento",
   "Produção geral da fábrica",
   "Estoque, expedição e romaneios",
   "Financeiro e fiscal",
