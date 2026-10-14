@@ -20,6 +20,8 @@ describe("SobrePage", () => {
     render(<SobrePage />)
     expect(screen.getByRole("heading", { name: /o que o pdm faz por você/i })).toBeInTheDocument()
     expect(screen.getByRole("heading", { name: /desenvolvimento de produtos/i })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: /kanban e painéis/i })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: /módulos satélites/i })).toBeInTheDocument()
   })
 
   it("explica a relação com o ERP fabril", () => {

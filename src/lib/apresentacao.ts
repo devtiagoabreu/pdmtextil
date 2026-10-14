@@ -8,8 +8,10 @@ import {
   GitBranch,
   Headphones,
   Inbox,
+  LayoutDashboard,
   Layers,
   Plug,
+  Puzzle,
   ShieldCheck,
   ShoppingCart,
   Truck,
@@ -39,13 +41,25 @@ export const MODULOS_APRESENTACAO: ModuloApresentacao[] = [
     icone: Layers,
     titulo: "Desenvolvimento de produtos",
     resumo:
-      "O coração do PDM. Gerencia a demanda do setor de desenvolvimento — solicitações, fichas técnicas, composição, receitas e versões — tudo antes de o pedido ser lançado.",
+      "O coração do PDM. Gerencia a demanda do setor de desenvolvimento — solicitações, fichas técnicas, composição, receitas e versões — tudo isso antes de o pedido ser lançado.",
   },
   {
     icone: Plug,
     titulo: "Convergência de sistemas",
     resumo:
-      "O PDM é uma ferramenta de integração: conecta ferramentas legadas (ERP, planilhas e sistemas antigos) às tecnologias atuais por APIs e integrações — sem jogar fora o que já funciona.",
+      "O PDM é uma ferramenta de integração: conecta ferramentas legadas (ERP, planilhas e sistemas legados) às tecnologias atuais por APIs e integrações — sem jogar fora o que já funciona.",
+  },
+  {
+    icone: LayoutDashboard,
+    titulo: "Visualização com Kanban e painéis",
+    resumo:
+      "Acompanhe demandas, amostras e a produção em quadros Kanban, listas e painéis visuais — cada equipe enxerga o trabalho do jeito que preferir.",
+  },
+  {
+    icone: Puzzle,
+    titulo: "Módulos satélites",
+    resumo:
+      "Reúne módulos que complementam o ERP e cobrem necessidades que muitas vezes não existem nele — sem precisar trocar o que já está em uso.",
   },
   {
     icone: ShoppingCart,
@@ -125,7 +139,7 @@ export const MODULOS_APRESENTACAO: ModuloApresentacao[] = [
 ]
 
 export const POSICIONAMENTO =
-  "O PDM não tenta ter tudo em um só lugar. Ele é uma ferramenta de integração: faz as ferramentas legadas convergirem com as tecnologias mais atuais, por APIs e integrações, e não substitui o ERP comercial."
+  "O PDM não tenta ter tudo em um só lugar. Ele é uma ferramenta de integração: faz as ferramentas legadas convergirem com as tecnologias mais atuais, por APIs e integrações, e não substitui o ERP comercial. O foco é o desenvolvimento de produtos — que precisa ser gerenciado — e, com ele, módulos satélites que muitas vezes não existem no seu ERP."
 
 export const BENEFICIOS = [
   {

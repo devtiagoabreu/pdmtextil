@@ -13,7 +13,7 @@ import {
 } from "lucide-react"
 
 const PDM_TOOLTIP =
-  "PDM·PRO·TÊXTIL — Ferramenta de integração para a indústria têxtil. Conecta ferramentas legadas (ERP, planilhas e sistemas antigos) às tecnologias atuais por APIs e integrações, com foco no desenvolvimento de produtos antes do pedido. A parte de vendas é o CRM — o PDM não substitui o ERP comercial."
+  "PDM·PRO·TÊXTIL — Ferramenta de integração para a indústria têxtil. Conecta ferramentas legadas (ERP, planilhas e sistemas legados) às tecnologias atuais por APIs e integrações, com foco no desenvolvimento de produtos — que precisa ser gerenciado — e módulos satélites, com visualizações em Kanban e painéis. A parte de vendas é o CRM — o PDM não substitui o ERP comercial."
 
 const DEPARTMENTS = [
   {

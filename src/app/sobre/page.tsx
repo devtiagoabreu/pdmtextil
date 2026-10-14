@@ -61,8 +61,9 @@ export default function SobrePage() {
               O PDM Pro Têxtil é uma ferramenta de integração para a indústria têxtil. Ele faz as
               ferramentas legadas da empresa — como o ERP e as planilhas — convergirem com as
               tecnologias mais atuais, por APIs e integrações. O foco é o desenvolvimento de produtos,
-              antes do pedido; a parte de vendas é o CRM, que trabalha junto com o seu ERP comercial
-              sem substituí-lo.
+              que precisa ser gerenciado, e, com ele, vêm módulos satélites que muitas vezes não
+              existem no seu ERP. A parte de vendas é o CRM, que trabalha junto com o seu ERP
+              comercial sem substituí-lo.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
