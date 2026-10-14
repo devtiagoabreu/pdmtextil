@@ -157,3 +157,7 @@ dist
 vite.config.js.timestamp-*
 vite.config.ts.timestamp-*
 .vite/
+
+# vitest output artifacts
+.vitest.out
+.vitest.err
