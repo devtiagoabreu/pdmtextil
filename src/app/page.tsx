@@ -15,32 +15,32 @@ import {
 import { CRIADORES, MODULOS_APRESENTACAO } from "@/lib/apresentacao"
 
 const PDM_TOOLTIP =
-  "PDM·PRO·TÊXTIL — Plataforma completa de gestão para a indústria têxtil. Integra Comercial, CRM, Desenvolvimento (Tecelagem e Beneficiamento), PCP e Admin em um único sistema. Gestão de clientes, leads, propostas, amostras, fichas técnicas, receitas, roteiros de produção, e-mail marketing, notificações inteligentes e exportação para ERP."
+  "PDM·PRO·TÊXTIL — Sistema de gestão do desenvolvimento de produtos têxteis. Cuida de tudo o que acontece ANTES do lançamento do pedido: as solicitações que o comercial envia para o desenvolvimento e a demanda interna do setor. Auxilia o ERP fabril por APIs e integrações, onde a produção geral da fábrica é acompanhada."
 
 const DEPARTMENTS = [
   {
     icon: Factory,
     abbr: "PCP",
     label: "Planejamento",
-    phrase: "Controle total da produção — do fio ao tecido acabado",
+    phrase: "Acompanhe a produção do produto em desenvolvimento, do cru ao acabado",
   },
   {
     icon: ShoppingCart,
     abbr: "COM",
     label: "Comercial",
-    phrase: "Gestão de pedidos, clientes e representantes em tempo real",
+    phrase: "Recebe as solicitações de desenvolvimento e organiza clientes e pedidos",
   },
   {
     icon: Users,
     abbr: "CRM",
     label: "CRM",
-    phrase: "Pipeline de vendas, leads, propostas e visitas integradas",
+    phrase: "Relacionamento, propostas e visitas que geram novas demandas",
   },
   {
     icon: PenTool,
     abbr: "DES",
     label: "Desenvolvimento",
-    phrase: "Fichas técnicas, receitas e controle de amostras do conceito à aprovação",
+    phrase: "O coração do PDM: fichas técnicas, receitas e amostras antes do pedido",
   },
   {
     icon: Settings,
@@ -57,9 +57,9 @@ const DEPARTMENTS = [
 ]
 
 const DESTAQUES = [
-  "Sistema completo para a indústria têxtil",
+  "Foco no desenvolvimento do produto, antes do pedido",
+  "Auxilia o seu ERP fabril por integrações",
   "Funciona no computador e no celular",
-  "Fácil de usar, sem complicação",
 ]
 
 export default function LandingPage() {
@@ -254,7 +254,7 @@ export default function LandingPage() {
               )}
             </div>
             <p className="mb-8 inline-block rounded-lg border border-slate-800 bg-slate-900/50 px-4 py-2 text-xl font-light text-slate-400">
-              Sistema de gestão de desenvolvimento de produtos têxteis
+              Gestão do desenvolvimento de produtos têxteis, integrada ao seu ERP fabril
             </p>
 
             <div className="mb-12 flex flex-col items-center justify-center gap-3 sm:flex-row">
@@ -302,10 +302,12 @@ export default function LandingPage() {
                 O que é o PDM Pro Têxtil?
               </h2>
               <p className="mx-auto mt-4 max-w-3xl text-base font-light leading-relaxed text-slate-400">
-                É o sistema que organiza todo o trabalho da sua fábrica de tecidos em um só lugar.
-                Do pedido do cliente até o tecido pronto, cada etapa fica registrada, fácil de
-                encontrar e acompanhada por todas as áreas — sem depender de papel, planilhas
-                perdidas ou mensagens no WhatsApp.
+                É o sistema que organiza o desenvolvimento de produtos da sua fábrica de tecidos.
+                Ele centraliza as solicitações que o comercial envia para o desenvolvimento e a
+                demanda interna do setor — tudo o que acontece antes de o pedido ser lançado. O PDM
+                complementa o seu ERP fabril: os dois conversam por APIs e integrações, então a
+                produção da fábrica aparece aqui também — sem depender de papel, planilhas perdidas
+                ou mensagens no WhatsApp.
               </p>
             </div>
 

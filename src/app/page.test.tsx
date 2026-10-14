@@ -22,7 +22,9 @@ describe("LandingPage", () => {
     expect(
       screen.getByRole("heading", { name: /o que é o pdm pro têxtil/i })
     ).toBeInTheDocument()
-    expect(screen.getByText(/organiza todo o trabalho da sua fábrica de tecidos/i)).toBeInTheDocument()
+    expect(
+      screen.getByText(/organiza o desenvolvimento de produtos da sua fábrica de tecidos/i)
+    ).toBeInTheDocument()
   })
 
   it("cita os criadores do PDM", () => {

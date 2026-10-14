@@ -1,12 +1,19 @@
 import type { Metadata } from "next"
 import Link from "next/link"
 import { ArrowRight, CheckCircle2 } from "lucide-react"
-import { BENEFICIOS, CRIADORES, MODULOS_APRESENTACAO, PASSOS } from "@/lib/apresentacao"
+import {
+  BENEFICIOS,
+  CRIADORES,
+  MODULOS_APRESENTACAO,
+  NO_ERP,
+  NO_PDM,
+  PASSOS,
+} from "@/lib/apresentacao"
 
 export const metadata: Metadata = {
   title: "Sobre o PDM Pro Têxtil",
   description:
-    "Conheça o PDM Pro Têxtil: o sistema que organiza toda a gestão da indústria têxtil em um só lugar. Criado por Tiago de Abreu e Sérgio Costa.",
+    "O PDM Pro Têxtil é o sistema de desenvolvimento de produtos da indústria têxtil, que auxilia o ERP fabril por APIs e integrações. Criado por Tiago de Abreu e Sérgio Costa.",
 }
 
 const DORES = [
@@ -47,12 +54,13 @@ export default function SobrePage() {
               Sobre o PDM Pro Têxtil
             </p>
             <h1 className="mt-4 text-4xl font-bold leading-tight text-white md:text-6xl">
-              A gestão da sua fábrica de tecidos, toda em um só lugar
+              O desenvolvimento dos seus produtos, antes do pedido
             </h1>
             <p className="mx-auto mt-6 max-w-3xl text-lg font-light leading-relaxed text-slate-400">
-              O PDM Pro Têxtil reúne vendas, desenvolvimento de produtos, produção, qualidade e
-              atendimento em um único sistema. Simples de usar, feito para a rotina real de quem
-              trabalha com tecido — do primeiro contato com o cliente ao tecido pronto para entrega.
+              O PDM Pro Têxtil é o sistema de desenvolvimento de produtos da indústria têxtil. Ele
+              organiza tudo o que acontece antes de o pedido ser lançado — as solicitações que o
+              comercial envia para o desenvolvimento e a demanda interna do próprio setor — e auxilia
+              o seu ERP fabril por APIs e integrações, onde a produção da fábrica é acompanhada.
             </p>
             <div className="mt-10 flex flex-col items-center justify-center gap-3 sm:flex-row">
               <Link
@@ -92,6 +100,48 @@ export default function SobrePage() {
                 </li>
               ))}
             </ul>
+          </div>
+        </section>
+
+        <section className="border-b border-slate-900 px-6 py-16 md:px-8">
+          <div className="mx-auto max-w-5xl">
+            <div className="mb-10 text-center">
+              <h2 className="text-3xl font-bold text-white md:text-4xl">O PDM e o seu ERP fabril</h2>
+              <p className="mx-auto mt-4 max-w-3xl text-base text-slate-400">
+                O PDM não substitui o seu ERP — ele o auxilia. Cada sistema cuida do que faz de
+                melhor, e os dois conversam por APIs e integrações.
+              </p>
+            </div>
+            <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+              <div className="rounded-xl border border-blue-900/60 bg-blue-950/20 p-6">
+                <h3 className="text-lg font-semibold text-white">No PDM</h3>
+                <p className="mt-1 text-sm text-slate-400">
+                  Tudo o que acontece antes do lançamento do pedido.
+                </p>
+                <ul className="mt-4 space-y-3">
+                  {NO_PDM.map((item) => (
+                    <li key={item} className="flex items-start gap-3 text-sm text-slate-300">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-blue-400" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div className="rounded-xl border border-slate-800 bg-slate-900/50 p-6">
+                <h3 className="text-lg font-semibold text-white">No seu ERP (integrado)</h3>
+                <p className="mt-1 text-sm text-slate-400">
+                  O que continua no ERP e fica visível no PDM por integração.
+                </p>
+                <ul className="mt-4 space-y-3">
+                  {NO_ERP.map((item) => (
+                    <li key={item} className="flex items-start gap-3 text-sm text-slate-300">
+                      <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0 text-slate-500" />
+                      {item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </div>
         </section>
 

@@ -8,6 +8,7 @@ import {
   GitBranch,
   Headphones,
   Layers,
+  Plug,
   ShieldCheck,
   ShoppingCart,
   Truck,
@@ -34,16 +35,16 @@ export const CRIADORES = [
 
 export const MODULOS_APRESENTACAO: ModuloApresentacao[] = [
   {
-    icone: ShoppingCart,
-    titulo: "Vendas e clientes",
+    icone: Layers,
+    titulo: "Desenvolvimento de produtos",
     resumo:
-      "Cadastre clientes, acompanhe propostas e pedidos e organize a equipe de vendas em um único painel.",
+      "O coração do PDM. Gerencia a demanda do setor de desenvolvimento — solicitações, fichas técnicas, composição, receitas e versões — tudo antes de o pedido ser lançado.",
   },
   {
-    icone: Layers,
-    titulo: "Desenvolvimento do produto",
+    icone: ShoppingCart,
+    titulo: "Solicitações do comercial",
     resumo:
-      "Ficha técnica, composição, receitas e versões de cada tecido — do pedido do cliente até a produção.",
+      "Centraliza as solicitações que o setor comercial envia para o desenvolvimento e acompanha cada uma até a aprovação.",
   },
   {
     icone: FlaskConical,
@@ -53,9 +54,15 @@ export const MODULOS_APRESENTACAO: ModuloApresentacao[] = [
   },
   {
     icone: Factory,
-    titulo: "Produção",
+    titulo: "Produção do produto em desenvolvimento",
     resumo:
-      "Veja o que está planejado, o que está em produção e o que já foi concluído, em tempo real.",
+      "Acompanha a produção dos produtos em desenvolvimento — tecido cru, beneficiamento e pilotagem. A produção geral da fábrica continua no ERP, visível por integração.",
+  },
+  {
+    icone: Plug,
+    titulo: "Conversa com o seu ERP",
+    resumo:
+      "Integra com o ERP fabril (Systêxtil, Bling e outros) por APIs e integrações, trazendo pedidos, romaneios e a produção da fábrica para dentro do PDM.",
   },
   {
     icone: ClipboardCheck,
@@ -72,8 +79,7 @@ export const MODULOS_APRESENTACAO: ModuloApresentacao[] = [
   {
     icone: GitBranch,
     titulo: "Processos",
-    resumo:
-      "Documente como cada área trabalha, com fluxogramas claros e de fácil entendimento.",
+    resumo: "Documente como cada área trabalha, com fluxogramas claros e de fácil entendimento.",
   },
   {
     icone: Calendar,
@@ -85,13 +91,12 @@ export const MODULOS_APRESENTACAO: ModuloApresentacao[] = [
     icone: Truck,
     titulo: "Documentos e logística",
     resumo:
-      "Romaneios de carga, conferência de tecido cru e o relatório de frete das notas fiscais.",
+      "Romaneios de carga, conferência de tecido cru e o relatório de frete das notas fiscais, apoiados nas integrações com o ERP.",
   },
   {
     icone: BarChart3,
     titulo: "Relatórios e indicadores",
-    resumo:
-      "Painéis com números, curvas e previsões a partir das suas próprias planilhas.",
+    resumo: "Painéis com números, curvas e previsões a partir das suas próprias planilhas.",
   },
   {
     icone: Bot,
@@ -102,8 +107,7 @@ export const MODULOS_APRESENTACAO: ModuloApresentacao[] = [
   {
     icone: Wrench,
     titulo: "Ferramentas do dia a dia",
-    resumo:
-      "Calculadora de regra de três, conversão de numeração de fios e consulta de CNPJ.",
+    resumo: "Calculadora de regra de três, conversão de numeração de fios e consulta de CNPJ.",
   },
   {
     icone: ShieldCheck,
@@ -115,8 +119,14 @@ export const MODULOS_APRESENTACAO: ModuloApresentacao[] = [
 
 export const BENEFICIOS = [
   {
-    titulo: "Tudo em um só lugar",
-    resumo: "Vendas, desenvolvimento, produção e qualidade no mesmo sistema, sem papéis soltos.",
+    titulo: "Feito para o desenvolvimento",
+    resumo:
+      "Tudo o que acontece antes do pedido: solicitações do comercial e a demanda do próprio setor.",
+  },
+  {
+    titulo: "Auxilia o seu ERP, não substitui",
+    resumo:
+      "O PDM complementa o ERP fabril por APIs — cada sistema cuida do que faz de melhor.",
   },
   {
     titulo: "Menos retrabalho",
@@ -124,15 +134,11 @@ export const BENEFICIOS = [
   },
   {
     titulo: "Decisões com dados",
-    resumo: "Painéis e relatórios mostram a situação real do negócio em segundos.",
+    resumo: "Painéis e relatórios mostram a situação real do desenvolvimento em segundos.",
   },
   {
     titulo: "Acesso de qualquer lugar",
     resumo: "Funciona no computador e no celular, do escritório ou de dentro da fábrica.",
-  },
-  {
-    titulo: "Fala com os seus sistemas",
-    resumo: "Integra com os ERPs Systêxtil e Bling, além de Google Drive e WhatsApp.",
   },
   {
     titulo: "Seus dados protegidos",
@@ -146,11 +152,29 @@ export const PASSOS = [
     resumo: "Cada pessoa acessa com o seu próprio usuário e enxerga apenas o que tem permissão.",
   },
   {
-    titulo: "Cadastre a sua operação",
-    resumo: "Clientes, produtos, equipe e máquinas — o PDM organiza tudo em poucos cliques.",
+    titulo: "Receba e organize as demandas",
+    resumo:
+      "As solicitações do comercial e a demanda do desenvolvimento ficam registradas e acompanhadas em um só lugar.",
   },
   {
-    titulo: "Acompanhe o dia a dia",
-    resumo: "Tarefas, chamados, amostras e indicadores sempre à mão, em painéis simples de ler.",
+    titulo: "Desenvolva e acompanhe",
+    resumo:
+      "Fichas técnicas, amostras e a produção do produto em desenvolvimento, sempre à mão em painéis simples de ler.",
   },
+]
+
+export const NO_PDM = [
+  "Solicitações de desenvolvimento (comercial → desenvolvimento)",
+  "Demanda interna do setor de desenvolvimento",
+  "Fichas técnicas, composição e receitas versionadas",
+  "Amostras e pilotagem do produto",
+  "Produção do produto em desenvolvimento",
+  "Relacionamento, visitas e chamados",
+]
+
+export const NO_ERP = [
+  "Pedidos de venda e faturamento",
+  "Produção geral da fábrica",
+  "Estoque, expedição e romaneios",
+  "Financeiro e fiscal",
 ]

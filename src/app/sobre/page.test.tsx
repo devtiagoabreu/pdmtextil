@@ -19,6 +19,15 @@ describe("SobrePage", () => {
   it("lista os módulos e a seção do que o PDM faz", () => {
     render(<SobrePage />)
     expect(screen.getByRole("heading", { name: /o que o pdm faz por você/i })).toBeInTheDocument()
-    expect(screen.getByRole("heading", { name: /vendas e clientes/i })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: /desenvolvimento de produtos/i })).toBeInTheDocument()
+  })
+
+  it("explica a relação com o ERP fabril", () => {
+    render(<SobrePage />)
+    expect(
+      screen.getByRole("heading", { name: /o pdm e o seu erp fabril/i })
+    ).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: /^no pdm$/i })).toBeInTheDocument()
+    expect(screen.getByRole("heading", { name: /no seu erp/i })).toBeInTheDocument()
   })
 })
