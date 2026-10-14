@@ -531,6 +531,21 @@ describe("NfeCtePage", () => {
     expect(screen.getByRole("tab", { name: "CT-e" })).toHaveAttribute("aria-selected", "true")
   })
 
+  it("empilha a lista de abas acima do conteúdo, não ao lado", async () => {
+    const fetchMock = createFetchMock(handler())
+    vi.stubGlobal("fetch", fetchMock.fn)
+    await consultar(fetchMock)
+
+    await screen.findByText("CT-e 195476/1")
+    const abaCte = screen.getByRole("tab", { name: "CT-e" })
+    const painel = document.getElementById(abaCte.getAttribute("aria-controls") ?? "")
+
+    // O Tabs do projeto depende de `data-horizontal:flex-col`, que o Tailwind v3
+    // não gera. Sem o `flex-col` explícito a flexbox fica em linha e joga o
+    // conteúdo (dashboard + grade) para a direita da lista de abas.
+    expect(painel?.parentElement).toHaveClass("flex-col")
+  })
+
   it("mantém o foco dentro do modal de CT-es e devolve ao botão que abriu", async () => {
     const fetchMock = createFetchMock(handler([comRegiaoSudeste]))
     vi.stubGlobal("fetch", fetchMock.fn)

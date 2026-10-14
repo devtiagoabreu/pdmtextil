@@ -306,6 +306,7 @@ export default function NfeCtePage() {
               <Tabs
                 value={abaAtiva}
                 onValueChange={(v) => setAbaAtiva(v as (typeof ABAS)[number]["chave"])}
+                className="flex flex-col"
               >
                 <TabsList
                   variant="line"
