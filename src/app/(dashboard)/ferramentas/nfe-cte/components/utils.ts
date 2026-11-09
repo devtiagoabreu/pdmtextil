@@ -296,6 +296,7 @@ export type ChavePeriodo =
   | "6m"
   | "3m"
   | "ano"
+  | "ano_anterior"
   | "mes"
   | "mes_anterior"
   | "7d"
@@ -320,6 +321,7 @@ export const PRESETAS_PERIODO: PresetPeriodo[] = [
   { chave: "6m", rotulo: "Últimos 6 meses" },
   { chave: "3m", rotulo: "Último trimestre" },
   { chave: "ano", rotulo: "Ano atual" },
+  { chave: "ano_anterior", rotulo: "Ano anterior" },
   { chave: "mes", rotulo: "Mês atual" },
   { chave: "mes_anterior", rotulo: "Mês anterior" },
   { chave: "7d", rotulo: "Últimos 7 dias" },
@@ -361,6 +363,13 @@ export function periodoDePreset(chave: ChavePeriodo, hoje: Date = new Date()): P
       return { de: paraIso(primeiroDoMes(somarMeses(hoje, -5))), ate: paraIso(hoje) }
     case "ano":
       return { de: paraIso(new Date(hoje.getFullYear(), 0, 1, 12)), ate: paraIso(hoje) }
+    case "ano_anterior": {
+      const anoAnterior = hoje.getFullYear() - 1
+      return {
+        de: paraIso(new Date(anoAnterior, 0, 1, 12)),
+        ate: paraIso(new Date(anoAnterior, 11, 31, 12)),
+      }
+    }
     case "12m":
       return periodoPadrao(hoje)
     default:
@@ -531,6 +540,9 @@ export function agruparPorCte(itens: LinhaCte[]): GrupoCte[] {
         somaRateioCalculada: 0,
         pctCalculado: null,
         rateioDivergente: false,
+        pesoBruto: null,
+        pesoLiquido: null,
+        pesoEmbalagem: null,
         nfs: [],
       }
       mapa.set(chave, grupo)
@@ -541,6 +553,12 @@ export function agruparPorCte(itens: LinhaCte[]): GrupoCte[] {
     if (linha.soma_nf_do_cte != null) grupo.somaNf = linha.soma_nf_do_cte
     if (linha.soma_rateio_do_cte != null) grupo.somaRateio = linha.soma_rateio_do_cte
     if (linha.pct_cte_sobre_total_nfs != null) grupo.pctSobreNf = linha.pct_cte_sobre_total_nfs
+    if (linha.nf_od_peso_bruto != null) {
+      grupo.pesoBruto = (grupo.pesoBruto ?? 0) + linha.nf_od_peso_bruto
+    }
+    if (linha.nf_od_peso_liquido != null) {
+      grupo.pesoLiquido = (grupo.pesoLiquido ?? 0) + linha.nf_od_peso_liquido
+    }
   }
 
   const grupos = [...mapa.values()]
@@ -557,6 +575,9 @@ export function agruparPorCte(itens: LinhaCte[]): GrupoCte[] {
     // e não do CT-e. Um CT-e pode ter NFs de clientes diferentes: fica com a
     // primeira região preenchida, mesmo tratamento de transportadora/tomador.
     g.regiao = g.nfs.find((n) => n.nf_od_regiao)?.nf_od_regiao || "Sem região"
+    if (g.pesoBruto != null && g.pesoLiquido != null) {
+      g.pesoEmbalagem = g.pesoBruto - g.pesoLiquido
+    }
   }
 
   return grupos.sort((a, b) => {
@@ -628,6 +649,11 @@ export function formatarPercentual(valor: number | null | undefined): string {
 export function formatarNumero(valor: number | null | undefined): string {
   if (valor === null || valor === undefined || !Number.isFinite(valor)) return "—"
   return valor.toLocaleString("pt-BR")
+}
+
+export function formatarPeso(valor: number | null | undefined): string {
+  if (valor === null || valor === undefined || !Number.isFinite(valor)) return "—"
+  return `${valor.toLocaleString("pt-BR", { minimumFractionDigits: 3, maximumFractionDigits: 3 })} kg`
 }
 
 /** `2026-09-01` → `01/09/2026`. Evita `new Date()` para não deslocar o dia por fuso. */

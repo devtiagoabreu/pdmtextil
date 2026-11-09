@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Download, Loader2, X } from "lucide-react"
+import { Download, Loader2, X, Package } from "lucide-react"
 import { toast } from "sonner"
 import {
   Dialog,
@@ -12,7 +12,7 @@ import {
 } from "@/components/ui/dialog"
 import { BadgeFaixaFrete } from "./dashboard"
 import { gerarPdfCtes, type OrientacaoCtePdf } from "./cte-pdf"
-import { classificarFaixaFrete, formatarMoeda, formatarPercentual, freteCte } from "./utils"
+import { classificarFaixaFrete, formatarMoeda, formatarPercentual, formatarPeso, freteCte } from "./utils"
 import type { GrupoCte } from "./types"
 
 interface ModalCtesProps {
@@ -82,6 +82,17 @@ export function ModalCtes({ titulo, grupos, onClose }: ModalCtesProps) {
   const pagina = grupos.slice(0, visiveis)
   const restantes = grupos.length - pagina.length
 
+  // Totais do recorte para os cards de resumo
+  const pesoBrutoTotal = grupos.reduce((t, g) => t + (g.pesoBruto ?? 0), 0)
+  const pesoLiquidoTotal = grupos.reduce((t, g) => t + (g.pesoLiquido ?? 0), 0)
+  const pesoEmbalagemTotal = grupos.reduce((t, g) => t + (g.pesoEmbalagem ?? 0), 0)
+  const mercadoriaTotal = grupos.reduce((t, g) => t + (g.somaNf ?? g.somaNfCalculada), 0)
+  const freteTotal = grupos.reduce((t, g) => t + (freteCte(g) ?? 0), 0)
+  const ctesComPct = grupos.filter((g) => (g.pctSobreNf ?? g.pctCalculado) != null)
+  const mediaPct = ctesComPct.length
+    ? ctesComPct.reduce((t, g) => t + (g.pctSobreNf ?? g.pctCalculado ?? 0), 0) / ctesComPct.length
+    : null
+
   return (
     <Dialog
       open
@@ -115,123 +126,192 @@ export function ModalCtes({ titulo, grupos, onClose }: ModalCtesProps) {
             Nenhum CT-e neste recorte.
           </p>
         ) : (
-          <div className="overflow-auto p-4">
-            <table className="w-full min-w-[760px] text-sm">
-              <thead>
-                <tr className="border-b border-slate-200 dark:border-slate-800">
-                  <th scope="col" className="py-2 pr-2 text-left">
-                    <input
-                      type="checkbox"
-                      checked={todosSelecionados}
-                      onChange={alternarTodos}
-                      aria-label="Selecionar todos os CT-es"
-                      className="rounded"
-                    />
-                  </th>
-                  <th
-                    scope="col"
-                    className="py-2 pr-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400"
-                  >
-                    CT-e
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400"
-                  >
-                    Emissão
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400"
-                  >
-                    Transportadora
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-3 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400"
-                  >
-                    NF-e
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-3 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400"
-                  >
-                    Mercadoria
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-3 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400"
-                  >
-                    Frete
-                  </th>
-                  <th
-                    scope="col"
-                    className="px-3 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400"
-                  >
-                    % CT-e sobre a nota
-                  </th>
-                </tr>
-              </thead>
-              <tbody>
-                {pagina.map((g) => {
-                  const pct = g.pctSobreNf ?? g.pctCalculado
-                  return (
-                    <tr
-                      key={g.chave}
-                      className="border-b border-slate-100 last:border-0 dark:border-slate-800/60"
-                    >
-                      <td className="py-2 pr-2">
-                        <input
-                          type="checkbox"
-                          checked={selecionados.has(g.chave)}
-                          onChange={() => alternar(g.chave)}
-                          aria-label={`Selecionar CT-e ${g.numero ?? g.chave}`}
-                          className="rounded"
-                        />
-                      </td>
-                      <td className="py-2 pr-3 font-medium text-slate-700 dark:text-slate-200">
-                        {g.numero}
-                        {g.serie ? `/${g.serie}` : ""}
-                      </td>
-                      <td className="px-3 py-2 text-slate-600 dark:text-slate-300">{g.data ?? "—"}</td>
-                      <td className="max-w-[220px] truncate px-3 py-2 text-slate-600 dark:text-slate-300">
-                        {g.transportadora}
-                      </td>
-                      <td className="px-3 py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">
-                        {g.nfs.length}
-                      </td>
-                      <td className="px-3 py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">
-                        {formatarMoeda(g.somaNf ?? g.somaNfCalculada)}
-                      </td>
-                      <td className="px-3 py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">
-                        {formatarMoeda(freteCte(g))}
-                      </td>
-                      <td className="px-3 py-2 text-right">
-                        <BadgeFaixaFrete
-                          faixa={classificarFaixaFrete(pct)}
-                          pct={pct}
-                          compacto
-                        />
-                      </td>
-                    </tr>
-                  )
-                })}
-              </tbody>
-            </table>
+          <>
+            {/* Cards de resumo no topo do modal */}
+            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-6 px-4 py-3 border-b border-slate-200 dark:border-slate-800 bg-slate-50/50 dark:bg-slate-900/50">
+              <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+                <p className="text-[10px] font-medium uppercase text-slate-400">Peso Bruto</p>
+                <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
+                  {formatarPeso(pesoBrutoTotal || null)}
+                </p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+                <p className="text-[10px] font-medium uppercase text-slate-400">Peso Líquido</p>
+                <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
+                  {formatarPeso(pesoLiquidoTotal || null)}
+                </p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+                <p className="text-[10px] font-medium uppercase text-slate-400">Peso Embalagem</p>
+                <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
+                  {formatarPeso(pesoEmbalagemTotal || null)}
+                </p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+                <p className="text-[10px] font-medium uppercase text-slate-400">Mercadoria</p>
+                <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
+                  {formatarMoeda(mercadoriaTotal || null)}
+                </p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+                <p className="text-[10px] font-medium uppercase text-slate-400">Frete</p>
+                <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
+                  {formatarMoeda(freteTotal || null)}
+                </p>
+              </div>
+              <div className="rounded-xl border border-slate-200 bg-white p-3 dark:border-slate-800 dark:bg-slate-900">
+                <p className="text-[10px] font-medium uppercase text-slate-400">% CT-e / Nota (média)</p>
+                <p className="mt-1 text-lg font-semibold text-slate-900 dark:text-slate-100 tabular-nums">
+                  {formatarPercentual(mediaPct)}
+                </p>
+              </div>
+            </div>
 
-            {restantes > 0 && (
-              <button
-                type="button"
-                onClick={() => setVisiveis((v) => v + CTES_POR_PAGINA)}
-                className="mt-3 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
-              >
-                {`Mostrar mais ${restantes} CT-e(s)`}
-                <span className="ml-1 font-normal text-slate-500 dark:text-slate-400">
-                  {`(mostrando ${pagina.length} de ${grupos.length})`}
-                </span>
-              </button>
-            )}
-          </div>
+            <div className="overflow-auto p-4">
+              <table className="w-full min-w-[1100px] text-sm">
+                <thead>
+                  <tr className="border-b border-slate-200 dark:border-slate-800">
+                    <th scope="col" className="py-2 pr-2 text-left">
+                      <input
+                        type="checkbox"
+                        checked={todosSelecionados}
+                        onChange={alternarTodos}
+                        aria-label="Selecionar todos os CT-es"
+                        className="rounded"
+                      />
+                    </th>
+                    <th
+                      scope="col"
+                      className="py-2 pr-3 text-left text-xs font-medium text-slate-500 dark:text-slate-400"
+                    >
+                      CT-e
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400"
+                    >
+                      Emissão
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-2 text-left text-xs font-medium text-slate-500 dark:text-slate-400"
+                    >
+                      Transportadora
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400"
+                    >
+                      NF-e
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400"
+                    >
+                      Peso Bruto
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400"
+                    >
+                      Peso Líquido
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400"
+                    >
+                      Peso Embalagem
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400"
+                    >
+                      Mercadoria
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400"
+                    >
+                      Frete
+                    </th>
+                    <th
+                      scope="col"
+                      className="px-3 py-2 text-right text-xs font-medium text-slate-500 dark:text-slate-400"
+                    >
+                      % CT-e sobre a nota
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {pagina.map((g) => {
+                    const pct = g.pctSobreNf ?? g.pctCalculado
+                    return (
+                      <tr
+                        key={g.chave}
+                        className="border-b border-slate-100 last:border-0 dark:border-slate-800/60"
+                      >
+                        <td className="py-2 pr-2">
+                          <input
+                            type="checkbox"
+                            checked={selecionados.has(g.chave)}
+                            onChange={() => alternar(g.chave)}
+                            aria-label={`Selecionar CT-e ${g.numero ?? g.chave}`}
+                            className="rounded"
+                          />
+                        </td>
+                        <td className="py-2 pr-3 font-medium text-slate-700 dark:text-slate-200">
+                          {g.numero}
+                          {g.serie ? `/${g.serie}` : ""}
+                        </td>
+                        <td className="px-3 py-2 text-slate-600 dark:text-slate-300">{g.data ?? "—"}</td>
+                        <td className="max-w-[220px] truncate px-3 py-2 text-slate-600 dark:text-slate-300">
+                          {g.transportadora}
+                        </td>
+                        <td className="px-3 py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">
+                          {g.nfs.length}
+                        </td>
+                        <td className="px-3 py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">
+                          {formatarPeso(g.pesoBruto)}
+                        </td>
+                        <td className="px-3 py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">
+                          {formatarPeso(g.pesoLiquido)}
+                        </td>
+                        <td className="px-3 py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">
+                          {formatarPeso(g.pesoEmbalagem)}
+                        </td>
+                        <td className="px-3 py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">
+                          {formatarMoeda(g.somaNf ?? g.somaNfCalculada)}
+                        </td>
+                        <td className="px-3 py-2 text-right tabular-nums text-slate-600 dark:text-slate-300">
+                          {formatarMoeda(freteCte(g))}
+                        </td>
+                        <td className="px-3 py-2 text-right">
+                          <BadgeFaixaFrete
+                            faixa={classificarFaixaFrete(pct)}
+                            pct={pct}
+                            compacto
+                          />
+                        </td>
+                      </tr>
+                    )
+                  })}
+                </tbody>
+              </table>
+
+              {restantes > 0 && (
+                <button
+                  type="button"
+                  onClick={() => setVisiveis((v) => v + CTES_POR_PAGINA)}
+                  className="mt-3 w-full rounded-lg border border-slate-200 px-3 py-2 text-sm font-medium text-slate-600 transition-colors hover:bg-slate-50 dark:border-slate-700 dark:text-slate-300 dark:hover:bg-slate-800"
+                >
+                  {`Mostrar mais ${restantes} CT-e(s)`}
+                  <span className="ml-1 font-normal text-slate-500 dark:text-slate-400">
+                    {`(mostrando ${pagina.length} de ${grupos.length})`}
+                  </span>
+                </button>
+              )}
+            </div>
+          </>
         )}
 
         <div className="flex flex-wrap items-center justify-between gap-3 border-t border-slate-200 p-4 dark:border-slate-800">

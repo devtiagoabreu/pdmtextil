@@ -90,6 +90,12 @@ export interface GrupoCte {
   pctCalculado: number | null
   /** Rateio dos itens não bate com o total do CT-e (inconsistência de cadastro no ERP). */
   rateioDivergente: boolean
+  /** Peso bruto somado das NF-e do CT-e (`nf_od_peso_bruto`). */
+  pesoBruto: number | null
+  /** Peso líquido somado das NF-e do CT-e (`nf_od_peso_liquido`). */
+  pesoLiquido: number | null
+  /** Peso da embalagem = peso bruto - peso líquido. */
+  pesoEmbalagem: number | null
   nfs: LinhaCte[]
 }
 
