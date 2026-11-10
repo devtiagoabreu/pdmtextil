@@ -7,6 +7,7 @@ import { Label } from "@/components/ui/label"
 import {
   ChevronDown,
   ChevronRight,
+  Copy,
   FileText,
   FlaskConical,
   Loader2,
@@ -30,6 +31,7 @@ interface Props {
   setAmostraLinksAberta: (v: number | null) => void
   onSaveAmostraLinks: (amostraId: number, links: LinkItem[]) => void
   onExcluirAmostra: (a: Amostra) => void
+  onCopiarAmostra: (amostraId: number) => void
   novaAmostraDescricao: string
   setNovaAmostraDescricao: (v: string) => void
   novaAmostraObs: string
@@ -50,6 +52,7 @@ interface Props {
   onSaveAcabAmostraLinks: (acabamentoId: number, amostraId: number, links: LinkItem[]) => void
   onExcluirAcabamento: (a: Acabamento) => void
   onExcluirAmostraAcabamento: (acabamentoId: number, asid: number) => void
+  onCopiarAmostraAcabamento: (acabamentoId: number, asid: number) => void
   novoAcabamentoTipo: string
   setNovoAcabamentoTipo: (v: string) => void
   novoAcabamentoDescricao: string
@@ -77,6 +80,7 @@ export function AmostrasTab({
   setAmostraLinksAberta,
   onSaveAmostraLinks,
   onExcluirAmostra,
+  onCopiarAmostra,
   novaAmostraDescricao,
   setNovaAmostraDescricao,
   novaAmostraObs,
@@ -97,6 +101,7 @@ export function AmostrasTab({
   onSaveAcabAmostraLinks,
   onExcluirAcabamento,
   onExcluirAmostraAcabamento,
+  onCopiarAmostraAcabamento,
   novoAcabamentoTipo,
   setNovoAcabamentoTipo,
   novoAcabamentoDescricao,
@@ -204,6 +209,16 @@ export function AmostrasTab({
                       onClick={() => onEditarAmostra(a)}
                     >
                       Editar
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="ghost"
+                      size="icon"
+                      className="text-xs"
+                      onClick={() => onCopiarAmostra(a.id)}
+                      title="Copiar amostra"
+                    >
+                      <Copy size={14} />
                     </Button>
                     <Button
                       type="button"
@@ -362,67 +377,77 @@ export function AmostrasTab({
                                   </p>
                                 )}
                               </div>
-                              <div className="flex items-center gap-1">
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-xs h-6"
-                                  onClick={() => onGerarPdfAmostra(as, "ACABAMENTO")}
-                                  disabled={gerandoPdf === `ACABAMENTO-${as.id}`}
-                                >
-                                  {gerandoPdf === `ACABAMENTO-${as.id}` ? (
-                                    <Loader2 size={12} className="animate-spin" />
-                                  ) : (
-                                    <FileText size={12} />
-                                  )}
-                                </Button>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="sm"
-                                  className="text-xs h-6"
-                                  onClick={() =>
-                                    setAcabAmostraLinksAberta(
-                                      acabAmostraLinksAberta === key ? null : key
-                                    )
-                                  }
-                                >
-                                  Links {as.links?.length ? `(${as.links.length})` : ""}
-                                </Button>
-                                <select
-                                  value={as.status}
-                                  onChange={(e) =>
-                                    onUpdateStatusAmostraAcabamento(acab.id, as.id, e.target.value)
-                                  }
-                                  className={`text-xs rounded-full px-2 py-0.5 border-0 font-medium cursor-pointer ${
-                                    as.status.startsWith("APROVADA")
-                                      ? "bg-green-100 text-green-700"
-                                      : as.status === "REPROVADA"
-                                        ? "bg-red-100 text-red-700"
-                                        : "bg-yellow-100 text-yellow-700"
-                                  }`}
-                                >
-                                  {statusOptionsAmostra.map((s) => (
-                                    <option
-                                      key={s.value}
-                                      value={s.value}
-                                      className="bg-white text-slate-900"
-                                    >
-                                      {s.label}
-                                    </option>
-                                  ))}
-                                </select>
-                                <Button
-                                  type="button"
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-6 w-6"
-                                  onClick={() => onExcluirAmostraAcabamento(acab.id, as.id)}
-                                >
-                                  <Trash2 size={12} />
-                                </Button>
-                              </div>
+<div className="flex items-center gap-1">
+                                 <Button
+                                   type="button"
+                                   variant="ghost"
+                                   size="sm"
+                                   className="text-xs h-6"
+                                   onClick={() => onGerarPdfAmostra(as, "ACABAMENTO")}
+                                   disabled={gerandoPdf === `ACABAMENTO-${as.id}`}
+                                 >
+                                   {gerandoPdf === `ACABAMENTO-${as.id}` ? (
+                                     <Loader2 size={12} className="animate-spin" />
+                                   ) : (
+                                     <FileText size={12} />
+                                   )}
+                                 </Button>
+                                 <Button
+                                   type="button"
+                                   variant="ghost"
+                                   size="sm"
+                                   className="text-xs h-6"
+                                   onClick={() =>
+                                     setAcabAmostraLinksAberta(
+                                       acabAmostraLinksAberta === key ? null : key
+                                     )
+                                   }
+                                 >
+                                   Links {as.links?.length ? `(${as.links.length})` : ""}
+                                 </Button>
+                                 <Button
+                                   type="button"
+                                   variant="ghost"
+                                   size="icon"
+                                   className="h-6 w-6"
+                                   onClick={() => onCopiarAmostraAcabamento(acab.id, as.id)}
+                                   title="Copiar amostra"
+                                 >
+                                   <Copy size={14} />
+                                 </Button>
+                                 <select
+                                   value={as.status}
+                                   onChange={(e) =>
+                                     onUpdateStatusAmostraAcabamento(acab.id, as.id, e.target.value)
+                                   }
+                                   className={`text-xs rounded-full px-2 py-0.5 border-0 font-medium cursor-pointer ${
+                                     as.status.startsWith("APROVADA")
+                                       ? "bg-green-100 text-green-700"
+                                       : as.status === "REPROVADA"
+                                         ? "bg-red-100 text-red-700"
+                                         : "bg-yellow-100 text-yellow-700"
+                                   }`}
+                                 >
+                                   {statusOptionsAmostra.map((s) => (
+                                     <option
+                                       key={s.value}
+                                       value={s.value}
+                                       className="bg-white text-slate-900"
+                                     >
+                                       {s.label}
+                                     </option>
+                                   ))}
+                                 </select>
+                                 <Button
+                                   type="button"
+                                   variant="ghost"
+                                   size="icon"
+                                   className="h-6 w-6"
+                                   onClick={() => onExcluirAmostraAcabamento(acab.id, as.id)}
+                                 >
+                                   <Trash2 size={12} />
+                                 </Button>
+                               </div>
                             </div>
                             {acabAmostraLinksAberta === key && (
                               <div className="ml-4 mb-2 p-3 bg-white dark:bg-slate-800 rounded-lg border">

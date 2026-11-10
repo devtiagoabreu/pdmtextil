@@ -776,6 +776,66 @@ export default function ProdutoCruFormPage() {
     }
   }
 
+  const copyAmostra = async (amostraId: number) => {
+    if (!id) {
+      toast.error("Salve o produto primeiro")
+      return
+    }
+    const amostra = amostras.find((a) => a.id === amostraId)
+    if (!amostra) return
+    try {
+      const res = await fetch(`/api/cadastros/produto-cru/${id}/amostras`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          descricao: amostra.descricao || null,
+          observacoes: amostra.observacoes || null,
+          quantidadeProduzida: amostra.quantidadeProduzida || null,
+          idIntegracaoErpCru: amostra.idIntegracaoErpCru || null,
+          dados: amostra.dados,
+        }),
+      })
+      if (!res.ok) throw new Error()
+      const item = await res.json()
+      setAmostras([...amostras, item])
+      toast.success("Amostra copiada")
+    } catch {
+      toast.error("Erro ao copiar amostra")
+    }
+  }
+
+  const copyAmostraAcabamento = async (acabamentoId: number, asid: number) => {
+    if (!id) return
+    const acabamento = acabamentos.find((a) => a.id === acabamentoId)
+    if (!acabamento) return
+    const amostra = acabamento.amostras.find((as) => as.id === asid)
+    if (!amostra) return
+    try {
+      const res = await fetch(
+        `/api/cadastros/produto-cru/${id}/acabamentos/${acabamentoId}/amostras`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            descricao: amostra.descricao || null,
+            quantidadeProduzida: amostra.quantidadeProduzida || null,
+            dados: amostra.dados,
+          }),
+        }
+      )
+      if (!res.ok) throw new Error()
+      const item = await res.json()
+      setAcabamentos(
+        acabamentos.map((a) =>
+          a.id === acabamentoId ? { ...a, amostras: [...a.amostras, item] } : a
+        )
+      )
+      toast.success("Amostra copiada")
+    } catch {
+      toast.error("Erro ao copiar amostra")
+    }
+  }
+
   const confirmarMotivo = async () => {
     const { target, novoStatus } = motivoModal
     if (target.type === "amostra") {
@@ -923,6 +983,7 @@ export default function ProdutoCruFormPage() {
             setAmostraLinksAberta={setAmostraLinksAberta}
             onSaveAmostraLinks={saveAmostraLinks}
             onExcluirAmostra={excluirAmostra}
+            onCopiarAmostra={copyAmostra}
             novaAmostraDescricao={novaAmostraDescricao}
             setNovaAmostraDescricao={setNovaAmostraDescricao}
             novaAmostraObs={novaAmostraObs}
@@ -943,6 +1004,7 @@ export default function ProdutoCruFormPage() {
             onSaveAcabAmostraLinks={saveAcabAmostraLinks}
             onExcluirAcabamento={excluirAcabamento}
             onExcluirAmostraAcabamento={excluirAmostraAcabamento}
+            onCopiarAmostraAcabamento={copyAmostraAcabamento}
             novoAcabamentoTipo={novoAcabamentoTipo}
             setNovoAcabamentoTipo={setNovoAcabamentoTipo}
             novoAcabamentoDescricao={novoAcabamentoDescricao}
